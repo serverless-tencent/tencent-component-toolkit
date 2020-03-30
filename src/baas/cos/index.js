@@ -1,4 +1,5 @@
 const {cos} = require('tencent-cloud-sdk')
+const cdn = require('../cdn/index')
 const util = require('util')
 const path = require('path')
 const fs = require('fs')
@@ -373,22 +374,35 @@ class CosUtils {
 	}
 
 	async website(inputs = {}) {
+
+		await this.createBucket(inputs)
+
+		inputs.acl = {
+			permissions: 'public-read',
+			grantRead: '',
+			grantWrite: '',
+			grantFullControl: ''
+		}
+		await this.setAcl(inputs)
+
+		await this.setWebsite(inputs)
+
+		// Build environment variables
 		const envPath = inputs.code.envPath || inputs.code.root
 		if (inputs.env && Object.keys(inputs.env).length && envPath) {
 			let script = 'window.env = {};\n'
 			inputs.env = inputs.env || {}
 			for (const e in inputs.env) {
-				// eslint-disable-line
-				script += `window.env.${e} = ${JSON.stringify(inputs.env[e])};\n` // eslint-disable-line
+				script += `window.env.${e} = ${JSON.stringify(inputs.env[e])};\n`
 			}
 			const envFilePath = path.join(envPath, 'env.js')
-			await utils.writeFile(envFilePath, script)
+			await fs.writeFileSync(envFilePath, script)
 		}
 
 
 		// If a hook is provided, build the website
 		if (inputs.code.hook) {
-			const options = { cwd: inputs.code.root }
+			const options = {cwd: inputs.code.root}
 			try {
 				await exec(inputs.code.hook, options)
 			} catch (err) {
@@ -398,6 +412,34 @@ class CosUtils {
 			}
 		}
 
+		// upload
+		const dirToUploadPath = inputs.code.src || inputs.code.root
+		const uploadDict = {
+			bucket: inputs.bucket
+		}
+		if (fs.lstatSync(dirToUploadPath).isDirectory()) {
+			uploadDict.dir = dirToUploadPath
+		} else {
+			uploadDict.file = dirToUploadPath
+		}
+		await this.upload(uploadDict)
+
+		// add user domain
+		if (inputs.hosts && inputs.hosts.length > 0) {
+			const cosOriginAdd = `${inputs.bucket}.cos-website.${this.region}.myqcloud.com`
+			for (let i = 0; i < inputs.hosts.length; i++) {
+				const cdnInputs = inputs.hosts[i]
+				cdnInputs.hostType = 'cos'
+				cdnInputs.serviceType = 'web'
+				cdnInputs.fwdHost = cosOriginAdd
+				cdnInputs.origin = cosOriginAdd
+			}
+			const cdn = new Cdn(this.credentials, this.region)
+			const outputs = await cdn.deploy(inputs)
+			inputs.cndOutput = outputs
+		}
+
+		return inputs
 	}
 
 	async deploy(inputs = {}) {
