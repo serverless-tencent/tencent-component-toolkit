@@ -1,5 +1,4 @@
 const {cos} = require('tencent-cloud-sdk')
-const cdn = require('../cdn/index')
 const util = require('util')
 const path = require('path')
 const fs = require('fs')
@@ -424,22 +423,7 @@ class CosUtils {
 		}
 		await this.upload(uploadDict)
 
-		// add user domain
-		if (inputs.hosts && inputs.hosts.length > 0) {
-			const cosOriginAdd = `${inputs.bucket}.cos-website.${this.region}.myqcloud.com`
-			for (let i = 0; i < inputs.hosts.length; i++) {
-				const cdnInputs = inputs.hosts[i]
-				cdnInputs.hostType = 'cos'
-				cdnInputs.serviceType = 'web'
-				cdnInputs.fwdHost = cosOriginAdd
-				cdnInputs.origin = cosOriginAdd
-			}
-			const cdn = new Cdn(this.credentials, this.region)
-			const outputs = await cdn.deploy(inputs)
-			inputs.cndOutput = outputs
-		}
-
-		return inputs
+		return `${inputs.bucket}.cos-website.${this.region}.myqcloud.com`
 	}
 
 	async deploy(inputs = {}) {
