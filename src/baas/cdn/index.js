@@ -16,11 +16,11 @@ class Cdn {
   }
 
   async deploy(inputs = {}) {
-    inputs.projectId = 0
     const {
       host,
       hostType,
       origin,
+      oldState = {},
       backupOrigin = '',
       serviceType = 'web',
       fullUrl = 'off',
@@ -71,7 +71,7 @@ class Cdn {
         sourceBaseConf[key] = sourceInputs[key]
       }
     })
-    const state = {
+    const outputs = {
       host: host,
       origin: origin,
       cname: `${host}.cdn.dnsv1.com`,
@@ -79,11 +79,6 @@ class Cdn {
         base: JSON.stringify(sourceBaseConf),
         https: JSON.stringify(sourceHttpsConf)
       }
-    }
-    const outputs = {
-      host: host,
-      origin: origin,
-      cname: `${host}.cdn.dnsv1.com`
     }
 
     const createOrUpdateCdn = async () => {
@@ -93,9 +88,7 @@ class Cdn {
         console.debug('Updating...')
         cdnInputs.hostId = cdnInfo.id
         await UpdateCdnConfig(capi, cdnInputs)
-        state.hostId = cdnInfo.id
-        state.updated = true
-        outputs.log.hostId = cdnInfo.id
+        outputs.hostId = cdnInfo.id
       } else {
         // create
         console.debug(`Adding CDN domain ${host}...`)
@@ -119,7 +112,6 @@ class Cdn {
         targetResponse: 5,
         timeout: TIMEOUT
       })
-      await waitForNotStatus(capi, host)
       console.debug(`CDN deploy success to host: ${host}`)
     }
 
@@ -153,7 +145,7 @@ class Cdn {
           httpsType: 0
         }
         await SetHttpsInfo(capi, httpsInputs)
-        outputs.log.https = false
+        outputs.https = false
       }
       await waitResponse({
         callback: async () => getCdnByHost(capi, host),
@@ -164,17 +156,17 @@ class Cdn {
     }
 
     // pass state for cache check
-    const { inputCache } = inputs.state
+    const { inputCache } = oldState
     if (inputCache && inputCache.base === JSON.stringify(sourceBaseConf)) {
       console.debug(`No base configuration changes for CDN domain ${host}`)
-      outputs.log.hostId = cdnInfo.id
+      outputs.hostId = cdnInfo.id
     } else {
       await createOrUpdateCdn()
     }
 
     if (inputCache && inputCache.https === JSON.stringify(sourceHttpsConf)) {
       console.debug(`No https configuration changes for CDN domain ${host}`)
-      outputs.log.https = !!sourceHttpsConf
+      outputs.https = !!sourceHttpsConf
     } else {
       await creatOrUpdateHttps()
     }
@@ -190,6 +182,9 @@ class Cdn {
     })
 
     const { host } = inputs
+    if (!host) {
+      throw new Error('host is required')
+    }
 
     // need circle for deleting, after host status is 6, then we can delete it
     console.debug(`Start removing CDN for ${host}`)

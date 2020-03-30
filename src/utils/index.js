@@ -85,9 +85,16 @@ function flatten(source) {
   return ret
 }
 
+function uniqueArray(arr) {
+  return arr.filter((item, index, self) => {
+    return self.indexOf(item) === index
+  })
+}
+
 module.exports = {
   isArray,
   isObject,
   _forEach,
-  flatten
+  flatten,
+  uniqueArray
 }
