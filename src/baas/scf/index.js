@@ -7,7 +7,7 @@ const defaultNamespace = 'default'
 const defaultMemorySize = 128
 const defaultTimeout = 3
 
-class ScfUtils {
+class Scf {
   constructor(credentials = {}, region) {
     this.region = region || 'ap-guangzhou'
     this.credentials = credentials
@@ -523,4 +523,4 @@ class ScfUtils {
   }
 }
 
-module.exports = ScfUtils
+module.exports = Scf

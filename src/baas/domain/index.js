@@ -1,5 +1,5 @@
 const { domain } = require('tencent-cloud-sdk')
-class DomainUtils {
+class Domain {
   constructor(credentials = {}, region = 'ap-guangzhou') {
     this.credentials = credentials
     this.region = region
@@ -33,4 +33,4 @@ class DomainUtils {
   }
 }
 
-module.exports = DomainUtils
+module.exports = Domain

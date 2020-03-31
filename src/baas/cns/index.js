@@ -1,5 +1,5 @@
 const { cns } = require('tencent-cloud-sdk')
-class CnsUtils {
+class Cns {
   constructor(credentials = {}, region = 'ap-guangzhou') {
     this.region = region
     this.credentials = credentials
@@ -214,4 +214,4 @@ class CnsUtils {
   }
 }
 
-module.exports = CnsUtils
+module.exports = Cns

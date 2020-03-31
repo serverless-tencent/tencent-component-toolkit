@@ -1,7 +1,7 @@
 const { apigw } = require('tencent-cloud-sdk')
 const { uniqueArray } = require('../../utils/index')
 
-class ApigwBaas {
+class Apigw {
   constructor(credentials = {}, region) {
     this.region = region || 'ap-guangzhou'
     this.credentials = credentials
@@ -436,4 +436,4 @@ class ApigwBaas {
   }
 }
 
-module.exports = ApigwBaas
+module.exports = Apigw

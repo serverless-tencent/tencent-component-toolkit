@@ -1,5 +1,5 @@
 const { tag } = require('tencent-cloud-sdk')
-class CnsUtils {
+class Tag {
   constructor(credentials = {}, region = 'ap-guangzhou') {
     this.credentials = credentials
     this.region = region
@@ -42,4 +42,4 @@ class CnsUtils {
   }
 }
 
-module.exports = CnsUtils
+module.exports = Tag

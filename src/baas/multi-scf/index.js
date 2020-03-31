@@ -1,6 +1,6 @@
 const scfUtils = require('../scf/index')
 
-class TencentSCFMultiRegion {
+class MultiScf {
   constructor(credentials = {}, region) {
     this.regionList = typeof region == 'string' ? [region] : region
     this.credentials = credentials
@@ -78,4 +78,4 @@ class TencentSCFMultiRegion {
   }
 }
 
-module.exports = TencentSCFMultiRegion
+module.exports = MultiScf

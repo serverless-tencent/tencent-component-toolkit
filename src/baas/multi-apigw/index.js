@@ -1,6 +1,6 @@
 const apigwUtils = require('../apigw/index')
 
-class TencentAPIGWMultiRegion {
+class MultiApigw {
   constructor(credentials = {}, region) {
     this.regionList = typeof region == 'string' ? [region] : region
     this.credentials = credentials
@@ -86,4 +86,4 @@ class TencentAPIGWMultiRegion {
 }
 
 // don't forget to export the new Componnet you created!
-module.exports = TencentAPIGWMultiRegion
+module.exports = MultiApigw

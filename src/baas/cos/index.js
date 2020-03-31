@@ -5,7 +5,7 @@ const fs = require('fs')
 const klawSync = require('klaw-sync')
 const exec = util.promisify(require('child_process').exec)
 
-class CosUtils {
+class Cos {
   constructor(credentials = {}, region = 'ap-guangzhou') {
     this.region = region
     this.credentials = credentials
@@ -501,4 +501,4 @@ class CosUtils {
   }
 }
 
-module.exports = CosUtils
+module.exports = Cos
