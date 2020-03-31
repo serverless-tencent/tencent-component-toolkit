@@ -2,51 +2,67 @@ const secret = require('../../../../secret')
 const ScfUtils = require('./index')
 
 class ClientTest {
-  async scfTest() {
-    const scf = new ScfUtils({
-      SecretId: secret.SecretId,
-      SecretKey: secret.SecretKey
-    })
-    const scfDemo = {
-      name: 'myFunction1',
-      code: {
-        bucket: 'sls-cloudfunction-ap-guangzhou',
-        object: 'sls-cloudfunction-default-hello_world-1584670117.zip'
-      },
-      handler: 'index.main_handler',
-      runtime: 'Python3.6',
-      role: 'SCF_PythonLogsRole',
-      // eip: true,
-      region: 'ap-guangzhou',
-      description: 'My Serverless Function',
-      memorySize: '256',
-      timeout: '20',
-      tags: {
-        mytest: 'abc'
-      },
-      environment: {
-        variables: {
-          TEST: 'value'
-        }
-      },
-      events: [
-        {
-          timer: {
-            name: 'timer',
-            parameters: {
-              cronExpression: '*/6 * * * *',
-              enable: true,
-              argument: 'mytest argument'
-            }
-          }
-        }
-      ]
-    }
-    const result = await scf.deploy(scfDemo)
-    console.log(JSON.stringify(result))
-    console.log(await scf.invoke(result.FunctionName))
-    await scf.remove({ funcInfo: { functionName: result.FunctionName } })
-  }
+	async scfTest() {
+		const scf = new ScfUtils({
+			SecretId: secret.SecretId,
+			SecretKey: secret.SecretKey
+		})
+		const scfDemo = {
+			name: 'myFunction1',
+			code: {
+				bucket: 'sls-cloudfunction-ap-guangzhou',
+				object: 'sls-cloudfunction-default-hello_world-1584670117.zip'
+			},
+			handler: 'index.main_handler',
+			runtime: 'Python3.6',
+			role: 'SCF_PythonLogsRole',
+			// eip: true,
+			region: 'ap-shanghai',
+			description: 'My Serverless Function',
+			memorySize: '256',
+			timeout: '20',
+			tags: {
+				mytest: 'abc'
+			},
+			environment: {
+				variables: {
+					TEST: 'value'
+				}
+			},
+			events: [
+				{
+					timer: {
+						name: 'timer',
+						parameters: {
+							cronExpression: '*/6 * * * *',
+							enable: true,
+							argument: 'mytest argument'
+						}
+					}
+				},
+				{
+					apigw: {
+						name: 'serverless',
+						parameters: {
+							protocols: ['http'],
+							serviceName: 'serverless',
+							description: 'the serverless service',
+							environment: 'release',
+							endpoints: [{
+								path: '/users',
+								method: 'POST'
+							}]
+						}
+
+					}
+				}
+			]
+		}
+		const result = await scf.deploy(scfDemo)
+		console.log(JSON.stringify(result))
+		console.log(await scf.invoke(result.FunctionName))
+		await scf.remove(result)
+	}
 }
 
 new ClientTest().scfTest()
