@@ -270,8 +270,7 @@ class ScfUtils {
           const thisTrigger = inputs.events[i]['apigw']['parameters']
           thisTrigger.region = this.region
           const endpoints = []
-          for (let i = 0; i < thisTrigger.endpoints.length; i++) {
-            const endpoint = event.parameters.endpoints[i]
+          thisTrigger.endpoints.forEach((endpoint) => {
             if (endpoint.function) {
               endpoint.function['functionName'] = funcInfo.FunctionName
             } else {
@@ -281,7 +280,7 @@ class ScfUtils {
               }
             }
             endpoints.push(endpoint)
-          }
+          })
           thisTrigger.serviceName = thisTrigger.serviceName || inputs.events[i]['apigw']['name']
           thisTrigger.endpoints = endpoints
           deployThisTriggerResult = await this.apigwClient.deploy(thisTrigger)

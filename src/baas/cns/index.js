@@ -183,13 +183,10 @@ class CnsUtils {
   }
 
   async remove(inputs = {}) {
-
     const deleteList = inputs.deleteList || []
 
     if (deleteList.length > 0) {
-      console.log(
-        `Deleting records which deployed by this project, but not in this records list. `
-      )
+      console.log(`Deleting records which deployed by this project, but not in this records list. `)
       for (let recordNum = 0; recordNum < deleteList.length; recordNum++) {
         console.log(
           `Deleting record ${deleteList[recordNum].subDomain} ${deleteList[recordNum].recordId} `

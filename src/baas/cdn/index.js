@@ -1,14 +1,7 @@
 const { Capi } = require('@tencent-sdk/capi')
 const { waitResponse } = require('@ygkit/request')
 const { AddCdnHost, SetHttpsInfo, UpdateCdnConfig, OfflineHost, DeleteCdnHost } = require('./apis')
-const {
-  TIMEOUT,
-  formatCache,
-  formatRefer,
-  getCdnByHost,
-  getPathContent,
-  waitForNotStatus
-} = require('./utils')
+const { TIMEOUT, formatCache, formatRefer, getCdnByHost, getPathContent } = require('./utils')
 
 class Cdn {
   constructor(credentials = {}) {
