@@ -20,12 +20,13 @@
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged",
-      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
+      "pre-push": "npm run lint:fix && npm run prettier:fix"
     }
   },
   "lint-staged": {
     "**/*.{js,ts,tsx}": [
-      "eslint --fix --ext .js,.ts,.tsx .",
+      "npm run lint:fix",
       "git add ."
     ],
     "**/*.{css,html,js,json,md,yaml,yml}": [

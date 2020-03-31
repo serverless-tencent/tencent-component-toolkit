@@ -37,8 +37,7 @@ module.exports = {
       '@semantic-release/npm',
       {
         pkgRoot: '.',
-        // TODO: set true for npm module project
-        npmPublish: false,
+        npmPublish: true,
         tarballDir: false
       }
     ],
