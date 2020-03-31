@@ -53,12 +53,13 @@ class ApigwBaas {
         })
       }
     } else {
-      detail = await this.request({
+      const createData = await this.request({
         Action: 'CreateService',
         serviceName: serviceName || 'Serverless_Framework',
         serviceDesc: serviceDesc || 'Created By Serverless Framework',
         protocol: protocols
       })
+      detail = createData.data
       serviceCreated = true
     }
 
