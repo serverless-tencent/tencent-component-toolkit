@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.0.0...v1.0.1) (2020-04-01)
+
+
+### Bug Fixes
+
+* cos missing module klaw-sync ([e97ef92](https://github.com/serverless-tencent/tencent-component-toolkit/commit/e97ef92be1093f808aa2a9a0d44be7e95c8fd0bc))
+
 # 1.0.0 (2020-03-31)
 
 
