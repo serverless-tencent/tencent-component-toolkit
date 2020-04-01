@@ -187,7 +187,7 @@ class Cos {
       const tempLifecycle = {
         ID: inputs.lifecycle[i].id,
         Status: inputs.lifecycle[i].status,
-        Filter: {}
+        Filter: inputs.lifecycle[i].filter ? {} : ''
       }
       if (inputs.lifecycle[i].filter && inputs.lifecycle[i].filter.prefix) {
         tempLifecycle.Filter.Prefix = inputs.lifecycle[i].filter.prefix
@@ -208,13 +208,13 @@ class Cos {
       }
       if (inputs.lifecycle[i].expiration) {
         tempLifecycle.Expiration = {
-          Days: Number(inputs.lifecycle[i].expiration.days),
+          Days: String(inputs.lifecycle[i].expiration.days),
           ExpiredObjectDeleteMarker: inputs.lifecycle[i].expiration.expiredObjectDeleteMarker
         }
       }
       if (inputs.lifecycle[i].abortIncompleteMultipartUpload) {
         tempLifecycle.AbortIncompleteMultipartUpload = {
-          DaysAfterInitiation: Number(
+          DaysAfterInitiation: String(
             inputs.lifecycle[i].abortIncompleteMultipartUpload.daysAfterInitiation
           )
         }
@@ -224,13 +224,15 @@ class Cos {
     const setLifecycleParams = {
       Bucket: inputs.bucket,
       Region: this.region,
-      Rules: lifecycle
+      Rules: lifecycle,
+      stsAction: 'cos:PutBucketLifeCycle'
     }
     const setLifecycleHandler = util.promisify(
       this.cosClient.putBucketLifecycle.bind(this.cosClient)
     )
+
     try {
-      await setLifecycleHandler(setLifecycleParams)
+      await setLifecycleHandler(JSON.parse(JSON.stringify(setLifecycleParams)))
     } catch (e) {
       throw new Error(JSON.stringify(e))
     }
