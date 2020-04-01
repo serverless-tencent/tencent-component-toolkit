@@ -71,6 +71,7 @@
   "dependencies": {
     "@tencent-sdk/capi": "0.2.15",
     "@ygkit/request": "^0.0.6",
+    "klaw-sync": "^6.0.0",
     "tencent-cloud-sdk": "^0.0.5"
   }
 }
