@@ -230,7 +230,7 @@ class Cos {
       this.cosClient.putBucketLifecycle.bind(this.cosClient)
     )
     try {
-      await setLifecycleHandler(setLifecycleParams)
+      await setLifecycleHandler(JSON.parse(JSON.stringify(setLifecycleParams)))
     } catch (e) {
       throw new Error(JSON.stringify(e))
     }
