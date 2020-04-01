@@ -71,6 +71,7 @@
   "dependencies": {
     "@tencent-sdk/capi": "0.2.15",
     "@ygkit/request": "^0.0.6",
-    "tencent-cloud-sdk": "^0.0.5"
+    "tencent-cloud-sdk": "^0.0.5",
+    "cos-nodejs-sdk-v5": "^2.5.20"
   }
 }

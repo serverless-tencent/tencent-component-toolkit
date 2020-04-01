@@ -3,6 +3,7 @@ const ScfUtils = require('./index')
 
 class ClientTest {
 	async scfTest() {
+		console.log(new Date())
 		const scf = new ScfUtils({
 			SecretId: secret.SecretId,
 			SecretKey: secret.SecretKey
@@ -15,53 +16,54 @@ class ClientTest {
 			},
 			handler: 'index.main_handler',
 			runtime: 'Python3.6',
-			role: 'SCF_PythonLogsRole',
+			// role: 'SCF_PythonLogsRole',
 			// eip: true,
 			region: 'ap-shanghai',
 			description: 'My Serverless Function',
 			memorySize: '256',
 			timeout: '20',
-			tags: {
-				mytest: 'abc'
-			},
-			environment: {
-				variables: {
-					TEST: 'value'
-				}
-			},
-			events: [
-				{
-					timer: {
-						name: 'timer',
-						parameters: {
-							cronExpression: '*/6 * * * *',
-							enable: true,
-							argument: 'mytest argument'
-						}
-					}
-				},
-				{
-					apigw: {
-						name: 'serverless',
-						parameters: {
-							protocols: ['http'],
-							serviceName: 'serverless',
-							description: 'the serverless service',
-							environment: 'release',
-							endpoints: [{
-								path: '/users',
-								method: 'POST'
-							}]
-						}
-
-					}
-				}
-			]
+			// tags: {
+			// 	mytest: 'abc'
+			// },
+			// environment: {
+			// 	variables: {
+			// 		TEST: 'value'
+			// 	}
+			// },
+			// events: [
+			// 	{
+			// 		timer: {
+			// 			name: 'timer',
+			// 			parameters: {
+			// 				cronExpression: '*/6 * * * *',
+			// 				enable: true,
+			// 				argument: 'mytest argument'
+			// 			}
+			// 		}
+			// 	},
+			// 	{
+			// 		apigw: {
+			// 			name: 'serverless',
+			// 			parameters: {
+			// 				protocols: ['http'],
+			// 				serviceName: 'serverless',
+			// 				description: 'the serverless service',
+			// 				environment: 'release',
+			// 				endpoints: [{
+			// 					path: '/users',
+			// 					method: 'POST'
+			// 				}]
+			// 			}
+			//
+			// 		}
+			// 	}
+			// ]
 		}
 		const result = await scf.deploy(scfDemo)
-		console.log(JSON.stringify(result))
-		console.log(await scf.invoke(result.FunctionName))
-		await scf.remove(result)
+		console.log(new Date())
+		// console.log(JSON.stringify(result))
+		// console.log(await scf.invoke(result.FunctionName))
+		// await scf.remove(result)
 	}
 }
 

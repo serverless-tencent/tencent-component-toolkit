@@ -8,7 +8,6 @@ class ClientTest {
 			SecretKey: secret.SecretKey
 		}, ['ap-shanghai', 'ap-guangzhou'])
 		const apigwDemo = {
-			region: 'ap-guangzhou',
 			protocols: ['http', 'https'],
 			serviceName: 'serverless',
 			environment: 'release',

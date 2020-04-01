@@ -8,7 +8,7 @@ class ClientTest {
 			SecretKey: secret.SecretKey
 		})
 		const cosDemo = {
-			bucket: 'my-bucket1-1256773370',
+			bucket: 'my-bucket-1256773370',
 			force: true,
 			acl: {
 				permissions: 'private'
@@ -34,15 +34,14 @@ class ClientTest {
 		console.log(JSON.stringify(result))
 		console.log(result)
 
+		await cos.upload({
+			bucket: 'my-bucket-1256773370',
+			dir: '/Users/dfounderliu/Desktop/ServerlessComponents/test/apigw_test'
+		})
 
-		// await cos.upload({
-		// 	bucket: 'my-bucket-1256773370',
-		// 	dir: '/Users/dfounderliu/Desktop/ServerlessComponents/test/apigw_test'
-		// })
-
-		// await cos.remove({
-		// 	bucket: 'my-bucket-1256773370'
-		// })
+		await cos.remove({
+			bucket: 'my-bucket-1256773370'
+		})
 
 	}
 }
