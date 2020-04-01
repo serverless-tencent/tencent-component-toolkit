@@ -18,7 +18,16 @@ class ClientTest {
 					key: 'test',
 					value: 'abcd'
 				}
-			]
+			],
+			rules: [
+				{
+					status: 'Enabled',
+					id: 'deleteObject',
+					filter: '',
+					expiration: { days: '10' },
+					abortIncompleteMultipartUpload: { daysAfterInitiation: '10' }
+				}
+			],
 		}
 		const result = await cos.deploy(cosDemo)
 		console.log(JSON.stringify(result))
