@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.0.1...v1.0.2) (2020-04-01)
+
+
+### Bug Fixes
+
+* cos lifecycle ([62f027e](https://github.com/serverless-tencent/tencent-component-toolkit/commit/62f027e85c815764a65194181a2b1fb8cbed2577))
+
 ## [1.0.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.0.0...v1.0.1) (2020-04-01)
 
 
