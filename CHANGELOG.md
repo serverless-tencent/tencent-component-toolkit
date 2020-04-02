@@ -1,3 +1,10 @@
+## [1.0.4](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.0.3...v1.0.4) (2020-04-02)
+
+
+### Bug Fixes
+
+* service not exist bug ([243b044](https://github.com/serverless-tencent/tencent-component-toolkit/commit/243b0447a60b5061c8dd4ace8ce1aac70013487a))
+
 ## [1.0.3](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.0.2...v1.0.3) (2020-04-02)
 
 
