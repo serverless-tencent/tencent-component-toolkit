@@ -32,27 +32,32 @@ class Apigw {
     } = serviceConf
     let serviceCreated = false
     let detail
+    let exist = false
     if (serviceId) {
-      detail = await this.request({
-        Action: 'DescribeService',
-        serviceId: serviceId
-      })
-      if (
-        !(
-          serviceName === detail.serviceName &&
-          serviceDesc === detail.serviceDesc &&
-          protocols === detail.protocol
-        )
-      ) {
-        await this.request({
-          Action: 'ModifyService',
-          serviceId,
-          serviceDesc: serviceDesc || detail.serviceDesc,
-          serviceName: serviceName || detail.serviceName,
-          protocol: protocols
+      try {
+        detail = await this.request({
+          Action: 'DescribeService',
+          serviceId: serviceId
         })
-      }
-    } else {
+        exist = true
+        if (
+          !(
+            serviceName === detail.serviceName &&
+            serviceDesc === detail.serviceDesc &&
+            protocols === detail.protocol
+          )
+        ) {
+          await this.request({
+            Action: 'ModifyService',
+            serviceId,
+            serviceDesc: serviceDesc || detail.serviceDesc,
+            serviceName: serviceName || detail.serviceName,
+            protocol: protocols
+          })
+        }
+      } catch (e) {}
+    }
+    if (!exist) {
       const createData = await this.request({
         Action: 'CreateService',
         serviceName: serviceName || 'Serverless_Framework',
