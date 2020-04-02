@@ -146,7 +146,7 @@ class Apigw {
       console.debug(`Updating api with api id ${endpoint.apiId}.`)
       await this.request({
         Action: 'ModifyApi',
-        apiId: endpoint.appId,
+        apiId: endpoint.apiId,
         ...apiInputs
       })
       output.apiId = endpoint.apiId
@@ -331,16 +331,20 @@ class Apigw {
     const { endpoints } = inputs
     for (let i = 0, len = endpoints.length; i < len; i++) {
       const endpoint = endpoints[i]
+      // if exist in state list, set created to be true
+      const [exist] = stateApiList.filter(
+        (item) =>
+          item.method.toLowerCase() === endpoint.method.toLowerCase() && item.path === endpoint.path
+      )
+
+      if (exist) {
+        endpoint.apiId = exist.apiId
+      }
       const curApi = await this.createOrUpdateApi({
         serviceId,
         endpoint
       })
-      // if exist in state list, set created to be true
-      const exists = stateApiList.filter(
-        (item) =>
-          item.method.toLowerCase() === endpoint.method.toLowerCase() && item.path === endpoint.path
-      )
-      if (exists && exists.length > 0) {
+      if (exist) {
         curApi.created = true
       }
 
