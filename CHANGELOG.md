@@ -1,3 +1,10 @@
+## [1.0.8](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.0.7...v1.0.8) (2020-04-03)
+
+
+### Bug Fixes
+
+* add service and api name output ([22c9591](https://github.com/serverless-tencent/tencent-component-toolkit/commit/22c95912bf29397efd1804968661b6f7d64ea47e))
+
 ## [1.0.7](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.0.6...v1.0.7) (2020-04-03)
 
 
