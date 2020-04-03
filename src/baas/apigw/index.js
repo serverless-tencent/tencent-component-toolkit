@@ -69,6 +69,7 @@ class Apigw {
     }
 
     return {
+      serviceName,
       serviceId: detail.serviceId,
       subDomain: detail.subDomain,
       serviceCreated
@@ -176,6 +177,7 @@ class Apigw {
       apiId: output.apiId
     })
     output.internalDomain = internalDomain
+    output.apiName = apiInputs.apiName
     return output
   }
 
@@ -340,7 +342,9 @@ class Apigw {
     const { oldState = {} } = inputs
     inputs.protocols = this.getProtocolString(inputs.protocols)
 
-    const { serviceId, subDomain, serviceCreated } = await this.createOrUpdateService(inputs)
+    const { serviceId, serviceName, subDomain, serviceCreated } = await this.createOrUpdateService(
+      inputs
+    )
 
     const apiList = []
     const stateApiList = oldState.apiList || []
@@ -387,6 +391,7 @@ class Apigw {
     const outputs = {
       created: serviceCreated,
       serviceId,
+      serviceName,
       subDomain,
       protocols: inputs.protocols,
       environment: inputs.environment,
