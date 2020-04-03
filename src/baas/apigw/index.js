@@ -139,7 +139,28 @@ class Apigw {
       apiInputs.requestParameters = endpoint.param
     }
 
-    if (!endpoint.apiId) {
+    let exist = false
+    if (endpoint.apiId) {
+      try {
+        const detail = await this.request({
+          Action: 'DescribeApi',
+          serviceId: serviceId,
+          apiId: endpoint.apiId
+        })
+        if (detail && detail.apiId) {
+          exist = true
+          console.debug(`Updating api with api id ${endpoint.apiId}.`)
+          await this.request({
+            Action: 'ModifyApi',
+            apiId: endpoint.apiId,
+            ...apiInputs
+          })
+          output.apiId = endpoint.apiId
+          console.debug(`Service with id ${output.apiId} updated.`)
+        }
+      } catch (e) {}
+    }
+    if (!exist) {
       const { apiId } = await this.request({
         Action: 'CreateApi',
         ...apiInputs
@@ -147,15 +168,6 @@ class Apigw {
       output.apiId = apiId
       output.created = true
       console.debug(`API with id ${output.apiId} created.`)
-    } else {
-      console.debug(`Updating api with api id ${endpoint.apiId}.`)
-      await this.request({
-        Action: 'ModifyApi',
-        apiId: endpoint.apiId,
-        ...apiInputs
-      })
-      output.apiId = endpoint.apiId
-      console.debug(`Service with id ${output.apiId} updated.`)
     }
 
     const { internalDomain } = await this.request({
