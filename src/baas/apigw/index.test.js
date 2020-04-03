@@ -40,6 +40,8 @@ async function runTest() {
   }
   const apigw = new Apigw(credentials, inputs.region)
   const outputs = await apigw.deploy(inputs)
+  console.log('outputs', outputs);
+
 
   await apigw.remove(outputs)
 }
