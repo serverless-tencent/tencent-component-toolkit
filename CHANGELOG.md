@@ -1,3 +1,10 @@
+## [1.0.5](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.0.4...v1.0.5) (2020-04-03)
+
+
+### Bug Fixes
+
+* fix cns dns information ([ecb99db](https://github.com/serverless-tencent/tencent-component-toolkit/commit/ecb99db33e0992a7e811115422ca2f4b62d61070))
+
 ## [1.0.4](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.0.3...v1.0.4) (2020-04-02)
 
 
