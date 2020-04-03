@@ -54,7 +54,7 @@ class Cns {
               Region: this.region,
               domain: inputs.domain
             })
-            output.DNS = 'Please set your domain DNS: f1g1ns1.dnspod.net | f1g1ns1.dnspod.net'
+            output.DNS = 'Please set your domain DNS: f1g1ns1.dnspod.net,  f1g1ns1.dnspod.net'
             console.log(`Added domain`)
           } catch (e) {
             // Domain添加错误，不影响主流程，继续尝试后面的工作
