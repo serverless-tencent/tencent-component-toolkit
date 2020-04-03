@@ -1,3 +1,10 @@
+## [1.0.7](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.0.6...v1.0.7) (2020-04-03)
+
+
+### Bug Fixes
+
+* api deleted by console bug ([0ae69e7](https://github.com/serverless-tencent/tencent-component-toolkit/commit/0ae69e7ab01c9d6f33b4ce160777decdfa776358))
+
 ## [1.0.6](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.0.5...v1.0.6) (2020-04-03)
 
 
