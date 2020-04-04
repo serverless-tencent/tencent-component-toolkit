@@ -1,5 +1,5 @@
 const secret = require('../../../../secret')
-const ScfUtils = require('./index')
+const ScfUtils = require('./index').Scf
 
 class ClientTest {
 	async scfTest() {
