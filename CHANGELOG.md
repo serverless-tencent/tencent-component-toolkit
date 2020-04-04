@@ -1,3 +1,10 @@
+## [1.0.9](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.0.8...v1.0.9) (2020-04-04)
+
+
+### Bug Fixes
+
+* 移除函数APIGW ([a6eb299](https://github.com/serverless-tencent/tencent-component-toolkit/commit/a6eb29970c96994d4c9b80c023e7570c83e7b03f))
+
 ## [1.0.8](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.0.7...v1.0.8) (2020-04-03)
 
 
