@@ -496,7 +496,7 @@ class Scf {
 
     if (inputs.Triggers) {
       for (let i = 0; i < inputs.Triggers.length; i++) {
-        if (inputs.Triggers[i].serviceId && inputs.Triggers[i].created) {
+        if (inputs.Triggers[i].serviceId) {
           await this.deleteAPIGW(inputs.Triggers[i])
         }
       }
