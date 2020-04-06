@@ -1,3 +1,11 @@
+## [1.0.10](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.0.9...v1.0.10) (2020-04-06)
+
+
+### Bug Fixes
+
+* add apigw auth config ([c345df8](https://github.com/serverless-tencent/tencent-component-toolkit/commit/c345df8a2ed8859dc4a682abeb56489020eded46))
+* travis release only on master ([215716b](https://github.com/serverless-tencent/tencent-component-toolkit/commit/215716ba0b1cfd13bb3d9da60231949ac3706a0b))
+
 ## [1.0.9](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.0.8...v1.0.9) (2020-04-04)
 
 
