@@ -8,13 +8,14 @@ async function runTest() {
 
   const inputs = {
     region: 'ap-guangzhou',
-    serviceId: 'service-dy3d9qlq',
+    serviceId: 'service-7i9kk5a8',
     protocols: ['http', 'https'],
     serviceName: 'serverless',
     environment: 'release',
     customDomains: [
       {
         domain: 'fullstack.yugasun.com',
+        // TODO: change to your certId
         certificateId: '123456',
         isDefaultMapping: 'FALSE',
         pathMappingSet: [
@@ -28,19 +29,30 @@ async function runTest() {
     ],
     endpoints: [
       {
+        apiId: 'api-a05zvycu',
         path: '/',
         protocol: 'HTTP',
         method: 'GET',
         apiName: 'index',
         function: {
           functionName: 'egg-function'
+        },
+        usagePlan: {
+          usagePlanName: 'slscmp',
+          usagePlanDesc: 'sls create',
+          maxRequestNum: 1000,
+        },
+        auth: {
+          serviceTimeout: 15,
+          secretName: 'secret',
         }
+
       }
     ]
   }
   const apigw = new Apigw(credentials, inputs.region)
   const outputs = await apigw.deploy(inputs)
-  console.log('outputs', outputs);
+  console.log('outputs', JSON.stringify(outputs));
 
 
   await apigw.remove(outputs)
