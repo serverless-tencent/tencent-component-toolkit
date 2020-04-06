@@ -238,9 +238,7 @@ class Apigw {
     return secretIdsOutput
   }
 
-  async setupApiUsagePlan({ endpoint }) {
-    const { usagePlan = {} } = endpoint
-
+  async setupApiUsagePlan({ usagePlan }) {
     const usageInputs = {
       usagePlanName: usagePlan.usagePlanName || '',
       usagePlanDesc: usagePlan.usagePlanDesc || '',
@@ -249,15 +247,16 @@ class Apigw {
     }
 
     const usagePlanOutput = {
-      created: false,
-      id: usagePlan.usagePlanId
+      created: usagePlan.created || false,
+      id: usagePlan.id
     }
 
-    if (!usagePlan.usagePlanId) {
-      usagePlanOutput.id = await this.request({
+    if (!usagePlan.id) {
+      const createUsagePlan = await this.request({
         Action: 'CreateUsagePlan',
         ...usageInputs
       })
+      usagePlanOutput.id = createUsagePlan.usagePlanId
       usagePlanOutput.created = true
       console.debug(`Usage plan with ID ${usagePlanOutput.id} created.`)
     } else {
@@ -272,6 +271,35 @@ class Apigw {
     return usagePlanOutput
   }
 
+  /**
+   * get all unbound secretids
+   */
+  async getUnboundSecretIds({ usagePlanId, secretIds }) {
+    const getAllBoundSecrets = async (res = [], { limit, offset = 0 }) => {
+      const { secretIdList } = await this.request({
+        Action: 'DescribeUsagePlanSecretIds',
+        usagePlanId,
+        limit,
+        offset
+      })
+      if (secretIdList.length < limit) {
+        return res
+      }
+      return getAllBoundSecrets(res, { limit, offset: offset + secretIdList.length })
+    }
+    const allBoundSecretObjs = await getAllBoundSecrets([], { limit: 100 })
+    const allBoundSecretIds = allBoundSecretObjs.map((item) => item.secretId)
+    const unboundSecretIds = secretIds.filter((item) => {
+      if (allBoundSecretIds.indexOf(item) === -1) {
+        return true
+      }
+      console.log(`Usage plan ${usagePlanId} secret id ${item} already bound`)
+      return false
+    })
+    return unboundSecretIds
+  }
+
+  // bind custom domains
   async bindCustomDomain({ serviceId, subDomain, inputs }) {
     const { customDomains, oldState = {} } = inputs
     // 1. unbind all custom domain
@@ -338,8 +366,44 @@ class Apigw {
     return customDomainOutput
   }
 
+  // bind environment fo usage plan
+  async bindUsagePlanEnvironment({
+    environment,
+    bindType = 'API',
+    serviceId,
+    apiId,
+    endpoint,
+    usagePlan
+  }) {
+    const { usagePlanList } = await this.request({
+      Action: 'DescribeApiUsagePlan',
+      serviceId,
+      apiIds: [apiId]
+    })
+
+    const oldUsagePlan = usagePlanList.find((item) => item.usagePlanId === usagePlan.id)
+    if (oldUsagePlan) {
+      console.debug(
+        `Usage plan with id ${usagePlan.id} already bind to api id ${apiId} path ${endpoint.method} ${endpoint.path}.`
+      )
+    } else {
+      console.debug(
+        `Binding usage plan with id ${usagePlan.id} to api id ${apiId} path ${endpoint.method} ${endpoint.path}.`
+      )
+      await this.request({
+        Action: 'BindEnvironment',
+        serviceId,
+        environment,
+        bindType: bindType,
+        usagePlanIds: [usagePlan.id],
+        apiIds: [apiId]
+      })
+      console.debug('Binding successed.')
+    }
+  }
+
   async deploy(inputs) {
-    const { oldState = {} } = inputs
+    const { environment, oldState = {} } = inputs
     inputs.protocols = this.getProtocolString(inputs.protocols)
 
     const { serviceId, serviceName, subDomain, serviceCreated } = await this.createOrUpdateService(
@@ -369,10 +433,51 @@ class Apigw {
         curApi.created = true
       }
 
-      // TODO: set api auth and use plan
-      // if (endpoint.auth) {
-      //   await this.setupUsagePlan
-      // }
+      // set api auth and use plan
+      if (endpoint.auth) {
+        curApi.bindType = endpoint.bindType || 'API'
+        const usagePlan = await this.setupApiUsagePlan({
+          usagePlan: {
+            ...((exist && exist.usagePlan) || {}),
+            ...endpoint.usagePlan
+          }
+        })
+        // store in api list
+        curApi.usagePlan = usagePlan
+
+        const { secretIds = [] } = endpoint.auth
+        const secrets = await this.setupUsagePlanSecret({
+          secretName: endpoint.auth.secretName,
+          secretIds
+        })
+        const unboundSecretIds = await this.getUnboundSecretIds({
+          usagePlanId: usagePlan.id,
+          secretIds: secrets.secretIds
+        })
+        if (unboundSecretIds.length > 0) {
+          console.debug(
+            `Binding secret key ${unboundSecretIds} to usage plan with id ${usagePlan.id}.`
+          )
+          await this.request({
+            Action: 'BindSecretIds',
+            usagePlanId: usagePlan.id,
+            secretIds: unboundSecretIds
+          })
+          console.debug('Binding secret key successed.')
+        }
+        // store in api list
+        curApi.usagePlan.secrets = secrets
+
+        // bind environment
+        await this.bindUsagePlanEnvironment({
+          environment,
+          serviceId,
+          apiId: curApi.apiId,
+          bindType: curApi.bindType,
+          usagePlan,
+          endpoint
+        })
+      }
 
       apiList.push(curApi)
       console.debug(
@@ -413,11 +518,63 @@ class Apigw {
 
   async remove(inputs) {
     const { created, environment, serviceId, apiList, customDomains } = inputs
-    // remove all apis
+    // 1. remove all apis
     for (let i = 0; i < apiList.length; i++) {
       const curApi = apiList[i]
-      // TODO: remove usagePlan and api auth(secretIds)
-      // delete only apis created by serverless framework
+
+      // 1. remove usage plan
+      if (curApi.usagePlan) {
+        // 1.1 unbind secrete ids
+        const { secrets } = curApi.usagePlan
+        if (secrets && secrets.secretIds) {
+          await this.request({
+            Action: 'UnBindSecretIds',
+            secretIds: secrets.secretIds,
+            usagePlanId: curApi.usagePlan.id
+          })
+          console.debug(`Unbinding secret key to usage plan with ID ${curApi.usagePlan.id}.`)
+
+          // delelet all created api key
+          if (curApi.usagePlan.secrets.created === true) {
+            for (let sIdx = 0; sIdx < secrets.secretIds.length; sIdx++) {
+              const secretId = secrets.secretIds[sIdx]
+              await this.request({
+                Action: 'DisableApiKey',
+                secretId
+              })
+              await this.request({
+                Action: 'DeleteApiKey',
+                secretId
+              })
+              console.debug(`Removing any previously deployed secret key. ${secretId}`)
+            }
+          }
+        }
+
+        // 1.2 unbind environment
+        await this.request({
+          Action: 'UnBindEnvironment',
+          serviceId,
+          usagePlanIds: [curApi.usagePlan.id],
+          environment,
+          bindType: curApi.bindType,
+          apiIds: [curApi.apiId]
+        })
+        console.debug(
+          `Unbinding usage plan with ID ${curApi.usagePlan.id} to service with ID ${serviceId}.`
+        )
+
+        // 1.3 delete created usage plan
+        if (curApi.usagePlan.created === true) {
+          console.debug(`Removing any previously deployed usage plan ids ${curApi.usagePlan.id}`)
+          await this.request({
+            Action: 'DeleteUsagePlan',
+            usagePlanId: curApi.usagePlan.id
+          })
+        }
+      }
+
+      // 2. delete only apis created by serverless framework
       if (curApi.apiId && curApi.created === true) {
         console.debug(`Removing api: ${curApi.apiId}`)
         await this.request({
@@ -427,7 +584,8 @@ class Apigw {
         })
       }
     }
-    // unbind all custom domains
+
+    // 2. unbind all custom domains
     if (customDomains) {
       for (let i = 0; i < customDomains.length; i++) {
         const curDomain = customDomains[i]
@@ -442,7 +600,7 @@ class Apigw {
       }
     }
 
-    // unrelease service
+    // 3. unrelease service
     console.debug(`Unreleasing service: ${serviceId}, environment: ${environment}`)
     await this.request({
       Action: 'UnReleaseService',
