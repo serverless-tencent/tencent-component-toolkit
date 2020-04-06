@@ -9,6 +9,13 @@ class Cos {
   constructor(credentials = {}, region = 'ap-guangzhou') {
     this.region = region
     this.credentials = credentials
+    // cos临时密钥需要用XCosSecurityToken
+    if(credentials.token){
+      this.credentials.XCosSecurityToken = credentials.token
+    }
+    if(credentials.Token){
+      this.credentials.XCosSecurityToken = credentials.Token
+    }
     this.cosClient = new cos(this.credentials)
   }
 
