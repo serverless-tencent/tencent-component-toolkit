@@ -403,6 +403,7 @@ class Cos {
 
     await this.setWebsite(inputs)
 
+    // 对cors进行额外处理
     if (inputs.cors) {
       await this.setCors(inputs)
     }
