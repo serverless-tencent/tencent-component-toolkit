@@ -403,7 +403,9 @@ class Cos {
 
     await this.setWebsite(inputs)
 
-    await this.setCors(inputs)
+    if (inputs.cors) {
+      await this.setCors(inputs)
+    }
 
     // Build environment variables
     const envPath = inputs.code.envPath || inputs.code.root
