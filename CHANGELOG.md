@@ -1,3 +1,13 @@
+## [1.0.14](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.0.13...v1.0.14) (2020-04-07)
+
+
+### Bug Fixes
+
+* code format ([e0a6b44](https://github.com/serverless-tencent/tencent-component-toolkit/commit/e0a6b44ce5906f6a23c3c1b928952ea7c92e6720))
+* cos cors ([808d3a9](https://github.com/serverless-tencent/tencent-component-toolkit/commit/808d3a9f1594cd539ba6b0d615f5e17e539e0c3b))
+* version ([e982874](https://github.com/serverless-tencent/tencent-component-toolkit/commit/e982874e22221b24eee973b9dbf190e86fe8801f))
+* 修复website/APIGW等功能 ([ad78979](https://github.com/serverless-tencent/tencent-component-toolkit/commit/ad78979f035714acbca2c1634198ab9abc492bcc))
+
 ## [1.0.13](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.0.12...v1.0.13) (2020-04-07)
 
 
