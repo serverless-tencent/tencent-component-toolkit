@@ -1,3 +1,10 @@
+## [1.0.13](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.0.12...v1.0.13) (2020-04-07)
+
+
+### Bug Fixes
+
+*  website and apigw ([9685777](https://github.com/serverless-tencent/tencent-component-toolkit/commit/968577706f844141bfcf4b396f3ea4d999e02a65))
+
 ## [1.0.12](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.0.11...v1.0.12) (2020-04-07)
 
 
