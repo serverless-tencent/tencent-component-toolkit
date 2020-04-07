@@ -1,5 +1,5 @@
-const { apigw } = require('tencent-cloud-sdk')
-const { uniqueArray } = require('../../utils/index')
+const {apigw} = require('tencent-cloud-sdk')
+const {uniqueArray} = require('../../utils/index')
 
 class Apigw {
   constructor(credentials = {}, region) {
@@ -55,7 +55,8 @@ class Apigw {
             protocol: protocols
           })
         }
-      } catch (e) {}
+      } catch (e) {
+      }
     }
     if (!exist) {
       const createData = await this.request({
@@ -76,7 +77,7 @@ class Apigw {
     }
   }
 
-  async createOrUpdateApi({ serviceId, endpoint }) {
+  async createOrUpdateApi({serviceId, endpoint}) {
     const output = {
       path: endpoint.path,
       method: endpoint.method,
@@ -106,8 +107,8 @@ class Apigw {
     const funcQualifier = endpoint.function.functionQualifier
       ? endpoint.function.functionQualifier
       : '$LATEST'
-      ? endpoint.function.functionQualifier
-      : '$LATEST'
+        ? endpoint.function.functionQualifier
+        : '$LATEST'
 
     if (endpoint.protocol === 'WEBSOCKET') {
       if (!endpoint.function.transportFunctionName) {
@@ -141,6 +142,23 @@ class Apigw {
     }
 
     let exist = false
+
+    // 没有apiId，还需要根据path来确定
+    if (!endpoint.apiId) {
+      const pathAPIList = await this.request({
+        Action: 'DescribeApisStatus',
+        serviceId: serviceId,
+        searchName: endpoint.path
+      })
+      if (pathAPIList.apiIdStatusSet) {
+        for (let i = 0; i < pathAPIList.apiIdStatusSet.length; i++) {
+          if (pathAPIList.apiIdStatusSet[i].method == endpoint.method && pathAPIList.apiIdStatusSet[i].path == endpoint.path) {
+            endpoint.apiId = pathAPIList.apiIdStatusSet[i].apiId
+          }
+        }
+      }
+    }
+
     if (endpoint.apiId) {
       try {
         const detail = await this.request({
@@ -159,10 +177,13 @@ class Apigw {
           output.apiId = endpoint.apiId
           console.log(`Service with id ${output.apiId} updated.`)
         }
-      } catch (e) {}
+      } catch (e) {
+      }
     }
+
+
     if (!exist) {
-      const { apiId } = await this.request({
+      const {apiId} = await this.request({
         Action: 'CreateApi',
         ...apiInputs
       })
@@ -171,7 +192,7 @@ class Apigw {
       console.log(`API with id ${output.apiId} created.`)
     }
 
-    const { internalDomain } = await this.request({
+    const {internalDomain} = await this.request({
       Action: 'DescribeApi',
       serviceId: serviceId,
       apiId: output.apiId
@@ -181,7 +202,7 @@ class Apigw {
     return output
   }
 
-  async setupUsagePlanSecret({ secretName, secretIds }) {
+  async setupUsagePlanSecret({secretName, secretIds}) {
     const secretIdsOutput = {
       created: false,
       secretIds
@@ -189,7 +210,7 @@ class Apigw {
 
     if (secretIds.length === 0) {
       console.log(`Creating a new Secret key.`)
-      const { secretId, secretKey } = await this.request({
+      const {secretId, secretKey} = await this.request({
         Action: 'CreateApiKey',
         secretName: secretName,
         type: 'auto'
@@ -201,7 +222,7 @@ class Apigw {
       const uniqSecretIds = uniqueArray(secretIds)
 
       // get all secretId, check local secretId exists
-      const { apiKeyStatusSet } = await this.request({
+      const {apiKeyStatusSet} = await this.request({
         Action: 'DescribeApiKeysStatus',
         secretIds: uniqSecretIds,
         limit: uniqSecretIds.length
@@ -238,7 +259,7 @@ class Apigw {
     return secretIdsOutput
   }
 
-  async setupApiUsagePlan({ usagePlan }) {
+  async setupApiUsagePlan({usagePlan}) {
     const usageInputs = {
       usagePlanName: usagePlan.usagePlanName || '',
       usagePlanDesc: usagePlan.usagePlanDesc || '',
@@ -274,9 +295,9 @@ class Apigw {
   /**
    * get all unbound secretids
    */
-  async getUnboundSecretIds({ usagePlanId, secretIds }) {
-    const getAllBoundSecrets = async (res = [], { limit, offset = 0 }) => {
-      const { secretIdList } = await this.request({
+  async getUnboundSecretIds({usagePlanId, secretIds}) {
+    const getAllBoundSecrets = async (res = [], {limit, offset = 0}) => {
+      const {secretIdList} = await this.request({
         Action: 'DescribeUsagePlanSecretIds',
         usagePlanId,
         limit,
@@ -285,9 +306,9 @@ class Apigw {
       if (secretIdList.length < limit) {
         return res
       }
-      return getAllBoundSecrets(res, { limit, offset: offset + secretIdList.length })
+      return getAllBoundSecrets(res, {limit, offset: offset + secretIdList.length})
     }
-    const allBoundSecretObjs = await getAllBoundSecrets([], { limit: 100 })
+    const allBoundSecretObjs = await getAllBoundSecrets([], {limit: 100})
     const allBoundSecretIds = allBoundSecretObjs.map((item) => item.secretId)
     const unboundSecretIds = secretIds.filter((item) => {
       if (allBoundSecretIds.indexOf(item) === -1) {
@@ -300,8 +321,8 @@ class Apigw {
   }
 
   // bind custom domains
-  async bindCustomDomain({ serviceId, subDomain, inputs }) {
-    const { customDomains, oldState = {} } = inputs
+  async bindCustomDomain({serviceId, subDomain, inputs}) {
+    const {customDomains, oldState = {}} = inputs
     // 1. unbind all custom domain
     const customDomainDetail = await this.request({
       Action: 'DescribeServiceSubDomains',
@@ -312,7 +333,7 @@ class Apigw {
       customDomainDetail.domainSet &&
       customDomainDetail.domainSet.length > 0
     ) {
-      const { domainSet = [] } = customDomainDetail
+      const {domainSet = []} = customDomainDetail
       // unbind all created domain
       const stateDomains = oldState.customDomains || []
       for (let i = 0; i < domainSet.length; i++) {
@@ -368,14 +389,14 @@ class Apigw {
 
   // bind environment fo usage plan
   async bindUsagePlanEnvironment({
-    environment,
-    bindType = 'API',
-    serviceId,
-    apiId,
-    endpoint,
-    usagePlan
-  }) {
-    const { usagePlanList } = await this.request({
+                                   environment,
+                                   bindType = 'API',
+                                   serviceId,
+                                   apiId,
+                                   endpoint,
+                                   usagePlan
+                                 }) {
+    const {usagePlanList} = await this.request({
       Action: 'DescribeApiUsagePlan',
       serviceId,
       apiIds: [apiId]
@@ -403,17 +424,17 @@ class Apigw {
   }
 
   async deploy(inputs) {
-    const { environment, oldState = {} } = inputs
+    const {environment, oldState = {}} = inputs
     inputs.protocols = this.getProtocolString(inputs.protocols)
 
-    const { serviceId, serviceName, subDomain, serviceCreated } = await this.createOrUpdateService(
+    const {serviceId, serviceName, subDomain, serviceCreated} = await this.createOrUpdateService(
       inputs
     )
 
     const apiList = []
     const stateApiList = oldState.apiList || []
 
-    const { endpoints } = inputs
+    const {endpoints} = inputs
     for (let i = 0, len = endpoints.length; i < len; i++) {
       const endpoint = endpoints[i]
       // if exist in state list, set created to be true
@@ -445,7 +466,7 @@ class Apigw {
         // store in api list
         curApi.usagePlan = usagePlan
 
-        const { secretIds = [] } = endpoint.auth
+        const {secretIds = []} = endpoint.auth
         const secrets = await this.setupUsagePlanSecret({
           secretName: endpoint.auth.secretName,
           secretIds
@@ -517,7 +538,7 @@ class Apigw {
   }
 
   async remove(inputs) {
-    const { created, environment, serviceId, apiList, customDomains } = inputs
+    const {created, environment, serviceId, apiList, customDomains} = inputs
     // 1. remove all apis
     for (let i = 0; i < apiList.length; i++) {
       const curApi = apiList[i]
@@ -525,7 +546,7 @@ class Apigw {
       // 1. remove usage plan
       if (curApi.usagePlan) {
         // 1.1 unbind secrete ids
-        const { secrets } = curApi.usagePlan
+        const {secrets} = curApi.usagePlan
         if (secrets && secrets.secretIds) {
           await this.request({
             Action: 'UnBindSecretIds',
