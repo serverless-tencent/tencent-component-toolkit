@@ -403,7 +403,10 @@ class Cos {
 
     await this.setWebsite(inputs)
 
-    await this.setCors(inputs)
+    // 对cors进行额外处理
+    if (inputs.cors) {
+      await this.setCors(inputs)
+    }
 
     // Build environment variables
     const envPath = inputs.code.envPath || inputs.code.root
