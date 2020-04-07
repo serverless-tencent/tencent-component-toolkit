@@ -7,6 +7,7 @@ const MultiApigw = require('./baas/multi-apigw')
 const MultiScf = require('./baas/multi-scf')
 const Scf = require('./baas/scf')
 const Tag = require('./baas/tag')
+const Postgresql = require('./baas/postgresql')
 
 module.exports = {
   Apigw,
@@ -17,5 +18,6 @@ module.exports = {
   MultiApigw,
   MultiScf,
   Scf,
-  Tag
+  Tag,
+  Postgresql
 }
