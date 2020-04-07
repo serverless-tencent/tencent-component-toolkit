@@ -1,3 +1,15 @@
+# [1.1.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.0.14...v1.1.0) (2020-04-07)
+
+
+### Bug Fixes
+
+* add postgresql for entry point ([08383b3](https://github.com/serverless-tencent/tencent-component-toolkit/commit/08383b3352e51b3f6e2428467313b59def88ac3b))
+
+
+### Features
+
+* add postgresql ([a2e8c3c](https://github.com/serverless-tencent/tencent-component-toolkit/commit/a2e8c3ce04038cb999556420f927eca579d6d1c1))
+
 ## [1.0.14](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.0.13...v1.0.14) (2020-04-07)
 
 
