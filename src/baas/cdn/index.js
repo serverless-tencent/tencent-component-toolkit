@@ -91,6 +91,7 @@ class Cdn {
           if (e.code === 9111) {
             console.log(`Please goto https://console.cloud.tencent.com/cdn open CDN service.`)
           }
+          throw e
         }
         const { id } = await getCdnByHost(capi, host)
         outputs.created = true
