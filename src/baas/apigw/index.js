@@ -141,6 +141,26 @@ class Apigw {
     }
 
     let exist = false
+
+    // 没有apiId，还需要根据path来确定
+    if (!endpoint.apiId) {
+      const pathAPIList = await this.request({
+        Action: 'DescribeApisStatus',
+        serviceId: serviceId,
+        searchName: endpoint.path
+      })
+      if (pathAPIList.apiIdStatusSet) {
+        for (let i = 0; i < pathAPIList.apiIdStatusSet.length; i++) {
+          if (
+            pathAPIList.apiIdStatusSet[i].method == endpoint.method &&
+            pathAPIList.apiIdStatusSet[i].path == endpoint.path
+          ) {
+            endpoint.apiId = pathAPIList.apiIdStatusSet[i].apiId
+          }
+        }
+      }
+    }
+
     if (endpoint.apiId) {
       try {
         const detail = await this.request({
@@ -161,6 +181,7 @@ class Apigw {
         }
       } catch (e) {}
     }
+
     if (!exist) {
       const { apiId } = await this.request({
         Action: 'CreateApi',
