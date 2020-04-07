@@ -388,7 +388,10 @@ class Cos {
   }
 
   async website(inputs = {}) {
-    await this.createBucket(inputs)
+    await this.createBucket({
+      bucket: inputs.bucket,
+      force: true
+    })
 
     inputs.acl = {
       permissions: 'public-read',
@@ -399,6 +402,8 @@ class Cos {
     await this.setAcl(inputs)
 
     await this.setWebsite(inputs)
+
+    await this.setCors(inputs)
 
     // Build environment variables
     const envPath = inputs.code.envPath || inputs.code.root
@@ -436,7 +441,7 @@ class Cos {
     }
     await this.upload(uploadDict)
 
-    return `${inputs.bucket}.cos-website.${this.region}.myqcloud.com`
+    return `${inputs.bucket}-${inputs.appid}.cos-website.${this.region}.myqcloud.com`
   }
 
   async deploy(inputs = {}) {
