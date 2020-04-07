@@ -77,19 +77,19 @@ class Cdn {
     const createOrUpdateCdn = async () => {
       if (cdnInfo) {
         // update
-        console.debug(`The CDN domain ${host} has existed.`)
-        console.debug('Updating...')
+        console.log(`The CDN domain ${host} has existed.`)
+        console.log('Updating...')
         cdnInputs.hostId = cdnInfo.id
         await UpdateCdnConfig(capi, cdnInputs)
         outputs.hostId = cdnInfo.id
       } else {
         // create
-        console.debug(`Adding CDN domain ${host}...`)
+        console.log(`Adding CDN domain ${host}...`)
         try {
           await AddCdnHost(capi, cdnInputs)
         } catch (e) {
           if (e.code === 9111) {
-            console.debug(`Please goto https://console.cloud.tencent.com/cdn open CDN service.`)
+            console.log(`Please goto https://console.cloud.tencent.com/cdn open CDN service.`)
           }
         }
         const { id } = await getCdnByHost(capi, host)
@@ -98,19 +98,19 @@ class Cdn {
       }
 
       // state=4: deploying status, we can not do any operation
-      console.debug('Waiting for CDN deploy success...')
+      console.log('Waiting for CDN deploy success...')
       await waitResponse({
         callback: async () => getCdnByHost(capi, host),
         targetProp: 'status',
         targetResponse: 5,
         timeout: TIMEOUT
       })
-      console.debug(`CDN deploy success to host: ${host}`)
+      console.log(`CDN deploy success to host: ${host}`)
     }
 
     const creatOrUpdateHttps = async () => {
       if (https) {
-        console.debug(`Setup https for ${host}...`)
+        console.log(`Setup https for ${host}...`)
         // update https
         const httpsInputs = {
           host: host,
@@ -131,7 +131,7 @@ class Cdn {
         await SetHttpsInfo(capi, httpsInputs)
         outputs.https = true
       } else {
-        console.debug(`Removing https for ${host}...`)
+        console.log(`Removing https for ${host}...`)
         // delete https
         const httpsInputs = {
           host: host,
@@ -151,14 +151,14 @@ class Cdn {
     // pass state for cache check
     const { inputCache } = oldState
     if (inputCache && inputCache.base === JSON.stringify(sourceBaseConf)) {
-      console.debug(`No base configuration changes for CDN domain ${host}`)
+      console.log(`No base configuration changes for CDN domain ${host}`)
       outputs.hostId = cdnInfo.id
     } else {
       await createOrUpdateCdn()
     }
 
     if (inputCache && inputCache.https === JSON.stringify(sourceHttpsConf)) {
-      console.debug(`No https configuration changes for CDN domain ${host}`)
+      console.log(`No https configuration changes for CDN domain ${host}`)
       outputs.https = !!sourceHttpsConf
     } else {
       await creatOrUpdateHttps()
@@ -180,7 +180,7 @@ class Cdn {
     }
 
     // need circle for deleting, after host status is 6, then we can delete it
-    console.debug(`Start removing CDN for ${host}`)
+    console.log(`Start removing CDN for ${host}`)
     const { status } = await getCdnByHost(capi, host)
     // status=5: online
     // state=4: deploying
@@ -188,7 +188,7 @@ class Cdn {
     if (status === 5) {
       // disable first
       await OfflineHost(capi, { host: host })
-      console.debug(`Waiting for offline ${host}...`)
+      console.log(`Waiting for offline ${host}...`)
       await waitResponse({
         callback: async () => getCdnByHost(capi, host),
         targetProp: 'status',
@@ -198,9 +198,9 @@ class Cdn {
     } else if (status === 4) {
       throw new Error(`Status is not operational for ${host}`)
     }
-    console.debug(`Removing CDN for ${host}`)
+    console.log(`Removing CDN for ${host}`)
     await DeleteCdnHost(capi, { host: host })
-    console.debug(`Removed CDN for ${host}.`)
+    console.log(`Removed CDN for ${host}.`)
     return {}
   }
 }

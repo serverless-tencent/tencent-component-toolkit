@@ -150,14 +150,14 @@ class Apigw {
         })
         if (detail && detail.apiId) {
           exist = true
-          console.debug(`Updating api with api id ${endpoint.apiId}.`)
+          console.log(`Updating api with api id ${endpoint.apiId}.`)
           await this.request({
             Action: 'ModifyApi',
             apiId: endpoint.apiId,
             ...apiInputs
           })
           output.apiId = endpoint.apiId
-          console.debug(`Service with id ${output.apiId} updated.`)
+          console.log(`Service with id ${output.apiId} updated.`)
         }
       } catch (e) {}
     }
@@ -168,7 +168,7 @@ class Apigw {
       })
       output.apiId = apiId
       output.created = true
-      console.debug(`API with id ${output.apiId} created.`)
+      console.log(`API with id ${output.apiId} created.`)
     }
 
     const { internalDomain } = await this.request({
@@ -188,13 +188,13 @@ class Apigw {
     }
 
     if (secretIds.length === 0) {
-      console.debug(`Creating a new Secret key.`)
+      console.log(`Creating a new Secret key.`)
       const { secretId, secretKey } = await this.request({
         Action: 'CreateApiKey',
         secretName: secretName,
         type: 'auto'
       })
-      console.debug(`Secret key with ID ${secretId} and key ${secretKey} updated.`)
+      console.log(`Secret key with ID ${secretId} and key ${secretKey} updated.`)
       secretIdsOutput.secretIds = [secretId]
       secretIdsOutput.created = true
     } else {
@@ -219,14 +219,14 @@ class Apigw {
               found = true
             } else {
               disable = true
-              console.debug(`There is a disabled secret key: ${secretId}, cannot be bound`)
+              console.log(`There is a disabled secret key: ${secretId}, cannot be bound`)
             }
             break
           }
         }
         if (!found) {
           if (!disable) {
-            console.debug(`Secret key id ${secretId} does't exist`)
+            console.log(`Secret key id ${secretId} does't exist`)
           }
         } else {
           ids.push(secretId)
@@ -258,9 +258,9 @@ class Apigw {
       })
       usagePlanOutput.id = createUsagePlan.usagePlanId
       usagePlanOutput.created = true
-      console.debug(`Usage plan with ID ${usagePlanOutput.id} created.`)
+      console.log(`Usage plan with ID ${usagePlanOutput.id} created.`)
     } else {
-      console.debug(`Updating usage plan with id ${usagePlan.usagePlanId}.`)
+      console.log(`Updating usage plan with id ${usagePlan.usagePlanId}.`)
       await this.request({
         Action: 'ModifyUsagePlan',
         usagePlanId: usagePlanOutput.id,
@@ -320,7 +320,7 @@ class Apigw {
         for (let j = 0; j < stateDomains.length; j++) {
           // only list subDomain and created in state
           if (stateDomains[j].subDomain === domainItem.domainName) {
-            console.debug(
+            console.log(
               `Start unbind previus domain ${domainItem.domainName} for service ${serviceId}`
             )
             await this.request({
@@ -335,7 +335,7 @@ class Apigw {
     // 2. bind user config domain
     const customDomainOutput = []
     if (customDomains && customDomains.length > 0) {
-      console.debug(`Start bind custom domain for service ${serviceId}`)
+      console.log(`Start bind custom domain for service ${serviceId}`)
       for (let i = 0; i < customDomains.length; i++) {
         const domainItem = customDomains[i]
         const domainProtocol = domainItem.protocols
@@ -358,8 +358,8 @@ class Apigw {
           subDomain: domainItem.domain,
           cname: subDomain
         })
-        console.debug(`Custom domain for service ${serviceId} created successfullly.`)
-        console.debug(`Please add CNAME record ${subDomain} for ${domainItem.domain}.`)
+        console.log(`Custom domain for service ${serviceId} created successfullly.`)
+        console.log(`Please add CNAME record ${subDomain} for ${domainItem.domain}.`)
       }
     }
 
@@ -383,11 +383,11 @@ class Apigw {
 
     const oldUsagePlan = usagePlanList.find((item) => item.usagePlanId === usagePlan.id)
     if (oldUsagePlan) {
-      console.debug(
+      console.log(
         `Usage plan with id ${usagePlan.id} already bind to api id ${apiId} path ${endpoint.method} ${endpoint.path}.`
       )
     } else {
-      console.debug(
+      console.log(
         `Binding usage plan with id ${usagePlan.id} to api id ${apiId} path ${endpoint.method} ${endpoint.path}.`
       )
       await this.request({
@@ -398,7 +398,7 @@ class Apigw {
         usagePlanIds: [usagePlan.id],
         apiIds: [apiId]
       })
-      console.debug('Binding successed.')
+      console.log('Binding successed.')
     }
   }
 
@@ -455,7 +455,7 @@ class Apigw {
           secretIds: secrets.secretIds
         })
         if (unboundSecretIds.length > 0) {
-          console.debug(
+          console.log(
             `Binding secret key ${unboundSecretIds} to usage plan with id ${usagePlan.id}.`
           )
           await this.request({
@@ -463,7 +463,7 @@ class Apigw {
             usagePlanId: usagePlan.id,
             secretIds: unboundSecretIds
           })
-          console.debug('Binding secret key successed.')
+          console.log('Binding secret key successed.')
         }
         // store in api list
         curApi.usagePlan.secrets = secrets
@@ -480,12 +480,12 @@ class Apigw {
       }
 
       apiList.push(curApi)
-      console.debug(
+      console.log(
         `Deployment successful for the api named ${endpoint.apiName} in the ${this.region} region.`
       )
     }
 
-    console.debug(`Deploying service with id ${serviceId}.`)
+    console.log(`Deploying service with id ${serviceId}.`)
     await this.request({
       Action: 'ReleaseService',
       serviceId: serviceId,
@@ -532,7 +532,7 @@ class Apigw {
             secretIds: secrets.secretIds,
             usagePlanId: curApi.usagePlan.id
           })
-          console.debug(`Unbinding secret key to usage plan with ID ${curApi.usagePlan.id}.`)
+          console.log(`Unbinding secret key to usage plan with ID ${curApi.usagePlan.id}.`)
 
           // delelet all created api key
           if (curApi.usagePlan.secrets.created === true) {
@@ -546,7 +546,7 @@ class Apigw {
                 Action: 'DeleteApiKey',
                 secretId
               })
-              console.debug(`Removing any previously deployed secret key. ${secretId}`)
+              console.log(`Removing any previously deployed secret key. ${secretId}`)
             }
           }
         }
@@ -560,13 +560,13 @@ class Apigw {
           bindType: curApi.bindType,
           apiIds: [curApi.apiId]
         })
-        console.debug(
+        console.log(
           `Unbinding usage plan with ID ${curApi.usagePlan.id} to service with ID ${serviceId}.`
         )
 
         // 1.3 delete created usage plan
         if (curApi.usagePlan.created === true) {
-          console.debug(`Removing any previously deployed usage plan ids ${curApi.usagePlan.id}`)
+          console.log(`Removing any previously deployed usage plan ids ${curApi.usagePlan.id}`)
           await this.request({
             Action: 'DeleteUsagePlan',
             usagePlanId: curApi.usagePlan.id
@@ -576,7 +576,7 @@ class Apigw {
 
       // 2. delete only apis created by serverless framework
       if (curApi.apiId && curApi.created === true) {
-        console.debug(`Removing api: ${curApi.apiId}`)
+        console.log(`Removing api: ${curApi.apiId}`)
         await this.request({
           Action: 'DeleteApi',
           apiId: curApi.apiId,
@@ -590,7 +590,7 @@ class Apigw {
       for (let i = 0; i < customDomains.length; i++) {
         const curDomain = customDomains[i]
         if (curDomain.subDomain && curDomain.created === true) {
-          console.debug(`Unbinding custom domain: ${curDomain.subDomain}`)
+          console.log(`Unbinding custom domain: ${curDomain.subDomain}`)
           await this.request({
             Action: 'UnBindSubDomain',
             serviceId,
@@ -601,7 +601,7 @@ class Apigw {
     }
 
     // 3. unrelease service
-    console.debug(`Unreleasing service: ${serviceId}, environment: ${environment}`)
+    console.log(`Unreleasing service: ${serviceId}, environment: ${environment}`)
     await this.request({
       Action: 'UnReleaseService',
       serviceId,
@@ -611,7 +611,7 @@ class Apigw {
 
     if (created === true) {
       // delete service
-      console.debug(`Removing service: ${serviceId}`)
+      console.log(`Removing service: ${serviceId}`)
       await this.request({
         Action: 'DeleteService',
         serviceId
