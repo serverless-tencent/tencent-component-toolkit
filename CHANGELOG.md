@@ -1,3 +1,12 @@
+## [1.0.11](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.0.10...v1.0.11) (2020-04-07)
+
+
+### Bug Fixes
+
+* cos temp_id ([41e5d7e](https://github.com/serverless-tencent/tencent-component-toolkit/commit/41e5d7eea43c484e399b197e66c45e34885e6751))
+* COS临时密钥 ([1820789](https://github.com/serverless-tencent/tencent-component-toolkit/commit/1820789d18ccecf835f5d9d1be3f3b38550d5460))
+* lint errors ([1ae84a8](https://github.com/serverless-tencent/tencent-component-toolkit/commit/1ae84a818e8ad761eb96ac6a7105d68a4dd0c683))
+
 ## [1.0.10](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.0.9...v1.0.10) (2020-04-06)
 
 
