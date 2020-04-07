@@ -1,3 +1,11 @@
+## [1.0.12](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.0.11...v1.0.12) (2020-04-07)
+
+
+### Bug Fixes
+
+* change console.debug to console.log ([5553ddc](https://github.com/serverless-tencent/tencent-component-toolkit/commit/5553ddce0ca26c327ef21720748bc7cb01f07c1e))
+* throw error when add cdn fail ([0ea126f](https://github.com/serverless-tencent/tencent-component-toolkit/commit/0ea126f7d5532f789be93d366f4d4a7e8b3e2496))
+
 ## [1.0.11](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.0.10...v1.0.11) (2020-04-07)
 
 
