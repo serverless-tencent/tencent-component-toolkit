@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.1.0...v1.1.1) (2020-04-08)
+
+
+### Bug Fixes
+
+* cos_bucket ([50a4913](https://github.com/serverless-tencent/tencent-component-toolkit/commit/50a4913a5c42ade016bd90df6ef8e663df143b69))
+
 # [1.1.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.0.14...v1.1.0) (2020-04-07)
 
 
