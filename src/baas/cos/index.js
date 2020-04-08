@@ -444,7 +444,7 @@ class Cos {
     }
     await this.upload(uploadDict)
 
-    return `${inputs.bucket}-${inputs.appid}.cos-website.${this.region}.myqcloud.com`
+    return `${inputs.bucket}.cos-website.${this.region}.myqcloud.com`
   }
 
   async deploy(inputs = {}) {
