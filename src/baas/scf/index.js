@@ -311,12 +311,12 @@ class Scf {
                   thisTrigger['parameters']['filter'] &&
                   thisTrigger['parameters']['filter']['prefix']
                     ? thisTrigger['parameters']['filter']['prefix']
-                    : '',
+                    : String(''),
                 Suffix:
                   thisTrigger['parameters']['filter'] &&
                   thisTrigger['parameters']['filter']['suffix']
                     ? thisTrigger['parameters']['filter']['suffix']
-                    : ''
+                    : String('')
               }
             })
             trigger.Enable = inputs.events[i]['cos']['parameters']['enable'] ? 'OPEN' : 'CLOSE'
