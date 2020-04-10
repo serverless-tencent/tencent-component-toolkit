@@ -34,7 +34,25 @@ class Cos {
           throw new Error(JSON.stringify(e))
         }
       } else {
-        throw new Error(JSON.stringify(e))
+        // cos在云函数中可能出现ECONNRESET错误，没办法具体定位，初步猜测是客户端问题，是函数启动网络还没准备好，这个还不确定，所以在这里做兼容
+        if (JSON.stringify(e).includes('ECONNRESET')) {
+          // 检查bucket是否存在
+          const headHandler = util.promisify(this.cosClient.headBucket.bind(this.cosClient))
+          try {
+            const isHave = await headHandler(createParams)
+            if (isHave.statusCode == 200) {
+              if (!inputs.force) {
+                throw new Error('BucketAlreadyExists and BucketAlreadyOwnedByYou')
+              }
+            } else {
+              throw new Error('Could not find this bucket')
+            }
+          } catch (err) {
+            throw new Error(JSON.stringify(err))
+          }
+        } else {
+          throw new Error(JSON.stringify(e))
+        }
       }
     }
   }
