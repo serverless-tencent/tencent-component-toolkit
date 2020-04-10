@@ -246,6 +246,7 @@ class Scf {
       for (let i = 0; i < releaseEvents.length; i++) {
         const thisTrigger = releaseEvents[i]
         if (thisTrigger.Type == 'cos') {
+          console.log(thisTrigger)
           releaseEventsObj[
             `cos-${thisTrigger.TriggerName}-${thisTrigger.TriggerDesc}`
           ] = thisTrigger
@@ -320,7 +321,12 @@ class Scf {
               }
             })
             trigger.Enable = inputs.events[i]['cos']['parameters']['enable'] ? 'OPEN' : 'CLOSE'
-            triggerUnikey = `cos-${trigger.TriggerName}-${trigger.TriggerDesc}`
+            const tempDest = JSON.stringify({
+              bucketUrl: trigger.TriggerName,
+              event: JSON.parse(trigger.TriggerDesc).event,
+              filter: JSON.parse(trigger.TriggerDesc).filter
+            })
+            triggerUnikey = `cos-${trigger.TriggerName}-${tempDest}`
           } else if (eventType === 'ckafka') {
             const thisTrigger = inputs.events[i]['ckafka']
             trigger.Type = 'ckafka'
@@ -354,10 +360,10 @@ class Scf {
 
           // 判断Trigger是否已经存在
           let deploy = false
+
           if (releaseEventsObj[triggerUnikey]) {
             // 存在Trigger
-            // 判断Trigger是否一致，如果一致跳过，否则删除重建
-
+            // 判断Trigger是否一致，如果一致跳过，否则删除重
             const thisReleaseTrigger = releaseEventsObj[triggerUnikey]
             for (const item in thisReleaseTrigger) {
               if (['TriggerDesc', 'TriggerName', 'Enable', 'CustomArgument'].includes(item)) {
@@ -478,6 +484,9 @@ class Scf {
     if (inputs.tags || inputs.events) {
       if (!funcInfo) {
         funcInfo = await this.getFunction(inputs.namespace || defaultNamespace, inputs.name)
+      }
+      if ((await this.checkStatus(inputs.namespace || defaultNamespace, inputs.name)) == false) {
+        throw `Function ${inputs.name} upgrade failed. Please check function status.`
       }
       await Promise.all([this.deployTags(funcInfo, inputs), this.deployTrigger(funcInfo, inputs)])
     }

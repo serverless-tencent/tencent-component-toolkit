@@ -1,5 +1,5 @@
 const secret = require('../../../../secret')
-const ScfUtils = require('./index').Scf
+const ScfUtils = require('./index')
 
 class ClientTest {
 	async scfTest() {
@@ -8,16 +8,15 @@ class ClientTest {
 			SecretKey: secret.SecretKey
 		})
 		const scfDemo = {
-			name: 'myFunction1',
+			name: 'sync_cos_bucket',
 			code: {
-				bucket: 'sls-cloudfunction-ap-guangzhou',
-				object: 'sls-cloudfunction-default-hello_world-1584670117.zip'
+				bucket: 'sls-cloudfunction-ap-guangzhou-code',
+				object: 'mytestFunction-1585915515.zip'
 			},
 			handler: 'index.main_handler',
 			runtime: 'Python3.6',
-			role: 'SCF_PythonLogsRole',
-			// eip: true,
-			region: 'ap-shanghai',
+			// role: 'SCF_PythonLogsRole',
+			region: 'ap-guangzhou',
 			description: 'My Serverless Function',
 			memorySize: '256',
 			timeout: '20',
@@ -30,38 +29,54 @@ class ClientTest {
 				}
 			},
 			events: [
-				{
-					timer: {
-						name: 'timer',
-						parameters: {
-							cronExpression: '*/6 * * * *',
-							enable: true,
-							argument: 'mytest argument'
-						}
-					}
-				},
-				{
-					apigw: {
-						name: 'serverless',
-						parameters: {
-							protocols: ['http'],
-							serviceName: 'serverless',
-							description: 'the serverless service',
-							environment: 'release',
-							endpoints: [{
-								path: '/users',
-								method: 'POST'
-							}]
-						}
-
-					}
-				}
+				// {
+				// 	timer: {
+				// 		name: 'timer',
+				// 		parameters: {
+				// 			cronExpression: '*/6 * * * *',
+				// 			enable: true,
+				// 			argument: 'mytest argument'
+				// 		}
+				// 	}
+				// },
+        {
+          cos: {
+            name: 'anycodesimage-1256773370.cos.ap-guangzhou.myqcloud.com',
+            parameters: {
+              bucket: 'anycodesimage-1256773370.cos.ap-guangzhou.myqcloud.com',
+              enable: true,
+              events: 'cos:ObjectCreated:*',
+              filter:{
+                prefix: "aaaasad"
+              }
+            }
+          }
+        }
+				// {
+				// 	apigw: {
+				// 		name: 'serverless',
+				// 		parameters: {
+				// 			protocols: ['http'],
+				// 			serviceName: 'serverless',
+				// 			description: 'the serverless service',
+				// 			environment: 'release',
+				// 			endpoints: [{
+				// 				path: '/users',
+				// 				method: 'POST'
+				// 			}]
+				// 		}
+        //
+				// 	}
+				// }
 			]
 		}
 		const result = await scf.deploy(scfDemo)
-		console.log(JSON.stringify(result))
-		console.log(await scf.invoke(result.FunctionName))
-		await scf.remove(result)
+    try{console.log(JSON.stringify(result))}catch (e) {
+      console.log(e)
+    }
+		// console.log(JSON.stringify(result))
+		// console.log(await scf.invoke(result.FunctionName))
+		// await scf.remove(result)
 	}
 }
 
