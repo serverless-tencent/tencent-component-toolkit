@@ -1,3 +1,11 @@
+## [1.1.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.1.1...v1.1.2) (2020-04-10)
+
+
+### Bug Fixes
+
+* cos_create && scf cos trigger ([cb1c236](https://github.com/serverless-tencent/tencent-component-toolkit/commit/cb1c236cbb0866435f539c272bbef515f5064c8f))
+* cos-trigger ([5e977c3](https://github.com/serverless-tencent/tencent-component-toolkit/commit/5e977c33fe639a986c82fa0b46328cc53cb7fb8e))
+
 ## [1.1.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.1.0...v1.1.1) (2020-04-08)
 
 
