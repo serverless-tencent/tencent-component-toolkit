@@ -1,3 +1,10 @@
+## [1.1.3](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.1.2...v1.1.3) (2020-04-16)
+
+
+### Bug Fixes
+
+* pg delete compatibility ([8d25dcf](https://github.com/serverless-tencent/tencent-component-toolkit/commit/8d25dcfd86f12f0861d2cd87a3870149bfde0045))
+
 ## [1.1.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.1.1...v1.1.2) (2020-04-10)
 
 
