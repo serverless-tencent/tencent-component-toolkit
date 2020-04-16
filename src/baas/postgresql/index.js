@@ -103,8 +103,12 @@ class Postgresql {
 
   async remove(inputs = {}) {
     const { dBInstanceName } = inputs
-    // need circle for deleting, after host status is 6, then we can delete it
-    await deleteDbInstance(this.capi, dBInstanceName)
+
+    const dbDetail = await getDbInstanceDetail(this.capi, dBInstanceName)
+    if (dbDetail && dbDetail.DBInstanceName) {
+      // need circle for deleting, after host status is 6, then we can delete it
+      await deleteDbInstance(this.capi, dBInstanceName)
+    }
     return {}
   }
 }
