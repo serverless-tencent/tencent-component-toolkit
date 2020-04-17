@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.2.0...v1.2.1) (2020-04-17)
+
+
+### Bug Fixes
+
+* vpc export ([65d1561](https://github.com/serverless-tencent/tencent-component-toolkit/commit/65d1561636b65f8138adc456de709c65d11a93c0))
+
 # [1.2.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.1.3...v1.2.0) (2020-04-17)
 
 
