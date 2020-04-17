@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.1.3...v1.2.0) (2020-04-17)
+
+
+### Features
+
+* add vpc ([1ea5f20](https://github.com/serverless-tencent/tencent-component-toolkit/commit/1ea5f2068828d28c0425d999e018f5597d88cf0e))
+
 ## [1.1.3](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.1.2...v1.1.3) (2020-04-16)
 
 
