@@ -1,3 +1,10 @@
+## [1.2.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.2.1...v1.2.2) (2020-04-20)
+
+
+### Bug Fixes
+
+* **vpc:** remove unuse console.log ([8456c6a](https://github.com/serverless-tencent/tencent-component-toolkit/commit/8456c6a009e6cd3d095acbfd997c69ad244ef04b))
+
 ## [1.2.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.2.0...v1.2.1) (2020-04-17)
 
 
