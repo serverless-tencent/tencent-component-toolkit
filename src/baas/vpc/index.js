@@ -103,8 +103,6 @@ class Vpc {
           }
 
           const res = await utils.createSubnet(this.capi, params)
-          console.log('handleSubnet', res)
-
           sId = res.SubnetId
 
           if (enableSubnetBroadcast === true) {
