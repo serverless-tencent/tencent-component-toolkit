@@ -42,7 +42,7 @@ class Postgresql {
 
     let dbDetail = await getDbInstanceDetail(this.capi, dBInstanceName)
 
-    if (dbDetail && dbDetail.DBInstanceName) {
+    if (dbDetail && dbDetail.DBInstanceName && dbDetail.Zone === zone) {
       const publicAccess = getDbExtranetAccess(dbDetail.DBInstanceNetInfo)
       // exist and public access config different, update db instance
       if (publicAccess !== extranetAccess) {
