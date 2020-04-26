@@ -76,12 +76,10 @@ class Scf {
       functionConfigure['EipConfig.EipFixed'] = 'TRUE'
     }
     if (inputs.layers) {
-      let index = 0
-      for (const item in inputs.layers) {
-        functionConfigure[`Layers.${index}.LayerName`] = item
-        functionConfigure[`Layers.${index}.LayerVersion`] = inputs.layers[item]
-        index++
-      }
+      inputs.layers.forEach((item, index) => {
+        functionConfigure[`Layers.${index}.LayerName`] = item.name
+        functionConfigure[`Layers.${index}.LayerVersion`] = item.version
+      })
     }
     if (inputs.deadLetter) {
       if (inputs.deadLetter.type) {
