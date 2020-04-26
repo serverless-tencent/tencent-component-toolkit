@@ -1,3 +1,10 @@
+## [1.2.4](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.2.3...v1.2.4) (2020-04-26)
+
+
+### Bug Fixes
+
+* pg exist judgement ([bfa0e26](https://github.com/serverless-tencent/tencent-component-toolkit/commit/bfa0e26d2b029ea618fa7bb21eb83b4f68dc0c7e))
+
 ## [1.2.3](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.2.2...v1.2.3) (2020-04-26)
 
 
