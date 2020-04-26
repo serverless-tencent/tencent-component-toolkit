@@ -1,3 +1,10 @@
+## [1.2.3](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.2.2...v1.2.3) (2020-04-26)
+
+
+### Bug Fixes
+
+* **scf:** layer config bug ([8338508](https://github.com/serverless-tencent/tencent-component-toolkit/commit/833850894d8b2bc572bbbaf4f426d60d2941c549))
+
 ## [1.2.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.2.1...v1.2.2) (2020-04-20)
 
 
