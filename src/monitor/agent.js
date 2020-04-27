@@ -1,7 +1,7 @@
-const EventEmitter = require('events').EventEmitter
+const { EventEmitter } = require('events')
 const util = require('util')
 
-function Agent () { }
+function Agent() {}
 
 util.inherits(Agent, EventEmitter)
 
