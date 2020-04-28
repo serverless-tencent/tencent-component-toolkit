@@ -1,3 +1,10 @@
+## [1.3.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.3.1...v1.3.2) (2020-04-28)
+
+
+### Bug Fixes
+
+* **apigw:** apiId undefined compatibility ([df957fe](https://github.com/serverless-tencent/tencent-component-toolkit/commit/df957fe284f617c2cf281af8407d13dbde0e2033))
+
 ## [1.3.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.3.0...v1.3.1) (2020-04-28)
 
 
