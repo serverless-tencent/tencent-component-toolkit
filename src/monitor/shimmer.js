@@ -9,7 +9,9 @@ function _firstPartyInstrumentation(agent, fileName, nodule) {
   }
   try {
     return require(fileName)(agent, nodule)
-  } catch (error) {}
+  } catch (error) {
+    agent.emit('responseFinish')
+  }
 }
 
 const shimmer = (module.exports = {
@@ -17,7 +19,7 @@ const shimmer = (module.exports = {
    * Patch the module.load function so that we see modules loading and
    * have an opportunity to patch them with instrumentation.
    */
-  patchModule: function patchModule() {
+  patchModule: function patchModule(agent) {
     const Module = require('module')
     const filepathMap = {}
 
@@ -59,7 +61,7 @@ const shimmer = (module.exports = {
 
         const fileName = resolveFileName(request, parent, isMain)
         // eslint-disable-next-line
-        return _postLoad(m, request, fileName)
+        return _postLoad(agent, m, request, fileName)
       }
     })
   },
@@ -128,7 +130,7 @@ const shimmer = (module.exports = {
  * initialization function that takes the agent and the module to be
  * instrumented.
  */
-function instrument(nodule, moduleName) {
+function instrument(agent, nodule, moduleName) {
   const instrumentation = shimmer.registeredInstrumentations[moduleName]
 
   if (nodule.hasOwnProperty('__instrumented')) {
@@ -140,17 +142,19 @@ function instrument(nodule, moduleName) {
     if (instrumentation.onRequire(nodule) !== false) {
       nodule.__instrumented = true
     }
-  } catch (instrumentationError) {}
+  } catch (instrumentationError) {
+    agent.emit('responseFinish')
+  }
 
   return nodule
 }
 
-function _postLoad(nodule, name, resolvedName) {
+function _postLoad(agent, nodule, name, resolvedName) {
   const instrumentation = name
 
   // Check if this is a known instrumentation and then run it.
   if (shimmer.registeredInstrumentations[instrumentation]) {
-    return instrument(nodule, instrumentation, resolvedName)
+    return instrument(agent, nodule, instrumentation, resolvedName)
   }
 
   return nodule

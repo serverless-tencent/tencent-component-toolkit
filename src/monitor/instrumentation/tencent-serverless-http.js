@@ -9,14 +9,18 @@ module.exports = function initialize(agent, httpProxy) {
       const proxy = fn.apply(this, arguments)
       return new Promise(function(resolve) {
         agent.on('responseFinish', function(ctx, method, path, responseCode) {
-          report.reportHttp(ctx, method, path, responseCode).then(
-            function() {
-              resolve(proxy)
-            },
-            function() {
-              resolve(proxy)
-            }
-          )
+          if (ctx) {
+            report.reportHttp(ctx, method, path, responseCode).then(
+              function() {
+                resolve(proxy)
+              },
+              function() {
+                resolve(proxy)
+              }
+            )
+          } else {
+            resolve(proxy)
+          }
         })
       })
     }
