@@ -178,6 +178,7 @@ class Apigw {
           })
           output.apiId = endpoint.apiId
           console.log(`Service with id ${output.apiId} updated.`)
+          output.internalDomain = detail.internalDomain
         }
       } catch (e) {}
     }
@@ -190,14 +191,17 @@ class Apigw {
       output.apiId = apiId
       output.created = true
       console.log(`API with id ${output.apiId} created.`)
+
+      try {
+        const { internalDomain } = await this.request({
+          Action: 'DescribeApi',
+          serviceId: serviceId,
+          apiId: output.apiId
+        })
+        output.internalDomain = internalDomain
+      } catch (e) {}
     }
 
-    const { internalDomain } = await this.request({
-      Action: 'DescribeApi',
-      serviceId: serviceId,
-      apiId: output.apiId
-    })
-    output.internalDomain = internalDomain
     output.apiName = apiInputs.apiName
     return output
   }
