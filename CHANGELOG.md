@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.2.4...v1.3.0) (2020-04-28)
+
+
+### Features
+
+* add monitor module ([#28](https://github.com/serverless-tencent/tencent-component-toolkit/issues/28)) ([8f83afd](https://github.com/serverless-tencent/tencent-component-toolkit/commit/8f83afdaad0701b3ac552cc8d7e0a571b413bde5))
+
 ## [1.2.4](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.2.3...v1.2.4) (2020-04-26)
 
 
