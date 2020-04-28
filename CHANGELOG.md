@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.3.0...v1.3.1) (2020-04-28)
+
+
+### Bug Fixes
+
+* monitor export ([b3084bc](https://github.com/serverless-tencent/tencent-component-toolkit/commit/b3084bce7f0c00bd7170876cc5c93922777c3c6b))
+
 # [1.3.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.2.4...v1.3.0) (2020-04-28)
 
 
