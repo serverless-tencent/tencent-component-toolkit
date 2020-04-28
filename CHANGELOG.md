@@ -1,3 +1,24 @@
+# [1.3.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.2.4...v1.3.0) (2020-04-28)
+
+
+### Features
+
+* add monitor module ([#28](https://github.com/serverless-tencent/tencent-component-toolkit/issues/28)) ([8f83afd](https://github.com/serverless-tencent/tencent-component-toolkit/commit/8f83afdaad0701b3ac552cc8d7e0a571b413bde5))
+
+## [1.2.4](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.2.3...v1.2.4) (2020-04-26)
+
+
+### Bug Fixes
+
+* pg exist judgement ([bfa0e26](https://github.com/serverless-tencent/tencent-component-toolkit/commit/bfa0e26d2b029ea618fa7bb21eb83b4f68dc0c7e))
+
+## [1.2.3](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.2.2...v1.2.3) (2020-04-26)
+
+
+### Bug Fixes
+
+* **scf:** layer config bug ([8338508](https://github.com/serverless-tencent/tencent-component-toolkit/commit/833850894d8b2bc572bbbaf4f426d60d2941c549))
+
 ## [1.2.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.2.1...v1.2.2) (2020-04-20)
 
 
