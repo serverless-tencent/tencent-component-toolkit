@@ -6,9 +6,9 @@
  * @enum {string}
  */
 const MODULE_TYPE = {
-    /** Web server framework module, such as Express or Koa. */
-    WEB_FRAMEWORK: 'web-framework',
-    PROXY: 'proxy'
+  /** Web server framework module, such as Express or Koa. */
+  WEB_FRAMEWORK: 'web-framework',
+  PROXY: 'proxy'
 }
 
 exports.MODULE_TYPE = MODULE_TYPE
