@@ -9,7 +9,7 @@ const Scf = require('./baas/scf')
 const Tag = require('./baas/tag')
 const Postgresql = require('./baas/postgresql')
 const Vpc = require('./baas/vpc')
-
+const Cam = require('./baas/cam')
 module.exports = {
   Apigw,
   Cdn,
@@ -21,5 +21,6 @@ module.exports = {
   Scf,
   Tag,
   Postgresql,
-  Vpc
+  Vpc,
+  Cam
 }
