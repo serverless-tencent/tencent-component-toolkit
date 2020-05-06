@@ -1,3 +1,10 @@
+## [1.3.3](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.3.2...v1.3.3) (2020-05-06)
+
+
+### Bug Fixes
+
+* remove monitor ([a2f2447](https://github.com/serverless-tencent/tencent-component-toolkit/commit/a2f24479d5f62b5c1c50665dbde3b769f764fbe3))
+
 ## [1.3.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.3.1...v1.3.2) (2020-04-28)
 
 
