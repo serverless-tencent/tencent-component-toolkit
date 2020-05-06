@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.3.3...v1.4.0) (2020-05-06)
+
+
+### Features
+
+* add cam module ([edc9ffd](https://github.com/serverless-tencent/tencent-component-toolkit/commit/edc9ffd2d00f823a4bf393319acfed184ce99b5d))
+
 ## [1.3.3](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.3.2...v1.3.3) (2020-05-06)
 
 
