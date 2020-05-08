@@ -1,3 +1,10 @@
+## [1.4.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.4.1...v1.4.2) (2020-05-08)
+
+
+### Bug Fixes
+
+* **scf:** error throw ([418719e](https://github.com/serverless-tencent/tencent-component-toolkit/commit/418719e5e9f0209c39e73a63a30be978fa4ebd29))
+
 ## [1.4.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.4.0...v1.4.1) (2020-05-08)
 
 
