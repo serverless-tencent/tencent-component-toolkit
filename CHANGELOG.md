@@ -1,3 +1,10 @@
+## [1.4.3](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.4.2...v1.4.3) (2020-05-08)
+
+
+### Bug Fixes
+
+* **apigw:** create api funcQualifier bug ([a67c095](https://github.com/serverless-tencent/tencent-component-toolkit/commit/a67c0956295bca51a3d01f26ae2f5341f6aaf241))
+
 ## [1.4.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.4.1...v1.4.2) (2020-05-08)
 
 
