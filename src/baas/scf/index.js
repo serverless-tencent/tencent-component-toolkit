@@ -236,7 +236,7 @@ class Scf {
       console.log(`Deploying ${inputs.name}'s triggers in ${this.region}.`)
 
       if ((await this.checkStatus(inputs.namespace || defaultNamespace, inputs.name)) == false) {
-        throw `Deploying ${inputs.name} trigger failed. Please check function status.`
+        throw new Error(`Deploying ${inputs.name} trigger failed. Please check function status.`)
       }
 
       const releaseEvents = funcInfo.Triggers
@@ -353,7 +353,9 @@ class Scf {
             inputs.name
           )
           if (functionStatus == false) {
-            throw `Function ${inputs.name} deploy trigger failed. Please check function status.`
+            throw new Error(
+              `Function ${inputs.name} deploy trigger failed. Please check function status.`
+            )
           }
 
           // 判断Trigger是否已经存在
@@ -469,7 +471,7 @@ class Scf {
     } else {
       await this.updateFunctionCode(inputs, funcInfo)
       if ((await this.checkStatus(inputs.namespace || defaultNamespace, inputs.name)) == false) {
-        throw `Function ${inputs.name} upgrade failed. Please check function status.`
+        throw new Error(`Function ${inputs.name} upgrade failed. Please check function status.`)
       }
       await this.updateFunctionConfigure(inputs, funcInfo)
     }
@@ -484,7 +486,7 @@ class Scf {
         funcInfo = await this.getFunction(inputs.namespace || defaultNamespace, inputs.name)
       }
       if ((await this.checkStatus(inputs.namespace || defaultNamespace, inputs.name)) == false) {
-        throw `Function ${inputs.name} upgrade failed. Please check function status.`
+        throw new Error(`Function ${inputs.name} upgrade failed. Please check function status.`)
       }
       await Promise.all([this.deployTags(funcInfo, inputs), this.deployTrigger(funcInfo, inputs)])
     }
