@@ -106,8 +106,6 @@ class Apigw {
     const funcQualifier = endpoint.function.functionQualifier
       ? endpoint.function.functionQualifier
       : '$LATEST'
-      ? endpoint.function.functionQualifier
-      : '$LATEST'
 
     if (endpoint.protocol === 'WEBSOCKET') {
       if (!endpoint.function.transportFunctionName) {
@@ -130,10 +128,10 @@ class Apigw {
       }
       apiInputs.serviceScfFunctionName = funcName
       apiInputs.serviceScfFunctionNamespace = funcNamespace
-      ;(apiInputs.serviceScfIsIntegratedResponse = endpoint.function.isIntegratedResponse
+      apiInputs.serviceScfIsIntegratedResponse = endpoint.function.isIntegratedResponse
         ? 'TRUE'
-        : 'FALSE'),
-        (apiInputs.serviceScfFunctionQualifier = funcQualifier)
+        : 'FALSE'
+      apiInputs.serviceScfFunctionQualifier = funcQualifier
     }
 
     if (endpoint.param) {
