@@ -1,3 +1,10 @@
+## [1.4.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.4.0...v1.4.1) (2020-05-08)
+
+
+### Bug Fixes
+
+* optimize apigw deployment ([ba523ad](https://github.com/serverless-tencent/tencent-component-toolkit/commit/ba523adcff1e8316a2d2c6355d9d87ebd6cc8684))
+
 # [1.4.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.3.3...v1.4.0) (2020-05-06)
 
 
