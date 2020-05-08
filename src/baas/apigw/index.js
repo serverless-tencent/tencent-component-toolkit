@@ -327,6 +327,9 @@ class Apigw {
   // bind custom domains
   async bindCustomDomain({ serviceId, subDomain, inputs }) {
     const { customDomains, oldState = {} } = inputs
+    if (!customDomains) {
+      return []
+    }
     // 1. unbind all custom domain
     const customDomainDetail = await this.request({
       Action: 'DescribeServiceSubDomains',
@@ -510,13 +513,14 @@ class Apigw {
       )
     }
 
-    console.log(`Deploying service with id ${serviceId}.`)
+    console.log(`Releaseing service with id ${serviceId}, environment: ${inputs.environment}`)
     await this.request({
       Action: 'ReleaseService',
       serviceId: serviceId,
       environmentName: inputs.environment,
       releaseDesc: 'Serverless api-gateway component deploy'
     })
+    console.log(`Deploy service with id ${serviceId} successfully.`)
 
     const outputs = {
       created: serviceCreated,
