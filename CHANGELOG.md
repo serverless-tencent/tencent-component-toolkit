@@ -1,3 +1,10 @@
+## [1.4.4](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.4.3...v1.4.4) (2020-05-11)
+
+
+### Bug Fixes
+
+* **apigw:** change usagePlan id to usagePlanId ([3ae48db](https://github.com/serverless-tencent/tencent-component-toolkit/commit/3ae48db74e6d7ebf66e2f5a80a15f51f06bc35a7))
+
 ## [1.4.3](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.4.2...v1.4.3) (2020-05-08)
 
 
