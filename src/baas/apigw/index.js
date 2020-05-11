@@ -264,6 +264,8 @@ class Apigw {
   }
 
   async setupApiUsagePlan({ usagePlan }) {
+    console.log('usagePlan', usagePlan)
+
     const usageInputs = {
       usagePlanName: usagePlan.usagePlanName || '',
       usagePlanDesc: usagePlan.usagePlanDesc || '',
@@ -273,22 +275,22 @@ class Apigw {
 
     const usagePlanOutput = {
       created: usagePlan.created || false,
-      id: usagePlan.id
+      usagePlanId: usagePlan.usagePlanId
     }
 
-    if (!usagePlan.id) {
+    if (!usagePlan.usagePlanId) {
       const createUsagePlan = await this.request({
         Action: 'CreateUsagePlan',
         ...usageInputs
       })
-      usagePlanOutput.id = createUsagePlan.usagePlanId
+      usagePlanOutput.usagePlanId = createUsagePlan.usagePlanId
       usagePlanOutput.created = true
       console.log(`Usage plan with ID ${usagePlanOutput.id} created.`)
     } else {
       console.log(`Updating usage plan with id ${usagePlan.usagePlanId}.`)
       await this.request({
         Action: 'ModifyUsagePlan',
-        usagePlanId: usagePlanOutput.id,
+        usagePlanId: usagePlanOutput.usagePlanId,
         ...usageInputs
       })
     }
@@ -409,21 +411,21 @@ class Apigw {
       apiIds: [apiId]
     })
 
-    const oldUsagePlan = usagePlanList.find((item) => item.usagePlanId === usagePlan.id)
+    const oldUsagePlan = usagePlanList.find((item) => item.usagePlanId === usagePlan.usagePlanId)
     if (oldUsagePlan) {
       console.log(
-        `Usage plan with id ${usagePlan.id} already bind to api id ${apiId} path ${endpoint.method} ${endpoint.path}.`
+        `Usage plan with id ${usagePlan.usagePlanId} already bind to api id ${apiId} path ${endpoint.method} ${endpoint.path}.`
       )
     } else {
       console.log(
-        `Binding usage plan with id ${usagePlan.id} to api id ${apiId} path ${endpoint.method} ${endpoint.path}.`
+        `Binding usage plan with id ${usagePlan.usagePlanId} to api id ${apiId} path ${endpoint.method} ${endpoint.path}.`
       )
       await this.request({
         Action: 'BindEnvironment',
         serviceId,
         environment,
         bindType: bindType,
-        usagePlanIds: [usagePlan.id],
+        usagePlanIds: [usagePlan.usagePlanId],
         apiIds: [apiId]
       })
       console.log('Binding successed.')
@@ -479,16 +481,16 @@ class Apigw {
           secretIds
         })
         const unboundSecretIds = await this.getUnboundSecretIds({
-          usagePlanId: usagePlan.id,
+          usagePlanId: usagePlan.usagePlanId,
           secretIds: secrets.secretIds
         })
         if (unboundSecretIds.length > 0) {
           console.log(
-            `Binding secret key ${unboundSecretIds} to usage plan with id ${usagePlan.id}.`
+            `Binding secret key ${unboundSecretIds} to usage plan with id ${usagePlan.usagePlanId}.`
           )
           await this.request({
             Action: 'BindSecretIds',
-            usagePlanId: usagePlan.id,
+            usagePlanId: usagePlan.usagePlanId,
             secretIds: unboundSecretIds
           })
           console.log('Binding secret key successed.')
@@ -559,9 +561,9 @@ class Apigw {
           await this.request({
             Action: 'UnBindSecretIds',
             secretIds: secrets.secretIds,
-            usagePlanId: curApi.usagePlan.id
+            usagePlanId: curApi.usagePlan.usagePlanId
           })
-          console.log(`Unbinding secret key to usage plan with ID ${curApi.usagePlan.id}.`)
+          console.log(`Unbinding secret key to usage plan with ID ${curApi.usagePlan.usagePlanId}.`)
 
           // delelet all created api key
           if (curApi.usagePlan.secrets.created === true) {
@@ -584,21 +586,23 @@ class Apigw {
         await this.request({
           Action: 'UnBindEnvironment',
           serviceId,
-          usagePlanIds: [curApi.usagePlan.id],
+          usagePlanIds: [curApi.usagePlan.usagePlanId],
           environment,
           bindType: curApi.bindType,
           apiIds: [curApi.apiId]
         })
         console.log(
-          `Unbinding usage plan with ID ${curApi.usagePlan.id} to service with ID ${serviceId}.`
+          `Unbinding usage plan with ID ${curApi.usagePlan.usagePlanId} to service with ID ${serviceId}.`
         )
 
         // 1.3 delete created usage plan
         if (curApi.usagePlan.created === true) {
-          console.log(`Removing any previously deployed usage plan ids ${curApi.usagePlan.id}`)
+          console.log(
+            `Removing any previously deployed usage plan ids ${curApi.usagePlan.usagePlanId}`
+          )
           await this.request({
             Action: 'DeleteUsagePlan',
-            usagePlanId: curApi.usagePlan.id
+            usagePlanId: curApi.usagePlan.usagePlanId
           })
         }
       }
