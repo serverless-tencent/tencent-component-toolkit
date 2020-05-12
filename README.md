@@ -23,7 +23,6 @@ type(scope?): subject  #scope is optional
 
 support type：
 
-```bash
 - **feat**: add new feature
 - **fix**: fix bug or patch feature
 - **ci**: CI
@@ -32,7 +31,6 @@ support type：
 - **refactor**: refactor project
 - **revert**: revert
 - **test**: test
-```
 
 Most of time, we just use `feat` and `fix`.
 
