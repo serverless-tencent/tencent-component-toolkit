@@ -39,7 +39,8 @@
     "url": "git+https://github.com/serverless-tencent/tencent-component-toolkit.git"
   },
   "keywords": [
-    "template",
+    "tencent-component",
+    "tencent-component-toolkit",
     "release",
     "ci"
   ],
