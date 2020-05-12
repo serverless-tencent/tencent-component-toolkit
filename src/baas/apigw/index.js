@@ -229,6 +229,7 @@ class Apigw {
         secretIds: uniqSecretIds,
         limit: uniqSecretIds.length
       })
+
       const existKeysLen = apiKeyStatusSet.length
 
       const ids = []
@@ -262,8 +263,6 @@ class Apigw {
   }
 
   async setupApiUsagePlan({ usagePlan }) {
-    console.log('usagePlan', usagePlan)
-
     const usageInputs = {
       usagePlanName: usagePlan.usagePlanName || '',
       usagePlanDesc: usagePlan.usagePlanDesc || '',
@@ -308,12 +307,17 @@ class Apigw {
         offset
       })
       if (secretIdList.length < limit) {
-        return res
+        return secretIdList
       }
-      return getAllBoundSecrets(res, { limit, offset: offset + secretIdList.length })
+      const more = await getAllBoundSecrets(secretIdList, {
+        limit,
+        offset: offset + secretIdList.length
+      })
+      return res.concat(more.secretIdList)
     }
     const allBoundSecretObjs = await getAllBoundSecrets([], { limit: 100 })
     const allBoundSecretIds = allBoundSecretObjs.map((item) => item.secretId)
+
     const unboundSecretIds = secretIds.filter((item) => {
       if (allBoundSecretIds.indexOf(item) === -1) {
         return true
