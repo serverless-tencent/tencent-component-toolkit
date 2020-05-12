@@ -1,3 +1,10 @@
+## [1.4.5](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.4.4...v1.4.5) (2020-05-12)
+
+
+### Bug Fixes
+
+* **apigw:** get unbound secret ids bug ([29d62d6](https://github.com/serverless-tencent/tencent-component-toolkit/commit/29d62d665c3b53dfe6e3daf759a42bdebc8d460e))
+
 ## [1.4.4](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.4.3...v1.4.4) (2020-05-11)
 
 
