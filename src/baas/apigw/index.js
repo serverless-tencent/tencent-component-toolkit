@@ -106,8 +106,6 @@ class Apigw {
     const funcQualifier = endpoint.function.functionQualifier
       ? endpoint.function.functionQualifier
       : '$LATEST'
-      ? endpoint.function.functionQualifier
-      : '$LATEST'
 
     if (endpoint.protocol === 'WEBSOCKET') {
       if (!endpoint.function.transportFunctionName) {
@@ -130,10 +128,10 @@ class Apigw {
       }
       apiInputs.serviceScfFunctionName = funcName
       apiInputs.serviceScfFunctionNamespace = funcNamespace
-      ;(apiInputs.serviceScfIsIntegratedResponse = endpoint.function.isIntegratedResponse
+      apiInputs.serviceScfIsIntegratedResponse = endpoint.function.isIntegratedResponse
         ? 'TRUE'
-        : 'FALSE'),
-        (apiInputs.serviceScfFunctionQualifier = funcQualifier)
+        : 'FALSE'
+      apiInputs.serviceScfFunctionQualifier = funcQualifier
     }
 
     if (endpoint.param) {
@@ -231,6 +229,7 @@ class Apigw {
         secretIds: uniqSecretIds,
         limit: uniqSecretIds.length
       })
+
       const existKeysLen = apiKeyStatusSet.length
 
       const ids = []
@@ -273,22 +272,22 @@ class Apigw {
 
     const usagePlanOutput = {
       created: usagePlan.created || false,
-      id: usagePlan.id
+      usagePlanId: usagePlan.usagePlanId
     }
 
-    if (!usagePlan.id) {
+    if (!usagePlan.usagePlanId) {
       const createUsagePlan = await this.request({
         Action: 'CreateUsagePlan',
         ...usageInputs
       })
-      usagePlanOutput.id = createUsagePlan.usagePlanId
+      usagePlanOutput.usagePlanId = createUsagePlan.usagePlanId
       usagePlanOutput.created = true
       console.log(`Usage plan with ID ${usagePlanOutput.id} created.`)
     } else {
       console.log(`Updating usage plan with id ${usagePlan.usagePlanId}.`)
       await this.request({
         Action: 'ModifyUsagePlan',
-        usagePlanId: usagePlanOutput.id,
+        usagePlanId: usagePlanOutput.usagePlanId,
         ...usageInputs
       })
     }
@@ -308,12 +307,17 @@ class Apigw {
         offset
       })
       if (secretIdList.length < limit) {
-        return res
+        return secretIdList
       }
-      return getAllBoundSecrets(res, { limit, offset: offset + secretIdList.length })
+      const more = await getAllBoundSecrets(secretIdList, {
+        limit,
+        offset: offset + secretIdList.length
+      })
+      return res.concat(more.secretIdList)
     }
     const allBoundSecretObjs = await getAllBoundSecrets([], { limit: 100 })
     const allBoundSecretIds = allBoundSecretObjs.map((item) => item.secretId)
+
     const unboundSecretIds = secretIds.filter((item) => {
       if (allBoundSecretIds.indexOf(item) === -1) {
         return true
@@ -327,6 +331,9 @@ class Apigw {
   // bind custom domains
   async bindCustomDomain({ serviceId, subDomain, inputs }) {
     const { customDomains, oldState = {} } = inputs
+    if (!customDomains) {
+      return []
+    }
     // 1. unbind all custom domain
     const customDomainDetail = await this.request({
       Action: 'DescribeServiceSubDomains',
@@ -406,21 +413,21 @@ class Apigw {
       apiIds: [apiId]
     })
 
-    const oldUsagePlan = usagePlanList.find((item) => item.usagePlanId === usagePlan.id)
+    const oldUsagePlan = usagePlanList.find((item) => item.usagePlanId === usagePlan.usagePlanId)
     if (oldUsagePlan) {
       console.log(
-        `Usage plan with id ${usagePlan.id} already bind to api id ${apiId} path ${endpoint.method} ${endpoint.path}.`
+        `Usage plan with id ${usagePlan.usagePlanId} already bind to api id ${apiId} path ${endpoint.method} ${endpoint.path}.`
       )
     } else {
       console.log(
-        `Binding usage plan with id ${usagePlan.id} to api id ${apiId} path ${endpoint.method} ${endpoint.path}.`
+        `Binding usage plan with id ${usagePlan.usagePlanId} to api id ${apiId} path ${endpoint.method} ${endpoint.path}.`
       )
       await this.request({
         Action: 'BindEnvironment',
         serviceId,
         environment,
         bindType: bindType,
-        usagePlanIds: [usagePlan.id],
+        usagePlanIds: [usagePlan.usagePlanId],
         apiIds: [apiId]
       })
       console.log('Binding successed.')
@@ -476,16 +483,16 @@ class Apigw {
           secretIds
         })
         const unboundSecretIds = await this.getUnboundSecretIds({
-          usagePlanId: usagePlan.id,
+          usagePlanId: usagePlan.usagePlanId,
           secretIds: secrets.secretIds
         })
         if (unboundSecretIds.length > 0) {
           console.log(
-            `Binding secret key ${unboundSecretIds} to usage plan with id ${usagePlan.id}.`
+            `Binding secret key ${unboundSecretIds} to usage plan with id ${usagePlan.usagePlanId}.`
           )
           await this.request({
             Action: 'BindSecretIds',
-            usagePlanId: usagePlan.id,
+            usagePlanId: usagePlan.usagePlanId,
             secretIds: unboundSecretIds
           })
           console.log('Binding secret key successed.')
@@ -510,13 +517,14 @@ class Apigw {
       )
     }
 
-    console.log(`Deploying service with id ${serviceId}.`)
+    console.log(`Releaseing service with id ${serviceId}, environment: ${inputs.environment}`)
     await this.request({
       Action: 'ReleaseService',
       serviceId: serviceId,
       environmentName: inputs.environment,
       releaseDesc: 'Serverless api-gateway component deploy'
     })
+    console.log(`Deploy service with id ${serviceId} successfully.`)
 
     const outputs = {
       created: serviceCreated,
@@ -555,9 +563,9 @@ class Apigw {
           await this.request({
             Action: 'UnBindSecretIds',
             secretIds: secrets.secretIds,
-            usagePlanId: curApi.usagePlan.id
+            usagePlanId: curApi.usagePlan.usagePlanId
           })
-          console.log(`Unbinding secret key to usage plan with ID ${curApi.usagePlan.id}.`)
+          console.log(`Unbinding secret key to usage plan with ID ${curApi.usagePlan.usagePlanId}.`)
 
           // delelet all created api key
           if (curApi.usagePlan.secrets.created === true) {
@@ -580,21 +588,23 @@ class Apigw {
         await this.request({
           Action: 'UnBindEnvironment',
           serviceId,
-          usagePlanIds: [curApi.usagePlan.id],
+          usagePlanIds: [curApi.usagePlan.usagePlanId],
           environment,
           bindType: curApi.bindType,
           apiIds: [curApi.apiId]
         })
         console.log(
-          `Unbinding usage plan with ID ${curApi.usagePlan.id} to service with ID ${serviceId}.`
+          `Unbinding usage plan with ID ${curApi.usagePlan.usagePlanId} to service with ID ${serviceId}.`
         )
 
         // 1.3 delete created usage plan
         if (curApi.usagePlan.created === true) {
-          console.log(`Removing any previously deployed usage plan ids ${curApi.usagePlan.id}`)
+          console.log(
+            `Removing any previously deployed usage plan ids ${curApi.usagePlan.usagePlanId}`
+          )
           await this.request({
             Action: 'DeleteUsagePlan',
-            usagePlanId: curApi.usagePlan.id
+            usagePlanId: curApi.usagePlan.usagePlanId
           })
         }
       }
