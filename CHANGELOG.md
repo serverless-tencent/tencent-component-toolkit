@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.5.0...v1.5.1) (2020-05-14)
+
+
+### Bug Fixes
+
+* **cdn:** add https output ([3d49332](https://github.com/serverless-tencent/tencent-component-toolkit/commit/3d49332c226f6c21fb1151867d25c73e04920887))
+
 # [1.5.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.4.5...v1.5.0) (2020-05-14)
 
 
