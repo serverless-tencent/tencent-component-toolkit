@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.4.5...v1.5.0) (2020-05-14)
+
+
+### Features
+
+* upgrade cdn api to v3 ([8edcd95](https://github.com/serverless-tencent/tencent-component-toolkit/commit/8edcd956809b356bd72435600f29d0adec34012c))
+
 ## [1.4.5](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.4.4...v1.4.5) (2020-05-12)
 
 
