@@ -49,7 +49,7 @@ class Cdn {
     const { oldState = {} } = inputs
     delete inputs.oldState
     const {
-      SyncFlow = true,
+      Async = false,
       Domain,
       Origin,
       ServiceType = 'web',
@@ -111,7 +111,16 @@ class Cdn {
       OriginPullTimeout
     })
 
+    const outputs = {
+      https: false,
+      domain: Domain,
+      origins: cdnInputs.Origin.Origins,
+      cname: `${Domain}.cdn.dnsv1.com`,
+      inputCache: JSON.stringify(cdnInputs)
+    }
+
     if (Https) {
+      outputs.https = true
       cdnInputs.Https = {
         Switch: Https.Switch,
         Http2: Https.Http2 || 'off',
@@ -131,12 +140,6 @@ class Cdn {
     const cdnInfo = await getCdnByDomain(this.capi, Domain)
 
     const sourceInputs = JSON.parse(JSON.stringify(cdnInputs))
-    const outputs = {
-      domain: Domain,
-      origins: cdnInputs.Origin.Origins,
-      cname: `${Domain}.cdn.dnsv1.com`,
-      inputCache: JSON.stringify(cdnInputs)
-    }
 
     const createOrUpdateCdn = async () => {
       if (cdnInfo) {
@@ -166,7 +169,7 @@ class Cdn {
 
       console.log('Waiting for CDN deploy success, it maybe cost 5 minutes....')
       // When set syncFlow false, just continue, do not wait for online status.
-      if (SyncFlow) {
+      if (Async === false) {
         await waitResponse({
           callback: async () => getCdnByDomain(this.capi, Domain),
           targetProp: 'Status',
