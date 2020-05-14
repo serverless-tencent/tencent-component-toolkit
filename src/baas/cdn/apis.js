@@ -1,6 +1,6 @@
-function HttpError(code, message) {
+function HttpError(code, message, reqId) {
   this.code = code || 0
-  this.message = message || ''
+  this.message = reqId ? `${reqId}, ${message || ''}` : message || ''
 }
 
 HttpError.prototype = Error.prototype
@@ -25,24 +25,28 @@ function apiFactory(actions) {
   actions.forEach((action) => {
     apis[action] = async (capi, inputs) => {
       inputs = cleanEmptyValue(inputs)
-      const res = await capi.request(
-        {
-          Action: action,
-          RequestClient: 'ServerlessComponent',
-          Token: capi.options.Token || null,
-          ...inputs
-        },
-        {
-          Version: '2017-03-12',
-          ServiceType: 'cdn',
-          bashHost: 'api.qcloud.com',
-          path: '/v2/index.php'
+      try {
+        const { Response } = await capi.request(
+          {
+            Action: action,
+            Version: '2018-06-06',
+            RequestClient: 'ServerlessComponent',
+            Token: capi.options.Token || null,
+            ...inputs
+          },
+          {
+            debug: false,
+            ServiceType: 'cdn',
+            host: 'cdn.tencentcloudapi.com'
+          }
+        )
+        if (Response && Response.Error && Response.Error.Code) {
+          throw new HttpError(Response.Error.Code, Response.Error.Message, Response.RequestId)
         }
-      )
-      if (res.code !== 0) {
-        throw new HttpError(res.code, res.message)
+        return Response
+      } catch (e) {
+        throw new HttpError(500, e.message)
       }
-      return res
     }
   })
 
@@ -50,12 +54,12 @@ function apiFactory(actions) {
 }
 
 const ACTIONS = [
-  'AddCdnHost',
-  'SetHttpsInfo',
-  'GetHostInfoByHost',
-  'DeleteCdnHost',
-  'OfflineHost',
-  'UpdateCdnConfig'
+  'AddCdnDomain',
+  'DescribeDomains',
+  'UpdateDomainConfig',
+  'StopCdnDomain',
+  'DeleteCdnDomain',
+  'PurgeUrlsCache'
 ]
 const APIS = apiFactory(ACTIONS)
 
