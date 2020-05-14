@@ -5,23 +5,72 @@ async function runTest() {
     SecretId: '',
     SecretKey: ''
   }
+
+  // const inputs = {
+  //   syncFlow: true,
+  //   area: 'global',
+  //   domain: 'fullstack.yugasun.com',
+  //   serviceType: 'web',
+  //   origin: {
+  //     origins: ['up6pwd9-89hm718-xxx.cos-website.ap-guangzhou.myqcloud.com'],
+  //     originType: 'domain',
+  //     originPullProtocol: 'https',
+  //     serverName: 'up6pwd9-89hm718-xxx.cos-website.ap-guangzhou.myqcloud.com'
+  //   },
+  //   https: {
+  //     switch: 'on',
+  //     http2: 'on',
+  //     certInfo: {
+  //       certId: 'xxx'
+  //     }
+  //   },
+  //   forceRedirect: {
+  //     switch: 'on',
+  //     redirectType: 'https',
+  //     redirectStatusCode: 301
+  //   },
+  //   refreshCdn: {
+  //     urls: [
+  //       'https://fullstack.yugasun.com'
+  //     ]
+  //   }
+  // }
   const inputs = {
-    host: 'fullstack.yugasun.com',
+    area: 'overseas',
+    domain: 'fullstack.yugasun.com',
     hostType: 'cos',
-    origin: 'up6pwd9-89hm718-1251556596.cos-website.ap-guangzhou.myqcloud.com',
-    backupOrigin: 'up6pwd9-89hm718-1251556596.cos-website.ap-guangzhou.myqcloud.com',
+    origin: {
+      origins: ['up6pwd9-89hm718-xxx.cos-website.ap-guangzhou.myqcloud.com'],
+      originType: 'cos',
+      originPullProtocol: 'https',
+    },
     serviceType: 'web',
-    fullUrl: 'on',
-    fwdHost: 'up6pwd9-89hm718-1251556596.cos-website.ap-guangzhou.myqcloud.com',
-    cacheMode: 'simple',
-    refer: [{ type: 1, list: ['qq.baidu.com', '*.baidu.com'], empty: 0 }],
-    https: { http2: 'off', httpsType: 4, forceSwitch: -2, certId: 'Z67aCPcj' }
+    https: {
+      switch: 'on',
+      http2: 'on',
+      certInfo: {
+        certId: 'xxx'
+      }
+    },
+    forceRedirect: {
+      switch: 'on',
+      redirectType: 'https',
+      redirectStatusCode: 301
+    }
   }
   const cdn = new Cdn(credentials, inputs.region)
   const outputs = await cdn.deploy(inputs)
   console.log(outputs)
 
-  await cdn.remove(outputs)
+  // await cdn.remove({
+  //   domain: 'fullstack.yugasun.com'
+  // })
 }
 
 runTest()
+
+
+process.on('unhandledRejection', (e) => {
+  console.log(e);
+
+})
