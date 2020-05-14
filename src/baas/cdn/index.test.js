@@ -7,7 +7,7 @@ async function runTest() {
   }
 
   // const inputs = {
-  //   syncFlow: true,
+  //   async: true,
   //   area: 'global',
   //   domain: 'fullstack.yugasun.com',
   //   serviceType: 'web',
