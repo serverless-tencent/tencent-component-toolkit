@@ -498,10 +498,18 @@ class Scf {
   // 移除函数的主逻辑
   async remove(inputs = {}) {
     console.log(`Deleteing funtion ${inputs.functionName || inputs.FunctionName} ...`)
-    await this.deleteFunction(
-      inputs.functionName || inputs.FunctionName,
-      inputs.namespace || inputs.Namespace || defaultNamespace
-    )
+    const functionName = inputs.functionName || inputs.FunctionName
+    const namespace = inputs.namespace || inputs.Namespace || defaultNamespace
+
+    // check function exist, then delete
+    const func = await this.getFunction(functionName, namespace)
+
+    if (!func) {
+      console.log(`Funtion ${functionName} not exist...`)
+      return
+    }
+
+    await this.deleteFunction(functionName, namespace)
 
     if (inputs.Triggers) {
       for (let i = 0; i < inputs.Triggers.length; i++) {

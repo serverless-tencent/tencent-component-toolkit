@@ -551,6 +551,16 @@ class Apigw {
 
   async remove(inputs) {
     const { created, environment, serviceId, apiList, customDomains } = inputs
+    // check service exist
+    try {
+      await this.request({
+        Action: 'DescribeService',
+        serviceId: serviceId
+      })
+    } catch (e) {
+      console.log(`Service ${serviceId} not exist`)
+      return
+    }
     // 1. remove all apis
     for (let i = 0; i < apiList.length; i++) {
       const curApi = apiList[i]
