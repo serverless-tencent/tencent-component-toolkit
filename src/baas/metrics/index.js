@@ -14,7 +14,7 @@ class Metrics {
     this.version = options.version || '$LATEST'
 
     this.client = new slsMonitor(this.credentials)
-    this.timezone = '+08:00'
+    this.timezone = options.timezone || '+08:00'
   }
 
   async scfMetrics(startTime, endTime, period) {
