@@ -205,7 +205,13 @@ class Cdn {
 
     // need circle for deleting, after domain status is 6, then we can delete it
     console.log(`Start removing CDN for ${domain}`)
-    const { Status } = await getCdnByDomain(this.capi, domain)
+    const detail = await getCdnByDomain(this.capi, domain)
+    if (!detail) {
+      console.log(`CDN domain ${domain} not exist`)
+      return {}
+    }
+
+    const { Status } = detail
 
     if (Status === 'online') {
       // disable first
