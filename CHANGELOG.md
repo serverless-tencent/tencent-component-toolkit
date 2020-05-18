@@ -1,3 +1,10 @@
+## [1.5.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.5.1...v1.5.2) (2020-05-18)
+
+
+### Bug Fixes
+
+* add delete scf/apigw campatibility ([e0c323a](https://github.com/serverless-tencent/tencent-component-toolkit/commit/e0c323a79ea41e76f01ad6757a45cb64cd611eef))
+
 ## [1.5.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.5.0...v1.5.1) (2020-05-14)
 
 
