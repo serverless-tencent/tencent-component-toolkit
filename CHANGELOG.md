@@ -1,3 +1,10 @@
+## [1.5.3](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.5.2...v1.5.3) (2020-05-18)
+
+
+### Bug Fixes
+
+* add deleting compatibility for all resources ([aad3160](https://github.com/serverless-tencent/tencent-component-toolkit/commit/aad31607164d407990f76343c0af2bdc5fa0c133))
+
 ## [1.5.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.5.1...v1.5.2) (2020-05-18)
 
 
