@@ -329,14 +329,10 @@ class Cos {
 
   async getBucket(inputs = {}) {
     const getBucketHandler = util.promisify(this.cosClient.getBucket.bind(this.cosClient))
-    try {
-      return await getBucketHandler({
-        Bucket: inputs.bucket,
-        Region: this.region
-      })
-    } catch (e) {
-      throw new Error(JSON.stringify(e))
-    }
+    return getBucketHandler({
+      Bucket: inputs.bucket,
+      Region: this.region
+    })
   }
 
   async upload(inputs = {}) {
@@ -495,41 +491,49 @@ class Cos {
     console.log(`Removing bucket from ${this.region} ...`)
 
     // 获取全部文件
-    const fileListResult = await this.getBucket(inputs)
-
+    let detail
     try {
-      const fileList = []
-      if (fileListResult && fileListResult.Contents && fileListResult.Contents.length > 0) {
-        // delete files
-        for (let i = 0; i < fileListResult.Contents.length; i++) {
-          fileList.push({
-            Key: fileListResult.Contents[i].Key
-          })
+      detail = await this.getBucket(inputs)
+    } catch (e) {
+      if (e.error && e.error.Code && e.error.Code === 'NoSuchBucket') {
+        console.log(`Bucket ${inputs.bucket} not exist`)
+        return
+      }
+    }
+
+    if (detail && detail.Contents) {
+      // delete files
+      const objectList = (detail.Contents || []).map((item) => {
+        return {
+          Key: item.Key
         }
+      })
+
+      try {
         const deleteMultipleObjectHandler = util.promisify(
           this.cosClient.deleteMultipleObject.bind(this.cosClient)
         )
-        try {
-          await deleteMultipleObjectHandler({
-            Region: this.region,
-            Bucket: inputs.bucket,
-            Objects: fileList
-          })
-        } catch (e) {
-          throw new Error(JSON.stringify(e))
-        }
+        await deleteMultipleObjectHandler({
+          Region: this.region,
+          Bucket: inputs.bucket,
+          Objects: objectList
+        })
+      } catch (e) {
+        console.log(e)
+      }
+      try {
         const deleteBucketHandler = util.promisify(this.cosClient.deleteBucket.bind(this.cosClient))
-        try {
-          await deleteBucketHandler({
-            Region: this.region,
-            Bucket: inputs.bucket
-          })
-        } catch (e) {
-          throw new Error(JSON.stringify(e))
+        await deleteBucketHandler({
+          Region: this.region,
+          Bucket: inputs.bucket
+        })
+      } catch (e) {
+        if (e.error && e.error.Code && e.error.Code === 'NoSuchBucket') {
+          console.log(`Bucket ${inputs.bucket} not exist`)
+        } else {
+          throw e
         }
       }
-    } catch (e) {
-      throw new Error(JSON.stringify(e))
     }
   }
 }

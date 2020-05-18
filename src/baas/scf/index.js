@@ -497,15 +497,20 @@ class Scf {
 
   // 移除函数的主逻辑
   async remove(inputs = {}) {
-    console.log(`Deleteing funtion ${inputs.functionName || inputs.FunctionName} ...`)
+    console.log(`Deleteing function ${inputs.functionName || inputs.FunctionName} ...`)
     const functionName = inputs.functionName || inputs.FunctionName
     const namespace = inputs.namespace || inputs.Namespace || defaultNamespace
 
     // check function exist, then delete
-    const func = await this.getFunction(functionName, namespace)
+    const func = await this.getFunction(namespace, functionName)
 
     if (!func) {
       console.log(`Funtion ${functionName} not exist...`)
+      return
+    }
+
+    if (func.Status === 'Updating' || func.Status === 'Creating') {
+      console.log(`Funtion ${functionName} status is ${func.Status}, can not delete...`)
       return
     }
 
@@ -514,7 +519,11 @@ class Scf {
     if (inputs.Triggers) {
       for (let i = 0; i < inputs.Triggers.length; i++) {
         if (inputs.Triggers[i].serviceId) {
-          await this.deleteAPIGW(inputs.Triggers[i])
+          try {
+            await this.deleteAPIGW(inputs.Triggers[i])
+          } catch (e) {
+            console.log(e)
+          }
         }
       }
     }
