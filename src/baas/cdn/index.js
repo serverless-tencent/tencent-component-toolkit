@@ -211,7 +211,8 @@ class Cdn {
       // disable first
       await StopCdnDomain(this.capi, { Domain: domain })
     } else if (Status === 'processing') {
-      throw new Error(`Status is not operational for ${domain}`)
+      console.log(`Status is not operational for ${domain}`)
+      return {}
     }
     console.log(`Waiting for offline ${domain}...`)
     await waitResponse({
