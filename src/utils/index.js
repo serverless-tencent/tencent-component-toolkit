@@ -91,10 +91,36 @@ function uniqueArray(arr) {
   });
 }
 
+function camelCase(str) {
+  if (str.length <= 1) {
+    return str.toUpperCase();
+  }
+  return `${str[0].toUpperCase()}${str.slice(1)}`;
+}
+
+function camelCaseProperty(obj) {
+  let res = null;
+  if (isObject(obj)) {
+    res = {};
+    Object.keys(obj).forEach((key) => {
+      const val = obj[key];
+      res[camelCase(key)] = isObject(val) || isArray(val) ? camelCaseProperty(val) : val;
+    });
+  }
+  if (isArray(obj)) {
+    res = [];
+    obj.forEach((item) => {
+      res.push(isObject(item) || isArray(item) ? camelCaseProperty(item) : item);
+    });
+  }
+  return res;
+}
+
 module.exports = {
   isArray,
   isObject,
   _forEach,
   flatten,
   uniqueArray,
+  camelCaseProperty,
 };

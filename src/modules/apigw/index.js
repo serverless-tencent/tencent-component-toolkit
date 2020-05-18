@@ -1,12 +1,18 @@
-const { apigw } = require('tencent-cloud-sdk');
-const { uniqueArray } = require('../../utils/index');
-const { TypeError } = require('../../utils/error');
+const { Capi } = require('@tencent-sdk/capi');
+const Apis = require('./apis');
+const { uniqueArray, camelCaseProperty } = require('../../utils/index');
 
 class Apigw {
   constructor(credentials = {}, region) {
     this.region = region || 'ap-guangzhou';
     this.credentials = credentials;
-    this.apigwClient = new apigw(this.credentials);
+    this.capi = new Capi({
+      Region: this.region,
+      AppId: this.credentials.AppId,
+      SecretId: this.credentials.SecretId,
+      SecretKey: this.credentials.SecretKey,
+      Token: this.credentials.Token,
+    });
   }
 
   getProtocolString(protocols) {
@@ -18,30 +24,16 @@ class Apigw {
       : 'http&https';
   }
 
-  async request(inputs) {
-    inputs.Region = this.region;
-    try {
-      const result = await this.apigwClient.request(inputs);
-
-      if (result.code != 0) {
-        throw new TypeError(
-          `API_APIGW_${inputs.Action}`,
-          `Request API ${inputs.Action} failed: ${result.message}`,
-        );
-      } else {
-        return result;
-      }
-    } catch (e) {
-      throw new TypeError(`API_APIGW_${inputs.Action}`, e.message, e.stack);
-    }
+  async request({ Action, ...data }) {
+    const result = await Apis[Action](this.capi, camelCaseProperty(data));
+    return result;
   }
 
-  async deleteRequest(inputs) {
-    inputs.Region = this.region;
+  async removeOrUnbindRequest({ Action, ...data }) {
     try {
-      await this.apigwClient.request(inputs);
+      await Apis[Action](this.capi, camelCaseProperty(data));
     } catch (e) {
-      console.log(e);
+      // no op
     }
   }
 
@@ -56,11 +48,11 @@ class Apigw {
     let detail;
     let exist = false;
     if (serviceId) {
-      try {
-        detail = await this.request({
-          Action: 'DescribeService',
-          serviceId: serviceId,
-        });
+      detail = await this.request({
+        Action: 'DescribeService',
+        ServiceId: serviceId,
+      });
+      if (detail) {
         exist = true;
         if (
           !(
@@ -77,23 +69,22 @@ class Apigw {
             protocol: protocols,
           });
         }
-      } catch (e) {}
+      }
     }
     if (!exist) {
-      const createData = await this.request({
+      detail = await this.request({
         Action: 'CreateService',
         serviceName: serviceName || 'Serverless_Framework',
         serviceDesc: serviceDesc || 'Created By Serverless Framework',
         protocol: protocols,
       });
-      detail = createData.data;
       serviceCreated = true;
     }
 
     return {
       serviceName,
-      serviceId: detail.serviceId,
-      subDomain: detail.subDomain,
+      serviceId: detail.ServiceId,
+      subDomain: detail.OuterSubDomain || detail.InnerSubDomain,
       serviceCreated,
     };
   }
@@ -112,7 +103,8 @@ class Apigw {
       apiName: endpoint.apiName || 'index',
       apiDesc: endpoint.description,
       apiType: 'NORMAL',
-      authRequired: endpoint.auth ? 'TRUE' : 'FALSE',
+      authType: endpoint.auth ? 'SECRET' : 'NONE',
+      // authRequired: endpoint.auth ? 'TRUE' : 'FALSE',
       serviceType: 'SCF',
       requestConfig: {
         path: endpoint.path,
@@ -120,7 +112,7 @@ class Apigw {
       },
       serviceTimeout: endpoint.serviceTimeout || 15,
       responseType: endpoint.responseType || 'HTML',
-      enableCORS: endpoint.enableCORS === true ? 'TRUE' : 'FALSE',
+      enableCORS: endpoint.enableCORS === true ? true : false,
     };
 
     const funcName = endpoint.function.functionName;
@@ -154,8 +146,8 @@ class Apigw {
       apiInputs.serviceScfFunctionName = funcName;
       apiInputs.serviceScfFunctionNamespace = funcNamespace;
       apiInputs.serviceScfIsIntegratedResponse = endpoint.function.isIntegratedResponse
-        ? 'TRUE'
-        : 'FALSE';
+        ? true
+        : false;
       apiInputs.serviceScfFunctionQualifier = funcQualifier;
     }
 
@@ -182,47 +174,44 @@ class Apigw {
           }
         }
       }
-    }
+    } else {
+      const detail = await this.request({
+        Action: 'DescribeApi',
+        serviceId: serviceId,
+        apiId: endpoint.apiId,
+      });
 
-    if (endpoint.apiId) {
-      try {
-        const detail = await this.request({
-          Action: 'DescribeApi',
-          serviceId: serviceId,
+      if (detail && detail.ApiId) {
+        exist = true;
+        console.log(`Updating api with api id ${endpoint.apiId}.`);
+        await this.request({
+          Action: 'ModifyApi',
           apiId: endpoint.apiId,
+          ...apiInputs,
         });
-        if (detail && detail.apiId) {
-          exist = true;
-          console.log(`Updating api with api id ${endpoint.apiId}.`);
-          await this.request({
-            Action: 'ModifyApi',
-            apiId: endpoint.apiId,
-            ...apiInputs,
-          });
-          output.apiId = endpoint.apiId;
-          console.log(`Service with id ${output.apiId} updated.`);
-          output.internalDomain = detail.internalDomain;
-        }
-      } catch (e) {}
+        output.apiId = endpoint.apiId;
+        console.log(`Service with id ${output.apiId} updated.`);
+        output.internalDomain = detail.InternalDomain;
+      }
     }
 
     if (!exist) {
-      const { apiId } = await this.request({
+      const { ApiId } = await this.request({
         Action: 'CreateApi',
         ...apiInputs,
       });
-      output.apiId = apiId;
+
+      output.apiId = ApiId;
       output.created = true;
+
       console.log(`API with id ${output.apiId} created.`);
 
-      try {
-        const { internalDomain } = await this.request({
-          Action: 'DescribeApi',
-          serviceId: serviceId,
-          apiId: output.apiId,
-        });
-        output.internalDomain = internalDomain;
-      } catch (e) {}
+      const detail = await this.request({
+        Action: 'DescribeApi',
+        serviceId: serviceId,
+        apiId: output.apiId,
+      });
+      output.internalDomain = detail.InternalDomain;
     }
 
     output.apiName = apiInputs.apiName;
@@ -237,52 +226,56 @@ class Apigw {
 
     if (secretIds.length === 0) {
       console.log(`Creating a new Secret key.`);
-      const { secretId, secretKey } = await this.request({
+      const { AccessKeyId, AccessKeySecret } = await this.request({
         Action: 'CreateApiKey',
-        secretName: secretName,
-        type: 'auto',
+        SecretName: secretName,
+        AccessKeyType: 'auto',
       });
-      console.log(`Secret key with ID ${secretId} and key ${secretKey} updated.`);
-      secretIdsOutput.secretIds = [secretId];
+      console.log(`Secret key with ID ${AccessKeyId} and key ${AccessKeySecret} updated.`);
+      secretIdsOutput.secretIds = [AccessKeyId];
       secretIdsOutput.created = true;
-    } else {
-      const uniqSecretIds = uniqueArray(secretIds);
+    }
+    const uniqSecretIds = uniqueArray(secretIds);
 
-      // get all secretId, check local secretId exists
-      const { apiKeyStatusSet } = await this.request({
-        Action: 'DescribeApiKeysStatus',
-        secretIds: uniqSecretIds,
-        limit: uniqSecretIds.length,
-      });
+    // get all secretId, check local secretId exists
+    const { ApiKeySet } = await this.request({
+      Action: 'DescribeApiKeysStatus',
+      Limit: uniqSecretIds.length,
+      Filter: [
+        {
+          Name: 'AccessKeyId',
+          Values: uniqSecretIds,
+        },
+      ],
+    });
 
-      const existKeysLen = apiKeyStatusSet.length;
+    const existKeysLen = ApiKeySet.length;
 
-      const ids = [];
-      for (let i = 0; i < uniqSecretIds.length; i++) {
-        const secretId = uniqSecretIds[i];
-        let found = false;
-        let disable = false;
-        for (let n = 0; n < existKeysLen; n++) {
-          if (apiKeyStatusSet[n] && secretId == apiKeyStatusSet[n].secretId) {
-            if (apiKeyStatusSet[n].status == 1) {
-              found = true;
-            } else {
-              disable = true;
-              console.log(`There is a disabled secret key: ${secretId}, cannot be bound`);
-            }
-            break;
+    const ids = [];
+    for (let i = 0; i < uniqSecretIds.length; i++) {
+      const secretId = uniqSecretIds[i];
+      let found = false;
+      let disable = false;
+      for (let n = 0; n < existKeysLen; n++) {
+        if (ApiKeySet[n] && secretId == ApiKeySet[n].AccessKeyId) {
+          if (ApiKeySet[n].Status == 1) {
+            found = true;
+          } else {
+            disable = true;
+            console.log(`There is a disabled secret key: ${secretId}, cannot be bound`);
           }
-        }
-        if (!found) {
-          if (!disable) {
-            console.log(`Secret key id ${secretId} does't exist`);
-          }
-        } else {
-          ids.push(secretId);
+          break;
         }
       }
-      secretIdsOutput.secretIds = ids;
+      if (!found) {
+        if (!disable) {
+          console.log(`Secret key id ${secretId} does't exist`);
+        }
+      } else {
+        ids.push(secretId);
+      }
     }
+    secretIdsOutput.secretIds = ids;
 
     return secretIdsOutput;
   }
@@ -300,21 +293,42 @@ class Apigw {
       usagePlanId: usagePlan.usagePlanId,
     };
 
-    if (!usagePlan.usagePlanId) {
-      const createUsagePlan = await this.request({
-        Action: 'CreateUsagePlan',
-        ...usageInputs,
-      });
-      usagePlanOutput.usagePlanId = createUsagePlan.usagePlanId;
-      usagePlanOutput.created = true;
-      console.log(`Usage plan with ID ${usagePlanOutput.id} created.`);
-    } else {
+    let exist = false;
+    if (usagePlan.usagePlanId) {
+      try {
+        const detail = await this.request({
+          Action: 'DescribeUsagePlan',
+          UsagePlanId: usagePlan.usagePlanId,
+        });
+        if (detail && detail.UsagePlanId) {
+          exist = true;
+        }
+      } catch (e) {
+        // no op
+      }
+    }
+
+    if (exist) {
       console.log(`Updating usage plan with id ${usagePlan.usagePlanId}.`);
       await this.request({
         Action: 'ModifyUsagePlan',
         usagePlanId: usagePlanOutput.usagePlanId,
         ...usageInputs,
       });
+    } else {
+      const { UsagePlanId } = await this.request({
+        Action: 'CreateUsagePlan',
+        ...usageInputs,
+      });
+
+      const detail = await this.request({
+        Action: 'DescribeUsagePlan',
+        UsagePlanId: UsagePlanId,
+      });
+
+      usagePlanOutput.usagePlanId = detail.UsagePlanId;
+      usagePlanOutput.created = true;
+      console.log(`Usage plan with ID ${usagePlanOutput.usagePlanId} created.`);
     }
 
     return usagePlanOutput;
@@ -325,23 +339,24 @@ class Apigw {
    */
   async getUnboundSecretIds({ usagePlanId, secretIds }) {
     const getAllBoundSecrets = async (res = [], { limit, offset = 0 }) => {
-      const { secretIdList } = await this.request({
+      const { AccessKeyList } = await this.request({
         Action: 'DescribeUsagePlanSecretIds',
         usagePlanId,
         limit,
         offset,
       });
-      if (secretIdList.length < limit) {
-        return secretIdList;
+
+      if (AccessKeyList.length < limit) {
+        return AccessKeyList;
       }
-      const more = await getAllBoundSecrets(secretIdList, {
+      const more = await getAllBoundSecrets(AccessKeyList, {
         limit,
-        offset: offset + secretIdList.length,
+        offset: offset + AccessKeyList.length,
       });
-      return res.concat(more.secretIdList);
+      return res.concat(more.AccessKeyList);
     };
     const allBoundSecretObjs = await getAllBoundSecrets([], { limit: 100 });
-    const allBoundSecretIds = allBoundSecretObjs.map((item) => item.secretId);
+    const allBoundSecretIds = allBoundSecretObjs.map((item) => item.AccessKeyId);
 
     const unboundSecretIds = secretIds.filter((item) => {
       if (allBoundSecretIds.indexOf(item) === -1) {
@@ -366,24 +381,24 @@ class Apigw {
     });
     if (
       customDomainDetail &&
-      customDomainDetail.domainSet &&
-      customDomainDetail.domainSet.length > 0
+      customDomainDetail.DomainSet &&
+      customDomainDetail.DomainSet.length > 0
     ) {
-      const { domainSet = [] } = customDomainDetail;
+      const { DomainSet = [] } = customDomainDetail;
       // unbind all created domain
       const stateDomains = oldState.customDomains || [];
-      for (let i = 0; i < domainSet.length; i++) {
-        const domainItem = domainSet[i];
+      for (let i = 0; i < DomainSet.length; i++) {
+        const domainItem = DomainSet[i];
         for (let j = 0; j < stateDomains.length; j++) {
           // only list subDomain and created in state
-          if (stateDomains[j].subDomain === domainItem.domainName) {
+          if (stateDomains[j].subDomain === domainItem.DomainName) {
             console.log(
-              `Start unbind previus domain ${domainItem.domainName} for service ${serviceId}`,
+              `Start unbind previus domain ${domainItem.DomainName} for service ${serviceId}`,
             );
             await this.request({
               Action: 'UnBindSubDomain',
               serviceId,
-              subDomain: domainItem.domainName,
+              subDomain: domainItem.DomainName,
             });
           }
         }
@@ -401,9 +416,11 @@ class Apigw {
         const domainInputs = {
           serviceId,
           subDomain: domainItem.domain,
+          netSubDomain: subDomain,
           certificateId: domainItem.certificateId,
-          isDefaultMapping: domainItem.isDefaultMapping || 'TRUE',
+          isDefaultMapping: domainItem.isDefaultMapping === true ? true : false,
           pathMappingSet: domainItem.pathMappingSet || [],
+          netType: domainItem.netType ? domainItem.netType : 'OUTER',
           protocol: domainProtocol,
         };
         await this.request({
@@ -432,13 +449,17 @@ class Apigw {
     endpoint,
     usagePlan,
   }) {
-    const { usagePlanList } = await this.request({
+    const { ApiUsagePlanList } = await this.request({
       Action: 'DescribeApiUsagePlan',
       serviceId,
-      apiIds: [apiId],
+      // ApiIds: [apiId],
+      limit: 100,
     });
 
-    const oldUsagePlan = usagePlanList.find((item) => item.usagePlanId === usagePlan.usagePlanId);
+    const oldUsagePlan = ApiUsagePlanList.find(
+      (item) => item.UsagePlanId === usagePlan.usagePlanId,
+    );
+
     if (oldUsagePlan) {
       console.log(
         `Usage plan with id ${usagePlan.usagePlanId} already bind to api id ${apiId} path ${endpoint.method} ${endpoint.path}.`,
@@ -500,6 +521,7 @@ class Apigw {
             ...endpoint.usagePlan,
           },
         });
+
         // store in api list
         curApi.usagePlan = usagePlan;
 
@@ -508,10 +530,12 @@ class Apigw {
           secretName: endpoint.auth.secretName,
           secretIds,
         });
+
         const unboundSecretIds = await this.getUnboundSecretIds({
           usagePlanId: usagePlan.usagePlanId,
           secretIds: secrets.secretIds,
         });
+
         if (unboundSecretIds.length > 0) {
           console.log(
             `Binding secret key ${unboundSecretIds} to usage plan with id ${usagePlan.usagePlanId}.`,
@@ -519,7 +543,7 @@ class Apigw {
           await this.request({
             Action: 'BindSecretIds',
             usagePlanId: usagePlan.usagePlanId,
-            secretIds: unboundSecretIds,
+            accessKeyIds: unboundSecretIds,
           });
           console.log('Binding secret key successed.');
         }
@@ -577,13 +601,14 @@ class Apigw {
 
   async remove(inputs) {
     const { created, environment, serviceId, apiList, customDomains } = inputs;
+
     // check service exist
-    try {
-      await this.request({
-        Action: 'DescribeService',
-        serviceId: serviceId,
-      });
-    } catch (e) {
+    const detail = await this.request({
+      Action: 'DescribeService',
+      ServiceId: serviceId,
+    });
+
+    if (!detail) {
       console.log(`Service ${serviceId} not exist`);
       return;
     }
@@ -595,10 +620,12 @@ class Apigw {
       if (curApi.usagePlan) {
         // 1.1 unbind secrete ids
         const { secrets } = curApi.usagePlan;
+        console.log('secrets', secrets);
+
         if (secrets && secrets.secretIds) {
-          await this.deleteRequest({
+          await this.removeOrUnbindRequest({
             Action: 'UnBindSecretIds',
-            secretIds: secrets.secretIds,
+            accessKeyIds: secrets.secretIds,
             usagePlanId: curApi.usagePlan.usagePlanId,
           });
           console.log(
@@ -609,13 +636,13 @@ class Apigw {
           if (curApi.usagePlan.secrets.created === true) {
             for (let sIdx = 0; sIdx < secrets.secretIds.length; sIdx++) {
               const secretId = secrets.secretIds[sIdx];
-              await this.deleteRequest({
+              await this.removeOrUnbindRequest({
                 Action: 'DisableApiKey',
-                secretId,
+                accessKeyId: secretId,
               });
-              await this.deleteRequest({
+              await this.removeOrUnbindRequest({
                 Action: 'DeleteApiKey',
-                secretId,
+                accessKeyId: secretId,
               });
               console.log(`Removing any previously deployed secret key. ${secretId}`);
             }
@@ -623,7 +650,7 @@ class Apigw {
         }
 
         // 1.2 unbind environment
-        await this.deleteRequest({
+        await this.removeOrUnbindRequest({
           Action: 'UnBindEnvironment',
           serviceId,
           usagePlanIds: [curApi.usagePlan.usagePlanId],
@@ -640,7 +667,7 @@ class Apigw {
           console.log(
             `Removing any previously deployed usage plan ids ${curApi.usagePlan.usagePlanId}`,
           );
-          await this.deleteRequest({
+          await this.removeOrUnbindRequest({
             Action: 'DeleteUsagePlan',
             usagePlanId: curApi.usagePlan.usagePlanId,
           });
@@ -650,7 +677,7 @@ class Apigw {
       // 2. delete only apis created by serverless framework
       if (curApi.apiId && curApi.created === true) {
         console.log(`Removing api: ${curApi.apiId}`);
-        await this.deleteRequest({
+        await this.removeOrUnbindRequest({
           Action: 'DeleteApi',
           apiId: curApi.apiId,
           serviceId,
@@ -664,7 +691,7 @@ class Apigw {
         const curDomain = customDomains[i];
         if (curDomain.subDomain && curDomain.created === true) {
           console.log(`Unbinding custom domain: ${curDomain.subDomain}`);
-          await this.deleteRequest({
+          await this.removeOrUnbindRequest({
             Action: 'UnBindSubDomain',
             serviceId,
             subDomain: curDomain.subDomain,
@@ -675,17 +702,16 @@ class Apigw {
 
     // 3. unrelease service
     console.log(`Unreleasing service: ${serviceId}, environment: ${environment}`);
-    await this.deleteRequest({
+    await this.removeOrUnbindRequest({
       Action: 'UnReleaseService',
       serviceId,
       environmentName: environment,
-      unReleaseDesc: 'Offlined By Serverless Framework',
     });
 
     if (created === true) {
       // delete service
       console.log(`Removing service: ${serviceId}`);
-      await this.deleteRequest({
+      await this.removeOrUnbindRequest({
         Action: 'DeleteService',
         serviceId,
       });

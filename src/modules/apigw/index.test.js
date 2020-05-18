@@ -8,28 +8,28 @@ async function runTest() {
 
   const inputs = {
     region: 'ap-guangzhou',
-    serviceId: 'service-7i9kk5a8',
+    serviceId: 'service-miuysd64',
     protocols: ['http', 'https'],
     serviceName: 'serverless',
     environment: 'release',
-    // customDomains: [
-    //   {
-    //     domain: 'fullstack.yugasun.com',
-    //     // TODO: change to your certId
-    //     certificateId: '123456',
-    //     isDefaultMapping: 'FALSE',
-    //     pathMappingSet: [
-    //       {
-    //         path: '/',
-    //         environment: 'release',
-    //       },
-    //     ],
-    //     protocols: ['http', 'https'],
-    //   },
-    // ],
+    customDomains: [
+      {
+        domain: 'test.yugasun.com',
+        // TODO: change to your certId
+        certificateId: 'cWOJJjax',
+        isDefaultMapping: 'true',
+        pathMappingSet: [
+          {
+            path: '/',
+            environment: 'release',
+          },
+        ],
+        protocols: ['http', 'https'],
+      },
+    ],
     endpoints: [
       {
-        apiId: 'api-a05zvycu',
+        apiId: 'api-4n94mte6',
         path: '/',
         protocol: 'HTTP',
         method: 'GET',
@@ -38,6 +38,7 @@ async function runTest() {
           functionName: 'egg-function',
         },
         usagePlan: {
+          usagePlanId: 'usagePlan-e3atrucv',
           usagePlanName: 'slscmp',
           usagePlanDesc: 'sls create',
           maxRequestNum: 1000,
@@ -45,6 +46,7 @@ async function runTest() {
         auth: {
           serviceTimeout: 15,
           secretName: 'secret',
+          secretIds: ['AKID7k1J4024e6gc3Twou1m9smQZrb2OBSyUp4S3'],
         },
 
       },
@@ -61,5 +63,5 @@ async function runTest() {
 runTest();
 
 process.on('unhandledRejection', (e) => {
-  throw e;
+  console.log(e);
 });
