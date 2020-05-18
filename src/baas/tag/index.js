@@ -29,12 +29,9 @@ class Tag {
 
     console.log(`Modify tags ... `)
     try {
-      const tagsResult = await this.tagClient.request(tagsInputs)
-      if (tagsResult.Response && tagsResult.Response.Error) {
-        throw new Error(JSON.stringify(tagsResult.Response))
-      }
+      await this.tagClient.request(tagsInputs)
     } catch (e) {
-      throw e
+      console.log(e)
     }
     console.log(`Modified tags.`)
 

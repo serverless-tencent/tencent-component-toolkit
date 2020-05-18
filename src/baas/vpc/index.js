@@ -139,12 +139,20 @@ class Vpc {
     const { vpcId, subnetId } = inputs
     if (subnetId) {
       console.log(`Start removing subnet ${subnetId}`)
-      await utils.deleteSubnet(this.capi, subnetId)
+      try {
+        await utils.deleteSubnet(this.capi, subnetId)
+      } catch (e) {
+        console.log(e)
+      }
       console.log(`Removed subnet ${subnetId}`)
     }
     if (vpcId) {
       console.log(`Start removing vpc ${vpcId}`)
-      await utils.deleteVpc(this.capi, vpcId)
+      try {
+        await utils.deleteVpc(this.capi, vpcId)
+      } catch (e) {
+        console.log(e)
+      }
       console.log(`Removed vpc ${vpcId}`)
     }
 
