@@ -1,3 +1,10 @@
+## [1.5.4](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.5.3...v1.5.4) (2020-05-18)
+
+
+### Bug Fixes
+
+* **cdn:** cdn domain not exist when deleting ([476c1f9](https://github.com/serverless-tencent/tencent-component-toolkit/commit/476c1f967a76252d24aadcbcf04e3f49924fad75))
+
 ## [1.5.3](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.5.2...v1.5.3) (2020-05-18)
 
 
