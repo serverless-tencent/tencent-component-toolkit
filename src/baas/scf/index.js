@@ -505,12 +505,12 @@ class Scf {
     const func = await this.getFunction(namespace, functionName)
 
     if (!func) {
-      console.log(`Funtion ${functionName} not exist...`)
+      console.log(`Function ${functionName} not exist...`)
       return
     }
 
     if (func.Status === 'Updating' || func.Status === 'Creating') {
-      console.log(`Funtion ${functionName} status is ${func.Status}, can not delete...`)
+      console.log(`Function ${functionName} status is ${func.Status}, can not delete...`)
       return
     }
 
