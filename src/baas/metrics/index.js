@@ -58,9 +58,10 @@ class Metrics {
       throw new Error(`The rangeStart provided is after the rangeEnd`)
     }
 
-    if (startTime.diff(endTime, 'days') >= 31) {
+    // custom metrics maximum 8 day
+    if (startTime.diff(endTime, 'days') >= 8) {
       throw new Error(
-        `The range cannot be longer than 30 days.  The supplied range is: ${startTime.diff(
+        `The range cannot be longer than 8 days.  The supplied range is: ${startTime.diff(
           endTime,
           'days'
         )}`
@@ -212,9 +213,7 @@ class Metrics {
       const p95 = {
         name: 'p95 latency', // constant
         type: 'duration', // constant
-        total: latencyP95.DataPoints[0].Values.reduce(function(a, b) {
-          return a + b
-        }, 0),
+        total: Math.max(...latencyP95.DataPoints[0].Values),
         values: latencyP95.DataPoints[0].Values
       }
       if (!(~~p95.total == p95.total)) {
@@ -237,9 +236,7 @@ class Metrics {
       const p50 = {
         name: 'p50 latency', // constant
         type: 'duration', // constant
-        total: latencyP50.DataPoints[0].Values.reduce(function(a, b) {
-          return a + b
-        }, 0),
+        total: Math.max(...latencyP50.DataPoints[0].Values),
         values: latencyP50.DataPoints[0].Values
       }
       if (!(~~p50.total == p50.total)) {
