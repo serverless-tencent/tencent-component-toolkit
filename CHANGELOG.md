@@ -1,3 +1,10 @@
+## [1.6.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.6.0...v1.6.1) (2020-05-20)
+
+
+### Bug Fixes
+
+* build metrics name match error ([f183bc4](https://github.com/serverless-tencent/tencent-component-toolkit/commit/f183bc42819c9935b5fb6fa0d8d032ff6b9514bd))
+
 # [1.6.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.5.5...v1.6.0) (2020-05-20)
 
 
