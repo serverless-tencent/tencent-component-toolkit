@@ -1,6 +1,6 @@
 {
   "name": "tencent-component-toolkit",
-  "version": "1.4.5",
+  "version": "1.6.0",
   "description": "Tencent component toolkit",
   "main": "src/index.js",
   "scripts": {
@@ -73,6 +73,7 @@
     "@tencent-sdk/capi": "0.2.15",
     "@ygkit/request": "^0.0.6",
     "klaw-sync": "^6.0.0",
-    "tencent-cloud-sdk": "^0.0.5"
+    "moment": "^2.25.3",
+    "tencent-cloud-sdk": "^0.1.5"
   }
 }

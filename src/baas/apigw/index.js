@@ -23,6 +23,15 @@ class Apigw {
     }
   }
 
+  async deleteRequest(inputs) {
+    inputs.Region = this.region
+    try {
+      await this.apigwClient.request(inputs)
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
   async createOrUpdateService(serviceConf) {
     const {
       serviceId,
@@ -551,6 +560,16 @@ class Apigw {
 
   async remove(inputs) {
     const { created, environment, serviceId, apiList, customDomains } = inputs
+    // check service exist
+    try {
+      await this.request({
+        Action: 'DescribeService',
+        serviceId: serviceId
+      })
+    } catch (e) {
+      console.log(`Service ${serviceId} not exist`)
+      return
+    }
     // 1. remove all apis
     for (let i = 0; i < apiList.length; i++) {
       const curApi = apiList[i]
@@ -560,7 +579,7 @@ class Apigw {
         // 1.1 unbind secrete ids
         const { secrets } = curApi.usagePlan
         if (secrets && secrets.secretIds) {
-          await this.request({
+          await this.deleteRequest({
             Action: 'UnBindSecretIds',
             secretIds: secrets.secretIds,
             usagePlanId: curApi.usagePlan.usagePlanId
@@ -571,11 +590,11 @@ class Apigw {
           if (curApi.usagePlan.secrets.created === true) {
             for (let sIdx = 0; sIdx < secrets.secretIds.length; sIdx++) {
               const secretId = secrets.secretIds[sIdx]
-              await this.request({
+              await this.deleteRequest({
                 Action: 'DisableApiKey',
                 secretId
               })
-              await this.request({
+              await this.deleteRequest({
                 Action: 'DeleteApiKey',
                 secretId
               })
@@ -585,7 +604,7 @@ class Apigw {
         }
 
         // 1.2 unbind environment
-        await this.request({
+        await this.deleteRequest({
           Action: 'UnBindEnvironment',
           serviceId,
           usagePlanIds: [curApi.usagePlan.usagePlanId],
@@ -602,7 +621,7 @@ class Apigw {
           console.log(
             `Removing any previously deployed usage plan ids ${curApi.usagePlan.usagePlanId}`
           )
-          await this.request({
+          await this.deleteRequest({
             Action: 'DeleteUsagePlan',
             usagePlanId: curApi.usagePlan.usagePlanId
           })
@@ -612,7 +631,7 @@ class Apigw {
       // 2. delete only apis created by serverless framework
       if (curApi.apiId && curApi.created === true) {
         console.log(`Removing api: ${curApi.apiId}`)
-        await this.request({
+        await this.deleteRequest({
           Action: 'DeleteApi',
           apiId: curApi.apiId,
           serviceId
@@ -626,7 +645,7 @@ class Apigw {
         const curDomain = customDomains[i]
         if (curDomain.subDomain && curDomain.created === true) {
           console.log(`Unbinding custom domain: ${curDomain.subDomain}`)
-          await this.request({
+          await this.deleteRequest({
             Action: 'UnBindSubDomain',
             serviceId,
             subDomain: curDomain.subDomain
@@ -637,7 +656,7 @@ class Apigw {
 
     // 3. unrelease service
     console.log(`Unreleasing service: ${serviceId}, environment: ${environment}`)
-    await this.request({
+    await this.deleteRequest({
       Action: 'UnReleaseService',
       serviceId,
       environmentName: environment,
@@ -647,7 +666,7 @@ class Apigw {
     if (created === true) {
       // delete service
       console.log(`Removing service: ${serviceId}`)
-      await this.request({
+      await this.deleteRequest({
         Action: 'DeleteService',
         serviceId
       })

@@ -1,3 +1,52 @@
+# [1.6.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.5.5...v1.6.0) (2020-05-20)
+
+
+### Features
+
+* add metrics api ([d63834a](https://github.com/serverless-tencent/tencent-component-toolkit/commit/d63834a56159d1d7aac4978b53a479544aacbddf))
+
+## [1.5.5](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.5.4...v1.5.5) (2020-05-19)
+
+
+### Bug Fixes
+
+* wrong word ([ece1e63](https://github.com/serverless-tencent/tencent-component-toolkit/commit/ece1e63bfd309d53218b4303ddd41f41f0f55b70))
+
+## [1.5.4](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.5.3...v1.5.4) (2020-05-18)
+
+
+### Bug Fixes
+
+* **cdn:** cdn domain not exist when deleting ([476c1f9](https://github.com/serverless-tencent/tencent-component-toolkit/commit/476c1f967a76252d24aadcbcf04e3f49924fad75))
+
+## [1.5.3](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.5.2...v1.5.3) (2020-05-18)
+
+
+### Bug Fixes
+
+* add deleting compatibility for all resources ([aad3160](https://github.com/serverless-tencent/tencent-component-toolkit/commit/aad31607164d407990f76343c0af2bdc5fa0c133))
+
+## [1.5.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.5.1...v1.5.2) (2020-05-18)
+
+
+### Bug Fixes
+
+* add delete scf/apigw campatibility ([e0c323a](https://github.com/serverless-tencent/tencent-component-toolkit/commit/e0c323a79ea41e76f01ad6757a45cb64cd611eef))
+
+## [1.5.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.5.0...v1.5.1) (2020-05-14)
+
+
+### Bug Fixes
+
+* **cdn:** add https output ([3d49332](https://github.com/serverless-tencent/tencent-component-toolkit/commit/3d49332c226f6c21fb1151867d25c73e04920887))
+
+# [1.5.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.4.5...v1.5.0) (2020-05-14)
+
+
+### Features
+
+* upgrade cdn api to v3 ([8edcd95](https://github.com/serverless-tencent/tencent-component-toolkit/commit/8edcd956809b356bd72435600f29d0adec34012c))
+
 ## [1.4.5](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.4.4...v1.4.5) (2020-05-12)
 
 

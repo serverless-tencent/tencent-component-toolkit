@@ -10,6 +10,7 @@ const Tag = require('./baas/tag')
 const Postgresql = require('./baas/postgresql')
 const Vpc = require('./baas/vpc')
 const Cam = require('./baas/cam')
+const Metrics = require('./baas/metrics')
 module.exports = {
   Apigw,
   Cdn,
@@ -22,5 +23,6 @@ module.exports = {
   Tag,
   Postgresql,
   Vpc,
-  Cam
+  Cam,
+  Metrics
 }
