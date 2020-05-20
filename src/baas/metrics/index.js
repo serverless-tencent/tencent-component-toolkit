@@ -348,8 +348,8 @@ class Metrics {
       return data
     }
     const results = []
-    const requestDatas = filterMetricByName('request', responses)
-    const errorDatas = filterMetricByName('error', responses)
+    const requestDatas = filterMetricByName(/^request$/, responses)
+    const errorDatas = filterMetricByName(/^error$/, responses)
     const apiReqAndErr = {
       type: 'stacked-bar',
       title: 'api requests & errors'
@@ -400,14 +400,14 @@ class Metrics {
       type: 'multiline'
     }
     if (requestDatas) {
-      latencyP95Datas = filterMetricByName('latency-P95', responses)
-      latencyP50Datas = filterMetricByName('latency-P50', responses)
+      latencyP95Datas = filterMetricByName(/^latency-P95$/, responses)
+      latencyP50Datas = filterMetricByName(/^latency-P50$/, responses)
 
       if (latencyP50Datas == null) {
-        latencyP50Datas = filterMetricByName('latency', responses)
+        latencyP50Datas = filterMetricByName(/^latency$/, responses)
       }
       if (latencyP95Datas == null) {
-        latencyP95Datas = filterMetricByName('latency', responses)
+        latencyP95Datas = filterMetricByName(/^latency$/, responses)
       }
       if (latencyP95Datas) {
         if (!latency.y) {
@@ -449,7 +449,7 @@ class Metrics {
       type: 'stacked-bar', // the chart widget type will use this
       title: 'api 5xx errors'
     }
-    const err5xxDatas = filterMetricByName('5xx', responses)
+    const err5xxDatas = filterMetricByName(/^5xx$/, responses)
     if (err5xxDatas) {
       err5xx.y = []
       err5xx.x = {
@@ -469,7 +469,7 @@ class Metrics {
     results.push(err5xx)
 
     // request 4xx error
-    const err4xxDatas = filterMetricByName('4xx', responses)
+    const err4xxDatas = filterMetricByName(/^4xx$/, responses)
     const err4xx = {
       type: 'stacked-bar', // the chart widget type will use this
       title: 'api 4xx errors'
