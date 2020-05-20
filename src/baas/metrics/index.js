@@ -420,7 +420,9 @@ class Metrics {
         latency.x.values = requestDatas.Values.map((item) => {
           return item.Timestamp * 1000
         })
-        latency.y.push(makeMetric('p95 latency', latencyP95Datas))
+        const p95Obj = makeMetric('p95 latency', latencyP95Datas)
+        p95Obj.total = Math.max(...p95Obj.values)
+        latency.y.push(p95Obj)
       }
 
       if (latencyP50Datas) {
@@ -434,7 +436,9 @@ class Metrics {
         latency.x.values = requestDatas.Values.map((item) => {
           return item.Timestamp * 1000
         })
-        latency.y.push(makeMetric('p50 latency', latencyP50Datas))
+        const p50Obj = makeMetric('p50 latency', latencyP50Datas)
+        p50Obj.total = Math.max(...p50Obj.values)
+        latency.y.push(p50Obj)
       }
     }
 
