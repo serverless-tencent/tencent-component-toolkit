@@ -1,3 +1,10 @@
+## [1.6.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.6.1...v1.6.2) (2020-05-20)
+
+
+### Bug Fixes
+
+* api latency total value to max ([1e526f4](https://github.com/serverless-tencent/tencent-component-toolkit/commit/1e526f47135fe692eaab245d5e2018390d3253d2))
+
 ## [1.6.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.6.0...v1.6.1) (2020-05-20)
 
 
