@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.5.5...v1.6.0) (2020-05-20)
+
+
+### Features
+
+* add metrics api ([d63834a](https://github.com/serverless-tencent/tencent-component-toolkit/commit/d63834a56159d1d7aac4978b53a479544aacbddf))
+
 ## [1.5.5](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.5.4...v1.5.5) (2020-05-19)
 
 
