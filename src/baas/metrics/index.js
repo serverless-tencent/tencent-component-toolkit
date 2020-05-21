@@ -17,6 +17,14 @@ class Metrics {
     this.timezone = options.timezone || '+08:00'
   }
 
+  static get Type() {
+    return Object.freeze({
+      Base: 1, // scf base metrics
+      Custom: 2, // report custom metrics
+      All: 0xffffffff
+    })
+  }
+
   async scfMetrics(startTime, endTime, period) {
     const rangeTime = {
       rangeStart: startTime,
@@ -46,7 +54,7 @@ class Metrics {
     return responses
   }
 
-  async getDatas(startTime, endTime) {
+  async getDatas(startTime, endTime, metricsType = Metrics.Type.All) {
     startTime = moment(startTime)
     endTime = moment(endTime)
 
@@ -83,23 +91,33 @@ class Metrics {
       period = 86400 // day
     }
 
-    const timeFormat = 'YYYY-MM-DDTHH:mm:ss' + this.timezone
-    let results = await this.scfMetrics(
-      startTime.format(timeFormat),
-      endTime.format(timeFormat),
-      period
-    )
+    let response, results
+    if (metricsType & Metrics.Type.Base) {
+      const timeFormat = 'YYYY-MM-DDTHH:mm:ss' + this.timezone
+      results = await this.scfMetrics(
+        startTime.format(timeFormat),
+        endTime.format(timeFormat),
+        period
+      )
+      response = this.buildMetrics(results)
+    }
 
-    const response = this.buildMetrics(results)
-
-    results = await this.customMetrics(
-      startTime.format('YYYY-MM-DD HH:mm:ss'),
-      endTime.format('YYYY-MM-DD HH:mm:ss'),
-      period
-    )
-    results = this.buildCustomMetrics(results)
-
-    response.metrics = response.metrics.concat(results)
+    if (metricsType & Metrics.Type.Custom) {
+      if (!response) {
+        response = {
+          rangeStart: startTime.format('YYYY-MM-DD HH:mm:ss'),
+          rangeEnd: endTime.format('YYYY-MM-DD HH:mm:ss'),
+          metrics: []
+        }
+      }
+      results = await this.customMetrics(
+        startTime.format('YYYY-MM-DD HH:mm:ss'),
+        endTime.format('YYYY-MM-DD HH:mm:ss'),
+        period
+      )
+      results = this.buildCustomMetrics(results)
+      response.metrics = response.metrics.concat(results)
+    }
     return response
   }
 
