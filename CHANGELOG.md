@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.6.2...v1.7.0) (2020-05-21)
+
+
+### Features
+
+* add mertics type filter ([e4b9976](https://github.com/serverless-tencent/tencent-component-toolkit/commit/e4b99761da108526beb81fc7a9d1f8db7e3e510c))
+
 ## [1.6.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.6.1...v1.6.2) (2020-05-20)
 
 
