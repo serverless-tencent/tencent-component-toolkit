@@ -1,3 +1,10 @@
+## [1.7.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.7.1...v1.7.2) (2020-05-24)
+
+
+### Bug Fixes
+
+* **cdn:** olny refresh bug ([7e2e502](https://github.com/serverless-tencent/tencent-component-toolkit/commit/7e2e50295c7e680669fcd9dce2c703a8d12ea223))
+
 ## [1.7.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.7.0...v1.7.1) (2020-05-24)
 
 
