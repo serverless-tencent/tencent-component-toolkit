@@ -1,3 +1,10 @@
+## [1.7.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.7.0...v1.7.1) (2020-05-24)
+
+
+### Bug Fixes
+
+* **cdn:** add only refresh cdn feature ([ef382a9](https://github.com/serverless-tencent/tencent-component-toolkit/commit/ef382a94f3c97fa40d13bfa61f4614d610644cf6))
+
 # [1.7.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.6.2...v1.7.0) (2020-05-21)
 
 
