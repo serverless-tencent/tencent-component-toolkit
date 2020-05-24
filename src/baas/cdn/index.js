@@ -50,6 +50,7 @@ class Cdn {
     delete inputs.oldState
     const {
       Async = false,
+      OnlyRefresh = false,
       Domain,
       Origin,
       ServiceType = 'web',
@@ -138,6 +139,18 @@ class Cdn {
     }
 
     const cdnInfo = await getCdnByDomain(this.capi, Domain)
+
+    // only refresh cdn
+    if (cdnInfo && OnlyRefresh === true) {
+      // refresh cdn urls
+      if (RefreshCdn && RefreshCdn.Urls) {
+        await this.purgeCdnUrls(RefreshCdn.Urls)
+      }
+      return {
+        domain: Domain,
+        refreshUrls: RefreshCdn.Urls
+      }
+    }
 
     const sourceInputs = JSON.parse(JSON.stringify(cdnInputs))
 
