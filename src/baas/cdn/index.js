@@ -82,6 +82,20 @@ class Cdn {
       RefreshCdn
     } = camelCaseProperty(inputs)
 
+    // only refresh cdn
+    if (OnlyRefresh === true) {
+      const domainExist = await getCdnByDomain(this.capi, Domain)
+      // refresh cdn urls
+      if (domainExist && RefreshCdn && RefreshCdn.Urls) {
+        await this.purgeCdnUrls(RefreshCdn.Urls)
+      }
+      return {
+        domain: Domain,
+        origins: domainExist.Origin.Origins,
+        refreshUrls: RefreshCdn.Urls
+      }
+    }
+
     const cdnInputs = flushEmptyValue({
       Domain,
       Origin: formatOrigin(Origin),
@@ -139,18 +153,6 @@ class Cdn {
     }
 
     const cdnInfo = await getCdnByDomain(this.capi, Domain)
-
-    // only refresh cdn
-    if (cdnInfo && OnlyRefresh === true) {
-      // refresh cdn urls
-      if (RefreshCdn && RefreshCdn.Urls) {
-        await this.purgeCdnUrls(RefreshCdn.Urls)
-      }
-      return {
-        domain: Domain,
-        refreshUrls: RefreshCdn.Urls
-      }
-    }
 
     const sourceInputs = JSON.parse(JSON.stringify(cdnInputs))
 
