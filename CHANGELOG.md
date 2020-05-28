@@ -1,3 +1,10 @@
+# [1.8.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.7.2...v1.8.0) (2020-05-28)
+
+
+### Features
+
+* **cos:** support get object upload url ([5dc875f](https://github.com/serverless-tencent/tencent-component-toolkit/commit/5dc875fd1701302c40daece572cd82293d58f2d4))
+
 ## [1.7.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.7.1...v1.7.2) (2020-05-24)
 
 
