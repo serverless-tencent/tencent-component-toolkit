@@ -335,6 +335,20 @@ class Cos {
     })
   }
 
+  async getObjectUrl(inputs = {}) {
+    const getObjectUrlHandler = util.promisify(this.cosClient.getObjectUrl.bind(this.cosClient))
+    const { Url } = await getObjectUrlHandler({
+      Bucket: inputs.bucket,
+      Region: this.region,
+      Key: inputs.object,
+      // default expire time is 15min
+      Expires: inputs.expires || 900,
+      // default is sign url
+      Sign: inputs.sign === false ? false : true
+    })
+    return Url
+  }
+
   async upload(inputs = {}) {
     console.log(`Uploding files to ${this.region}'s bucket: ${inputs.bucket} ...`)
 
