@@ -1,3 +1,10 @@
+## [1.8.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.8.0...v1.8.1) (2020-05-29)
+
+
+### Bug Fixes
+
+* **cos:** support method inputs for getObjectUrl ([c28fa18](https://github.com/serverless-tencent/tencent-component-toolkit/commit/c28fa18d0a5a63237c7a77bb589d77df769b5548))
+
 # [1.8.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.7.2...v1.8.0) (2020-05-28)
 
 
