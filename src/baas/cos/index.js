@@ -341,6 +341,8 @@ class Cos {
       Bucket: inputs.bucket,
       Region: this.region,
       Key: inputs.object,
+      // default request method is GET
+      Method: inputs.method || 'GET',
       // default expire time is 15min
       Expires: inputs.expires || 900,
       // default is sign url
