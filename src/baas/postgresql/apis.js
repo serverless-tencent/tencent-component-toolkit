@@ -1,22 +1,22 @@
 function HttpError(code, message) {
-  this.code = code || 0
-  this.message = message || ''
+  this.code = code || 0;
+  this.message = message || '';
 }
 
-HttpError.prototype = Error.prototype
+HttpError.prototype = Error.prototype;
 
 function apiFactory(actions) {
-  const apis = {}
+  const apis = {};
   actions.forEach((action) => {
     apis[action] = async (apig, inputs) => {
       const data = {
         Version: '2017-03-12',
         Action: action,
         RequestClient: 'ServerlessComponent',
-        ...inputs
-      }
+        ...inputs,
+      };
       if (apig.options.Token) {
-        data.Token = apig.options.Token
+        data.Token = apig.options.Token;
       }
       try {
         const { Response } = await apig.request(
@@ -26,21 +26,21 @@ function apiFactory(actions) {
             debug: false,
             ServiceType: 'postgres',
             // baseHost: 'tencentcloudapi.com'
-            host: 'postgres.tencentcloudapi.com'
+            host: 'postgres.tencentcloudapi.com',
           },
-          false
-        )
+          false,
+        );
         if (Response && Response.Error && Response.Error.Code) {
-          throw new HttpError(Response.Error.Code, Response.Error.Message)
+          throw new HttpError(Response.Error.Code, Response.Error.Message);
         }
-        return Response
+        return Response;
       } catch (e) {
-        throw new HttpError(500, e.message)
+        throw new HttpError(500, e.message);
       }
-    }
-  })
+    };
+  });
 
-  return apis
+  return apis;
 }
 
 const ACTIONS = [
@@ -49,8 +49,8 @@ const ACTIONS = [
   'DeleteServerlessDBInstance',
   'OpenServerlessDBExtranetAccess',
   'CloseServerlessDBExtranetAccess',
-  'UpdateCdnConfig'
-]
-const APIS = apiFactory(ACTIONS)
+  'UpdateCdnConfig',
+];
+const APIS = apiFactory(ACTIONS);
 
-module.exports = APIS
+module.exports = APIS;

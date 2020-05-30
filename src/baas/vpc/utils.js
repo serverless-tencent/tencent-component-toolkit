@@ -6,8 +6,8 @@ const {
   CreateSubnet,
   DeleteSubnet,
   ModifyVpcAttribute,
-  ModifySubnetAttribute
-} = require('./apis')
+  ModifySubnetAttribute,
+} = require('./apis');
 
 const utils = {
   /**
@@ -19,18 +19,18 @@ const utils = {
     // get instance detail
     try {
       const res = await DescribeVpcs(capi, {
-        VpcIds: [vpcId]
-      })
+        VpcIds: [vpcId],
+      });
       if (res.VpcSet) {
         const {
-          VpcSet: [detail]
-        } = res
-        return detail
+          VpcSet: [detail],
+        } = res;
+        return detail;
       }
-      return null
+      return null;
     } catch (e) {
-      console.log(e)
-      return null
+      console.log(e);
+      return null;
     }
   },
 
@@ -42,56 +42,56 @@ const utils = {
   async getSubnetDetail(capi, subnetId) {
     try {
       const res = await DescribeSubnets(capi, {
-        SubnetIds: [subnetId]
-      })
+        SubnetIds: [subnetId],
+      });
       if (res.SubnetSet) {
         const {
-          SubnetSet: [detail]
-        } = res
-        return detail
+          SubnetSet: [detail],
+        } = res;
+        return detail;
       }
-      return null
+      return null;
     } catch (e) {
-      console.log(e)
-      return null
+      console.log(e);
+      return null;
     }
   },
 
   async createVpc(capi, inputs) {
-    const res = await CreateVpc(capi, inputs)
+    const res = await CreateVpc(capi, inputs);
     if (res.Vpc && res.Vpc.VpcId) {
-      const { Vpc } = res
-      return Vpc
+      const { Vpc } = res;
+      return Vpc;
     }
   },
 
   async modifyVpc(capi, inputs) {
-    await ModifyVpcAttribute(capi, inputs)
+    await ModifyVpcAttribute(capi, inputs);
   },
 
   async deleteVpc(capi, vpcId) {
     await DeleteVpc(capi, {
-      VpcId: vpcId
-    })
+      VpcId: vpcId,
+    });
   },
 
   async createSubnet(capi, inputs) {
-    const res = await CreateSubnet(capi, inputs)
+    const res = await CreateSubnet(capi, inputs);
     if (res.Subnet && res.Subnet.SubnetId) {
-      const { Subnet } = res
-      return Subnet
+      const { Subnet } = res;
+      return Subnet;
     }
   },
 
   async modifySubnet(capi, inputs) {
-    await ModifySubnetAttribute(capi, inputs)
+    await ModifySubnetAttribute(capi, inputs);
   },
 
   async deleteSubnet(capi, subnetId) {
     await DeleteSubnet(capi, {
-      SubnetId: subnetId
-    })
-  }
-}
+      SubnetId: subnetId,
+    });
+  },
+};
 
-module.exports = utils
+module.exports = utils;

@@ -1,17 +1,17 @@
-const { Capi } = require('@tencent-sdk/capi')
-const utils = require('./utils')
+const { Capi } = require('@tencent-sdk/capi');
+const utils = require('./utils');
 
 class Vpc {
   constructor(credentials = {}, region) {
-    this.region = region || 'ap-guangzhou'
-    this.credentials = credentials
+    this.region = region || 'ap-guangzhou';
+    this.credentials = credentials;
     this.capi = new Capi({
       Region: region,
       AppId: credentials.AppId,
       SecretId: credentials.SecretId,
       SecretKey: credentials.SecretKey,
-      Token: credentials.Token
-    })
+      Token: credentials.Token,
+    });
   }
 
   async deploy(inputs) {
@@ -25,104 +25,104 @@ class Vpc {
       domainName,
       tags,
       subnetTags,
-      enableSubnetBroadcast
-    } = inputs
+      enableSubnetBroadcast,
+    } = inputs;
 
-    let { vpcId, subnetId } = inputs
+    let { vpcId, subnetId } = inputs;
 
     const handleVpc = async (vId) => {
-      let existVpc = false
+      let existVpc = false;
       if (vId) {
-        const detail = await utils.getVpcDetail(this.capi, vId)
+        const detail = await utils.getVpcDetail(this.capi, vId);
         if (detail) {
-          existVpc = true
+          existVpc = true;
         }
       }
       const params = {
-        VpcName: vpcName
-      }
+        VpcName: vpcName,
+      };
       if (enableMulticast) {
-        params.EnableMulticast = enableMulticast
+        params.EnableMulticast = enableMulticast;
       }
       if (dnsServers) {
-        params.DnsServers = dnsServers
+        params.DnsServers = dnsServers;
       }
       if (domainName) {
-        params.DomainName = domainName
+        params.DomainName = domainName;
       }
       if (existVpc) {
-        console.log(`Updating vpc ${vId}...`)
-        params.VpcId = vId
-        await utils.modifyVpc(this.capi, params)
-        console.log(`Update vpc ${vId} success`)
+        console.log(`Updating vpc ${vId}...`);
+        params.VpcId = vId;
+        await utils.modifyVpc(this.capi, params);
+        console.log(`Update vpc ${vId} success`);
       } else {
         if (!cidrBlock) {
-          throw new Error('cidrBlock is required')
+          throw new Error('cidrBlock is required');
         }
-        params.CidrBlock = cidrBlock
+        params.CidrBlock = cidrBlock;
         if (tags) {
-          params.Tags = tags
+          params.Tags = tags;
         }
-        console.log(`Creating vpc ${vpcName}...`)
-        const res = await utils.createVpc(this.capi, params)
-        console.log(`Create vpc ${vpcName} success.`)
-        vId = res.VpcId
+        console.log(`Creating vpc ${vpcName}...`);
+        const res = await utils.createVpc(this.capi, params);
+        console.log(`Create vpc ${vpcName} success.`);
+        vId = res.VpcId;
       }
-      return vId
-    }
+      return vId;
+    };
 
     // check subnetId
     const handleSubnet = async (vId, sId) => {
-      let existSubnet = false
+      let existSubnet = false;
       if (sId) {
-        const detail = await utils.getSubnetDetail(this.capi, sId)
+        const detail = await utils.getSubnetDetail(this.capi, sId);
         if (detail) {
-          existSubnet = true
+          existSubnet = true;
         }
       }
       const params = {
-        SubnetName: subnetName
-      }
+        SubnetName: subnetName,
+      };
       if (existSubnet) {
-        console.log(`Updating subnet ${sId}...`)
-        params.SubnetId = sId
+        console.log(`Updating subnet ${sId}...`);
+        params.SubnetId = sId;
 
         if (enableSubnetBroadcast !== undefined) {
-          params.EnableBroadcast = enableSubnetBroadcast
+          params.EnableBroadcast = enableSubnetBroadcast;
         }
-        await utils.modifySubnet(this.capi, params)
-        console.log(`Update subnet ${sId} success.`)
+        await utils.modifySubnet(this.capi, params);
+        console.log(`Update subnet ${sId} success.`);
       } else {
         if (vId) {
-          console.log(`Creating subnet ${subnetName}...`)
-          params.Zone = zone
-          params.VpcId = vId
-          params.CidrBlock = cidrBlock
+          console.log(`Creating subnet ${subnetName}...`);
+          params.Zone = zone;
+          params.VpcId = vId;
+          params.CidrBlock = cidrBlock;
           if (subnetTags) {
-            params.Tags = subnetTags
+            params.Tags = subnetTags;
           }
 
-          const res = await utils.createSubnet(this.capi, params)
-          sId = res.SubnetId
+          const res = await utils.createSubnet(this.capi, params);
+          sId = res.SubnetId;
 
           if (enableSubnetBroadcast === true) {
             await utils.modifySubnet(this.capi, {
               SubnetId: sId,
-              EnableBroadcast: enableSubnetBroadcast
-            })
+              EnableBroadcast: enableSubnetBroadcast,
+            });
           }
-          console.log(`Create subnet ${subnetName} success.`)
+          console.log(`Create subnet ${subnetName} success.`);
         }
       }
-      return sId
-    }
+      return sId;
+    };
 
     if (vpcName) {
-      vpcId = await handleVpc(vpcId)
+      vpcId = await handleVpc(vpcId);
     }
 
     if (subnetName) {
-      subnetId = await handleSubnet(vpcId, subnetId)
+      subnetId = await handleSubnet(vpcId, subnetId);
     }
 
     return {
@@ -131,33 +131,33 @@ class Vpc {
       vpcId,
       vpcName,
       subnetId,
-      subnetName
-    }
+      subnetName,
+    };
   }
 
   async remove(inputs) {
-    const { vpcId, subnetId } = inputs
+    const { vpcId, subnetId } = inputs;
     if (subnetId) {
-      console.log(`Start removing subnet ${subnetId}`)
+      console.log(`Start removing subnet ${subnetId}`);
       try {
-        await utils.deleteSubnet(this.capi, subnetId)
+        await utils.deleteSubnet(this.capi, subnetId);
       } catch (e) {
-        console.log(e)
+        console.log(e);
       }
-      console.log(`Removed subnet ${subnetId}`)
+      console.log(`Removed subnet ${subnetId}`);
     }
     if (vpcId) {
-      console.log(`Start removing vpc ${vpcId}`)
+      console.log(`Start removing vpc ${vpcId}`);
       try {
-        await utils.deleteVpc(this.capi, vpcId)
+        await utils.deleteVpc(this.capi, vpcId);
       } catch (e) {
-        console.log(e)
+        console.log(e);
       }
-      console.log(`Removed vpc ${vpcId}`)
+      console.log(`Removed vpc ${vpcId}`);
     }
 
-    return {}
+    return {};
   }
 }
 
-module.exports = Vpc
+module.exports = Vpc;
