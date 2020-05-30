@@ -1,3 +1,10 @@
+## [1.8.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.8.1...v1.8.2) (2020-05-30)
+
+
+### Bug Fixes
+
+* **cdn:** support push cdn cache ([13afe84](https://github.com/serverless-tencent/tencent-component-toolkit/commit/13afe848ca7fe5f032fd6b08830bc9614f26c399))
+
 ## [1.8.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.8.0...v1.8.1) (2020-05-29)
 
 
