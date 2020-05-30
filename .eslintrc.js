@@ -5,18 +5,18 @@ module.exports = {
   env: {
     es6: true,
     jest: true,
-    node: true
+    node: true,
   },
   parser: 'babel-eslint',
   parserOptions: {
     ecmaVersion: 2018,
     sourceType: 'module',
     ecmaFeatures: {
-      jsx: true
-    }
+      jsx: true,
+    },
   },
   globals: {
-    on: true // for the Socket file
+    on: true, // for the Socket file
   },
   rules: {
     'array-bracket-spacing': [
@@ -24,12 +24,12 @@ module.exports = {
       'never',
       {
         objectsInArrays: false,
-        arraysInArrays: false
-      }
+        arraysInArrays: false,
+      },
     ],
     'arrow-parens': ['error', 'always'],
     'arrow-spacing': ['error', { before: true, after: true }],
-    'comma-dangle': ['error', 'never'],
+    'comma-dangle': ['error', 'always-multiline'],
     curly: 'error',
     'eol-last': 'error',
     'func-names': 'off',
@@ -39,8 +39,8 @@ module.exports = {
         min: 1,
         max: 50,
         properties: 'never',
-        exceptions: ['e', 'i', 'n', 't', 'x', 'y', 'z', '_', '$']
-      }
+        exceptions: ['e', 'i', 'n', 't', 'x', 'y', 'z', '_', '$'],
+      },
     ],
     'no-alert': 'error',
     'no-console': 'off',
@@ -61,12 +61,12 @@ module.exports = {
       'single',
       {
         allowTemplateLiterals: true,
-        avoidEscape: true
-      }
+        avoidEscape: true,
+      },
     ],
-    semi: ['error', 'never'],
+    semi: ['error', 'always'],
     'spaced-comment': 'error',
     strict: ['error', 'global'],
-    'prettier/prettier': 'error'
-  }
-}
+    'prettier/prettier': 'error',
+  },
+};

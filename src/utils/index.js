@@ -3,7 +3,7 @@
  * @param obj object
  */
 function isArray(obj) {
-  return Object.prototype.toString.call(obj) == '[object Array]'
+  return Object.prototype.toString.call(obj) == '[object Array]';
 }
 
 /**
@@ -11,7 +11,7 @@ function isArray(obj) {
  * @param obj object
  */
 function isObject(obj) {
-  return obj === Object(obj)
+  return obj === Object(obj);
 }
 
 /**
@@ -21,19 +21,19 @@ function isObject(obj) {
  */
 function _forEach(obj, iterator) {
   if (isArray(obj)) {
-    const arr = obj
+    const arr = obj;
     if (arr.forEach) {
-      arr.forEach(iterator)
-      return
+      arr.forEach(iterator);
+      return;
     }
     for (let i = 0; i < arr.length; i += 1) {
-      iterator(arr[i], i, arr)
+      iterator(arr[i], i, arr);
     }
   } else {
-    const oo = obj
+    const oo = obj;
     for (const key in oo) {
       if (obj.hasOwnProperty(key)) {
-        iterator(oo[key], key, obj)
+        iterator(oo[key], key, obj);
       }
     }
   }
@@ -45,50 +45,50 @@ function _forEach(obj, iterator) {
  */
 function flatten(source) {
   if (!isArray(source) && !isObject(source)) {
-    return {}
+    return {};
   }
-  const ret = {}
+  const ret = {};
   const _dump = function(obj, prefix, parents) {
-    const checkedParents = []
+    const checkedParents = [];
     if (parents) {
-      let i
+      let i;
       for (i = 0; i < parents.length; i++) {
         if (parents[i] === obj) {
-          throw new Error('object has circular references')
+          throw new Error('object has circular references');
         }
-        checkedParents.push(obj)
+        checkedParents.push(obj);
       }
     }
-    checkedParents.push(obj)
+    checkedParents.push(obj);
     if (!isArray(obj) && !isObject(obj)) {
       if (!prefix) {
-        throw obj + 'is not object or array'
+        throw obj + 'is not object or array';
       }
-      ret[prefix] = obj
-      return {}
+      ret[prefix] = obj;
+      return {};
     }
 
     if (isArray(obj)) {
       // it's an array
       _forEach(obj, function(o, i) {
-        _dump(o, prefix ? prefix + '.' + i : '' + i, checkedParents)
-      })
+        _dump(o, prefix ? prefix + '.' + i : '' + i, checkedParents);
+      });
     } else {
       // it's an object
       _forEach(obj, function(o, key) {
-        _dump(o, prefix ? prefix + '.' + key : '' + key, checkedParents)
-      })
+        _dump(o, prefix ? prefix + '.' + key : '' + key, checkedParents);
+      });
     }
-  }
+  };
 
-  _dump(source, null)
-  return ret
+  _dump(source, null);
+  return ret;
 }
 
 function uniqueArray(arr) {
   return arr.filter((item, index, self) => {
-    return self.indexOf(item) === index
-  })
+    return self.indexOf(item) === index;
+  });
 }
 
 module.exports = {
@@ -96,5 +96,5 @@ module.exports = {
   isObject,
   _forEach,
   flatten,
-  uniqueArray
-}
+  uniqueArray,
+};

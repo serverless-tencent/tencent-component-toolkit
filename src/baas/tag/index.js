@@ -1,19 +1,19 @@
-const { tag } = require('tencent-cloud-sdk')
+const { tag } = require('tencent-cloud-sdk');
 class Tag {
   constructor(credentials = {}, region = 'ap-guangzhou') {
-    this.credentials = credentials
-    this.region = region
-    this.tagClient = new tag(this.credentials)
+    this.credentials = credentials;
+    this.region = region;
+    this.tagClient = new tag(this.credentials);
   }
 
   async addArray(body, tags, key) {
-    let index = 0
+    let index = 0;
     for (const item in tags) {
-      body[`${key}.${index}.TagKey`] = item
-      body[`${key}.${index}.TagValue`] = tags[item]
-      index++
+      body[`${key}.${index}.TagKey`] = item;
+      body[`${key}.${index}.TagValue`] = tags[item];
+      index++;
     }
-    return body
+    return body;
   }
 
   async deploy(inputs = {}) {
@@ -21,22 +21,22 @@ class Tag {
       Action: 'ModifyResourceTags',
       Version: '2018-08-13',
       Region: this.region,
-      Resource: inputs.resource
-    }
+      Resource: inputs.resource,
+    };
 
-    tagsInputs = await this.addArray(tagsInputs, inputs.replaceTags, 'ReplaceTags')
-    tagsInputs = await this.addArray(tagsInputs, inputs.deleteTags, 'DeleteTags')
+    tagsInputs = await this.addArray(tagsInputs, inputs.replaceTags, 'ReplaceTags');
+    tagsInputs = await this.addArray(tagsInputs, inputs.deleteTags, 'DeleteTags');
 
-    console.log(`Modify tags ... `)
+    console.log(`Modify tags ... `);
     try {
-      await this.tagClient.request(tagsInputs)
+      await this.tagClient.request(tagsInputs);
     } catch (e) {
-      console.log(e)
+      console.log(e);
     }
-    console.log(`Modified tags.`)
+    console.log(`Modified tags.`);
 
-    return true
+    return true;
   }
 }
 
-module.exports = Tag
+module.exports = Tag;
