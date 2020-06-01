@@ -1,3 +1,10 @@
+## [1.8.3](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.8.2...v1.8.3) (2020-06-01)
+
+
+### Bug Fixes
+
+* **scf:** apigw function config bug ([8451141](https://github.com/serverless-tencent/tencent-component-toolkit/commit/845114181f29b4f40bf1ce03b27e414fed71eb49))
+
 ## [1.8.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.8.1...v1.8.2) (2020-05-30)
 
 
