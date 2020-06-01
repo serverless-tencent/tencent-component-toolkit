@@ -268,20 +268,13 @@ class Scf {
         if (eventType === 'apigw') {
           const thisTrigger = inputs.events[i]['apigw']['parameters'];
           thisTrigger.region = this.region;
-          const endpoints = [];
-          thisTrigger.endpoints.forEach((endpoint) => {
-            if (endpoint.function) {
-              endpoint.function['functionName'] = funcInfo.FunctionName;
-            } else {
-              endpoint['function'] = {
-                functionName: funcInfo.FunctionName,
-                functionNamespace: funcInfo.Namespace,
-              };
-            }
-            endpoints.push(endpoint);
-          });
           thisTrigger.serviceName = thisTrigger.serviceName || inputs.events[i]['apigw']['name'];
-          thisTrigger.endpoints = endpoints;
+          thisTrigger.endpoints = thisTrigger.endpoints.map((endpoint) => {
+            endpoint.function = endpoint.function || {};
+            endpoint.function.functionName = funcInfo.FunctionName;
+            endpoint.function.functionNamespace = funcInfo.Namespace;
+            return endpoint;
+          });
           try {
             deployThisTriggerResult = await this.apigwClient.deploy(thisTrigger);
           } catch (e) {
