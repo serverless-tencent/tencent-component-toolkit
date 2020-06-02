@@ -72,9 +72,7 @@ class Scf {
         functionConfigure['VpcConfig.SubnetId'] = inputs.vpcConfig.subnetId;
       }
     }
-    if (inputs.eip) {
-      functionConfigure['EipConfig.EipFixed'] = 'TRUE';
-    }
+    functionConfigure['EipConfig.EipFixed'] = inputs.eip === true ? 'TRUE' : 'FALSE';
     if (inputs.layers) {
       inputs.layers.forEach((item, index) => {
         functionConfigure[`Layers.${index}.LayerName`] = item.name;
