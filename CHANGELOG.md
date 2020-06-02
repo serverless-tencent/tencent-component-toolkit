@@ -1,3 +1,10 @@
+## [1.8.4](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.8.3...v1.8.4) (2020-06-02)
+
+
+### Bug Fixes
+
+* **scf:** eip config ([0c0ff1f](https://github.com/serverless-tencent/tencent-component-toolkit/commit/0c0ff1fee40ccc77e4269b2d022b0186fc752769))
+
 ## [1.8.3](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.8.2...v1.8.3) (2020-06-01)
 
 
