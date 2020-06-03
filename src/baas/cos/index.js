@@ -32,6 +32,8 @@ class Cos {
       if (e.error.Code == 'BucketAlreadyExists' || e.error.Code == 'BucketAlreadyOwnedByYou') {
         if (!inputs.force) {
           throw new Error(JSON.stringify(e));
+        } else {
+          console.log(`Bucket ${inputs.bucket} already exist.`);
         }
       } else {
         // cos在云函数中可能出现ECONNRESET错误，没办法具体定位，初步猜测是客户端问题，是函数启动网络还没准备好，这个还不确定，所以在这里做兼容
@@ -43,6 +45,8 @@ class Cos {
             if (isHave.statusCode == 200) {
               if (!inputs.force) {
                 throw new Error('BucketAlreadyExists and BucketAlreadyOwnedByYou');
+              } else {
+                console.log(`Bucket ${inputs.bucket} already exist.`);
               }
             } else {
               throw new Error('Could not find this bucket');
@@ -500,6 +504,19 @@ class Cos {
     }
     if (inputs.versioning) {
       await this.setVersioning(inputs);
+    }
+    if (inputs.src) {
+      // upload
+      const dirToUploadPath = inputs.src;
+      const uploadDict = {
+        bucket: inputs.bucket,
+      };
+      if (fs.lstatSync(dirToUploadPath).isDirectory()) {
+        uploadDict.dir = dirToUploadPath;
+      } else {
+        uploadDict.file = dirToUploadPath;
+      }
+      await this.upload(uploadDict);
     }
     return inputs;
   }
