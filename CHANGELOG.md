@@ -1,3 +1,10 @@
+## [1.8.5](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.8.4...v1.8.5) (2020-06-03)
+
+
+### Bug Fixes
+
+* **cos:** add file upload for deploy ([3f7e8e2](https://github.com/serverless-tencent/tencent-component-toolkit/commit/3f7e8e2ecf038fd74a7d7361791c2a41b3b82848))
+
 ## [1.8.4](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.8.3...v1.8.4) (2020-06-02)
 
 
