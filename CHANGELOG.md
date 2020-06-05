@@ -1,3 +1,10 @@
+## [1.8.6](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.8.5...v1.8.6) (2020-06-05)
+
+
+### Bug Fixes
+
+* support upload to cos dir ([9947481](https://github.com/serverless-tencent/tencent-component-toolkit/commit/9947481717faa59474a8fb747fbc6d68ee99330a))
+
 ## [1.8.5](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.8.4...v1.8.5) (2020-06-03)
 
 
