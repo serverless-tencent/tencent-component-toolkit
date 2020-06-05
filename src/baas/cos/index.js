@@ -510,7 +510,9 @@ class Cos {
       const dirToUploadPath = inputs.src;
       const uploadDict = {
         bucket: inputs.bucket,
+        keyPrefix: inputs.keyPrefix || '/',
       };
+
       if (fs.lstatSync(dirToUploadPath).isDirectory()) {
         uploadDict.dir = dirToUploadPath;
       } else {
