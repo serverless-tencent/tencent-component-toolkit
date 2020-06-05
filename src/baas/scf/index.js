@@ -167,7 +167,7 @@ class Scf {
     while ((status == 'Updating' || status == 'Creating') && times > 0) {
       const tempFunc = await this.getFunction(namespace, functionName);
       status = tempFunc.Status;
-      await this.sleep(51);
+      await this.sleep(300);
       times = times - 1;
     }
     return status != 'Active' ? false : true;
