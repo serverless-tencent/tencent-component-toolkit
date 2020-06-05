@@ -1,3 +1,10 @@
+## [1.8.7](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.8.6...v1.8.7) (2020-06-05)
+
+
+### Bug Fixes
+
+* scf check status interval ([2d2efd1](https://github.com/serverless-tencent/tencent-component-toolkit/commit/2d2efd1ac90e44bd29d27c890a5991b806f12fb0))
+
 ## [1.8.6](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.8.5...v1.8.6) (2020-06-05)
 
 
