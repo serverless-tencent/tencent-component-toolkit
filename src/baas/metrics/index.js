@@ -3,6 +3,7 @@ const assert = require('assert');
 const moment = require('moment');
 const util = require('util');
 const url = require('url');
+const { TypeError } = require('../../utils/error');
 
 class Metrics {
   constructor(credentials = {}, options = {}) {
@@ -30,15 +31,19 @@ class Metrics {
       rangeStart: startTime,
       rangeEnd: endTime,
     };
-    const responses = await this.client.getScfMetrics(
-      this.region,
-      rangeTime,
-      period,
-      this.funcName,
-      this.namespace,
-      this.version,
-    );
-    return responses;
+    try {
+      const responses = await this.client.getScfMetrics(
+        this.region,
+        rangeTime,
+        period,
+        this.funcName,
+        this.namespace,
+        this.version,
+      );
+      return responses;
+    } catch (e) {
+      throw new TypeError(`API_METRICS_getScfMetrics`, JSON.stringify(e), e.stack);
+    }
   }
 
   async customMetrics(startTime, endTime, period) {
@@ -55,8 +60,17 @@ class Metrics {
         this.version || '$LATEST',
       ),
     ];
-    const responses = await this.client.getCustomMetrics(this.region, instances, rangeTime, period);
-    return responses;
+    try {
+      const responses = await this.client.getCustomMetrics(
+        this.region,
+        instances,
+        rangeTime,
+        period,
+      );
+      return responses;
+    } catch (e) {
+      throw new TypeError(`API_METRICS_getCustomMetrics`, JSON.stringify(e), e.stack);
+    }
   }
 
   async getDatas(startTime, endTime, metricsType = Metrics.Type.All) {
@@ -64,16 +78,17 @@ class Metrics {
     endTime = moment(endTime);
 
     if (endTime <= startTime) {
-      throw new Error('The rangeStart provided is after the rangeEnd');
+      throw new TypeError(`PARAMETER_METRICS`, 'The rangeStart provided is after the rangeEnd');
     }
 
     if (startTime.isAfter(endTime)) {
-      throw new Error(`The rangeStart provided is after the rangeEnd`);
+      throw new TypeError(`PARAMETER_METRICS`, 'The rangeStart provided is after the rangeEnd');
     }
 
     // custom metrics maximum 8 day
     if (startTime.diff(endTime, 'days') >= 8) {
-      throw new Error(
+      throw new TypeError(
+        `PARAMETER_METRICS`,
         `The range cannot be longer than 8 days.  The supplied range is: ${startTime.diff(
           endTime,
           'days',

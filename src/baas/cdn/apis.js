@@ -1,9 +1,4 @@
-function HttpError(code, message, reqId) {
-  this.code = code || 0;
-  this.message = reqId ? `${reqId}, ${message || ''}` : message || '';
-}
-
-HttpError.prototype = Error.prototype;
+const { TypeError } = require('../../utils/error');
 
 function isEmpty(val) {
   return val === undefined || val === null || (typeof val === 'number' && isNaN(val));
@@ -41,11 +36,16 @@ function apiFactory(actions) {
           },
         );
         if (Response && Response.Error && Response.Error.Code) {
-          throw new HttpError(Response.Error.Code, Response.Error.Message, Response.RequestId);
+          throw new TypeError(
+            `API_CDN_${action}`,
+            Response.Error.Message,
+            null,
+            Response.RequestId,
+          );
         }
         return Response;
       } catch (e) {
-        throw new HttpError(500, e.message);
+        throw new TypeError(`API_CDN_${action}`, JSON.stringify(e), e.stack);
       }
     };
   });

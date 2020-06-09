@@ -1,9 +1,4 @@
-function HttpError(code, message) {
-  this.code = code || 0;
-  this.message = message || '';
-}
-
-HttpError.prototype = Error.prototype;
+const { TypeError } = require('../../utils/error');
 
 function apiFactory(actions) {
   const apis = {};
@@ -31,11 +26,16 @@ function apiFactory(actions) {
           false,
         );
         if (Response && Response.Error && Response.Error.Code) {
-          throw new HttpError(Response.Error.Code, Response.Error.Message);
+          throw new TypeError(
+            `API_VPC_${action}`,
+            Response.Error.Message,
+            null,
+            Response.RequestId,
+          );
         }
         return Response;
       } catch (e) {
-        throw new HttpError(500, e.message);
+        throw new TypeError(`API_VPC_${action}`, JSON.stringify(e), e.stack);
       }
     };
   });

@@ -1,26 +1,23 @@
-const secret = require('../../../../secret')
-const TagsUtils = require('./index')
+const TagsUtils = require('./index');
 
 class ClientTest {
   async tagsTest() {
     const tags = new TagsUtils({
-      SecretId: secret.SecretId,
-      SecretKey: secret.SecretKey
-    })
+      SecretId: '',
+      SecretKey: '',
+    });
     const tagsDemo = {
       resource: 'qcs::scf:ap-shanghai:uin/100005358439:lam/lam-rooizssdom',
       replaceTags: { abcdd: 'def' },
-      deleteTags: {}
-    }
-    const result = await tags.deploy(tagsDemo)
-    console.log(JSON.stringify(result))
+      deleteTags: {},
+    };
+    const result = await tags.deploy(tagsDemo);
+    console.log(JSON.stringify(result));
   }
 }
 
-new ClientTest().tagsTest()
+new ClientTest().tagsTest();
 
-/* 测试结果：
-	Modify tags ...
-	Modified tags.
-	{"logs":{},"error":[]}
-*/
+process.on('unhandledRejection', (e) => {
+  throw e;
+});

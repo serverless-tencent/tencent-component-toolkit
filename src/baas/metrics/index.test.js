@@ -1,17 +1,20 @@
-const secret = require('../../../../secret')
-const MetricsUtils = require('./index')
+const MetricsUtils = require('./index');
 
 class ClientTest {
     async metricsTest() {
         const client = new MetricsUtils({
-            SecretId: secret.SecretId,
-            SecretKey: secret.SecretKey
+            SecretId: '',
+            SecretKey: '',
         }, {
-            funcName: 'funcName'
-        })
-        const ret = await client.getDatas('2020-05-13 17:00:00', '2020-05-14 17:00:00')
-        console.log(ret)
+            funcName: 'express_component_6bonhko',
+        });
+        const ret = await client.getDatas('2020-06-09 10:00:00', '2020-06-09 11:00:00');
+        console.log(ret);
     }
 }
 
-new ClientTest().metricsTest()
+new ClientTest().metricsTest();
+
+process.on('unhandledRejection', (e) => {
+  throw e;
+});

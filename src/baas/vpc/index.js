@@ -1,5 +1,6 @@
 const { Capi } = require('@tencent-sdk/capi');
 const utils = require('./utils');
+const { TypeError } = require('../../utils/error');
 
 class Vpc {
   constructor(credentials = {}, region) {
@@ -57,7 +58,7 @@ class Vpc {
         console.log(`Update vpc ${vId} success`);
       } else {
         if (!cidrBlock) {
-          throw new Error('cidrBlock is required');
+          throw new TypeError('PARAMETER_VPC', 'cidrBlock is required');
         }
         params.CidrBlock = cidrBlock;
         if (tags) {

@@ -1,4 +1,6 @@
 const { scf, cam } = require('tencent-cloud-sdk');
+const { sleep } = require('@ygkit/request');
+const { TypeError } = require('../../utils/error');
 const TagsUtils = require('../tag/index');
 const ApigwUtils = require('../apigw/index');
 
@@ -14,12 +16,6 @@ class Scf {
     this.scfClient = new scf(this.credentials);
     this.tagClient = new TagsUtils(this.credentials, this.region);
     this.apigwClient = new ApigwUtils(this.credentials, this.region);
-  }
-
-  async sleep(ms) {
-    return new Promise((resolve) => {
-      setTimeout(resolve, ms);
-    });
   }
 
   // 函数配置转换
@@ -150,7 +146,11 @@ class Scf {
         ) {
           return null;
         }
-        throw new Error(JSON.stringify(funcInfo.Response));
+        throw new TypeError(
+          'API_SCF_GetFunction',
+          JSON.stringify(funcInfo.Response),
+          funcInfo.Response.RequestId,
+        );
       } else {
         return funcInfo.Response;
       }
@@ -167,7 +167,7 @@ class Scf {
     while ((status == 'Updating' || status == 'Creating') && times > 0) {
       const tempFunc = await this.getFunction(namespace, functionName);
       status = tempFunc.Status;
-      await this.sleep(300);
+      await sleep(300);
       times = times - 1;
     }
     return status != 'Active' ? false : true;
@@ -180,7 +180,11 @@ class Scf {
     functionConfigure.Action = 'CreateFunction';
     const funcInfo = await this.scfClient.request(functionConfigure);
     if (funcInfo.Response && funcInfo.Response.Error) {
-      throw new Error(JSON.stringify(funcInfo.Response));
+      throw new TypeError(
+        'API_SCF_CreateFunction',
+        JSON.stringify(funcInfo.Response),
+        funcInfo.Response.RequestId,
+      );
     } else {
       return true;
     }
@@ -200,9 +204,13 @@ class Scf {
       CosObjectName: functionConfigure['Code.CosObjectName'],
       Namespace: inputs.Namespace || funcInfo.Namespace,
     };
-    const updateFunctionCodeResult = await this.scfClient.request(updateFunctionConnfigure);
-    if (updateFunctionCodeResult.Response && updateFunctionCodeResult.Response.Error) {
-      throw new Error(JSON.stringify(updateFunctionCodeResult.Response));
+    const res = await this.scfClient.request(updateFunctionConnfigure);
+    if (res.Response && res.Response.Error) {
+      throw new TypeError(
+        'API_SCF_UpdateFunctionCode',
+        JSON.stringify(res.Response),
+        res.Response.RequestId,
+      );
     } else {
       return true;
     }
@@ -220,9 +228,13 @@ class Scf {
     delete functionConfigure['Code.CosBucketName'];
     delete functionConfigure['Code.CosObjectName'];
     delete functionConfigure['CodeSource'];
-    const updateFunctionCodeResult = await this.scfClient.request(functionConfigure);
-    if (updateFunctionCodeResult.Response && updateFunctionCodeResult.Response.Error) {
-      throw new Error(JSON.stringify(updateFunctionCodeResult.Response));
+    const res = await this.scfClient.request(functionConfigure);
+    if (res.Response && res.Response.Error) {
+      throw new TypeError(
+        'API_SCF_UpdateFunctionConfiguration',
+        JSON.stringify(res.Response),
+        res.Response.RequestId,
+      );
     } else {
       return true;
     }
@@ -233,8 +245,11 @@ class Scf {
     if (inputs.events) {
       console.log(`Deploying ${inputs.name}'s triggers in ${this.region}.`);
 
-      if ((await this.checkStatus(inputs.namespace || defaultNamespace, inputs.name)) == false) {
-        throw new Error(`Deploying ${inputs.name} trigger failed. Please check function status.`);
+      if ((await this.checkStatus(inputs.namespace || defaultNamespace, inputs.name)) === false) {
+        throw new TypeError(
+          'API_SCF_GetFunction_STATUS',
+          `Deploying ${inputs.name} trigger failed. Please check function status.`,
+        );
       }
 
       const releaseEvents = funcInfo.Triggers;
@@ -343,8 +358,9 @@ class Scf {
             inputs.namespace || defaultNamespace,
             inputs.name,
           );
-          if (functionStatus == false) {
-            throw new Error(
+          if (functionStatus === false) {
+            throw new TypeError(
+              'API_SCF_GetFunction_STATUS',
               `Function ${inputs.name} deploy trigger failed. Please check function status.`,
             );
           }
@@ -385,7 +401,11 @@ class Scf {
                 TriggerName: thisReleaseTrigger.TriggerName,
               });
               if (deleteThisTriggerResult.Response && deleteThisTriggerResult.Response.Error) {
-                throw new Error(JSON.stringify(deleteThisTriggerResult.Response));
+                throw new TypeError(
+                  'API_SCF_DeleteTrigger',
+                  JSON.stringify(deleteThisTriggerResult.Response),
+                  deleteThisTriggerResult.Response.RequestId,
+                );
               }
             }
           } else {
@@ -396,7 +416,11 @@ class Scf {
             console.log(`Deploying ${eventType} triggers: ${inputs.events[i][eventType]['name']}.`);
             deployThisTriggerResult = await this.scfClient.request(trigger);
             if (deployThisTriggerResult.Response && deployThisTriggerResult.Response.Error) {
-              throw new Error(JSON.stringify(deployThisTriggerResult.Response));
+              throw new TypeError(
+                'API_SCF_CreateTrigger',
+                JSON.stringify(deployThisTriggerResult.Response),
+                deployThisTriggerResult.Response.RequestId,
+              );
             }
           }
         }
@@ -417,29 +441,37 @@ class Scf {
           deleteTags[funcInfo.Tags[i].Key] = funcInfo.Tags[i].Value;
         }
       }
-      const addTagsResult = await this.tagClient.deploy({
+      const res = await this.tagClient.deploy({
         resource: `qcs::scf:${this.region}::lam/${funcInfo.FunctionId}`,
         replaceTags: inputs.tags,
         deleteTags: deleteTags,
       });
 
-      if (addTagsResult.Response && addTagsResult.Response.Error) {
-        throw new Error(JSON.stringify(addTagsResult.Response));
+      if (res.Response && res.Response.Error) {
+        throw new TypeError(
+          'API_TAG_ModifyResourceTags',
+          JSON.stringify(res.Response),
+          res.Response.RequestId,
+        );
       }
     }
   }
 
   // 删除函数
   async deleteFunction(functionName, namespace) {
-    const deleteFunctionResult = await this.scfClient.request({
+    const res = await this.scfClient.request({
       Action: 'DeleteFunction',
       Version: '2018-04-16',
       Region: this.region,
       FunctionName: functionName,
       Namespace: namespace || defaultNamespace,
     });
-    if (deleteFunctionResult.Response && deleteFunctionResult.Response.Error) {
-      throw new Error(JSON.stringify(deleteFunctionResult.Response));
+    if (res.Response && res.Response.Error) {
+      throw new TypeError(
+        'API_SCF_DeleteFunction',
+        JSON.stringify(res.Response),
+        res.Response.RequestId,
+      );
     }
   }
 
@@ -463,8 +495,11 @@ class Scf {
       await this.createFunction(inputs);
     } else {
       await this.updateFunctionCode(inputs, funcInfo);
-      if ((await this.checkStatus(inputs.namespace || defaultNamespace, inputs.name)) == false) {
-        throw new Error(`Function ${inputs.name} upgrade failed. Please check function status.`);
+      if ((await this.checkStatus(inputs.namespace || defaultNamespace, inputs.name)) === false) {
+        throw new TypeError(
+          'API_SCF_GetFunction_STATUS',
+          `Function ${inputs.name} upgrade failed. Please check function status.`,
+        );
       }
       await this.updateFunctionConfigure(inputs, funcInfo);
     }
@@ -478,8 +513,11 @@ class Scf {
       if (!funcInfo) {
         funcInfo = await this.getFunction(inputs.namespace || defaultNamespace, inputs.name);
       }
-      if ((await this.checkStatus(inputs.namespace || defaultNamespace, inputs.name)) == false) {
-        throw new Error(`Function ${inputs.name} upgrade failed. Please check function status.`);
+      if ((await this.checkStatus(inputs.namespace || defaultNamespace, inputs.name)) === false) {
+        throw new TypeError(
+          'API_SCF_GetFunction_STATUS',
+          `Function ${inputs.name} upgrade failed. Please check function status.`,
+        );
       }
       await Promise.all([this.deployTags(funcInfo, inputs), this.deployTrigger(funcInfo, inputs)]);
     }
@@ -525,7 +563,7 @@ class Scf {
   }
 
   async invoke(functionName, configure = {}) {
-    const invokeFunctionResult = await this.scfClient.request({
+    const res = await this.scfClient.request({
       Action: 'Invoke',
       Version: '2018-04-16',
       Region: this.region,
@@ -535,10 +573,10 @@ class Scf {
       LogType: configure.logType || 'Tail',
       InvocationType: configure.invocationType || 'RequestResponse',
     });
-    if (invokeFunctionResult.Response && invokeFunctionResult.Response.Error) {
-      throw new Error(JSON.stringify(invokeFunctionResult.Response));
+    if (res.Response && res.Response.Error) {
+      throw new TypeError('API_SCF_Invoke', JSON.stringify(res.Response), res.Response.RequestId);
     }
-    return invokeFunctionResult.Response;
+    return res.Response;
   }
 }
 
