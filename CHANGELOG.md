@@ -1,3 +1,10 @@
+# [1.9.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.8.7...v1.9.0) (2020-06-09)
+
+
+### Features
+
+* uniform throw errors ([80083af](https://github.com/serverless-tencent/tencent-component-toolkit/commit/80083afcab4496e5a25c9dad78916f64a6c064de))
+
 ## [1.8.7](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.8.6...v1.8.7) (2020-06-05)
 
 
