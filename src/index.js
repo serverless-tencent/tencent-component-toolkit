@@ -1,16 +1,18 @@
-const Apigw = require('./baas/apigw');
-const Cdn = require('./baas/cdn');
-const Cns = require('./baas/cns');
-const Cos = require('./baas/cos');
-const Domain = require('./baas/domain');
-const MultiApigw = require('./baas/multi-apigw');
-const MultiScf = require('./baas/multi-scf');
-const Scf = require('./baas/scf');
-const Tag = require('./baas/tag');
-const Postgresql = require('./baas/postgresql');
-const Vpc = require('./baas/vpc');
-const Cam = require('./baas/cam');
-const Metrics = require('./baas/metrics');
+const Apigw = require('./modules/apigw');
+const Cdn = require('./modules/cdn');
+const Cns = require('./modules/cns');
+const Cos = require('./modules/cos');
+const Domain = require('./modules/domain');
+const MultiApigw = require('./modules/multi-apigw');
+const MultiScf = require('./modules/multi-scf');
+const Scf = require('./modules/scf');
+const Tag = require('./modules/tag');
+const Postgresql = require('./modules/postgresql');
+const Vpc = require('./modules/vpc');
+const Cam = require('./modules/cam');
+const Metrics = require('./modules/metrics');
+const Layer = require('./modules/layer');
+
 module.exports = {
   Apigw,
   Cdn,
@@ -25,4 +27,5 @@ module.exports = {
   Vpc,
   Cam,
   Metrics,
+  Layer,
 };

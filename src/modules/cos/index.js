@@ -147,7 +147,7 @@ class Cos {
     try {
       await setTagsHandler(setTagsParams);
     } catch (e) {
-      throw new TypeError(`API_COS_putBucketTagging`, JSON.stringify(e), e.stack);
+      throw new TypeError(`API_COS_putBucketTagging`, e.message, e.stack);
     }
   }
 
@@ -162,7 +162,7 @@ class Cos {
         Region: this.region,
       });
     } catch (e) {
-      throw new TypeError(`API_COS_deleteBucketTagging`, JSON.stringify(e), e.stack);
+      throw new TypeError(`API_COS_deleteBucketTagging`, e.message, e.stack);
     }
   }
 
@@ -197,7 +197,7 @@ class Cos {
     try {
       await setCorsHandler(setCorsParams);
     } catch (e) {
-      throw new TypeError(`API_COS_putBucketCors`, JSON.stringify(e), e.stack);
+      throw new TypeError(`API_COS_putBucketCors`, e.message, e.stack);
     }
   }
 
@@ -210,7 +210,7 @@ class Cos {
         Region: this.region,
       });
     } catch (e) {
-      throw new TypeError(`API_COS_deleteBucketCors`, JSON.stringify(e), e.stack);
+      throw new TypeError(`API_COS_deleteBucketCors`, e.message, e.stack);
     }
   }
 
@@ -266,7 +266,7 @@ class Cos {
     try {
       await setLifecycleHandler(JSON.parse(JSON.stringify(setLifecycleParams)));
     } catch (e) {
-      throw new TypeError(`API_COS_putBucketLifecycle`, JSON.stringify(e), e.stack);
+      throw new TypeError(`API_COS_putBucketLifecycle`, e.message, e.stack);
     }
   }
 
@@ -281,7 +281,7 @@ class Cos {
         Region: this.region,
       });
     } catch (e) {
-      throw new TypeError(`API_COS_deleteBucketLifecycle`, JSON.stringify(e), e.stack);
+      throw new TypeError(`API_COS_deleteBucketLifecycle`, e.message, e.stack);
     }
   }
 
@@ -301,7 +301,7 @@ class Cos {
     try {
       await setVersioningHandler(setVersioningParams);
     } catch (e) {
-      throw new TypeError(`API_COS_putBucketVersioning`, JSON.stringify(e), e.stack);
+      throw new TypeError(`API_COS_putBucketVersioning`, e.message, e.stack);
     }
   }
 
@@ -332,7 +332,7 @@ class Cos {
     try {
       await setWebsiteHandler(staticHostParams);
     } catch (e) {
-      throw new TypeError(`API_COS_putBucketWebsite`, JSON.stringify(e), e.stack);
+      throw new TypeError(`API_COS_putBucketWebsite`, e.message, e.stack);
     }
   }
 
@@ -345,7 +345,7 @@ class Cos {
       });
       return res;
     } catch (e) {
-      throw new TypeError(`API_COS_getBucket`, JSON.stringify(e), e.stack);
+      throw new TypeError(`API_COS_getBucket`, e.message, e.stack);
     }
   }
 
@@ -365,7 +365,7 @@ class Cos {
       });
       return Url;
     } catch (e) {
-      throw new TypeError(`API_COS_getObjectUrl`, JSON.stringify(e), e.stack);
+      throw new TypeError(`API_COS_getObjectUrl`, e.message, e.stack);
     }
   }
 
@@ -421,7 +421,7 @@ class Cos {
       try {
         await Promise.all(uploadItems);
       } catch (e) {
-        throw new TypeError(`API_COS_putObject`, JSON.stringify(e), e.stack);
+        throw new TypeError(`API_COS_putObject`, e.message, e.stack);
       }
     } else if (inputs.file && (await fs.existsSync(inputs.file))) {
       const itemParams = {
@@ -434,7 +434,7 @@ class Cos {
       try {
         await handler(itemParams);
       } catch (e) {
-        throw new TypeError(`API_COS_putObject`, JSON.stringify(e), e.stack);
+        throw new TypeError(`API_COS_putObject`, e.message, e.stack);
       }
     }
   }
@@ -472,7 +472,7 @@ class Cos {
       try {
         await fs.writeFileSync(envFilePath, script);
       } catch (e) {
-        throw new TypeError(`DEPLOY_COS_CREATE_ENV_FILE`, JSON.stringify(e), e.stack);
+        throw new TypeError(`DEPLOY_COS_CREATE_ENV_FILE`, e.message, e.stack);
       }
     }
 
@@ -592,7 +592,7 @@ class Cos {
         if (e.error && e.error.Code && e.error.Code === 'NoSuchBucket') {
           console.log(`Bucket ${inputs.bucket} not exist`);
         } else {
-          throw new TypeError(`DEPLOY_COS_EXEC_HOOK`, JSON.stringify(e), e.stack);
+          throw new TypeError(`DEPLOY_COS_EXEC_HOOK`, e.message, e.stack);
         }
       }
     }

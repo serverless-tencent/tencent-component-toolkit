@@ -45,7 +45,7 @@ function apiFactory(actions) {
         }
         return Response;
       } catch (e) {
-        throw new TypeError(`API_CDN_${action}`, JSON.stringify(e), e.stack);
+        throw new TypeError(`API_CDN_${action}`, e.message, e.stack);
       }
     };
   });
