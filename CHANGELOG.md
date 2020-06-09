@@ -1,3 +1,10 @@
+# [1.10.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.9.0...v1.10.0) (2020-06-09)
+
+
+### Features
+
+* add layer module ([00a36a9](https://github.com/serverless-tencent/tencent-component-toolkit/commit/00a36a98abcbbf24e5d022c24437ef7fcf5a4b68))
+
 # [1.9.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.8.7...v1.9.0) (2020-06-09)
 
 
