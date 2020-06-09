@@ -42,7 +42,7 @@ class Metrics {
       );
       return responses;
     } catch (e) {
-      throw new TypeError(`API_METRICS_getScfMetrics`, JSON.stringify(e), e.stack);
+      throw new TypeError(`API_METRICS_getScfMetrics`, e.message, e.stack);
     }
   }
 
@@ -69,7 +69,7 @@ class Metrics {
       );
       return responses;
     } catch (e) {
-      throw new TypeError(`API_METRICS_getCustomMetrics`, JSON.stringify(e), e.stack);
+      throw new TypeError(`API_METRICS_getCustomMetrics`, e.message, e.stack);
     }
   }
 

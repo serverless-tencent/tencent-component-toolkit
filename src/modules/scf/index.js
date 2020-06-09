@@ -155,7 +155,7 @@ class Scf {
         return funcInfo.Response;
       }
     } catch (e) {
-      throw e;
+      throw new TypeError('API_SCF_GetFunction', e.message, e.stack);
     }
   }
 

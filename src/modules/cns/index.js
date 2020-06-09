@@ -133,7 +133,7 @@ class Cns {
             throw new TypeError(`API_CNS_RecordModify`, JSON.stringify(modifyResult));
           }
         } catch (e) {
-          throw new TypeError(`API_CNS_RecordModify`, JSON.stringify(e), e.stack);
+          throw new TypeError(`API_CNS_RecordModify`, e.message, e.stack);
         }
         console.log(`Modified (recordId is ${tempInputs.recordId}) `);
       } else {
@@ -177,7 +177,7 @@ class Cns {
           throw new TypeError(`API_CNS_RecordStatus`, JSON.stringify(statusResult));
         }
       } catch (e) {
-        throw new TypeError(`API_CNS_RecordStatus`, JSON.stringify(e), e.stack);
+        throw new TypeError(`API_CNS_RecordStatus`, e.message, e.stack);
       }
       console.log(`Modified status to ${tempInputs.status} `);
     }

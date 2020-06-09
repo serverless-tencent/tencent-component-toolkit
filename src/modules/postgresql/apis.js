@@ -10,7 +10,6 @@ function apiFactory(actions) {
         RequestClient: 'ServerlessComponent',
         ...inputs,
       };
-
       if (apig.options.Token) {
         data.Token = apig.options.Token;
       }
@@ -20,14 +19,15 @@ function apiFactory(actions) {
           // this is preset options for apigateway
           {
             debug: false,
-            ServiceType: 'vpc',
-            host: 'vpc.tencentcloudapi.com',
+            ServiceType: 'postgres',
+            // baseHost: 'tencentcloudapi.com'
+            host: 'postgres.tencentcloudapi.com',
           },
           false,
         );
         if (Response && Response.Error && Response.Error.Code) {
           throw new TypeError(
-            `API_VPC_${action}`,
+            `API_POSTGRESQL_${action}`,
             Response.Error.Message,
             null,
             Response.RequestId,
@@ -35,7 +35,7 @@ function apiFactory(actions) {
         }
         return Response;
       } catch (e) {
-        throw new TypeError(`API_VPC_${action}`, JSON.stringify(e), e.stack);
+        throw new TypeError(`API_POSTGRESQL_${action}`, e.message, e.stack);
       }
     };
   });
@@ -44,15 +44,12 @@ function apiFactory(actions) {
 }
 
 const ACTIONS = [
-  'CreateDefaultVpc',
-  'CreateVpc',
-  'DeleteVpc',
-  'DescribeVpcs',
-  'CreateSubnet',
-  'DeleteSubnet',
-  'DescribeSubnets',
-  'ModifyVpcAttribute',
-  'ModifySubnetAttribute',
+  'CreateServerlessDBInstance',
+  'DescribeServerlessDBInstances',
+  'DeleteServerlessDBInstance',
+  'OpenServerlessDBExtranetAccess',
+  'CloseServerlessDBExtranetAccess',
+  'UpdateCdnConfig',
 ];
 const APIS = apiFactory(ACTIONS);
 
