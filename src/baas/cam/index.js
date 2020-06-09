@@ -1,4 +1,5 @@
 const { cam } = require('tencent-cloud-sdk');
+const { TypeError } = require('../../utils/error');
 
 class Cam {
   constructor(credentials = {}, region) {
@@ -7,10 +8,21 @@ class Cam {
     this.camClient = new cam(this.credentials);
   }
 
-  async sleep(ms) {
-    return new Promise((resolve) => {
-      setTimeout(resolve, ms);
-    });
+  async request(data) {
+    try {
+      const res = await this.camClient.request(data);
+
+      if (res.Response && res.Response.Error) {
+        throw new TypeError(
+          `API_CAM_${data.Action}`,
+          JSON.stringify(res.Response),
+          res.Response.RequestId,
+        );
+      }
+      return res;
+    } catch (e) {
+      throw new TypeError(`API_CAM_${data.Action}`, e.message, e.stack);
+    }
   }
 
   async DescribeRoleList(page, limit) {
@@ -20,7 +32,7 @@ class Cam {
       Page: page,
       Rp: limit,
     };
-    return await this.camClient.request(reqParams);
+    return this.request(reqParams);
   }
 
   async ListRolePoliciesByRoleId(roleId, page, limit) {
@@ -31,7 +43,7 @@ class Cam {
       Rp: limit,
       RoleId: roleId,
     };
-    return await this.camClient.request(reqParams);
+    return this.request(reqParams);
   }
 
   async CreateRole(roleName, policiesDocument) {
@@ -42,7 +54,7 @@ class Cam {
       PolicyDocument: policiesDocument,
       Description: 'Serverless Framework',
     };
-    return await this.camClient.request(reqParams);
+    return this.request(reqParams);
   }
 
   // api limit qps 3/s
@@ -53,16 +65,13 @@ class Cam {
       AttachRoleId: roleId,
       PolicyName: policyName,
     };
-    return await this.camClient.request(reqParams);
+    return this.request(reqParams);
   }
 
   async CheckSCFExcuteRole() {
     const ScfExcuteRoleName = 'QCS_SCFExcuteRole';
 
     const roles = await this.DescribeRoleList(1, 200);
-    if (roles.Response.Error) {
-      throw new Error(roles.Response.Error.Message);
-    }
 
     const len = roles.Response.List.length;
     for (var i = 0; i < len; i++) {

@@ -4,6 +4,7 @@ const path = require('path');
 const fs = require('fs');
 const klawSync = require('klaw-sync');
 const exec = util.promisify(require('child_process').exec);
+const { TypeError } = require('../../utils/error');
 
 class Cos {
   constructor(credentials = {}, region = 'ap-guangzhou') {
@@ -31,7 +32,7 @@ class Cos {
     } catch (e) {
       if (e.error.Code == 'BucketAlreadyExists' || e.error.Code == 'BucketAlreadyOwnedByYou') {
         if (!inputs.force) {
-          throw new Error(JSON.stringify(e));
+          throw new TypeError(`API_COS_putBucket`, JSON.stringify(e), e.stack);
         } else {
           console.log(`Bucket ${inputs.bucket} already exist.`);
         }
@@ -44,18 +45,21 @@ class Cos {
             const isHave = await headHandler(createParams);
             if (isHave.statusCode == 200) {
               if (!inputs.force) {
-                throw new Error('BucketAlreadyExists and BucketAlreadyOwnedByYou');
+                throw new TypeError(
+                  `API_COS_headBucket`,
+                  'BucketAlreadyExists and BucketAlreadyOwnedByYou',
+                );
               } else {
                 console.log(`Bucket ${inputs.bucket} already exist.`);
               }
             } else {
-              throw new Error('Could not find this bucket');
+              throw new TypeError(`API_COS_headBucket`, 'Could not find this bucket');
             }
           } catch (err) {
-            throw new Error(JSON.stringify(err));
+            throw new TypeError(`API_COS_headBucket`, JSON.stringify(err), err.stack);
           }
         } else {
-          throw new Error(JSON.stringify(e));
+          throw new TypeError(`API_COS_putBucket`, JSON.stringify(e), e.stack);
         }
       }
     }
@@ -119,7 +123,7 @@ class Cos {
     try {
       await setAclHandler(setAclParams);
     } catch (e) {
-      throw new Error(JSON.stringify(e));
+      throw new TypeError(`API_COS_putBucketAcl`, JSON.stringify(e), e.stack);
     }
   }
 
@@ -143,7 +147,7 @@ class Cos {
     try {
       await setTagsHandler(setTagsParams);
     } catch (e) {
-      throw new Error(JSON.stringify(e));
+      throw new TypeError(`API_COS_putBucketTagging`, JSON.stringify(e), e.stack);
     }
   }
 
@@ -158,7 +162,7 @@ class Cos {
         Region: this.region,
       });
     } catch (e) {
-      throw new Error(JSON.stringify(e));
+      throw new TypeError(`API_COS_deleteBucketTagging`, JSON.stringify(e), e.stack);
     }
   }
 
@@ -193,7 +197,7 @@ class Cos {
     try {
       await setCorsHandler(setCorsParams);
     } catch (e) {
-      throw new Error(JSON.stringify(e));
+      throw new TypeError(`API_COS_putBucketCors`, JSON.stringify(e), e.stack);
     }
   }
 
@@ -206,7 +210,7 @@ class Cos {
         Region: this.region,
       });
     } catch (e) {
-      throw new Error(JSON.stringify(e));
+      throw new TypeError(`API_COS_deleteBucketCors`, JSON.stringify(e), e.stack);
     }
   }
 
@@ -262,7 +266,7 @@ class Cos {
     try {
       await setLifecycleHandler(JSON.parse(JSON.stringify(setLifecycleParams)));
     } catch (e) {
-      throw new Error(JSON.stringify(e));
+      throw new TypeError(`API_COS_putBucketLifecycle`, JSON.stringify(e), e.stack);
     }
   }
 
@@ -277,7 +281,7 @@ class Cos {
         Region: this.region,
       });
     } catch (e) {
-      throw new Error(JSON.stringify(e));
+      throw new TypeError(`API_COS_deleteBucketLifecycle`, JSON.stringify(e), e.stack);
     }
   }
 
@@ -297,7 +301,7 @@ class Cos {
     try {
       await setVersioningHandler(setVersioningParams);
     } catch (e) {
-      throw new Error(JSON.stringify(e));
+      throw new TypeError(`API_COS_putBucketVersioning`, JSON.stringify(e), e.stack);
     }
   }
 
@@ -328,32 +332,41 @@ class Cos {
     try {
       await setWebsiteHandler(staticHostParams);
     } catch (e) {
-      throw new Error(JSON.stringify(e));
+      throw new TypeError(`API_COS_putBucketWebsite`, JSON.stringify(e), e.stack);
     }
   }
 
   async getBucket(inputs = {}) {
     const getBucketHandler = util.promisify(this.cosClient.getBucket.bind(this.cosClient));
-    return getBucketHandler({
-      Bucket: inputs.bucket,
-      Region: this.region,
-    });
+    try {
+      const res = await getBucketHandler({
+        Bucket: inputs.bucket,
+        Region: this.region,
+      });
+      return res;
+    } catch (e) {
+      throw new TypeError(`API_COS_getBucket`, JSON.stringify(e), e.stack);
+    }
   }
 
   async getObjectUrl(inputs = {}) {
     const getObjectUrlHandler = util.promisify(this.cosClient.getObjectUrl.bind(this.cosClient));
-    const { Url } = await getObjectUrlHandler({
-      Bucket: inputs.bucket,
-      Region: this.region,
-      Key: inputs.object,
-      // default request method is GET
-      Method: inputs.method || 'GET',
-      // default expire time is 15min
-      Expires: inputs.expires || 900,
-      // default is sign url
-      Sign: inputs.sign === false ? false : true,
-    });
-    return Url;
+    try {
+      const { Url } = await getObjectUrlHandler({
+        Bucket: inputs.bucket,
+        Region: this.region,
+        Key: inputs.object,
+        // default request method is GET
+        Method: inputs.method || 'GET',
+        // default expire time is 15min
+        Expires: inputs.expires || 900,
+        // default is sign url
+        Sign: inputs.sign === false ? false : true,
+      });
+      return Url;
+    } catch (e) {
+      throw new TypeError(`API_COS_getObjectUrl`, JSON.stringify(e), e.stack);
+    }
   }
 
   async upload(inputs = {}) {
@@ -363,7 +376,7 @@ class Cos {
     const { region } = this;
 
     if (!bucket) {
-      throw Error('Could not find bucket name.');
+      throw new TypeError(`PARAMETER_COS`, 'Could not find bucket name.');
     }
 
     // 上传分为文件夹上传呢和文件上传
@@ -405,7 +418,11 @@ class Cos {
         handler = util.promisify(this.cosClient.putObject.bind(this.cosClient));
         uploadItems.push(handler(itemParams));
       });
-      await Promise.all(uploadItems);
+      try {
+        await Promise.all(uploadItems);
+      } catch (e) {
+        throw new TypeError(`API_COS_putObject`, JSON.stringify(e), e.stack);
+      }
     } else if (inputs.file && (await fs.existsSync(inputs.file))) {
       const itemParams = {
         Bucket: bucket,
@@ -417,7 +434,7 @@ class Cos {
       try {
         await handler(itemParams);
       } catch (e) {
-        throw new Error(JSON.stringify(e));
+        throw new TypeError(`API_COS_putObject`, JSON.stringify(e), e.stack);
       }
     }
   }
@@ -452,7 +469,11 @@ class Cos {
         script += `window.env.${e} = ${JSON.stringify(inputs.env[e])};\n`;
       }
       const envFilePath = path.join(envPath, 'env.js');
-      await fs.writeFileSync(envFilePath, script);
+      try {
+        await fs.writeFileSync(envFilePath, script);
+      } catch (e) {
+        throw new TypeError(`DEPLOY_COS_CREATE_ENV_FILE`, JSON.stringify(e), e.stack);
+      }
     }
 
     // If a hook is provided, build the website
@@ -461,8 +482,10 @@ class Cos {
       try {
         await exec(inputs.code.hook, options);
       } catch (err) {
-        throw new Error(
+        throw new TypeError(
+          `DEPLOY_COS_EXEC_HOOK`,
           `Failed building website via "${inputs.code.hook}" due to the following error: "${err.stderr}"`,
+          err.stack,
         );
       }
     }
@@ -569,7 +592,7 @@ class Cos {
         if (e.error && e.error.Code && e.error.Code === 'NoSuchBucket') {
           console.log(`Bucket ${inputs.bucket} not exist`);
         } else {
-          throw e;
+          throw new TypeError(`DEPLOY_COS_EXEC_HOOK`, JSON.stringify(e), e.stack);
         }
       }
     }

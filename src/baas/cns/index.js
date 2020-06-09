@@ -1,4 +1,6 @@
 const { cns } = require('tencent-cloud-sdk');
+const { TypeError } = require('../../utils/error');
+
 class Cns {
   constructor(credentials = {}, region = 'ap-guangzhou') {
     this.region = region;
@@ -57,7 +59,6 @@ class Cns {
             output.DNS = 'Please set your domain DNS: f1g1ns1.dnspod.net,  f1g1ns1.dnspod.net';
             console.log(`Added domain`);
           } catch (e) {
-            // Domain添加错误，不影响主流程，继续尝试后面的工作
             console.log(`Add domain error`);
             console.log(`Trying to deploy ...`);
           }
@@ -129,10 +130,10 @@ class Cns {
         try {
           const modifyResult = await this.cnsClient.request(tempInputs);
           if (modifyResult.code != 0) {
-            throw new Error(JSON.stringify(modifyResult));
+            throw new TypeError(`API_CNS_RecordModify`, JSON.stringify(modifyResult));
           }
         } catch (e) {
-          throw e;
+          throw new TypeError(`API_CNS_RecordModify`, JSON.stringify(e), e.stack);
         }
         console.log(`Modified (recordId is ${tempInputs.recordId}) `);
       } else {
@@ -142,7 +143,7 @@ class Cns {
         try {
           let createOutputs = await this.cnsClient.request(tempInputs);
           if (createOutputs.code != 0) {
-            throw new Error(JSON.stringify(createOutputs));
+            throw new TypeError(`API_CNS_RecordCreate`, JSON.stringify(createOutputs));
           }
           createOutputs = createOutputs['data'];
           tempInputs.recordId = createOutputs.record.id;
@@ -173,10 +174,10 @@ class Cns {
       try {
         const statusResult = await this.cnsClient.request(statusInputs);
         if (statusResult.code != 0) {
-          throw new Error(JSON.stringify(statusResult));
+          throw new TypeError(`API_CNS_RecordStatus`, JSON.stringify(statusResult));
         }
       } catch (e) {
-        throw e;
+        throw new TypeError(`API_CNS_RecordStatus`, JSON.stringify(e), e.stack);
       }
       console.log(`Modified status to ${tempInputs.status} `);
     }
@@ -203,10 +204,10 @@ class Cns {
         try {
           const deleteResult = await this.cnsClient.request(deleteInputs);
           if (deleteResult.code != 0) {
-            throw new Error(JSON.stringify(deleteResult));
+            console.log(`Error API_CNS_RecordDelete: ${JSON.stringify(deleteResult)}`);
           }
         } catch (e) {
-          throw e;
+          console.log(`Error API_CNS_RecordDelete: ${e.message}`);
         }
         console.log(
           `Deleted record ${deleteList[recordNum].subDomain} ${deleteList[recordNum].recordId} `,

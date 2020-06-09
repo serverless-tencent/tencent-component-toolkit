@@ -1,5 +1,6 @@
 const { Capi } = require('@tencent-sdk/capi');
 const { sleep, waitResponse } = require('@ygkit/request');
+const { TypeError } = require('../../utils/error');
 const {
   AddCdnDomain,
   UpdateDomainConfig,
@@ -240,7 +241,7 @@ class Cdn {
   async remove(inputs = {}) {
     const { domain } = inputs;
     if (!domain) {
-      throw new Error('domain is required');
+      throw new TypeError(`PARAMETER_CDN`, 'domain is required');
     }
 
     // need circle for deleting, after domain status is 6, then we can delete it

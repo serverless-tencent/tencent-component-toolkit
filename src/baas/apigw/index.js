@@ -1,5 +1,6 @@
 const { apigw } = require('tencent-cloud-sdk');
 const { uniqueArray } = require('../../utils/index');
+const { TypeError } = require('../../utils/error');
 
 class Apigw {
   constructor(credentials = {}, region) {
@@ -19,11 +20,19 @@ class Apigw {
 
   async request(inputs) {
     inputs.Region = this.region;
-    const result = await this.apigwClient.request(inputs);
-    if (result.code != 0) {
-      throw new Error(`Request API ${inputs.Action} failed: ${result.message}`);
-    } else {
-      return result;
+    try {
+      const result = await this.apigwClient.request(inputs);
+
+      if (result.code != 0) {
+        throw new TypeError(
+          `API_APIGW_${inputs.Action}`,
+          `Request API ${inputs.Action} failed: ${result.message}`,
+        );
+      } else {
+        return result;
+      }
+    } catch (e) {
+      throw new TypeError(`API_APIGW_${inputs.Action}`, e.message, e.stack);
     }
   }
 
@@ -122,7 +131,10 @@ class Apigw {
 
     if (endpoint.protocol === 'WEBSOCKET') {
       if (!endpoint.function.transportFunctionName) {
-        throw new Error('"endpoints.function.transportFunctionName" is required');
+        throw new TypeError(
+          `PARAMETER_APIGW`,
+          '"endpoints.function.transportFunctionName" is required',
+        );
       }
       apiInputs.serviceWebsocketTransportFunctionName = endpoint.function.transportFunctionName;
       apiInputs.serviceWebsocketTransportFunctionQualifier = funcQualifier;
@@ -137,7 +149,7 @@ class Apigw {
       apiInputs.serviceWebsocketCleanupFunctionNamespace = funcNamespace;
     } else {
       if (!funcName) {
-        throw new Error('"endpoints.function.functionName" is required');
+        throw new TypeError(`PARAMETER_APIGW`, '"endpoints.function.functionName" is required');
       }
       apiInputs.serviceScfFunctionName = funcName;
       apiInputs.serviceScfFunctionNamespace = funcNamespace;

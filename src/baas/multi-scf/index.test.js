@@ -1,12 +1,12 @@
-const secret = require('../../../../secret')
-const ScfUtils = require('./index')
+const secret = require('../../../../secret');
+const ScfUtils = require('./index');
 
 class ClientTest {
 	async scfTest() {
 		const scf = new ScfUtils({
 			SecretId: secret.SecretId,
-			SecretKey: secret.SecretKey
-		}, ['ap-shanghai', 'ap-guangzhou'])
+			SecretKey: secret.SecretKey,
+		}, ['ap-shanghai', 'ap-guangzhou']);
 		const scfDemo = {
 			name: 'myFunctionttest',
 			handler: 'index.main_handler',
@@ -18,12 +18,12 @@ class ClientTest {
 			memorySize: '256',
 			timeout: '20',
 			tags: {
-				mytest: 'abc'
+				mytest: 'abc',
 			},
 			environment: {
 				variables: {
-					TEST: 'value'
-				}
+					TEST: 'value',
+				},
 			},
 			events: [
 				{
@@ -32,9 +32,9 @@ class ClientTest {
 						parameters: {
 							cronExpression: '*/6 * * * *',
 							enable: true,
-							argument: 'mytest argument'
-						}
-					}
+							argument: 'mytest argument',
+						},
+					},
 				},
 				{
 					apigw: {
@@ -46,34 +46,34 @@ class ClientTest {
 							environment: 'release',
 							endpoints: [{
 								path: '/users',
-								method: 'POST'
-							}]
-						}
+								method: 'POST',
+							}],
+						},
 
-					}
-				}
+					},
+				},
 			],
 			'ap-shanghai': {
 				code: {
 					bucket: 'sls-cloudfunction-ap-shanghai-code',
-					object: 'sls-cloudfunction-default-Album_Add_Album-1585359218.zip'
+					object: 'sls-cloudfunction-default-Album_Add_Album-1585359218.zip',
 				},
 			},
 			'ap-guangzhou': {
 				code: {
 					bucket: 'sls-cloudfunction-ap-guangzhou',
-					object: 'sls-cloudfunction-default-hello_world-1584670117.zip'
+					object: 'sls-cloudfunction-default-hello_world-1584670117.zip',
 				},
-			}
-		}
-		const result = await scf.deploy(scfDemo)
-		console.log(JSON.stringify(result))
+			},
+		};
+		const result = await scf.deploy(scfDemo);
+		console.log(JSON.stringify(result));
 		// console.log(await scf.invoke(result.FunctionName))
-		await scf.remove(result)
+		await scf.remove(result);
 	}
 }
 
-new ClientTest().scfTest()
+new ClientTest().scfTest();
 
 /* 测试结果：
 	Creating funtion myFunction1 in ap-guangzhou ...

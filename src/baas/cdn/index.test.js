@@ -1,10 +1,10 @@
-const Cdn = require('./index')
+const Cdn = require('./index');
 
 async function runTest() {
   const credentials = {
     SecretId: '',
-    SecretKey: ''
-  }
+    SecretKey: '',
+  };
 
   // const inputs = {
   //   async: true,
@@ -49,28 +49,27 @@ async function runTest() {
       switch: 'on',
       http2: 'on',
       certInfo: {
-        certId: 'xxx'
-      }
+        certId: 'xxx',
+      },
     },
     forceRedirect: {
       switch: 'on',
       redirectType: 'https',
-      redirectStatusCode: 301
-    }
-  }
-  const cdn = new Cdn(credentials, inputs.region)
-  const outputs = await cdn.deploy(inputs)
-  console.log(outputs)
+      redirectStatusCode: 301,
+    },
+  };
+  const cdn = new Cdn(credentials, inputs.region);
+  const outputs = await cdn.deploy(inputs);
+  console.log(outputs);
 
-  // await cdn.remove({
-  //   domain: 'fullstack.yugasun.com'
-  // })
+  await cdn.remove({
+    domain: 'fullstack.yugasun.com',
+  });
 }
 
-runTest()
+runTest();
 
 
 process.on('unhandledRejection', (e) => {
   console.log(e);
-
-})
+});
