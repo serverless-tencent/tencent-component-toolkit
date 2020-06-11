@@ -1,3 +1,10 @@
+## [1.10.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.10.0...v1.10.1) (2020-06-11)
+
+
+### Bug Fixes
+
+* deleting scf trigger logical ([c262062](https://github.com/serverless-tencent/tencent-component-toolkit/commit/c2620626aa7173ee284a068175d14fed84a531d9))
+
 # [1.10.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.9.0...v1.10.0) (2020-06-09)
 
 
