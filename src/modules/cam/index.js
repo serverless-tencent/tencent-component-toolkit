@@ -16,6 +16,7 @@ class Cam {
         throw new TypeError(
           `API_CAM_${data.Action}`,
           JSON.stringify(res.Response),
+          null,
           res.Response.RequestId,
         );
       }
