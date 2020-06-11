@@ -489,13 +489,6 @@ class Apigw {
     const apiList = [];
     const stateApiList = oldState.apiList || [];
 
-    const detail = await this.request({
-      Action: 'DescribeApisStatus',
-      serviceId: 'service-jynhs9t2',
-    });
-    console.log(JSON.stringify(detail));
-    return null;
-
     const { endpoints } = inputs;
     for (let i = 0, len = endpoints.length; i < len; i++) {
       const endpoint = endpoints[i];
