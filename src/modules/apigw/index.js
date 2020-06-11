@@ -115,6 +115,7 @@ class Apigw {
       enableCORS: endpoint.enableCORS === true ? true : false,
     };
 
+    endpoint.function = endpoint.function || {};
     const funcName = endpoint.function.functionName;
     const funcNamespace = endpoint.function.functionNamespace || 'default';
     const funcQualifier = endpoint.function.functionQualifier
@@ -161,16 +162,17 @@ class Apigw {
     if (!endpoint.apiId) {
       const pathAPIList = await this.request({
         Action: 'DescribeApisStatus',
-        serviceId: serviceId,
-        searchName: endpoint.path,
+        ServiceId: serviceId,
+        Filters: [{ Name: 'ApiPath', Values: [endpoint.path] }],
       });
-      if (pathAPIList.apiIdStatusSet) {
-        for (let i = 0; i < pathAPIList.apiIdStatusSet.length; i++) {
+      if (pathAPIList.ApiIdStatusSet) {
+        for (let i = 0; i < pathAPIList.ApiIdStatusSet.length; i++) {
           if (
-            pathAPIList.apiIdStatusSet[i].method == endpoint.method &&
-            pathAPIList.apiIdStatusSet[i].path == endpoint.path
+            pathAPIList.ApiIdStatusSet[i].Method.toLowerCase() === endpoint.method.toLowerCase() &&
+            pathAPIList.ApiIdStatusSet[i].Path === endpoint.path
           ) {
-            endpoint.apiId = pathAPIList.apiIdStatusSet[i].apiId;
+            endpoint.apiId = pathAPIList.ApiIdStatusSet[i].ApiId;
+            exist = true;
           }
         }
       }
@@ -241,7 +243,7 @@ class Apigw {
     const { ApiKeySet } = await this.request({
       Action: 'DescribeApiKeysStatus',
       Limit: uniqSecretIds.length,
-      Filter: [
+      Filters: [
         {
           Name: 'AccessKeyId',
           Values: uniqSecretIds,
@@ -251,14 +253,15 @@ class Apigw {
 
     const existKeysLen = ApiKeySet.length;
 
+    // Filter invalid and non-existent keys
     const ids = [];
     for (let i = 0; i < uniqSecretIds.length; i++) {
       const secretId = uniqSecretIds[i];
       let found = false;
       let disable = false;
       for (let n = 0; n < existKeysLen; n++) {
-        if (ApiKeySet[n] && secretId == ApiKeySet[n].AccessKeyId) {
-          if (ApiKeySet[n].Status == 1) {
+        if (ApiKeySet[n] && secretId === ApiKeySet[n].AccessKeyId) {
+          if (Number(ApiKeySet[n].Status) === 1) {
             found = true;
           } else {
             disable = true;
@@ -269,7 +272,7 @@ class Apigw {
       }
       if (!found) {
         if (!disable) {
-          console.log(`Secret key id ${secretId} does't exist`);
+          console.log(`Secret key id ${secretId} doesn't exist`);
         }
       } else {
         ids.push(secretId);
@@ -321,12 +324,7 @@ class Apigw {
         ...usageInputs,
       });
 
-      const detail = await this.request({
-        Action: 'DescribeUsagePlan',
-        UsagePlanId: UsagePlanId,
-      });
-
-      usagePlanOutput.usagePlanId = detail.UsagePlanId;
+      usagePlanOutput.usagePlanId = UsagePlanId;
       usagePlanOutput.created = true;
       console.log(`Usage plan with ID ${usagePlanOutput.usagePlanId} created.`);
     }
@@ -440,7 +438,7 @@ class Apigw {
     return customDomainOutput;
   }
 
-  // bind environment fo usage plan
+  // bind environment of usage plan
   async bindUsagePlanEnvironment({
     environment,
     bindType = 'API',
@@ -490,6 +488,13 @@ class Apigw {
 
     const apiList = [];
     const stateApiList = oldState.apiList || [];
+
+    const detail = await this.request({
+      Action: 'DescribeApisStatus',
+      serviceId: 'service-jynhs9t2',
+    });
+    console.log(JSON.stringify(detail));
+    return null;
 
     const { endpoints } = inputs;
     for (let i = 0, len = endpoints.length; i < len; i++) {

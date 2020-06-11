@@ -30,7 +30,7 @@ function apiFactory(actions) {
             ...inputs,
           },
           {
-            debug: true,
+            debug: false,
             ServiceType: 'apigateway',
             host: 'apigateway.tencentcloudapi.com',
           },
