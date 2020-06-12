@@ -50,6 +50,26 @@ async function runTest() {
         },
 
       },
+      {
+        path: '/mo',
+        protocol: 'HTTP',
+        method: 'GET',
+        apiName: 'mo',
+        serviceType: 'MOCK',
+        serviceMockReturnMessage: 'test mock response',
+      },
+      {
+        path: '/auto',
+        protocol: 'HTTP',
+        apiName: 'auto-http 000',
+        method: 'GET',
+        serviceType: 'HTTP',
+        serviceConfig: {
+          url: 'http://www.baidu.com',
+          path: '/test',
+          method: 'GET',
+        },
+      },
     ],
   };
   const apigw = new Apigw(credentials, inputs.region);

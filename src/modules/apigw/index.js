@@ -89,40 +89,18 @@ class Apigw {
     };
   }
 
-  async createOrUpdateApi({ serviceId, endpoint }) {
-    const output = {
-      path: endpoint.path,
-      method: endpoint.method,
-      apiId: undefined,
-      created: false,
-    };
-
-    const apiInputs = {
-      protocol: endpoint.protocol || 'HTTP',
-      serviceId: serviceId,
-      apiName: endpoint.apiName || 'index',
-      apiDesc: endpoint.description,
-      apiType: 'NORMAL',
-      authType: endpoint.auth ? 'SECRET' : 'NONE',
-      // authRequired: endpoint.auth ? 'TRUE' : 'FALSE',
-      serviceType: 'SCF',
-      requestConfig: {
-        path: endpoint.path,
-        method: endpoint.method,
-      },
-      serviceTimeout: endpoint.serviceTimeout || 15,
-      responseType: endpoint.responseType || 'HTML',
-      enableCORS: endpoint.enableCORS === true ? true : false,
-    };
+  marshalApiInput(endpoint, apiInputs, serviceType) {
+    if (endpoint.param) {
+      apiInputs.requestParameters = endpoint.param;
+    }
 
     endpoint.function = endpoint.function || {};
-    const funcName = endpoint.function.functionName;
-    const funcNamespace = endpoint.function.functionNamespace || 'default';
-    const funcQualifier = endpoint.function.functionQualifier
-      ? endpoint.function.functionQualifier
-      : '$LATEST';
-
+    // handle front-end API type of WEBSOKET/HTTP
     if (endpoint.protocol === 'WEBSOCKET') {
+      const funcNamespace = endpoint.function.functionNamespace || 'default';
+      const funcQualifier = endpoint.function.functionQualifier
+        ? endpoint.function.functionQualifier
+        : '$LATEST';
       if (!endpoint.function.transportFunctionName) {
         throw new TypeError(
           `PARAMETER_APIGW`,
@@ -141,20 +119,81 @@ class Apigw {
       apiInputs.serviceWebsocketCleanupFunctionQualifier = funcQualifier;
       apiInputs.serviceWebsocketCleanupFunctionNamespace = funcNamespace;
     } else {
-      if (!funcName) {
-        throw new TypeError(`PARAMETER_APIGW`, '"endpoints.function.functionName" is required');
+      // hande HTTP API service type of SCF/HTTP/MOCK
+      apiInputs.serviceType = serviceType;
+      switch (serviceType) {
+        case 'SCF':
+          if (!endpoint.function.functionName) {
+            throw new TypeError(`PARAMETER_APIGW`, '"endpoints.function.functionName" is required');
+          }
+          apiInputs.serviceScfFunctionName = endpoint.function.functionName;
+          apiInputs.serviceScfFunctionNamespace = endpoint.function.functionNamespace || 'default';
+          apiInputs.serviceScfIsIntegratedResponse = endpoint.function.isIntegratedResponse
+            ? true
+            : false;
+          apiInputs.serviceScfFunctionQualifier = endpoint.function.functionQualifier
+            ? endpoint.function.functionQualifier
+            : '$LATEST';
+          break;
+        case 'HTTP':
+          if (
+            !endpoint.serviceConfig ||
+            !endpoint.serviceConfig.url ||
+            !endpoint.serviceConfig.path ||
+            !endpoint.serviceConfig.method
+          ) {
+            throw new TypeError(
+              `PARAMETER_APIGW`,
+              '"endpoints.serviceConfig.url&path&method" is required',
+            );
+          }
+          apiInputs.serviceConfig = {
+            url: endpoint.serviceConfig.url,
+            path: endpoint.serviceConfig.path,
+            method: endpoint.serviceConfig.method.toUpperCase(),
+          };
+          if (endpoint.serviceConfig.uniqVpcId) {
+            apiInputs.serviceConfig.uniqVpcId = endpoint.serviceConfig.uniqVpcId;
+            apiInputs.serviceConfig.product = 'clb';
+          }
+          break;
+        case 'MOCK':
+          if (!endpoint.serviceMockReturnMessage) {
+            throw new TypeError(
+              `PARAMETER_APIGW`,
+              '"endpoints.serviceMockReturnMessage" is required',
+            );
+          }
+          apiInputs.serviceMockReturnMessage = endpoint.serviceMockReturnMessage;
       }
-      apiInputs.serviceScfFunctionName = funcName;
-      apiInputs.serviceScfFunctionNamespace = funcNamespace;
-      apiInputs.serviceScfIsIntegratedResponse = endpoint.function.isIntegratedResponse
-        ? true
-        : false;
-      apiInputs.serviceScfFunctionQualifier = funcQualifier;
     }
+  }
 
-    if (endpoint.param) {
-      apiInputs.requestParameters = endpoint.param;
-    }
+  async createOrUpdateApi({ serviceId, endpoint }) {
+    const output = {
+      path: endpoint.path,
+      method: endpoint.method,
+      apiId: undefined,
+      created: false,
+    };
+
+    const apiInputs = {
+      protocol: endpoint.protocol || 'HTTP',
+      serviceId: serviceId,
+      apiName: endpoint.apiName || 'index',
+      apiDesc: endpoint.description,
+      apiType: 'NORMAL',
+      authType: endpoint.auth ? 'SECRET' : 'NONE',
+      // authRequired: endpoint.auth ? 'TRUE' : 'FALSE',
+      serviceType: endpoint.serviceType || 'SCF',
+      requestConfig: {
+        path: endpoint.path,
+        method: endpoint.method,
+      },
+      serviceTimeout: endpoint.serviceTimeout || 15,
+      responseType: endpoint.responseType || 'HTML',
+      enableCORS: endpoint.enableCORS === true ? true : false,
+    };
 
     let exist = false;
 
@@ -186,6 +225,8 @@ class Apigw {
       if (detail && detail.ApiId) {
         exist = true;
         console.log(`Updating api with api id ${endpoint.apiId}.`);
+
+        this.marshalApiInput(endpoint, apiInputs, detail.ServiceType);
         await this.request({
           Action: 'ModifyApi',
           apiId: endpoint.apiId,
@@ -198,6 +239,7 @@ class Apigw {
     }
 
     if (!exist) {
+      this.marshalApiInput(endpoint, apiInputs, apiInputs.serviceType);
       const { ApiId } = await this.request({
         Action: 'CreateApi',
         ...apiInputs,
