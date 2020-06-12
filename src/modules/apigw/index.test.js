@@ -8,7 +8,7 @@ async function runTest() {
 
   const inputs = {
     region: 'ap-guangzhou',
-    serviceId: 'service-miuysd64',
+    serviceId: 'service-jynhs9t2',
     protocols: ['http', 'https'],
     serviceName: 'serverless',
     environment: 'release',
@@ -29,7 +29,7 @@ async function runTest() {
     ],
     endpoints: [
       {
-        apiId: 'api-4n94mte6',
+        apiId: 'api-i84p7rla',
         path: '/',
         protocol: 'HTTP',
         method: 'GET',
@@ -38,7 +38,7 @@ async function runTest() {
           functionName: 'egg-function',
         },
         usagePlan: {
-          usagePlanId: 'usagePlan-e3atrucv',
+          usagePlanId: 'usagePlan-8bbr8pup',
           usagePlanName: 'slscmp',
           usagePlanDesc: 'sls create',
           maxRequestNum: 1000,
@@ -61,12 +61,24 @@ async function runTest() {
       {
         path: '/auto',
         protocol: 'HTTP',
-        apiName: 'auto-http 000',
+        apiName: 'auto-http',
         method: 'GET',
         serviceType: 'HTTP',
         serviceConfig: {
           url: 'http://www.baidu.com',
           path: '/test',
+          method: 'GET',
+        },
+      },
+      {
+        path: '/ws',
+        protocol: 'WEBSOCKET',
+        apiName: 'ws-test',
+        method: 'GET',
+        serviceType: 'HTTP',
+        serviceConfig: {
+          url: 'ws://yugasun.com',
+          path: '/',
           method: 'GET',
         },
       },

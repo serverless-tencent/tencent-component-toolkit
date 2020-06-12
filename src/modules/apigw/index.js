@@ -89,38 +89,62 @@ class Apigw {
     };
   }
 
+  marshalServiceConfig(endpoint, apiInputs) {
+    if (
+      !endpoint.serviceConfig ||
+      !endpoint.serviceConfig.url ||
+      !endpoint.serviceConfig.path ||
+      !endpoint.serviceConfig.method
+    ) {
+      throw new TypeError(
+        `PARAMETER_APIGW`,
+        '"endpoints.serviceConfig.url&path&method" is required',
+      );
+    }
+    apiInputs.serviceConfig = {
+      url: endpoint.serviceConfig.url,
+      path: endpoint.serviceConfig.path,
+      method: endpoint.serviceConfig.method.toUpperCase(),
+    };
+  }
+
   marshalApiInput(endpoint, apiInputs, serviceType) {
     if (endpoint.param) {
       apiInputs.requestParameters = endpoint.param;
     }
 
+    apiInputs.serviceType = serviceType;
     endpoint.function = endpoint.function || {};
-    // handle front-end API type of WEBSOKET/HTTP
+    // handle front-end API type of WEBSOCKET/HTTP
     if (endpoint.protocol === 'WEBSOCKET') {
-      const funcNamespace = endpoint.function.functionNamespace || 'default';
-      const funcQualifier = endpoint.function.functionQualifier
-        ? endpoint.function.functionQualifier
-        : '$LATEST';
-      if (!endpoint.function.transportFunctionName) {
-        throw new TypeError(
-          `PARAMETER_APIGW`,
-          '"endpoints.function.transportFunctionName" is required',
-        );
+      // handle WEBSOCKET API service type of WEBSOCKET/SCF
+      if (serviceType === 'WEBSOCKET') {
+        this.marshalServiceConfig(endpoint, apiInputs);
+      } else {
+        const funcNamespace = endpoint.function.functionNamespace || 'default';
+        const funcQualifier = endpoint.function.functionQualifier
+          ? endpoint.function.functionQualifier
+          : '$LATEST';
+        if (!endpoint.function.transportFunctionName) {
+          throw new TypeError(
+            `PARAMETER_APIGW`,
+            '"endpoints.function.transportFunctionName" is required',
+          );
+        }
+        apiInputs.serviceWebsocketTransportFunctionName = endpoint.function.transportFunctionName;
+        apiInputs.serviceWebsocketTransportFunctionQualifier = funcQualifier;
+        apiInputs.serviceWebsocketTransportFunctionNamespace = funcNamespace;
+
+        apiInputs.serviceWebsocketRegisterFunctionName = endpoint.function.registerFunctionName;
+        apiInputs.serviceWebsocketRegisterFunctionQualifier = funcQualifier;
+        apiInputs.serviceWebsocketRegisterFunctionNamespace = funcNamespace;
+
+        apiInputs.serviceWebsocketCleanupFunctionName = endpoint.function.cleanupFunctionName;
+        apiInputs.serviceWebsocketCleanupFunctionQualifier = funcQualifier;
+        apiInputs.serviceWebsocketCleanupFunctionNamespace = funcNamespace;
       }
-      apiInputs.serviceWebsocketTransportFunctionName = endpoint.function.transportFunctionName;
-      apiInputs.serviceWebsocketTransportFunctionQualifier = funcQualifier;
-      apiInputs.serviceWebsocketTransportFunctionNamespace = funcNamespace;
-
-      apiInputs.serviceWebsocketRegisterFunctionName = endpoint.function.registerFunctionName;
-      apiInputs.serviceWebsocketRegisterFunctionQualifier = funcQualifier;
-      apiInputs.serviceWebsocketRegisterFunctionNamespace = funcNamespace;
-
-      apiInputs.serviceWebsocketCleanupFunctionName = endpoint.function.cleanupFunctionName;
-      apiInputs.serviceWebsocketCleanupFunctionQualifier = funcQualifier;
-      apiInputs.serviceWebsocketCleanupFunctionNamespace = funcNamespace;
     } else {
       // hande HTTP API service type of SCF/HTTP/MOCK
-      apiInputs.serviceType = serviceType;
       switch (serviceType) {
         case 'SCF':
           if (!endpoint.function.functionName) {
@@ -136,22 +160,23 @@ class Apigw {
             : '$LATEST';
           break;
         case 'HTTP':
-          if (
-            !endpoint.serviceConfig ||
-            !endpoint.serviceConfig.url ||
-            !endpoint.serviceConfig.path ||
-            !endpoint.serviceConfig.method
-          ) {
-            throw new TypeError(
-              `PARAMETER_APIGW`,
-              '"endpoints.serviceConfig.url&path&method" is required',
-            );
+          this.marshalServiceConfig(endpoint, apiInputs);
+          if (endpoint.serviceParameters && endpoint.serviceParameters.length > 0) {
+            apiInputs.serviceParameters = [];
+            for (let i = 0; i < endpoint.serviceParameters.length; i++) {
+              const inputParam = endpoint.serviceParameters[i];
+              const targetParam = {
+                name: inputParam.name,
+                position: inputParam.position,
+                relevantRequestParameterPosition: inputParam.relevantRequestParameterPosition,
+                relevantRequestParameterName: inputParam.relevantRequestParameterName,
+                defaultValue: inputParam.defaultValue,
+                relevantRequestParameterDesc: inputParam.relevantRequestParameterDesc,
+                relevantRequestParameterType: inputParam.relevantRequestParameterType,
+              };
+              apiInputs.serviceParameters.push(targetParam);
+            }
           }
-          apiInputs.serviceConfig = {
-            url: endpoint.serviceConfig.url,
-            path: endpoint.serviceConfig.path,
-            method: endpoint.serviceConfig.method.toUpperCase(),
-          };
           if (endpoint.serviceConfig.uniqVpcId) {
             apiInputs.serviceConfig.uniqVpcId = endpoint.serviceConfig.uniqVpcId;
             apiInputs.serviceConfig.product = 'clb';
@@ -215,6 +240,25 @@ class Apigw {
           }
         }
       }
+    }
+
+    if (!exist && !endpoint.apiId) {
+      this.marshalApiInput(endpoint, apiInputs, apiInputs.serviceType);
+      const { ApiId } = await this.request({
+        Action: 'CreateApi',
+        ...apiInputs,
+      });
+
+      output.apiId = ApiId;
+      output.created = true;
+
+      console.log(`API with id ${output.apiId} created.`);
+      const detail = await this.request({
+        Action: 'DescribeApi',
+        serviceId: serviceId,
+        apiId: output.apiId,
+      });
+      output.internalDomain = detail.InternalDomain;
     } else {
       const detail = await this.request({
         Action: 'DescribeApi',
@@ -233,29 +277,9 @@ class Apigw {
           ...apiInputs,
         });
         output.apiId = endpoint.apiId;
-        console.log(`Service with id ${output.apiId} updated.`);
         output.internalDomain = detail.InternalDomain;
+        console.log(`Service with id ${output.apiId} updated.`);
       }
-    }
-
-    if (!exist) {
-      this.marshalApiInput(endpoint, apiInputs, apiInputs.serviceType);
-      const { ApiId } = await this.request({
-        Action: 'CreateApi',
-        ...apiInputs,
-      });
-
-      output.apiId = ApiId;
-      output.created = true;
-
-      console.log(`API with id ${output.apiId} created.`);
-
-      const detail = await this.request({
-        Action: 'DescribeApi',
-        serviceId: serviceId,
-        apiId: output.apiId,
-      });
-      output.internalDomain = detail.InternalDomain;
     }
 
     output.apiName = apiInputs.apiName;
