@@ -50,7 +50,7 @@ function apiFactory(actions) {
         }
         return Response.Result || Response;
       } catch (e) {
-        throw new TypeError(`API_APIGW_${action}`, e.message, e.stack);
+        throw new TypeError(`API_APIGW_${action}`, e.message, e.stack, e.reqId);
       }
     };
   });

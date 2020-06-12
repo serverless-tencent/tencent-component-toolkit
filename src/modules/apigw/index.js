@@ -221,6 +221,7 @@ class Apigw {
     };
 
     let exist = false;
+    let apiDetail = null;
 
     // 没有apiId，还需要根据path来确定
     if (!endpoint.apiId) {
@@ -240,9 +241,19 @@ class Apigw {
           }
         }
       }
+    } else {
+      apiDetail = await this.request({
+        Action: 'DescribeApi',
+        serviceId: serviceId,
+        apiId: endpoint.apiId,
+      });
+
+      if (apiDetail && apiDetail.ApiId) {
+        exist = true;
+      }
     }
 
-    if (!exist && !endpoint.apiId) {
+    if (!exist) {
       this.marshalApiInput(endpoint, apiInputs, apiInputs.serviceType);
       const { ApiId } = await this.request({
         Action: 'CreateApi',
@@ -253,33 +264,23 @@ class Apigw {
       output.created = true;
 
       console.log(`API with id ${output.apiId} created.`);
-      const detail = await this.request({
+      apiDetail = await this.request({
         Action: 'DescribeApi',
         serviceId: serviceId,
         apiId: output.apiId,
       });
-      output.internalDomain = detail.InternalDomain;
+      output.internalDomain = apiDetail.InternalDomain;
     } else {
-      const detail = await this.request({
-        Action: 'DescribeApi',
-        serviceId: serviceId,
+      console.log(`Updating api with api id ${endpoint.apiId}.`);
+      this.marshalApiInput(endpoint, apiInputs, apiDetail.ServiceType);
+      await this.request({
+        Action: 'ModifyApi',
         apiId: endpoint.apiId,
+        ...apiInputs,
       });
-
-      if (detail && detail.ApiId) {
-        exist = true;
-        console.log(`Updating api with api id ${endpoint.apiId}.`);
-
-        this.marshalApiInput(endpoint, apiInputs, detail.ServiceType);
-        await this.request({
-          Action: 'ModifyApi',
-          apiId: endpoint.apiId,
-          ...apiInputs,
-        });
-        output.apiId = endpoint.apiId;
-        output.internalDomain = detail.InternalDomain;
-        console.log(`Service with id ${output.apiId} updated.`);
-      }
+      output.apiId = endpoint.apiId;
+      output.internalDomain = apiDetail.InternalDomain;
+      console.log(`Service with id ${output.apiId} updated.`);
     }
 
     output.apiName = apiInputs.apiName;
@@ -292,6 +293,7 @@ class Apigw {
       secretIds,
     };
 
+    // user not setup secret ids, just auto generate one
     if (secretIds.length === 0) {
       console.log(`Creating a new Secret key.`);
       const { AccessKeyId, AccessKeySecret } = await this.request({
@@ -302,49 +304,52 @@ class Apigw {
       console.log(`Secret key with ID ${AccessKeyId} and key ${AccessKeySecret} updated.`);
       secretIdsOutput.secretIds = [AccessKeyId];
       secretIdsOutput.created = true;
-    }
-    const uniqSecretIds = uniqueArray(secretIds);
+    } else {
+      // use setup secret ids
+      // 1. unique it
+      // 2. make sure all bind secret ids exist in user's list
+      const uniqSecretIds = uniqueArray(secretIds);
 
-    // get all secretId, check local secretId exists
-    const { ApiKeySet } = await this.request({
-      Action: 'DescribeApiKeysStatus',
-      Limit: uniqSecretIds.length,
-      Filters: [
-        {
-          Name: 'AccessKeyId',
-          Values: uniqSecretIds,
-        },
-      ],
-    });
+      // get all secretId, check local secretId exists
+      const { ApiKeySet } = await this.request({
+        Action: 'DescribeApiKeysStatus',
+        Limit: uniqSecretIds.length,
+        Filters: [
+          {
+            Name: 'AccessKeyId',
+            Values: uniqSecretIds,
+          },
+        ],
+      });
 
-    const existKeysLen = ApiKeySet.length;
+      const existKeysLen = ApiKeySet.length;
 
-    // Filter invalid and non-existent keys
-    const ids = [];
-    for (let i = 0; i < uniqSecretIds.length; i++) {
-      const secretId = uniqSecretIds[i];
-      let found = false;
-      let disable = false;
-      for (let n = 0; n < existKeysLen; n++) {
-        if (ApiKeySet[n] && secretId === ApiKeySet[n].AccessKeyId) {
-          if (Number(ApiKeySet[n].Status) === 1) {
-            found = true;
-          } else {
-            disable = true;
-            console.log(`There is a disabled secret key: ${secretId}, cannot be bound`);
+      // Filter invalid and non-existent keys
+      const ids = [];
+      uniqSecretIds.forEach((secretId) => {
+        let found = false;
+        let disable = false;
+        for (let n = 0; n < existKeysLen; n++) {
+          if (ApiKeySet[n] && secretId === ApiKeySet[n].AccessKeyId) {
+            if (Number(ApiKeySet[n].Status) === 1) {
+              found = true;
+            } else {
+              disable = true;
+              console.log(`There is a disabled secret key: ${secretId}, cannot be bound`);
+            }
+            break;
           }
-          break;
         }
-      }
-      if (!found) {
-        if (!disable) {
-          console.log(`Secret key id ${secretId} doesn't exist`);
+        if (!found) {
+          if (!disable) {
+            console.log(`Secret key id ${secretId} doesn't exist`);
+          }
+        } else {
+          ids.push(secretId);
         }
-      } else {
-        ids.push(secretId);
-      }
+      });
+      secretIdsOutput.secretIds = ids;
     }
-    secretIdsOutput.secretIds = ids;
 
     return secretIdsOutput;
   }
@@ -684,7 +689,6 @@ class Apigw {
       if (curApi.usagePlan) {
         // 1.1 unbind secrete ids
         const { secrets } = curApi.usagePlan;
-        console.log('secrets', secrets);
 
         if (secrets && secrets.secretIds) {
           await this.removeOrUnbindRequest({

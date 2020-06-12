@@ -46,7 +46,7 @@ async function runTest() {
         auth: {
           serviceTimeout: 15,
           secretName: 'secret',
-          secretIds: ['AKID7k1J4024e6gc3Twou1m9smQZrb2OBSyUp4S3'],
+          secretIds: ['xxx'],
         },
 
       },
@@ -75,7 +75,7 @@ async function runTest() {
         protocol: 'WEBSOCKET',
         apiName: 'ws-test',
         method: 'GET',
-        serviceType: 'HTTP',
+        serviceType: 'WEBSOCKET',
         serviceConfig: {
           url: 'ws://yugasun.com',
           path: '/',
