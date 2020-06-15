@@ -8,28 +8,28 @@ async function runTest() {
 
   const inputs = {
     region: 'ap-guangzhou',
-    serviceId: 'service-7i9kk5a8',
+    serviceId: 'service-jynhs9t2',
     protocols: ['http', 'https'],
     serviceName: 'serverless',
     environment: 'release',
-    // customDomains: [
-    //   {
-    //     domain: 'fullstack.yugasun.com',
-    //     // TODO: change to your certId
-    //     certificateId: '123456',
-    //     isDefaultMapping: 'FALSE',
-    //     pathMappingSet: [
-    //       {
-    //         path: '/',
-    //         environment: 'release',
-    //       },
-    //     ],
-    //     protocols: ['http', 'https'],
-    //   },
-    // ],
+    customDomains: [
+      {
+        domain: 'test.yugasun.com',
+        // TODO: change to your certId
+        certificateId: 'cWOJJjax',
+        isDefaultMapping: 'true',
+        pathMappingSet: [
+          {
+            path: '/',
+            environment: 'release',
+          },
+        ],
+        protocols: ['http', 'https'],
+      },
+    ],
     endpoints: [
       {
-        apiId: 'api-a05zvycu',
+        apiId: 'api-i84p7rla',
         path: '/',
         protocol: 'HTTP',
         method: 'GET',
@@ -38,6 +38,7 @@ async function runTest() {
           functionName: 'egg-function',
         },
         usagePlan: {
+          usagePlanId: 'usagePlan-8bbr8pup',
           usagePlanName: 'slscmp',
           usagePlanDesc: 'sls create',
           maxRequestNum: 1000,
@@ -45,8 +46,41 @@ async function runTest() {
         auth: {
           serviceTimeout: 15,
           secretName: 'secret',
+          secretIds: ['xxx'],
         },
 
+      },
+      {
+        path: '/mo',
+        protocol: 'HTTP',
+        method: 'GET',
+        apiName: 'mo',
+        serviceType: 'MOCK',
+        serviceMockReturnMessage: 'test mock response',
+      },
+      {
+        path: '/auto',
+        protocol: 'HTTP',
+        apiName: 'auto-http',
+        method: 'GET',
+        serviceType: 'HTTP',
+        serviceConfig: {
+          url: 'http://www.baidu.com',
+          path: '/test',
+          method: 'GET',
+        },
+      },
+      {
+        path: '/ws',
+        protocol: 'WEBSOCKET',
+        apiName: 'ws-test',
+        method: 'GET',
+        serviceType: 'WEBSOCKET',
+        serviceConfig: {
+          url: 'ws://yugasun.com',
+          path: '/',
+          method: 'GET',
+        },
       },
     ],
   };
@@ -61,5 +95,5 @@ async function runTest() {
 runTest();
 
 process.on('unhandledRejection', (e) => {
-  throw e;
+  console.log(e);
 });
