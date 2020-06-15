@@ -1,3 +1,10 @@
+## [1.11.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.11.0...v1.11.1) (2020-06-15)
+
+
+### Bug Fixes
+
+* **apigw:** using token for capi bug ([289c7c8](https://github.com/serverless-tencent/tencent-component-toolkit/commit/289c7c886ca2f09f644f0ec9f454fd2a5fef5bd4))
+
 # [1.11.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.10.1...v1.11.0) (2020-06-15)
 
 
