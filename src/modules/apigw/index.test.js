@@ -82,6 +82,19 @@ async function runTest() {
           method: 'GET',
         },
       },
+      {
+        path: '/wsf',
+        protocol: 'WEBSOCKET',
+        apiName: 'ws-scf-1',
+        method: 'GET',
+        serviceType: 'SCF',
+        function: {
+          functionNamespace: 'default',
+          functionQualifier: '$DEFAULT',
+          transportFunctionName: 'fullstack-api',
+          registerFunctionName: 'myRestAPI',
+        },
+      },
     ],
   };
   const apigw = new Apigw(credentials, inputs.region);

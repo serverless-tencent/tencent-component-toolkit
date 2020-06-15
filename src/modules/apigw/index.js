@@ -241,7 +241,10 @@ class Apigw {
           }
         }
       }
-    } else {
+    }
+
+    // get API info after apiId confirmed
+    if (endpoint.apiId) {
       apiDetail = await this.request({
         Action: 'DescribeApi',
         serviceId: serviceId,
