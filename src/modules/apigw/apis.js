@@ -26,7 +26,7 @@ function apiFactory(actions) {
             Action: action,
             Version: '2018-08-08',
             // RequestClient: 'ServerlessComponent',
-            // Token: capi.options.Token || null,
+            Token: capi.options.Token || null,
             ...inputs,
           },
           {
