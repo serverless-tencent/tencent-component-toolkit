@@ -108,12 +108,12 @@ class Apigw {
     };
   }
 
-  marshalApiInput(endpoint, apiInputs, serviceType) {
+  marshalApiInput(endpoint, apiInputs) {
     if (endpoint.param) {
       apiInputs.requestParameters = endpoint.param;
     }
 
-    apiInputs.serviceType = serviceType;
+    const { serviceType } = apiInputs;
     endpoint.function = endpoint.function || {};
     // handle front-end API type of WEBSOCKET/HTTP
     if (endpoint.protocol === 'WEBSOCKET') {
@@ -257,7 +257,7 @@ class Apigw {
     }
 
     if (!exist) {
-      this.marshalApiInput(endpoint, apiInputs, apiInputs.serviceType);
+      this.marshalApiInput(endpoint, apiInputs);
       const { ApiId } = await this.request({
         Action: 'CreateApi',
         ...apiInputs,
@@ -275,7 +275,7 @@ class Apigw {
       output.internalDomain = apiDetail.InternalDomain;
     } else {
       console.log(`Updating api with api id ${endpoint.apiId}.`);
-      this.marshalApiInput(endpoint, apiInputs, apiDetail.ServiceType);
+      this.marshalApiInput(endpoint, apiInputs);
       await this.request({
         Action: 'ModifyApi',
         apiId: endpoint.apiId,

@@ -85,7 +85,7 @@ async function runTest() {
       {
         path: '/wsf',
         protocol: 'WEBSOCKET',
-        apiName: 'ws-scf-1',
+        apiName: 'ws-scf',
         method: 'GET',
         serviceType: 'SCF',
         function: {
