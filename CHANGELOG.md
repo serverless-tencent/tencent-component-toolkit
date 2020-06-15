@@ -1,3 +1,10 @@
+## [1.11.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.11.1...v1.11.2) (2020-06-15)
+
+
+### Bug Fixes
+
+* **apigw:** fix describe api missing issue ([#68](https://github.com/serverless-tencent/tencent-component-toolkit/issues/68)) ([ba0c573](https://github.com/serverless-tencent/tencent-component-toolkit/commit/ba0c573ad1b6dedc24f420f4777ab2b6016e9394))
+
 ## [1.11.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.11.0...v1.11.1) (2020-06-15)
 
 
