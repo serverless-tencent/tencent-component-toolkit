@@ -1,3 +1,10 @@
+# [1.11.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.10.1...v1.11.0) (2020-06-15)
+
+
+### Features
+
+* update apigw to version3.0 api ([#66](https://github.com/serverless-tencent/tencent-component-toolkit/issues/66)) ([d4283df](https://github.com/serverless-tencent/tencent-component-toolkit/commit/d4283df3876a12cb7c2225d7c6eb3ed56ba6623e))
+
 ## [1.10.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.10.0...v1.10.1) (2020-06-11)
 
 
