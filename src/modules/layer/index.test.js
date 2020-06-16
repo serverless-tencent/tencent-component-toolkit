@@ -3,8 +3,8 @@ const { sleep } = require('@ygkit/request');
 
 async function runTest() {
   const credentials = {
-    SecretId: 'AKIDb3MGzXnADAycrvIV1MWWNyOcgaJqtNJH',
-    SecretKey: '1sX2LKFzXu7B6weFhy40mGg085rTu9GB',
+    SecretId: '',
+    SecretKey: '',
   };
 
   const inputs = {
