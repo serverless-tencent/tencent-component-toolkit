@@ -1,3 +1,10 @@
+## [1.11.3](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.11.2...v1.11.3) (2020-06-16)
+
+
+### Bug Fixes
+
+* layer test ([ac27de9](https://github.com/serverless-tencent/tencent-component-toolkit/commit/ac27de925da88385a6f57ee037a66e5440384b6c))
+
 ## [1.11.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.11.1...v1.11.2) (2020-06-15)
 
 
