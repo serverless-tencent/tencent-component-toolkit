@@ -10,6 +10,7 @@ class Layer {
       Region: region,
       SecretId: credentials.SecretId,
       SecretKey: credentials.SecretKey,
+      Token: credentials.Token,
     });
     this.cosClient = new Cos(credentials, region);
   }

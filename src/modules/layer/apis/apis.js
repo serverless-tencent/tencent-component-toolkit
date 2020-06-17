@@ -10,9 +10,6 @@ function apiFactory(actions) {
         // RequestClient: 'ServerlessComponent',
         ...inputs,
       };
-      if (capi.options.Token) {
-        data.Token = capi.options.Token;
-      }
       try {
         const { Response } = await capi.request(
           data,
@@ -36,7 +33,7 @@ function apiFactory(actions) {
         }
         return Response;
       } catch (e) {
-        throw new TypeError(`API_LAYER_${action}`, e.message, e.stack);
+        throw new TypeError(`API_LAYER_${action}`, e.message, e.stack, e.reqId);
       }
     };
   });
