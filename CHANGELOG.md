@@ -1,3 +1,10 @@
+## [1.11.4](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.11.3...v1.11.4) (2020-06-17)
+
+
+### Bug Fixes
+
+* **layer:** capi request with token ([88b89cc](https://github.com/serverless-tencent/tencent-component-toolkit/commit/88b89ccea6664ca5f98ee8571581ea28008bd4be))
+
 ## [1.11.3](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.11.2...v1.11.3) (2020-06-16)
 
 
