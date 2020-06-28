@@ -312,6 +312,83 @@ class Scf {
     }
   }
 
+  /**
+   * publish function version
+   * @param {object} inputs publish version parameter
+   */
+  async publishVersion(inputs) {
+    const publishInputs = {
+      Action: 'PublishVersion',
+      Version: '2018-04-16',
+      Region: inputs.region,
+      FunctionName: inputs.functionName,
+      Description: inputs.description || 'Published by Serverless Component',
+      Namespace: inputs.namespace || 'default',
+    };
+    const res = await this.scfClient.request(publishInputs);
+    if (res.Response && res.Response.Error) {
+      throw new TypeError(
+        'API_SCF_PublishVersion',
+        JSON.stringify(res.Response),
+        null,
+        res.Response.RequestId,
+      );
+    }
+    return res.Response;
+  }
+
+  async publishVersionAndConfigTraffic(inputs) {
+    const publishInputs = {
+      Action: 'CreateAlias',
+      Version: '2018-04-16',
+      Region: inputs.region,
+      FunctionName: inputs.functionName,
+      FunctionVersion: inputs.functionVersion,
+      Name: inputs.aliasName,
+      Namespace: inputs.namespace || 'default',
+      RoutingConfig: {
+        AdditionalVersionWeights: [{ Version: inputs.functionVersion, Weight: 1 - inputs.traffic }],
+      },
+      Description: inputs.description || 'Published by Serverless Component',
+    };
+    const res = await this.scfClient.request(publishInputs);
+    if (res.Response && res.Response.Error) {
+      throw new TypeError(
+        'API_SCF_CreateAlias',
+        JSON.stringify(res.Response),
+        null,
+        res.Response.RequestId,
+      );
+    }
+    return res.Response;
+  }
+
+  async updateAliasTraffic(inputs) {
+    const publishInputs = {
+      Action: 'UpdateAlias',
+      Version: '2018-04-16',
+      Region: inputs.region,
+      FunctionName: inputs.functionName,
+      FunctionVersion: inputs.functionVersion || '$LATEST',
+      Name: inputs.aliasName || '$DEFAULT',
+      Namespace: inputs.namespace || 'default',
+      RoutingConfig: {
+        AdditionalVersionWeights: [{ Version: inputs.lastVersion, Weight: 1 - inputs.traffic }],
+      },
+      Description: inputs.description || 'Configured by Serverless Component',
+    };
+    const res = await this.scfClient.request(publishInputs);
+    if (res.Response && res.Response.Error) {
+      throw new TypeError(
+        'API_SCF_UpdateAlias',
+        JSON.stringify(res.Response),
+        null,
+        res.Response.RequestId,
+      );
+    }
+    return res.Response;
+  }
+
   // deploy SCF flow
   async deploy(inputs = {}) {
     // whether auto create/bind role

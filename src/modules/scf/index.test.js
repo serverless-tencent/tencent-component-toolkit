@@ -69,14 +69,35 @@ class ClientTest {
         },
       ],
     };
+
+    // 1. deploy test
     const result = await scf.deploy(scfDemo);
     try{
       console.log(JSON.stringify(result));
     } catch (e) {
       console.log(e);
     }
-    // console.log(await scf.invoke(result.FunctionName))
-    await scf.remove(result);
+
+    // 2. publish version test
+    // const res = await scf.publishVersion({
+    //   functionName: 'test',
+    //   region: 'ap-guangzhou',
+    // });
+
+    // console.log('res', JSON.stringify(res));
+
+    // 3. update alias traffic
+    // const res = await scf.updateAliasTraffic({
+    //   functionName: 'test',
+    //   region: 'ap-guangzhou',
+    //   traffic: 0.8,
+    //   lastVersion: 3,
+    // });
+
+    // console.log('res', JSON.stringify(res));
+
+    // 4. remove function
+    // await scf.remove(result);
   }
 }
 
