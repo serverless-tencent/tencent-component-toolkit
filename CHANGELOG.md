@@ -1,3 +1,10 @@
+# [1.12.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.11.4...v1.12.0) (2020-06-28)
+
+
+### Features
+
+* scf support publish version and traffic config ([8432b93](https://github.com/serverless-tencent/tencent-component-toolkit/commit/8432b93bb37841b54781e7dad89d45a38425aa3e))
+
 ## [1.11.4](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.11.3...v1.11.4) (2020-06-17)
 
 
