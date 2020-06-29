@@ -90,9 +90,10 @@ class Scf {
   // because craeting function is asynchronous
   async checkStatus(namespace, functionName) {
     console.log(`Checking function ${functionName} status ...`);
-    let status = 'Updating';
+    const initialInfo = await this.getFunction(namespace, functionName);
+    let status = initialInfo.Status;
     let times = 200;
-    while ((status === 'Updating' || status === 'Creating') && times > 0) {
+    while (CONFIGS.waitStatus.indexOf(status) !== -1 && times > 0) {
       const tempFunc = await this.getFunction(namespace, functionName);
       status = tempFunc.Status;
       await sleep(300);
