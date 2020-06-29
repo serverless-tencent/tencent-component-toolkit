@@ -1,3 +1,10 @@
+## [1.12.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.12.0...v1.12.1) (2020-06-29)
+
+
+### Bug Fixes
+
+* support publish traffic for deploy method ([c440912](https://github.com/serverless-tencent/tencent-component-toolkit/commit/c440912a61b63bd758cabd5a6dbd09659abaa389))
+
 # [1.12.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.11.4...v1.12.0) (2020-06-28)
 
 
