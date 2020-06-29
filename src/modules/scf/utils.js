@@ -6,7 +6,7 @@ const CONFIGS = require('./config');
  * @param {object} funcInfo function information
  * @param {object} inputs yml configuration
  */
-const formatApigwTrigger = (region, funcInfo, inputs) => {
+const formatApigwTrigger = (region, funcInfo, inputs, traffic = false) => {
   const { parameters, name } = inputs;
   const triggerInputs = {};
   triggerInputs.region = region;
@@ -18,6 +18,7 @@ const formatApigwTrigger = (region, funcInfo, inputs) => {
     ep.function = ep.function || {};
     ep.function.functionName = funcInfo.FunctionName;
     ep.function.functionNamespace = funcInfo.Namespace;
+    ep.function.functionQualifier = traffic ? '$DEFAULT' : '$LATEST';
     return ep;
   });
   return {
@@ -159,10 +160,10 @@ const formatCmqTrigger = (region, funcInfo, inputs) => {
   };
 };
 
-const formatTrigger = (type, region, funcInfo, inputs) => {
+const formatTrigger = (type, region, funcInfo, inputs, traffic) => {
   switch (type) {
     case 'apigw':
-      return formatApigwTrigger(region, funcInfo, inputs);
+      return formatApigwTrigger(region, funcInfo, inputs, traffic);
     case 'timer':
       return formatTimerTrigger(region, funcInfo, inputs);
     case 'cos':

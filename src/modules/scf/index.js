@@ -231,6 +231,7 @@ class Scf {
             this.region,
             funcInfo,
             event[eventType],
+            inputs.needSetTraffic,
           );
           try {
             const apigwOutput = await this.apigwClient.deploy(triggerInputs);
@@ -442,13 +443,6 @@ class Scf {
     }
 
     const outputs = funcInfo;
-    if (inputs.tags || inputs.events) {
-      if (!funcInfo) {
-        funcInfo = await this.getFunction(namespace, inputs.name);
-      }
-      await Promise.all([this.deployTags(funcInfo, inputs), this.deployTrigger(funcInfo, inputs)]);
-    }
-
     if (inputs.publish) {
       const { FunctionVersion } = await this.publishVersion({
         functionName: funcInfo.FunctionName,
@@ -459,7 +453,8 @@ class Scf {
       inputs.lastVersion = FunctionVersion;
       outputs.LastVersion = FunctionVersion;
     }
-    if (inputs.traffic !== undefined && inputs.lastVersion) {
+    inputs.needSetTraffic = inputs.traffic !== undefined && inputs.lastVersion;
+    if (inputs.needSetTraffic) {
       await this.updateAliasTraffic({
         functionName: funcInfo.FunctionName,
         region: this.region,
@@ -469,6 +464,13 @@ class Scf {
         description: inputs.aliasDescription,
       });
       outputs.Traffic = inputs.traffic;
+    }
+
+    if (inputs.tags || inputs.events) {
+      if (!funcInfo) {
+        funcInfo = await this.getFunction(namespace, inputs.name);
+      }
+      await Promise.all([this.deployTags(funcInfo, inputs), this.deployTrigger(funcInfo, inputs)]);
     }
 
     console.log(`Deployed funtion ${funcInfo.FunctionName}.`);
