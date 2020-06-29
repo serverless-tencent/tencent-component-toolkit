@@ -92,7 +92,7 @@ class Scf {
     console.log(`Checking function ${functionName} status ...`);
     let status = 'Updating';
     let times = 200;
-    while ((status == 'Updating' || status == 'Creating') && times > 0) {
+    while ((status === 'Updating' || status === 'Creating') && times > 0) {
       const tempFunc = await this.getFunction(namespace, functionName);
       status = tempFunc.Status;
       await sleep(300);
@@ -317,6 +317,7 @@ class Scf {
    * @param {object} inputs publish version parameter
    */
   async publishVersion(inputs) {
+    console.log(`Publish function ${inputs.functionName} version...`);
     const publishInputs = {
       Action: 'PublishVersion',
       Version: '2018-04-16',
@@ -326,6 +327,7 @@ class Scf {
       Namespace: inputs.namespace || 'default',
     };
     const res = await this.scfClient.request(publishInputs);
+
     if (res.Response && res.Response.Error) {
       throw new TypeError(
         'API_SCF_PublishVersion',
@@ -334,6 +336,9 @@ class Scf {
         res.Response.RequestId,
       );
     }
+    console.log(
+      `Published function ${inputs.functionName} version ${res.Response.FunctionVersion}`,
+    );
     return res.Response;
   }
 
@@ -364,6 +369,11 @@ class Scf {
   }
 
   async updateAliasTraffic(inputs) {
+    console.log(
+      `Config function ${inputs.functionName} traffic ${1 - inputs.traffic} for version ${
+        inputs.lastVersion
+      }...`,
+    );
     const publishInputs = {
       Action: 'UpdateAlias',
       Version: '2018-04-16',
@@ -386,6 +396,11 @@ class Scf {
         res.Response.RequestId,
       );
     }
+    console.log(
+      `Config function ${inputs.functionName} traffic ${1 - inputs.traffic} for version ${
+        inputs.lastVersion
+      } success`,
+    );
     return res.Response;
   }
 
@@ -406,6 +421,7 @@ class Scf {
       funcInfo = await this.getFunction(namespace, inputs.name);
     } else {
       await this.updateFunctionCode(inputs, funcInfo);
+      // update function code, need wait for function active status
       const functionStatus = await this.checkStatus(namespace, inputs.name);
       if (functionStatus === false) {
         throw new TypeError(
@@ -416,27 +432,52 @@ class Scf {
       await this.updatefunctionConfigure(inputs, funcInfo);
     }
 
-    const output = funcInfo;
+    // after create/update function, should check function status is active, then continue
+    const functionStatus = await this.checkStatus(namespace, inputs.name);
+    if (functionStatus === false) {
+      throw new TypeError(
+        'API_SCF_GetFunction_STATUS',
+        `Function ${inputs.name} upgrade failed. Please check function status.`,
+      );
+    }
+
+    const outputs = funcInfo;
     if (inputs.tags || inputs.events) {
       if (!funcInfo) {
         funcInfo = await this.getFunction(namespace, inputs.name);
       }
-      if ((await this.checkStatus(namespace, inputs.name)) === false) {
-        throw new TypeError(
-          'API_SCF_GetFunction_STATUS',
-          `Function ${inputs.name} upgrade failed. Please check function status.`,
-        );
-      }
       await Promise.all([this.deployTags(funcInfo, inputs), this.deployTrigger(funcInfo, inputs)]);
     }
 
+    if (inputs.publish) {
+      const { FunctionVersion } = await this.publishVersion({
+        functionName: funcInfo.FunctionName,
+        region: this.region,
+        namespace,
+        description: inputs.publishDescription,
+      });
+      inputs.lastVersion = FunctionVersion;
+      outputs.LastVersion = FunctionVersion;
+    }
+    if (inputs.traffic !== undefined && inputs.lastVersion) {
+      await this.updateAliasTraffic({
+        functionName: funcInfo.FunctionName,
+        region: this.region,
+        traffic: inputs.traffic,
+        lastVersion: inputs.lastVersion,
+        aliasName: inputs.aliasName,
+        description: inputs.aliasDescription,
+      });
+      outputs.Traffic = inputs.traffic;
+    }
+
     console.log(`Deployed funtion ${funcInfo.FunctionName}.`);
-    return output;
+    return outputs;
   }
 
   // 移除函数的主逻辑
   async remove(inputs = {}) {
-    console.log(`Deleteing function ${inputs.functionName || inputs.FunctionName} ...`);
+    console.log(`Deleting function ${inputs.functionName || inputs.FunctionName} ...`);
     const functionName = inputs.functionName || inputs.FunctionName;
     const namespace = inputs.namespace || inputs.Namespace || CONFIGS.defaultNamespace;
 
