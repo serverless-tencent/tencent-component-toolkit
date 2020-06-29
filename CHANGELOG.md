@@ -1,3 +1,11 @@
+## [1.12.3](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.12.2...v1.12.3) (2020-06-29)
+
+
+### Bug Fixes
+
+* prettier command ([0418fca](https://github.com/serverless-tencent/tencent-component-toolkit/commit/0418fca48d9ae91221fcf52b2e77a520187a2de3))
+* **scf:** publishing status check ([df5b4a6](https://github.com/serverless-tencent/tencent-component-toolkit/commit/df5b4a652ee67777665d45e05c33d89a79bca53d))
+
 ## [1.12.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.12.1...v1.12.2) (2020-06-29)
 
 
