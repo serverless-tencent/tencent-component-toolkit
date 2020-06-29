@@ -1,3 +1,10 @@
+## [1.12.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.12.1...v1.12.2) (2020-06-29)
+
+
+### Bug Fixes
+
+* **scf:** apigw trigger function qualifier ([61079cc](https://github.com/serverless-tencent/tencent-component-toolkit/commit/61079cc90d0ca5dd39d895649c0e2bebe8719ddf))
+
 ## [1.12.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.12.0...v1.12.1) (2020-06-29)
 
 
