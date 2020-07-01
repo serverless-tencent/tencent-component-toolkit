@@ -1,3 +1,10 @@
+## [1.12.5](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.12.4...v1.12.5) (2020-07-01)
+
+
+### Bug Fixes
+
+* **scf:** handler update ([b30eb16](https://github.com/serverless-tencent/tencent-component-toolkit/commit/b30eb16caa75f473adbe74add9654027c72209bd))
+
 ## [1.12.4](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.12.3...v1.12.4) (2020-07-01)
 
 
