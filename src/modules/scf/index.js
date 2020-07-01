@@ -128,7 +128,7 @@ class Scf {
       Action: 'UpdateFunctionCode',
       Version: functionInputs.Version,
       Region: functionInputs.Region,
-      Handler: inputs.Handler || funcInfo.Handler,
+      Handler: functionInputs.Handler || funcInfo.Handler,
       FunctionName: functionInputs.FunctionName,
       CosBucketName: functionInputs['Code.CosBucketName'],
       CosObjectName: functionInputs['Code.CosObjectName'],
@@ -432,6 +432,9 @@ class Scf {
         );
       }
       await this.updatefunctionConfigure(inputs, funcInfo);
+
+      // after updating function, get latest function info
+      funcInfo = await this.getFunction(namespace, inputs.name);
     }
 
     // after create/update function, should check function status is active, then continue
