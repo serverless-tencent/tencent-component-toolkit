@@ -465,6 +465,7 @@ class Scf {
         description: inputs.aliasDescription,
       });
       outputs.Traffic = inputs.traffic;
+      outputs.ConfigTrafficVersion = inputs.lastVersion;
     }
 
     if (inputs.tags || inputs.events) {
