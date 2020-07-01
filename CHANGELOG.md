@@ -1,3 +1,10 @@
+## [1.12.4](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.12.3...v1.12.4) (2020-07-01)
+
+
+### Bug Fixes
+
+* **scf:** add ConfigTrafficVersion outputs ([237e47a](https://github.com/serverless-tencent/tencent-component-toolkit/commit/237e47a13dd565b0ac83f5e427585b417590585f))
+
 ## [1.12.3](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.12.2...v1.12.3) (2020-06-29)
 
 
