@@ -503,6 +503,9 @@ class Apigw {
           created: true,
           subDomain: domainItem.domain,
           cname: subDomain,
+          url: `${domainProtocol.indexOf('https') !== -1 ? 'https' : 'http'}://${
+            domainItem.domain
+          }`,
         });
         console.log(`Custom domain for service ${serviceId} created successfullly.`);
         console.log(`Please add CNAME record ${subDomain} for ${domainItem.domain}.`);
