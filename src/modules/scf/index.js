@@ -406,6 +406,27 @@ class Scf {
     return res.Response;
   }
 
+  async getAlias(inputs) {
+    const publishInputs = {
+      Action: 'GetAlias',
+      Version: '2018-04-16',
+      Region: inputs.region,
+      FunctionName: inputs.functionName,
+      Name: inputs.functionVersion || '$DEFAULT',
+      Namespace: inputs.namespace || 'default',
+    };
+    const res = await this.scfClient.request(publishInputs);
+    if (res.Response && res.Response.Error) {
+      throw new TypeError(
+        'API_SCF_ListAliases',
+        JSON.stringify(res.Response),
+        null,
+        res.Response.RequestId,
+      );
+    }
+    return res.Response;
+  }
+
   // deploy SCF flow
   async deploy(inputs = {}) {
     // whether auto create/bind role
@@ -469,6 +490,31 @@ class Scf {
       });
       outputs.Traffic = inputs.traffic;
       outputs.ConfigTrafficVersion = inputs.lastVersion;
+    }
+
+    // get default alias
+    const defualtAlias = await this.getAlias({
+      functionName: funcInfo.FunctionName,
+      region: this.region,
+      namespace,
+    });
+    if (
+      defualtAlias &&
+      defualtAlias.RoutingConfig &&
+      defualtAlias.RoutingConfig.AdditionalVersionWeights
+    ) {
+      const weights = defualtAlias.RoutingConfig.AdditionalVersionWeights;
+      let weightSum = 0;
+      let lastVersion = weights[0].Version;
+      weights.forEach((w) => {
+        if (Number(w.Version) > Number(outputs.LastVersion)) {
+          lastVersion = w.Version;
+        }
+        weightSum += w.Weight;
+      });
+      outputs.LastVersion = lastVersion;
+      outputs.ConfigTrafficVersion = lastVersion;
+      outputs.Traffic = 1 - weightSum;
     }
 
     if (inputs.tags || inputs.events) {
