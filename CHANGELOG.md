@@ -1,3 +1,10 @@
+## [1.12.6](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.12.5...v1.12.6) (2020-07-02)
+
+
+### Bug Fixes
+
+* add default weight calculate ([c4cf605](https://github.com/serverless-tencent/tencent-component-toolkit/commit/c4cf605e36b3475ed1a7106e26fd3104af976b75))
+
 ## [1.12.5](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.12.4...v1.12.5) (2020-07-01)
 
 
