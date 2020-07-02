@@ -1,3 +1,10 @@
+## [1.12.7](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.12.6...v1.12.7) (2020-07-02)
+
+
+### Bug Fixes
+
+* **scf:** weights not exist bug ([48803d0](https://github.com/serverless-tencent/tencent-component-toolkit/commit/48803d0aa57a797f2fdcf2e99c4ef98f74436c22))
+
 ## [1.12.6](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.12.5...v1.12.6) (2020-07-02)
 
 
