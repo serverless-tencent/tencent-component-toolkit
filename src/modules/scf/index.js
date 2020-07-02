@@ -501,7 +501,8 @@ class Scf {
     if (
       defualtAlias &&
       defualtAlias.RoutingConfig &&
-      defualtAlias.RoutingConfig.AdditionalVersionWeights
+      defualtAlias.RoutingConfig.AdditionalVersionWeights &&
+      defualtAlias.RoutingConfig.AdditionalVersionWeights.length > 0
     ) {
       const weights = defualtAlias.RoutingConfig.AdditionalVersionWeights;
       let weightSum = 0;
