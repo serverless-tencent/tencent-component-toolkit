@@ -1,3 +1,10 @@
+## [1.12.9](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.12.8...v1.12.9) (2020-07-06)
+
+
+### Bug Fixes
+
+* **src:** traffic precision ([e9d7332](https://github.com/serverless-tencent/tencent-component-toolkit/commit/e9d73327899a5cfdc7c013b7d58f65642ade9bc7))
+
 ## [1.12.8](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.12.7...v1.12.8) (2020-07-06)
 
 
