@@ -1,6 +1,7 @@
 const { scf, cam } = require('tencent-cloud-sdk');
 const { sleep } = require('@ygkit/request');
 const { TypeError } = require('../../utils/error');
+const { strip } = require('../../utils');
 const TagsUtils = require('../tag/index');
 const ApigwUtils = require('../apigw/index');
 const { formatTrigger, formatFunctionInputs } = require('./utils');
@@ -345,6 +346,7 @@ class Scf {
   }
 
   async publishVersionAndConfigTraffic(inputs) {
+    const weight = strip(1 - inputs.traffic);
     const publishInputs = {
       Action: 'CreateAlias',
       Version: '2018-04-16',
@@ -354,7 +356,7 @@ class Scf {
       Name: inputs.aliasName,
       Namespace: inputs.namespace || 'default',
       RoutingConfig: {
-        AdditionalVersionWeights: [{ Version: inputs.functionVersion, Weight: 1 - inputs.traffic }],
+        AdditionalVersionWeights: [{ Version: inputs.functionVersion, Weight: weight }],
       },
       Description: inputs.description || 'Published by Serverless Component',
     };
@@ -371,10 +373,9 @@ class Scf {
   }
 
   async updateAliasTraffic(inputs) {
+    const weight = strip(1 - inputs.traffic);
     console.log(
-      `Config function ${inputs.functionName} traffic ${1 - inputs.traffic} for version ${
-        inputs.lastVersion
-      }...`,
+      `Config function ${inputs.functionName} traffic ${weight} for version ${inputs.lastVersion}...`,
     );
     const publishInputs = {
       Action: 'UpdateAlias',
@@ -385,7 +386,7 @@ class Scf {
       Name: inputs.aliasName || '$DEFAULT',
       Namespace: inputs.namespace || 'default',
       RoutingConfig: {
-        AdditionalVersionWeights: [{ Version: inputs.lastVersion, Weight: 1 - inputs.traffic }],
+        AdditionalVersionWeights: [{ Version: inputs.lastVersion, Weight: weight }],
       },
       Description: inputs.description || 'Configured by Serverless Component',
     };
@@ -399,9 +400,7 @@ class Scf {
       );
     }
     console.log(
-      `Config function ${inputs.functionName} traffic ${1 - inputs.traffic} for version ${
-        inputs.lastVersion
-      } success`,
+      `Config function ${inputs.functionName} traffic ${weight} for version ${inputs.lastVersion} success`,
     );
     return res.Response;
   }
@@ -517,7 +516,7 @@ class Scf {
         });
         outputs.LastVersion = lastVersion;
         outputs.ConfigTrafficVersion = lastVersion;
-        outputs.Traffic = 1 - weightSum;
+        outputs.Traffic = strip(1 - weightSum);
       }
     } catch (e) {
       // no op
