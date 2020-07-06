@@ -1,3 +1,11 @@
+## [1.12.8](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.12.7...v1.12.8) (2020-07-06)
+
+
+### Bug Fixes
+
+* no access for getAlias bug ([6e46535](https://github.com/serverless-tencent/tencent-component-toolkit/commit/6e4653559aefb9f7d9f01539a2c4b6529a63a2b1))
+* **apigw:** optimize custom domain output ([ab128b6](https://github.com/serverless-tencent/tencent-component-toolkit/commit/ab128b669d891fbf23384af8f968ec439358f56e))
+
 ## [1.12.7](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.12.6...v1.12.7) (2020-07-02)
 
 
