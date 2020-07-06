@@ -493,29 +493,34 @@ class Scf {
     }
 
     // get default alias
-    const defualtAlias = await this.getAlias({
-      functionName: funcInfo.FunctionName,
-      region: this.region,
-      namespace,
-    });
-    if (
-      defualtAlias &&
-      defualtAlias.RoutingConfig &&
-      defualtAlias.RoutingConfig.AdditionalVersionWeights &&
-      defualtAlias.RoutingConfig.AdditionalVersionWeights.length > 0
-    ) {
-      const weights = defualtAlias.RoutingConfig.AdditionalVersionWeights;
-      let weightSum = 0;
-      let lastVersion = weights[0].Version;
-      weights.forEach((w) => {
-        if (Number(w.Version) > Number(outputs.LastVersion)) {
-          lastVersion = w.Version;
-        }
-        weightSum += w.Weight;
+    // if have no access, ignore it
+    try {
+      const defualtAlias = await this.getAlias({
+        functionName: funcInfo.FunctionName,
+        region: this.region,
+        namespace,
       });
-      outputs.LastVersion = lastVersion;
-      outputs.ConfigTrafficVersion = lastVersion;
-      outputs.Traffic = 1 - weightSum;
+      if (
+        defualtAlias &&
+        defualtAlias.RoutingConfig &&
+        defualtAlias.RoutingConfig.AdditionalVersionWeights &&
+        defualtAlias.RoutingConfig.AdditionalVersionWeights.length > 0
+      ) {
+        const weights = defualtAlias.RoutingConfig.AdditionalVersionWeights;
+        let weightSum = 0;
+        let lastVersion = weights[0].Version;
+        weights.forEach((w) => {
+          if (Number(w.Version) > Number(outputs.LastVersion)) {
+            lastVersion = w.Version;
+          }
+          weightSum += w.Weight;
+        });
+        outputs.LastVersion = lastVersion;
+        outputs.ConfigTrafficVersion = lastVersion;
+        outputs.Traffic = 1 - weightSum;
+      }
+    } catch (e) {
+      // no op
     }
 
     if (inputs.tags || inputs.events) {
