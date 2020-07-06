@@ -116,6 +116,10 @@ function camelCaseProperty(obj) {
   return res;
 }
 
+function strip(num, precision = 12) {
+  return +parseFloat(num.toPrecision(precision));
+}
+
 module.exports = {
   isArray,
   isObject,
@@ -123,4 +127,5 @@ module.exports = {
   flatten,
   uniqueArray,
   camelCaseProperty,
+  strip,
 };
