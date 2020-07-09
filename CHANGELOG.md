@@ -1,3 +1,10 @@
+## [1.12.10](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.12.9...v1.12.10) (2020-07-09)
+
+
+### Bug Fixes
+
+* **scf:** do not config traffic when lastVersion is $LATEST ([6644699](https://github.com/serverless-tencent/tencent-component-toolkit/commit/66446995ba24f9fef7f8b3133cf9a088d04bab8d))
+
 ## [1.12.9](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.12.8...v1.12.9) (2020-07-06)
 
 
