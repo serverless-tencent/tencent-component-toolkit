@@ -477,7 +477,8 @@ class Scf {
       inputs.lastVersion = FunctionVersion;
       outputs.LastVersion = FunctionVersion;
     }
-    inputs.needSetTraffic = inputs.traffic !== undefined && inputs.lastVersion;
+    inputs.needSetTraffic =
+      inputs.traffic !== undefined && inputs.lastVersion && inputs.lastVersion !== '$LATEST';
     if (inputs.needSetTraffic) {
       await this.updateAliasTraffic({
         functionName: funcInfo.FunctionName,
