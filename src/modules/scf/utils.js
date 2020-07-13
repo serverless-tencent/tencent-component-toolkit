@@ -230,6 +230,7 @@ const formatFunctionInputs = (region, inputs) => {
     }
   }
   functionInputs['EipConfig.EipFixed'] = inputs.eip === true ? 'TRUE' : 'FALSE';
+  functionInputs.L5Enable = inputs.l5Enable === true ? 'TRUE' : 'FALSE';
   if (inputs.layers) {
     inputs.layers.forEach((item, index) => {
       functionInputs[`Layers.${index}.LayerName`] = item.name;
