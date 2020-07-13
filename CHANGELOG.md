@@ -1,3 +1,13 @@
+## [1.12.11](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.12.10...v1.12.11) (2020-07-13)
+
+
+### Bug Fixes
+
+* **cos:** optomize error type ([178a95a](https://github.com/serverless-tencent/tencent-component-toolkit/commit/178a95a06c3fa58408c7698f7709124f684bfe3e))
+* **scf:** support L5 config ([a5de255](https://github.com/serverless-tencent/tencent-component-toolkit/commit/a5de255bb46cfbd1e9f0559b06759aba41c426b4))
+* **scf:** throw error type ([aeb9873](https://github.com/serverless-tencent/tencent-component-toolkit/commit/aeb9873f4e8803e98d550eec7c43dec405dc209a))
+* **apigw:** unknow error catch ([347a2b1](https://github.com/serverless-tencent/tencent-component-toolkit/commit/347a2b1cc4b638a34a9e43a08f3dd8bd6dca9422))
+
 ## [1.12.10](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.12.9...v1.12.10) (2020-07-09)
 
 
