@@ -490,7 +490,9 @@ class Apigw {
           subDomain: domainItem.domain,
           netSubDomain: subDomain,
           certificateId: domainItem.certificateId,
-          isDefaultMapping: domainItem.isDefaultMapping === true ? true : false,
+          // default isDefaultMapping is true
+          isDefaultMapping: domainItem.isDefaultMapping === false ? false : true,
+          // if isDefaultMapping is false, should append pathMappingSet config
           pathMappingSet: domainItem.pathMappingSet || [],
           netType: domainItem.netType ? domainItem.netType : 'OUTER',
           protocol: domainProtocol,
