@@ -592,7 +592,7 @@ class Cos {
         if (e.error && e.error.Code && e.error.Code === 'NoSuchBucket') {
           console.log(`Bucket ${inputs.bucket} not exist`);
         } else {
-          throw new TypeError(`DEPLOY_COS_EXEC_HOOK`, e.message, e.stack);
+          throw new TypeError(`API_APIGW_deleteBucket`, e.message, e.stack);
         }
       }
     }
