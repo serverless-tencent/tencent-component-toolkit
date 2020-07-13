@@ -1,3 +1,10 @@
+## [1.12.12](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.12.11...v1.12.12) (2020-07-13)
+
+
+### Bug Fixes
+
+* **apigw:** make isDefaultMapping default to true ([dacc1d3](https://github.com/serverless-tencent/tencent-component-toolkit/commit/dacc1d3c77eab998923e3ce125711f37f9004a6f))
+
 ## [1.12.11](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.12.10...v1.12.11) (2020-07-13)
 
 
