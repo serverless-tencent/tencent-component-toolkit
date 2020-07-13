@@ -1,4 +1,5 @@
 const CONFIGS = require('./config');
+const { TypeError } = require('../../utils/error');
 
 /**
  * Format apigw trigger inputs
@@ -14,11 +15,15 @@ const formatApigwTrigger = (region, funcInfo, inputs, traffic = false) => {
   triggerInputs.environment = parameters.environment;
   triggerInputs.serviceName = parameters.serviceName || name;
   triggerInputs.serviceId = parameters.serviceId;
-  triggerInputs.endpoints = parameters.endpoints.map((ep) => {
+  triggerInputs.endpoints = (parameters.endpoints || []).map((ep) => {
     ep.function = ep.function || {};
     ep.function.functionName = funcInfo.FunctionName;
     ep.function.functionNamespace = funcInfo.Namespace;
-    ep.function.functionQualifier = traffic ? '$DEFAULT' : '$LATEST';
+    ep.function.functionQualifier = ep.function.functionQualifier
+      ? ep.function.functionQualifier
+      : traffic
+      ? '$DEFAULT'
+      : '$LATEST';
     return ep;
   });
   return {
