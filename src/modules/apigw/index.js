@@ -566,7 +566,7 @@ class Apigw {
     const apiList = [];
     const stateApiList = oldState.apiList || [];
 
-    const { endpoints } = inputs;
+    const endpoints = inputs.endpoints || [];
     for (let i = 0, len = endpoints.length; i < len; i++) {
       const endpoint = endpoints[i];
       // if exist in state list, set created to be true
