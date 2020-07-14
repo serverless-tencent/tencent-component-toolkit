@@ -14,6 +14,7 @@ const formatApigwTrigger = (region, funcInfo, inputs, traffic = false) => {
   triggerInputs.protocols = parameters.protocols;
   triggerInputs.environment = parameters.environment;
   triggerInputs.serviceName = parameters.serviceName || name;
+  triggerInputs.serviceDesc = parameters.description;
   triggerInputs.serviceId = parameters.serviceId;
   triggerInputs.endpoints = (parameters.endpoints || []).map((ep) => {
     ep.function = ep.function || {};
