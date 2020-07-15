@@ -1,3 +1,10 @@
+## [1.12.13](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.12.12...v1.12.13) (2020-07-15)
+
+
+### Bug Fixes
+
+* **scf:** missing apigw description parameter ([93a0d0d](https://github.com/serverless-tencent/tencent-component-toolkit/commit/93a0d0d88bc7169b97f0f2ac46663fb2a8de30a5))
+
 ## [1.12.12](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.12.11...v1.12.12) (2020-07-13)
 
 
