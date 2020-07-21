@@ -56,7 +56,7 @@ class Scf {
   }
 
   // get function detail
-  async getFunction(namespace, functionName, showCode) {
+  async getFunction(namespace, functionName, qualifier = '$LATEST', showCode = false) {
     try {
       const funcInfo = await this.scfClient.request({
         Action: 'GetFunction',
@@ -64,6 +64,7 @@ class Scf {
         Region: this.region,
         FunctionName: functionName,
         Namespace: namespace,
+        Qualifier: qualifier,
         ShowCode: showCode ? 'TRUE' : 'FALSE',
       });
       if (funcInfo.Response && funcInfo.Response.Error) {
@@ -89,13 +90,13 @@ class Scf {
 
   // check function status
   // because craeting function is asynchronous
-  async checkStatus(namespace, functionName) {
+  async checkStatus(namespace = 'default', functionName, qualifier = '$LATEST') {
     console.log(`Checking function ${functionName} status ...`);
-    const initialInfo = await this.getFunction(namespace, functionName);
+    const initialInfo = await this.getFunction(namespace, functionName, qualifier);
     let status = initialInfo.Status;
     let times = 200;
     while (CONFIGS.waitStatus.indexOf(status) !== -1 && times > 0) {
-      const tempFunc = await this.getFunction(namespace, functionName);
+      const tempFunc = await this.getFunction(namespace, functionName, qualifier);
       status = tempFunc.Status;
       await sleep(300);
       times = times - 1;
@@ -178,17 +179,8 @@ class Scf {
     if (inputs.events) {
       console.log(`Deploying ${inputs.name}'s triggers in ${this.region}.`);
 
-      // check function status, if is Active, so we can continue to create trigger for it
-      const functionStatus = await this.checkStatus(
-        inputs.namespace || CONFIGS.defaultNamespace,
-        inputs.name,
-      );
-      if (functionStatus === false) {
-        throw new TypeError(
-          'API_SCF_GetFunction_STATUS',
-          `Function ${inputs.name} deploy trigger failed. Please check function status.`,
-        );
-      }
+      // should check function status is active, then continue
+      await this.isOperationalStatus(inputs.namespace, inputs.name);
 
       // remove all old triggers
       const oldTriggers = funcInfo.Triggers || [];
@@ -426,6 +418,23 @@ class Scf {
     return res.Response;
   }
 
+  /**
+   * check whether function status is operational
+   * @param {string} namespace
+   * @param {string} functionName funcitn name
+   */
+  async isOperationalStatus(namespace, functionName, qualifier = '$LATEST') {
+    // after create/update function, should check function status is active, then continue
+    const functionStatus = await this.checkStatus(namespace, functionName, qualifier);
+    if (functionStatus === false) {
+      throw new TypeError(
+        'API_SCF_isOperationalStatus',
+        `Function ${functionName} upgrade failed. Please check function status.`,
+      );
+    }
+    return true;
+  }
+
   // deploy SCF flow
   async deploy(inputs = {}) {
     // whether auto create/bind role
@@ -443,28 +452,18 @@ class Scf {
       funcInfo = await this.getFunction(namespace, inputs.name);
     } else {
       await this.updateFunctionCode(inputs, funcInfo);
-      // update function code, need wait for function active status
-      const functionStatus = await this.checkStatus(namespace, inputs.name);
-      if (functionStatus === false) {
-        throw new TypeError(
-          'API_SCF_GetFunction_STATUS',
-          `Function ${inputs.name} upgrade failed. Please check function status.`,
-        );
-      }
+
+      // should check function status is active, then continue
+      await this.isOperationalStatus(namespace, inputs.name);
+
       await this.updatefunctionConfigure(inputs, funcInfo);
 
       // after updating function, get latest function info
       funcInfo = await this.getFunction(namespace, inputs.name);
     }
 
-    // after create/update function, should check function status is active, then continue
-    const functionStatus = await this.checkStatus(namespace, inputs.name);
-    if (functionStatus === false) {
-      throw new TypeError(
-        'API_SCF_GetFunction_STATUS',
-        `Function ${inputs.name} upgrade failed. Please check function status.`,
-      );
-    }
+    // should check function status is active, then continue
+    await this.isOperationalStatus(namespace, inputs.name);
 
     const outputs = funcInfo;
     if (inputs.publish) {
@@ -480,6 +479,9 @@ class Scf {
     inputs.needSetTraffic =
       inputs.traffic !== undefined && inputs.lastVersion && inputs.lastVersion !== '$LATEST';
     if (inputs.needSetTraffic) {
+      // should check function status is active, then continue
+      await this.isOperationalStatus(namespace, inputs.name, inputs.lastVersion);
+
       await this.updateAliasTraffic({
         functionName: funcInfo.FunctionName,
         region: this.region,
