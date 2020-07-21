@@ -1,3 +1,10 @@
+## [1.12.15](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.12.14...v1.12.15) (2020-07-21)
+
+
+### Bug Fixes
+
+* **cos:** refactor cos module ([06494ed](https://github.com/serverless-tencent/tencent-component-toolkit/commit/06494ed34248340546376cd32f5ed8079a445d7e))
+
 ## [1.12.14](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.12.13...v1.12.14) (2020-07-21)
 
 
