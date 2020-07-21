@@ -1,3 +1,10 @@
+## [1.12.14](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.12.13...v1.12.14) (2020-07-21)
+
+
+### Bug Fixes
+
+* **scf:** add publish version status check ([8e18e1c](https://github.com/serverless-tencent/tencent-component-toolkit/commit/8e18e1c4dd5b7db3c7d6178b3f107aadf113749c))
+
 ## [1.12.13](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.12.12...v1.12.13) (2020-07-15)
 
 
