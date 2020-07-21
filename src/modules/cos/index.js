@@ -20,27 +20,46 @@ class Cos {
     this.cosClient = new cos(this.credentials);
   }
 
+  promisify(callback) {
+    return (params) => {
+      return new Promise((resolve, reject) => {
+        callback(params, (err, res) => {
+          if (err) {
+            const e = new Error(
+              typeof err.error === 'string' ? err.error : `${err.error.Code}: ${err.error.Message}`,
+            );
+            if (err.error && err.error.Code) {
+              e.code = err.error.Code;
+            }
+            reject(e);
+          }
+          resolve(res);
+        });
+      });
+    };
+  }
+
   async createBucket(inputs = {}) {
     console.log(`Creating bucket: ${inputs.bucket} in ${this.region}  ...`);
     const createParams = {
       Bucket: inputs.bucket,
       Region: this.region,
     };
-    const createHandler = util.promisify(this.cosClient.putBucket.bind(this.cosClient));
+    const createHandler = this.promisify(this.cosClient.putBucket.bind(this.cosClient));
     try {
       await createHandler(createParams);
     } catch (e) {
-      if (e.error.Code == 'BucketAlreadyExists' || e.error.Code == 'BucketAlreadyOwnedByYou') {
+      if (e.code == 'BucketAlreadyExists' || e.code == 'BucketAlreadyOwnedByYou') {
         if (!inputs.force) {
           throw new TypeError(`API_COS_putBucket`, JSON.stringify(e), e.stack);
         } else {
           console.log(`Bucket ${inputs.bucket} already exist.`);
         }
       } else {
-        // cos在云函数中可能出现ECONNRESET错误，没办法具体定位，初步猜测是客户端问题，是函数启动网络还没准备好，这个还不确定，所以在这里做兼容
+        // TODO: cos在云函数中可能出现ECONNRESET错误，没办法具体定位，初步猜测是客户端问题，是函数启动网络还没准备好，这个还不确定，所以在这里做兼容
         if (JSON.stringify(e).includes('ECONNRESET')) {
           // 检查bucket是否存在
-          const headHandler = util.promisify(this.cosClient.headBucket.bind(this.cosClient));
+          const headHandler = this.promisify(this.cosClient.headBucket.bind(this.cosClient));
           try {
             const isHave = await headHandler(createParams);
             if (isHave.statusCode == 200) {
@@ -119,7 +138,7 @@ class Cos {
       }
       setAclParams.AccessControlPolicy = accessControlPolicy;
     }
-    const setAclHandler = util.promisify(this.cosClient.putBucketAcl.bind(this.cosClient));
+    const setAclHandler = this.promisify(this.cosClient.putBucketAcl.bind(this.cosClient));
     try {
       await setAclHandler(setAclParams);
     } catch (e) {
@@ -143,7 +162,7 @@ class Cos {
         Tags: tags,
       },
     };
-    const setTagsHandler = util.promisify(this.cosClient.putBucketTagging.bind(this.cosClient));
+    const setTagsHandler = this.promisify(this.cosClient.putBucketTagging.bind(this.cosClient));
     try {
       await setTagsHandler(setTagsParams);
     } catch (e) {
@@ -153,7 +172,7 @@ class Cos {
 
   async deleteTags(inputs = {}) {
     console.log(`Deleting tags for ${this.region}'s bucket: ${inputs.bucket} ...`);
-    const deleteTagsHandler = util.promisify(
+    const deleteTagsHandler = this.promisify(
       this.cosClient.deleteBucketTagging.bind(this.cosClient),
     );
     try {
@@ -193,7 +212,7 @@ class Cos {
       Region: this.region,
       CORSRules: cors,
     };
-    const setCorsHandler = util.promisify(this.cosClient.putBucketCors.bind(this.cosClient));
+    const setCorsHandler = this.promisify(this.cosClient.putBucketCors.bind(this.cosClient));
     try {
       await setCorsHandler(setCorsParams);
     } catch (e) {
@@ -203,7 +222,7 @@ class Cos {
 
   async deleteCors(inputs = {}) {
     console.log(`Deleting cors for ${this.region}'s bucket: ${inputs.bucket} ...`);
-    const deleteCorsHandler = util.promisify(this.cosClient.deleteBucketCors.bind(this.cosClient));
+    const deleteCorsHandler = this.promisify(this.cosClient.deleteBucketCors.bind(this.cosClient));
     try {
       await deleteCorsHandler({
         Bucket: inputs.bucket,
@@ -260,7 +279,7 @@ class Cos {
       Region: this.region,
       Rules: lifecycle,
     };
-    const setLifecycleHandler = util.promisify(
+    const setLifecycleHandler = this.promisify(
       this.cosClient.putBucketLifecycle.bind(this.cosClient),
     );
     try {
@@ -272,7 +291,7 @@ class Cos {
 
   async deleteLifecycle(inputs = {}) {
     console.log(`Deleting lifecycle for ${this.region}'s bucket: ${inputs.bucket} ...`);
-    const deleteLifecycle = util.promisify(
+    const deleteLifecycle = this.promisify(
       this.cosClient.deleteBucketLifecycle.bind(this.cosClient),
     );
     try {
@@ -295,7 +314,7 @@ class Cos {
         Status: inputs.versioning,
       },
     };
-    const setVersioningHandler = util.promisify(
+    const setVersioningHandler = this.promisify(
       this.cosClient.putBucketVersioning.bind(this.cosClient),
     );
     try {
@@ -328,7 +347,7 @@ class Cos {
       await this.setAcl(inputs);
     }
 
-    const setWebsiteHandler = util.promisify(this.cosClient.putBucketWebsite.bind(this.cosClient));
+    const setWebsiteHandler = this.promisify(this.cosClient.putBucketWebsite.bind(this.cosClient));
     try {
       await setWebsiteHandler(staticHostParams);
     } catch (e) {
@@ -337,7 +356,7 @@ class Cos {
   }
 
   async getBucket(inputs = {}) {
-    const getBucketHandler = util.promisify(this.cosClient.getBucket.bind(this.cosClient));
+    const getBucketHandler = this.promisify(this.cosClient.getBucket.bind(this.cosClient));
     try {
       const res = await getBucketHandler({
         Bucket: inputs.bucket,
@@ -350,7 +369,7 @@ class Cos {
   }
 
   async getObjectUrl(inputs = {}) {
-    const getObjectUrlHandler = util.promisify(this.cosClient.getObjectUrl.bind(this.cosClient));
+    const getObjectUrlHandler = this.promisify(this.cosClient.getObjectUrl.bind(this.cosClient));
     try {
       const { Url } = await getObjectUrlHandler({
         Bucket: inputs.bucket,
@@ -370,16 +389,14 @@ class Cos {
   }
 
   async upload(inputs = {}) {
-    console.log(`Uploding files to ${this.region}'s bucket: ${inputs.bucket} ...`);
-
     const { bucket } = inputs;
     const { region } = this;
 
     if (!bucket) {
-      throw new TypeError(`PARAMETER_COS`, 'Could not find bucket name.');
+      throw new TypeError(`PARAMETER_COS`, 'Bucket name is required');
     }
 
-    // 上传分为文件夹上传呢和文件上传
+    console.log(`Uploding files to ${this.region}'s bucket: ${inputs.bucket} ...`);
     if (inputs.dir && (await fs.existsSync(inputs.dir))) {
       const options = { keyPrefix: inputs.keyPrefix };
 
@@ -415,7 +432,7 @@ class Cos {
           Key: key,
           Body: fs.createReadStream(item.path),
         };
-        handler = util.promisify(this.cosClient.putObject.bind(this.cosClient));
+        handler = this.promisify(this.cosClient.putObject.bind(this.cosClient));
         uploadItems.push(handler(itemParams));
       });
       try {
@@ -430,7 +447,7 @@ class Cos {
         Key: inputs.key || path.basename(inputs.file),
         Body: fs.createReadStream(inputs.file),
       };
-      const handler = util.promisify(this.cosClient.putObject.bind(this.cosClient));
+      const handler = this.promisify(this.cosClient.putObject.bind(this.cosClient));
       try {
         await handler(itemParams);
       } catch (e) {
@@ -554,7 +571,7 @@ class Cos {
     try {
       detail = await this.getBucket(inputs);
     } catch (e) {
-      if (e.error && e.error.Code && e.error.Code === 'NoSuchBucket') {
+      if (e.message.indexOf('NoSuchBucket') !== -1) {
         console.log(`Bucket ${inputs.bucket} not exist`);
         return;
       }
@@ -569,7 +586,7 @@ class Cos {
       });
 
       try {
-        const deleteMultipleObjectHandler = util.promisify(
+        const deleteMultipleObjectHandler = this.promisify(
           this.cosClient.deleteMultipleObject.bind(this.cosClient),
         );
         await deleteMultipleObjectHandler({
@@ -581,7 +598,7 @@ class Cos {
         console.log(e);
       }
       try {
-        const deleteBucketHandler = util.promisify(
+        const deleteBucketHandler = this.promisify(
           this.cosClient.deleteBucket.bind(this.cosClient),
         );
         await deleteBucketHandler({
@@ -589,7 +606,7 @@ class Cos {
           Bucket: inputs.bucket,
         });
       } catch (e) {
-        if (e.error && e.error.Code && e.error.Code === 'NoSuchBucket') {
+        if (e.message.indexOf('NoSuchBucket') !== -1) {
           console.log(`Bucket ${inputs.bucket} not exist`);
         } else {
           throw new TypeError(`API_APIGW_deleteBucket`, e.message, e.stack);
