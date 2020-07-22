@@ -158,7 +158,7 @@ class Cdn {
     if (Https) {
       outputs.https = true;
       cdnInputs.Https = {
-        Switch: Https.Switch,
+        Switch: Https.Switch || 'on',
         Http2: Https.Http2 || 'off',
         OcspStapling: Https.OcspStapling || 'off',
         VerifyClient: Https.VerifyClient || 'off',
@@ -167,7 +167,7 @@ class Cdn {
     }
     if (ForceRedirect && Https) {
       cdnInputs.ForceRedirect = {
-        Switch: ForceRedirect.Switch,
+        Switch: ForceRedirect.Switch || 'on',
         RedirectStatusCode: ForceRedirect.RedirectStatusCode || 301,
         RedirectType: 'https',
       };
