@@ -1,10 +1,13 @@
-function TypeError(type, msg, stack, reqId) {
+function TypeError(type, msg, stack, reqId, displayMsg) {
   const err = new Error(msg);
   err.type = type;
-  err.stack = stack || null;
+  if (stack) {
+    err.stack = stack;
+  }
   if (reqId) {
     err.reqId = reqId;
   }
+  err.displayMsg = displayMsg || msg;
   return err;
 }
 
