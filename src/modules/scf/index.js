@@ -89,24 +89,25 @@ class Scf {
   }
 
   // check function status
-  // because craeting function is asynchronous
+  // because creating/upadting function is asynchronous
+  // if not become Active in 120 * 1000 miniseconds, return request result, and throw error
   async checkStatus(namespace = 'default', functionName, qualifier = '$LATEST') {
     console.log(`Checking function ${functionName} status ...`);
-    const initialInfo = await this.getFunction(namespace, functionName, qualifier);
+    let initialInfo = await this.getFunction(namespace, functionName, qualifier);
     let status = initialInfo.Status;
-    let times = 200;
+    let times = 120;
     while (CONFIGS.waitStatus.indexOf(status) !== -1 && times > 0) {
-      const tempFunc = await this.getFunction(namespace, functionName, qualifier);
-      status = tempFunc.Status;
-      await sleep(300);
+      initialInfo = await this.getFunction(namespace, functionName, qualifier);
+      status = initialInfo.Status;
+      await sleep(1000);
       times = times - 1;
     }
-    return status !== 'Active' ? false : true;
+    return status !== 'Active' ? initialInfo : true;
   }
 
   // create function
   async createFunction(inputs) {
-    console.log(`Creating funtion ${inputs.name} in ${this.region} ... `);
+    console.log(`Creating function ${inputs.name} in ${this.region} ... `);
     const functionInputs = await formatFunctionInputs(this.region, inputs);
     functionInputs.Action = 'CreateFunction';
     const funcInfo = await this.scfClient.request(functionInputs);
@@ -124,7 +125,7 @@ class Scf {
 
   // update function code
   async updateFunctionCode(inputs, funcInfo) {
-    console.log(`Updating funtion ${inputs.name}'s code in ${this.region} ...`);
+    console.log(`Updating function ${inputs.name}'s code in ${this.region} ...`);
     const functionInputs = await formatFunctionInputs(this.region, inputs);
     const updateFunctionConnfigure = {
       Action: 'UpdateFunctionCode',
@@ -151,7 +152,7 @@ class Scf {
 
   // update function configure
   async updatefunctionConfigure(inputs, funcInfo) {
-    console.log(`Updating funtion ${inputs.name}'s configure in ${this.region} ...`);
+    console.log(`Updating function ${inputs.name}'s configure in ${this.region} ...`);
     const functionInputs = await formatFunctionInputs(this.region, inputs);
     functionInputs.Action = 'UpdateFunctionConfiguration';
     functionInputs.Timeout = inputs.timeout || funcInfo.Timeout;
@@ -176,115 +177,106 @@ class Scf {
 
   // deploy SCF triggers
   async deployTrigger(funcInfo, inputs) {
-    if (inputs.events) {
-      console.log(`Deploying ${inputs.name}'s triggers in ${this.region}.`);
+    console.log(`Deploying ${inputs.name}'s triggers in ${this.region}.`);
 
-      // should check function status is active, then continue
-      await this.isOperationalStatus(inputs.namespace, inputs.name);
+    // should check function status is active, then continue
+    await this.isOperationalStatus(inputs.namespace, inputs.name);
 
-      // remove all old triggers
-      const oldTriggers = funcInfo.Triggers || [];
-      for (let tIdx = 0, len = oldTriggers.length; tIdx < len; tIdx++) {
-        const curTrigger = oldTriggers[tIdx];
+    // remove all old triggers
+    const oldTriggers = funcInfo.Triggers || [];
+    for (let tIdx = 0, len = oldTriggers.length; tIdx < len; tIdx++) {
+      const curTrigger = oldTriggers[tIdx];
 
-        if (curTrigger.Type === 'apigw') {
-          // TODO: now apigw can not sync in SCF trigger list
-          // await this.apigwClient.remove(curTrigger);
-        } else {
-          console.log(`Deleting ${curTrigger.Type} triggers: ${curTrigger.TriggerName}.`);
-          const delRes = await this.scfClient.request({
-            Action: 'DeleteTrigger',
-            Version: '2018-04-16',
-            Region: this.region,
-            FunctionName: funcInfo.FunctionName,
-            Namespace: funcInfo.Namespace,
-            Type: curTrigger.Type,
-            TriggerDesc: curTrigger.TriggerDesc,
-            TriggerName: curTrigger.TriggerName,
-          });
-          if (delRes.Response && delRes.Response.Error) {
-            throw new TypeError(
-              'API_SCF_DeleteTrigger',
-              JSON.stringify(delRes.Response),
-              null,
-              delRes.Response.RequestId,
-            );
-          }
+      if (curTrigger.Type === 'apigw') {
+        // TODO: now apigw can not sync in SCF trigger list
+        // await this.apigwClient.remove(curTrigger);
+      } else {
+        console.log(`Deleting ${curTrigger.Type} triggers: ${curTrigger.TriggerName}.`);
+        const delRes = await this.scfClient.request({
+          Action: 'DeleteTrigger',
+          Version: '2018-04-16',
+          Region: this.region,
+          FunctionName: funcInfo.FunctionName,
+          Namespace: funcInfo.Namespace,
+          Type: curTrigger.Type,
+          TriggerDesc: curTrigger.TriggerDesc,
+          TriggerName: curTrigger.TriggerName,
+        });
+        if (delRes.Response && delRes.Response.Error) {
+          throw new TypeError(
+            'API_SCF_DeleteTrigger',
+            JSON.stringify(delRes.Response),
+            null,
+            delRes.Response.RequestId,
+          );
         }
       }
-
-      // create all new triggers
-      const deployTriggerResult = [];
-      for (let i = 0; i < inputs.events.length; i++) {
-        const event = inputs.events[i];
-        const eventType = Object.keys(event)[0];
-
-        if (eventType === 'apigw') {
-          const { triggerInputs } = formatTrigger(
-            eventType,
-            this.region,
-            funcInfo,
-            event[eventType],
-            inputs.needSetTraffic,
-          );
-          try {
-            const apigwOutput = await this.apigwClient.deploy(triggerInputs);
-
-            deployTriggerResult.push(apigwOutput);
-          } catch (e) {
-            throw e;
-          }
-        } else {
-          const { triggerInputs } = formatTrigger(
-            eventType,
-            this.region,
-            funcInfo,
-            event[eventType],
-          );
-
-          console.log(`Creating ${eventType} triggers: ${event[eventType].name}.`);
-          const { Response } = await this.scfClient.request(triggerInputs);
-
-          if (Response && Response.Error) {
-            throw new TypeError(
-              'API_SCF_CreateTrigger',
-              JSON.stringify(Response),
-              null,
-              Response.RequestId,
-            );
-          }
-          deployTriggerResult.push(Response.TriggerInfo);
-        }
-      }
-      funcInfo.Triggers = deployTriggerResult;
-      return deployTriggerResult;
     }
+
+    // create all new triggers
+    const deployTriggerResult = [];
+    for (let i = 0; i < inputs.events.length; i++) {
+      const event = inputs.events[i];
+      const eventType = Object.keys(event)[0];
+
+      if (eventType === 'apigw') {
+        const { triggerInputs } = formatTrigger(
+          eventType,
+          this.region,
+          funcInfo,
+          event[eventType],
+          inputs.needSetTraffic,
+        );
+        try {
+          const apigwOutput = await this.apigwClient.deploy(triggerInputs);
+
+          deployTriggerResult.push(apigwOutput);
+        } catch (e) {
+          throw e;
+        }
+      } else {
+        const { triggerInputs } = formatTrigger(eventType, this.region, funcInfo, event[eventType]);
+
+        console.log(`Creating ${eventType} triggers: ${event[eventType].name}.`);
+        const { Response } = await this.scfClient.request(triggerInputs);
+
+        if (Response && Response.Error) {
+          throw new TypeError(
+            'API_SCF_CreateTrigger',
+            JSON.stringify(Response),
+            null,
+            Response.RequestId,
+          );
+        }
+        deployTriggerResult.push(Response.TriggerInfo);
+      }
+    }
+    funcInfo.Triggers = deployTriggerResult;
+    return deployTriggerResult;
   }
 
   // deploy tags
   async deployTags(funcInfo, inputs) {
-    if (inputs.tags) {
-      console.log(`Adding tags for funtion ${inputs.name} in ${this.region} ... `);
-      const deleteTags = {};
-      for (let i = 0; i < funcInfo.Tags.length; i++) {
-        if (!inputs.tags.hasOwnProperty(funcInfo.Tags[i].Key)) {
-          deleteTags[funcInfo.Tags[i].Key] = funcInfo.Tags[i].Value;
-        }
+    console.log(`Adding tags for function ${inputs.name} in ${this.region} ... `);
+    const deleteTags = {};
+    for (let i = 0; i < funcInfo.Tags.length; i++) {
+      if (!inputs.tags.hasOwnProperty(funcInfo.Tags[i].Key)) {
+        deleteTags[funcInfo.Tags[i].Key] = funcInfo.Tags[i].Value;
       }
-      const res = await this.tagClient.deploy({
-        resource: `qcs::scf:${this.region}::lam/${funcInfo.FunctionId}`,
-        replaceTags: inputs.tags,
-        deleteTags: deleteTags,
-      });
+    }
+    const res = await this.tagClient.deploy({
+      resource: `qcs::scf:${this.region}::lam/${funcInfo.FunctionId}`,
+      replaceTags: inputs.tags,
+      deleteTags: deleteTags,
+    });
 
-      if (res.Response && res.Response.Error) {
-        throw new TypeError(
-          'API_TAG_ModifyResourceTags',
-          JSON.stringify(res.Response),
-          null,
-          res.Response.RequestId,
-        );
-      }
+    if (res.Response && res.Response.Error) {
+      throw new TypeError(
+        'API_TAG_ModifyResourceTags',
+        JSON.stringify(res.Response),
+        null,
+        res.Response.RequestId,
+      );
     }
   }
 
@@ -425,14 +417,11 @@ class Scf {
    */
   async isOperationalStatus(namespace, functionName, qualifier = '$LATEST') {
     // after create/update function, should check function status is active, then continue
-    const functionStatus = await this.checkStatus(namespace, functionName, qualifier);
-    if (functionStatus === false) {
-      throw new TypeError(
-        'API_SCF_isOperationalStatus',
-        `Function ${functionName} upgrade failed. Please check function status.`,
-      );
+    const res = await this.checkStatus(namespace, functionName, qualifier);
+    if (res === true) {
+      return true;
     }
-    return true;
+    throw new TypeError('API_SCF_isOperationalStatus', JSON.stringify(res), null, res.RequestId);
   }
 
   // deploy SCF flow
@@ -475,13 +464,13 @@ class Scf {
       });
       inputs.lastVersion = FunctionVersion;
       outputs.LastVersion = FunctionVersion;
+
+      // should check function status is active, then continue
+      await this.isOperationalStatus(namespace, inputs.name, inputs.lastVersion);
     }
     inputs.needSetTraffic =
       inputs.traffic !== undefined && inputs.lastVersion && inputs.lastVersion !== '$LATEST';
     if (inputs.needSetTraffic) {
-      // should check function status is active, then continue
-      await this.isOperationalStatus(namespace, inputs.name, inputs.lastVersion);
-
       await this.updateAliasTraffic({
         functionName: funcInfo.FunctionName,
         region: this.region,
@@ -523,16 +512,20 @@ class Scf {
       }
     } catch (e) {
       // no op
+      console.log('API_SCF_getAlias', e.message);
     }
 
-    if (inputs.tags || inputs.events) {
-      if (!funcInfo) {
-        funcInfo = await this.getFunction(namespace, inputs.name);
-      }
-      await Promise.all([this.deployTags(funcInfo, inputs), this.deployTrigger(funcInfo, inputs)]);
+    // create/update tags
+    if (inputs.tags) {
+      await this.deployTags(funcInfo, inputs);
     }
 
-    console.log(`Deployed funtion ${funcInfo.FunctionName}.`);
+    // create/update/delete triggers
+    if (inputs.events) {
+      await this.deployTrigger(funcInfo, inputs);
+    }
+
+    console.log(`Deploy function ${funcInfo.FunctionName} success.`);
     return outputs;
   }
 
