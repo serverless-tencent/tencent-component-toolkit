@@ -34,7 +34,7 @@ class Cdn {
     console.log(`Purging CDN caches, it will work in 5 minutes...`);
     try {
       await PurgePathCache(this.capi, {
-        Urls: urls,
+        Paths: urls,
         FlushType: flushType,
       });
     } catch (e) {
