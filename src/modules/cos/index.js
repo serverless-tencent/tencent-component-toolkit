@@ -171,7 +171,7 @@ class Cos {
   }
 
   async deleteTags(inputs = {}) {
-    console.log(`Deleting tags for ${this.region}'s bucket: ${inputs.bucket} ...`);
+    console.log(`Removing tags for ${this.region}'s bucket: ${inputs.bucket} ...`);
     const deleteTagsHandler = this.promisify(
       this.cosClient.deleteBucketTagging.bind(this.cosClient),
     );
@@ -221,7 +221,7 @@ class Cos {
   }
 
   async deleteCors(inputs = {}) {
-    console.log(`Deleting cors for ${this.region}'s bucket: ${inputs.bucket} ...`);
+    console.log(`Removing cors for ${this.region}'s bucket: ${inputs.bucket} ...`);
     const deleteCorsHandler = this.promisify(this.cosClient.deleteBucketCors.bind(this.cosClient));
     try {
       await deleteCorsHandler({
@@ -290,7 +290,7 @@ class Cos {
   }
 
   async deleteLifecycle(inputs = {}) {
-    console.log(`Deleting lifecycle for ${this.region}'s bucket: ${inputs.bucket} ...`);
+    console.log(`Removing lifecycle for ${this.region}'s bucket: ${inputs.bucket} ...`);
     const deleteLifecycle = this.promisify(
       this.cosClient.deleteBucketLifecycle.bind(this.cosClient),
     );
