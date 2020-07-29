@@ -713,6 +713,7 @@ class Apigw {
           if (curApi.usagePlan.secrets.created === true) {
             for (let sIdx = 0; sIdx < secrets.secretIds.length; sIdx++) {
               const secretId = secrets.secretIds[sIdx];
+              console.log(`Removing any previously deployed secret key: ${secretId}`);
               await this.removeOrUnbindRequest({
                 Action: 'DisableApiKey',
                 accessKeyId: secretId,
@@ -721,7 +722,6 @@ class Apigw {
                 Action: 'DeleteApiKey',
                 accessKeyId: secretId,
               });
-              console.log(`Removing any previously deployed secret key. ${secretId}`);
             }
           }
         }
@@ -784,6 +784,7 @@ class Apigw {
       serviceId,
       environmentName: environment,
     });
+    console.log(`Unrelease service: ${serviceId}, environment: ${environment} success`);
 
     if (created === true) {
       // delete service
@@ -792,6 +793,7 @@ class Apigw {
         Action: 'DeleteService',
         serviceId,
       });
+      console.log(`Remove service: ${serviceId} success`);
     }
   }
 }

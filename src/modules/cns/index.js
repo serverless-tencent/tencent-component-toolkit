@@ -188,12 +188,10 @@ class Cns {
     const deleteList = inputs.deleteList || [];
 
     if (deleteList.length > 0) {
-      console.log(
-        `Deleting records which deployed by this project, but not in this records list. `,
-      );
+      console.log(`Removing records which deployed by this project, but not in this records list`);
       for (let recordNum = 0; recordNum < deleteList.length; recordNum++) {
         console.log(
-          `Deleting record ${deleteList[recordNum].subDomain} ${deleteList[recordNum].recordId} `,
+          `Removing record ${deleteList[recordNum].subDomain} ${deleteList[recordNum].recordId} `,
         );
         const deleteInputs = {
           Action: 'RecordDelete',
@@ -210,7 +208,7 @@ class Cns {
           console.log(`Error API_CNS_RecordDelete: ${e.message}`);
         }
         console.log(
-          `Deleted record ${deleteList[recordNum].subDomain} ${deleteList[recordNum].recordId} `,
+          `Remove record ${deleteList[recordNum].subDomain} ${deleteList[recordNum].recordId} success`,
         );
       }
     }

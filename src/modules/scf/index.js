@@ -191,7 +191,7 @@ class Scf {
         // TODO: now apigw can not sync in SCF trigger list
         // await this.apigwClient.remove(curTrigger);
       } else {
-        console.log(`Deleting ${curTrigger.Type} triggers: ${curTrigger.TriggerName}.`);
+        console.log(`Removing ${curTrigger.Type} triggers: ${curTrigger.TriggerName}.`);
         const delRes = await this.scfClient.request({
           Action: 'DeleteTrigger',
           Version: '2018-04-16',
@@ -531,8 +531,8 @@ class Scf {
 
   // 移除函数的主逻辑
   async remove(inputs = {}) {
-    console.log(`Deleting function ${inputs.functionName || inputs.FunctionName} ...`);
     const functionName = inputs.functionName || inputs.FunctionName;
+    console.log(`Removing function ${functionName} ...`);
     const namespace = inputs.namespace || inputs.Namespace || CONFIGS.defaultNamespace;
 
     // check function exist, then delete
@@ -564,7 +564,7 @@ class Scf {
       }
     }
 
-    console.log(`Removed function and triggers.`);
+    console.log(`Remove function ${functionName} and it's triggers success`);
   }
 
   async invoke(functionName, inputs = {}) {
