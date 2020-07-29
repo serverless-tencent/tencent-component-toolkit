@@ -198,6 +198,7 @@ class Apigw {
     const output = {
       path: endpoint.path,
       method: endpoint.method,
+      apiName: endpoint.apiName || 'index',
       apiId: undefined,
       created: false,
     };
@@ -640,7 +641,7 @@ class Apigw {
 
       apiList.push(curApi);
       console.log(
-        `Deployment successful for the api named ${endpoint.apiName} in the ${this.region} region.`,
+        `Deployment successful for the api named ${curApi.apiName} in the ${this.region} region.`,
       );
     }
 

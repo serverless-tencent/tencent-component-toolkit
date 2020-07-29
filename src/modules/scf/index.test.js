@@ -12,7 +12,7 @@ class ClientTest {
       name: 'express-test',
       code: {
         bucket: 'sls-cloudfunction-ap-guangzhou-code',
-        object: 'express_component_3gainhv-1591085216.zip',
+        object: 'express_component_27ararf-1594798167.zip',
       },
       handler: 'sl_handler.handler',
       runtime: 'Nodejs12.16',
@@ -72,11 +72,7 @@ class ClientTest {
 
     // 1. deploy test
     const result = await scf.deploy(scfDemo);
-    try{
-      console.log(JSON.stringify(result));
-    } catch (e) {
-      console.log(e);
-    }
+    console.log(JSON.stringify(result));
 
     // 2. publish version test
     // const res = await scf.publishVersion({

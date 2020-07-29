@@ -1,3 +1,16 @@
+# [1.13.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.12.15...v1.13.0) (2020-07-27)
+
+
+### Bug Fixes
+
+* **cdn:** make switch for https and forceRedirect to on ([bc541d6](https://github.com/serverless-tencent/tencent-component-toolkit/commit/bc541d62d2b97a9fecd95d7a68873052022d03d3))
+* **cdn:** PurgePathCache param Paths ([da79e1d](https://github.com/serverless-tencent/tencent-component-toolkit/commit/da79e1d127b05a4ea0e68a3064573c9ab8d4bc8b))
+
+
+### Features
+
+* optimize scf module ([d6d884c](https://github.com/serverless-tencent/tencent-component-toolkit/commit/d6d884ca52c5ed6b31125d8b5b21a13526395826))
+
 ## [1.12.15](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.12.14...v1.12.15) (2020-07-21)
 
 
