@@ -1,3 +1,10 @@
+## [1.13.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.13.0...v1.13.1) (2020-07-29)
+
+
+### Bug Fixes
+
+* optimize console.log ([6fdbc55](https://github.com/serverless-tencent/tencent-component-toolkit/commit/6fdbc55ab1d23a885f13fae34722a67d250e7650))
+
 # [1.13.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.12.15...v1.13.0) (2020-07-29)
 
 
