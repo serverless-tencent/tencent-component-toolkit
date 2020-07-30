@@ -29,7 +29,13 @@ class Cos {
               typeof err.error === 'string' ? err.error : `${err.error.Code}: ${err.error.Message}`,
             );
             if (err.error && err.error.Code) {
+              // Conflict request, just resolve
+              if (err.error.Code === 'PathConflict') {
+                resolve(true);
+              }
               e.code = err.error.Code;
+              e.requestId = err.error.RequestId;
+              e.traceId = err.error.TraceId;
             }
             reject(e);
           }
