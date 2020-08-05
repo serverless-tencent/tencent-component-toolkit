@@ -1,3 +1,11 @@
+## [1.13.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.13.1...v1.13.2) (2020-08-05)
+
+
+### Bug Fixes
+
+* **cos:** create bucket error message ([775357b](https://github.com/serverless-tencent/tencent-component-toolkit/commit/775357b72c2ea080d22828e74910d3008ab8a365))
+* **cos:** PathConflict error ([138c6a0](https://github.com/serverless-tencent/tencent-component-toolkit/commit/138c6a01a6d4e57640302812d90324c9b042db80))
+
 ## [1.13.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.13.0...v1.13.1) (2020-07-29)
 
 
