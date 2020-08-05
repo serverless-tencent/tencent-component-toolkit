@@ -35,7 +35,6 @@ class Cos {
               }
               e.code = err.error.Code;
               e.requestId = err.error.RequestId;
-              e.traceId = err.error.TraceId;
             }
             reject(e);
           }
@@ -63,7 +62,7 @@ class Cos {
         }
       } else {
         // TODO: cos在云函数中可能出现ECONNRESET错误，没办法具体定位，初步猜测是客户端问题，是函数启动网络还没准备好，这个还不确定，所以在这里做兼容
-        if (JSON.stringify(e).includes('ECONNRESET')) {
+        if (e.message.includes('ECONNRESET')) {
           // 检查bucket是否存在
           const headHandler = this.promisify(this.cosClient.headBucket.bind(this.cosClient));
           try {
@@ -81,10 +80,10 @@ class Cos {
               throw new TypeError(`API_COS_headBucket`, 'Could not find this bucket');
             }
           } catch (err) {
-            throw new TypeError(`API_COS_headBucket`, JSON.stringify(err), err.stack);
+            throw new TypeError(`API_COS_headBucket`, err.message, err.stack);
           }
         } else {
-          throw new TypeError(`API_COS_putBucket`, JSON.stringify(e), e.stack);
+          throw new TypeError(`API_COS_putBucket`, e.message, e.stack, e.reqId);
         }
       }
     }
