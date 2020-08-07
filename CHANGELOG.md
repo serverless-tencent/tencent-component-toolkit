@@ -1,3 +1,10 @@
+# [1.14.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.13.2...v1.14.0) (2020-08-07)
+
+
+### Features
+
+* add apigw metrics ([#101](https://github.com/serverless-tencent/tencent-component-toolkit/issues/101)) ([b7bd02d](https://github.com/serverless-tencent/tencent-component-toolkit/commit/b7bd02d113b24c67fc7e39c73f61027922777100))
+
 ## [1.13.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.13.1...v1.13.2) (2020-08-05)
 
 
