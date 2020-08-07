@@ -179,7 +179,7 @@ class Metrics {
         this.apigwEnvironment,
       );
 
-      results = this.buildApigwMetrics(results, response.metrics[0], period);
+      results = this.buildApigwMetrics(results);
       response.metrics = response.metrics.concat(results.metrics);
       if (results.startTime) {
         response.rangeStart = results.startTime;
@@ -191,64 +191,66 @@ class Metrics {
     return response;
   }
 
-  buildApigwMetrics(datas, timestamps, period) {
+  buildApigwMetrics(datas) {
     const responses = {
       startTime: '',
       endTime: '',
       metrics: [],
     };
-    let timeValues = timestamps ? timestamps.x.values : null;
 
     for (let i = 0; i < datas.length; i++) {
-      const metric = datas[i];
-      if (metric.code) {
+      const metric = datas[i].Response;
+      if (metric.Error) {
         continue;
       }
-
-      if (!timeValues) {
-        responses.startTime = metric.startTime;
-        responses.endTime = metric.endTime;
-
-        const startTime = moment(metric.startTime);
-        const endTime = moment(metric.endTime);
-
-        timeValues = [];
-        while (startTime <= endTime) {
-          timeValues.push(startTime.unix() * 1000);
-          startTime.add(period, 's');
-        }
-      }
+      responses.startTime = metric.StartTime;
+      responses.endTime = metric.EndTime;
 
       let type = 'count';
       const result = {
         type: 'stacked-bar',
         x: {
           type: 'timestamp',
-          values: timeValues,
+          values: metric.DataPoints[0].Timestamps.map((ts) => ts * 1000),
         },
         y: [],
       };
-      switch (metric.metricName) {
-        case 'num_of_req':
+      switch (metric.MetricName) {
+        case 'NumOfReq':
           result.title = 'apigw total request num';
           break;
-        case 'response_time':
+        case 'ResponseTime':
           type = 'duration';
           result.title = 'apigw request response time(ms)';
           break;
       }
 
       const item = {
-        name: metric.metricName,
+        name: metric.MetricName,
         type: type,
-        values: metric.dataPoints,
-        total: metric.dataPoints.reduce(function(a, b) {
+        values: metric.DataPoints[0].Values,
+        total: metric.DataPoints[0].Values.reduce(function(a, b) {
           return a + b;
         }, 0),
       };
 
       if (!(~~item.total == item.total)) {
         item.total = parseFloat(item.total.toFixed(2), 10);
+      }
+
+      if (result.x.values.length == 0) {
+        const startTime = moment(responses.startTime);
+        const endTime = moment(responses.endTime);
+
+        i = 0;
+        while (startTime <= endTime) {
+          result.x.values[i] = startTime.unix() * 1000;
+          item.values[i] = 0;
+          i++;
+          startTime.add(metric.Period, 's');
+        }
+
+        item.total = 0;
       }
 
       result.y.push(item);

@@ -74,6 +74,6 @@
     "@ygkit/request": "^0.0.6",
     "klaw-sync": "^6.0.0",
     "moment": "^2.25.3",
-    "tencent-cloud-sdk": "^0.1.6"
+    "tencent-cloud-sdk": "^0.2.0"
   }
 }
