@@ -13,6 +13,8 @@ class Metrics {
     this.funcName = options.funcName;
     this.namespace = options.namespace || 'default';
     this.version = options.version || '$LATEST';
+    this.apigwServiceId = options.apigwServiceId;
+    this.apigwEnvironment = options.apigwEnvironment;
 
     this.client = new slsMonitor(this.credentials);
     this.timezone = options.timezone || '+08:00';
@@ -22,6 +24,7 @@ class Metrics {
     return Object.freeze({
       Base: 1, // scf base metrics
       Custom: 2, // report custom metrics
+      Apigw: 4, // apigw metrics
       All: 0xffffffff,
     });
   }
@@ -43,6 +46,26 @@ class Metrics {
       return responses;
     } catch (e) {
       throw new TypeError(`API_METRICS_getScfMetrics`, e.message, e.stack);
+    }
+  }
+
+  async apigwMetrics(startTime, endTime, period, serviceId, env) {
+    const rangeTime = {
+      rangeStart: startTime,
+      rangeEnd: endTime,
+    };
+
+    try {
+      const responses = await this.client.getApigwMetrics(
+        this.region,
+        rangeTime,
+        period,
+        serviceId,
+        env,
+      );
+      return responses;
+    } catch (e) {
+      throw new TypeError(`API_METRICS_getApigwMetrics`, e.message, e.stack);
     }
   }
 
@@ -138,7 +161,103 @@ class Metrics {
       results = this.buildCustomMetrics(results);
       response.metrics = response.metrics.concat(results);
     }
+
+    if (metricsType & Metrics.Type.Apigw) {
+      if (!response) {
+        response = {
+          rangeStart: startTime.format('YYYY-MM-DD HH:mm:ss'),
+          rangeEnd: endTime.format('YYYY-MM-DD HH:mm:ss'),
+          metrics: [],
+        };
+      }
+
+      results = await this.apigwMetrics(
+        startTime.format('YYYY-MM-DD HH:mm:ss'),
+        endTime.format('YYYY-MM-DD HH:mm:ss'),
+        period,
+        this.apigwServiceId,
+        this.apigwEnvironment,
+      );
+
+      results = this.buildApigwMetrics(results);
+      response.metrics = response.metrics.concat(results.metrics);
+      if (results.startTime) {
+        response.rangeStart = results.startTime;
+      }
+      if (results.endTime) {
+        response.rangeEnd = results.endTime;
+      }
+    }
     return response;
+  }
+
+  buildApigwMetrics(datas) {
+    const responses = {
+      startTime: '',
+      endTime: '',
+      metrics: [],
+    };
+
+    for (let i = 0; i < datas.length; i++) {
+      const metric = datas[i].Response;
+      if (metric.Error) {
+        continue;
+      }
+      responses.startTime = metric.StartTime;
+      responses.endTime = metric.EndTime;
+
+      let type = 'count';
+      const result = {
+        type: 'stacked-bar',
+        x: {
+          type: 'timestamp',
+          values: metric.DataPoints[0].Timestamps.map((ts) => ts * 1000),
+        },
+        y: [],
+      };
+      switch (metric.MetricName) {
+        case 'NumOfReq':
+          result.title = 'apigw total request num';
+          break;
+        case 'ResponseTime':
+          type = 'duration';
+          result.title = 'apigw request response time(ms)';
+          break;
+      }
+
+      const item = {
+        name: metric.MetricName,
+        type: type,
+        values: metric.DataPoints[0].Values,
+        total: metric.DataPoints[0].Values.reduce(function(a, b) {
+          return a + b;
+        }, 0),
+      };
+
+      if (!(~~item.total == item.total)) {
+        item.total = parseFloat(item.total.toFixed(2), 10);
+      }
+
+      if (result.x.values.length == 0) {
+        const startTime = moment(responses.startTime);
+        const endTime = moment(responses.endTime);
+
+        i = 0;
+        while (startTime <= endTime) {
+          result.x.values[i] = startTime.unix() * 1000;
+          item.values[i] = 0;
+          i++;
+          startTime.add(metric.Period, 's');
+        }
+
+        item.total = 0;
+      }
+
+      result.y.push(item);
+      responses.metrics.push(result);
+    }
+
+    return responses;
   }
 
   buildMetrics(datas) {
