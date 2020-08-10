@@ -242,11 +242,11 @@ class Metrics {
         const startTime = moment(responses.startTime);
         const endTime = moment(responses.endTime);
 
-        i = 0;
+        let n = 0;
         while (startTime <= endTime) {
-          result.x.values[i] = startTime.unix() * 1000;
-          item.values[i] = 0;
-          i++;
+          result.x.values[n] = startTime.unix() * 1000;
+          item.values[n] = 0;
+          n++;
           startTime.add(metric.Period, 's');
         }
 
