@@ -1,3 +1,10 @@
+## [1.14.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.14.0...v1.14.1) (2020-08-10)
+
+
+### Bug Fixes
+
+* fix apigw response pad bug ([02ab3e3](https://github.com/serverless-tencent/tencent-component-toolkit/commit/02ab3e39190163feaa4cf0270b5d3aa5e9025e46))
+
 # [1.14.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.13.2...v1.14.0) (2020-08-07)
 
 
