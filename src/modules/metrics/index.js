@@ -215,18 +215,22 @@ class Metrics {
         },
         y: [],
       };
+
+      let name = '';
       switch (metric.MetricName) {
         case 'NumOfReq':
+          name = 'request';
           result.title = 'apigw total request num';
           break;
         case 'ResponseTime':
+          name = 'response time';
           type = 'duration';
           result.title = 'apigw request response time(ms)';
           break;
       }
 
       const item = {
-        name: metric.MetricName,
+        name: name,
         type: type,
         values: metric.DataPoints[0].Values,
         total: metric.DataPoints[0].Values.reduce(function(a, b) {
