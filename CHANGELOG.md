@@ -1,3 +1,10 @@
+## [1.14.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.14.1...v1.14.2) (2020-08-10)
+
+
+### Bug Fixes
+
+* change metrics name ([10d3d41](https://github.com/serverless-tencent/tencent-component-toolkit/commit/10d3d418052e6ff4be48497ddc815177eb5868ca))
+
 ## [1.14.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.14.0...v1.14.1) (2020-08-10)
 
 
