@@ -12,6 +12,7 @@ async function runTest() {
     protocols: ['http', 'https'],
     serviceName: 'serverless',
     environment: 'release',
+    netTypes: ['OUTER'],
     customDomains: [
       {
         domain: 'test.yugasun.com',
