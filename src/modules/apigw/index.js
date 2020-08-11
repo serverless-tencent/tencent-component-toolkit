@@ -41,6 +41,7 @@ class Apigw {
     const {
       serviceId,
       protocols,
+      netTypes = ['OUTER'],
       serviceName = 'Serverless_Framework',
       serviceDesc = 'Created By Serverless Framework',
     } = serviceConf;
@@ -67,6 +68,7 @@ class Apigw {
             serviceDesc: serviceDesc || detail.serviceDesc,
             serviceName: serviceName || detail.serviceName,
             protocol: protocols,
+            netTypes: netTypes,
           });
         }
       }
@@ -77,6 +79,7 @@ class Apigw {
         serviceName: serviceName || 'Serverless_Framework',
         serviceDesc: serviceDesc || 'Created By Serverless Framework',
         protocol: protocols,
+        netTypes: netTypes,
       });
       serviceCreated = true;
     }
@@ -84,7 +87,10 @@ class Apigw {
     return {
       serviceName,
       serviceId: detail.ServiceId,
-      subDomain: detail.OuterSubDomain || detail.InnerSubDomain,
+      subDomain:
+        detail.OuterSubDomain && detail.InnerSubDomain
+          ? [detail.OuterSubDomain, detail.InnerSubDomain]
+          : detail.OuterSubDomain || detail.InnerSubDomain,
       serviceCreated,
     };
   }
