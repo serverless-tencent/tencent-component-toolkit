@@ -1,3 +1,10 @@
+## [1.14.4](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.14.3...v1.14.4) (2020-08-12)
+
+
+### Bug Fixes
+
+* **cos:** optimize error message ([945c113](https://github.com/serverless-tencent/tencent-component-toolkit/commit/945c113d9689ad08072e05948ba7cd714278c305))
+
 ## [1.14.3](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.14.2...v1.14.3) (2020-08-11)
 
 
