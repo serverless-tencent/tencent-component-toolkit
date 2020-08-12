@@ -25,16 +25,21 @@ class Cos {
       return new Promise((resolve, reject) => {
         callback(params, (err, res) => {
           if (err) {
-            const e = new Error(
-              typeof err.error === 'string' ? err.error : `${err.error.Code}: ${err.error.Message}`,
-            );
+            if (typeof err.error === 'string') {
+              reject(new Error(err.error));
+            }
+            const errMsg = err.error.Message
+              ? `${err.error.Code}: ${err.error.Message}, ${err.error.RequestId}`
+              : `${JSON.stringify(err.error)}__`;
+
+            const e = new Error(errMsg);
             if (err.error && err.error.Code) {
               // Conflict request, just resolve
               if (err.error.Code === 'PathConflict') {
                 resolve(true);
               }
               e.code = err.error.Code;
-              e.requestId = err.error.RequestId;
+              e.reqId = err.error.RequestId;
             }
             reject(e);
           }
@@ -56,7 +61,7 @@ class Cos {
     } catch (e) {
       if (e.code == 'BucketAlreadyExists' || e.code == 'BucketAlreadyOwnedByYou') {
         if (!inputs.force) {
-          throw new TypeError(`API_COS_putBucket`, JSON.stringify(e), e.stack);
+          throw new TypeError(`API_COS_putBucket`, e.message, e.stack, e.reqId);
         } else {
           console.log(`Bucket ${inputs.bucket} already exist.`);
         }
@@ -582,25 +587,27 @@ class Cos {
       }
     }
 
-    if (detail && detail.Contents) {
-      // delete files
-      const objectList = (detail.Contents || []).map((item) => {
-        return {
-          Key: item.Key,
-        };
-      });
-
-      try {
-        const deleteMultipleObjectHandler = this.promisify(
-          this.cosClient.deleteMultipleObject.bind(this.cosClient),
-        );
-        await deleteMultipleObjectHandler({
-          Region: this.region,
-          Bucket: inputs.bucket,
-          Objects: objectList,
+    if (detail) {
+      if (detail.Contents && detail.Contents.length > 0) {
+        // delete files
+        const objectList = (detail.Contents || []).map((item) => {
+          return {
+            Key: item.Key,
+          };
         });
-      } catch (e) {
-        console.log(e);
+
+        try {
+          const deleteMultipleObjectHandler = this.promisify(
+            this.cosClient.deleteMultipleObject.bind(this.cosClient),
+          );
+          await deleteMultipleObjectHandler({
+            Region: this.region,
+            Bucket: inputs.bucket,
+            Objects: objectList,
+          });
+        } catch (e) {
+          console.log(e);
+        }
       }
       try {
         const deleteBucketHandler = this.promisify(
