@@ -2,8 +2,8 @@ const { cos } = require('tencent-cloud-sdk');
 const util = require('util');
 const path = require('path');
 const fs = require('fs');
-const klawSync = require('klaw-sync');
 const exec = util.promisify(require('child_process').exec);
+const { traverseDirSync } = require('../../utils');
 const { TypeError } = require('../../utils/error');
 
 class Cos {
@@ -412,7 +412,7 @@ class Cos {
 
       const items = await new Promise((resolve, reject) => {
         try {
-          resolve(klawSync(inputs.dir));
+          resolve(traverseDirSync(inputs.dir));
         } catch (error) {
           reject(error);
         }
