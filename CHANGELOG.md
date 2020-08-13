@@ -1,3 +1,11 @@
+## [1.14.5](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.14.4...v1.14.5) (2020-08-13)
+
+
+### Bug Fixes
+
+* optimize npm deps ([d18082d](https://github.com/serverless-tencent/tencent-component-toolkit/commit/d18082daa6f24e3eff0cddcd8dcd361e7280a671))
+* **scf:** support netTypes config for apigw trigger ([082bca4](https://github.com/serverless-tencent/tencent-component-toolkit/commit/082bca42e0288ff2f3ae5d2bc0269c87c677f40c))
+
 ## [1.14.4](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.14.3...v1.14.4) (2020-08-12)
 
 
