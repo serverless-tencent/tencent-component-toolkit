@@ -1,3 +1,6 @@
+const path = require('path');
+const fs = require('fs');
+
 /**
  * is array
  * @param obj object
@@ -120,6 +123,36 @@ function strip(num, precision = 12) {
   return +parseFloat(num.toPrecision(precision));
 }
 
+function traverseDirSync(dir, opts, ls) {
+  if (!ls) {
+    ls = [];
+    dir = path.resolve(dir);
+    opts = opts || {};
+    if (opts.depthLimit > -1) {
+      opts.rootDepth = dir.split(path.sep).length + 1;
+    }
+  }
+  const paths = fs.readdirSync(dir).map((p) => dir + path.sep + p);
+  for (let i = 0; i < paths.length; i++) {
+    const pi = paths[i];
+    const st = fs.statSync(pi);
+    const item = { path: pi, stats: st };
+    const isUnderDepthLimit =
+      !opts.rootDepth || pi.split(path.sep).length - opts.rootDepth < opts.depthLimit;
+    const filterResult = opts.filter ? opts.filter(item) : true;
+    const isDir = st.isDirectory();
+    const shouldAdd = filterResult && (isDir ? !opts.nodir : !opts.nofile);
+    const shouldTraverse = isDir && isUnderDepthLimit && (opts.traverseAll || filterResult);
+    if (shouldAdd) {
+      ls.push(item);
+    }
+    if (shouldTraverse) {
+      ls = traverseDirSync(pi, opts, ls);
+    }
+  }
+  return ls;
+}
+
 module.exports = {
   isArray,
   isObject,
@@ -128,4 +161,5 @@ module.exports = {
   uniqueArray,
   camelCaseProperty,
   strip,
+  traverseDirSync,
 };
