@@ -1,3 +1,10 @@
+## [1.14.6](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.14.5...v1.14.6) (2020-08-17)
+
+
+### Bug Fixes
+
+* **apigw:** add apigw netTypes config campatibility ([730477a](https://github.com/serverless-tencent/tencent-component-toolkit/commit/730477a6b8de71012309bcc44239e1e0e4f87404))
+
 ## [1.14.5](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.14.4...v1.14.5) (2020-08-13)
 
 
