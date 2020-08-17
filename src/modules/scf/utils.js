@@ -16,7 +16,7 @@ const formatApigwTrigger = (region, funcInfo, inputs, traffic = false) => {
   triggerInputs.serviceName = parameters.serviceName || name;
   triggerInputs.serviceDesc = parameters.description;
   triggerInputs.serviceId = parameters.serviceId;
-  triggerInputs.netTypes = parameters.netTypes || ['OUTER'];
+
   triggerInputs.endpoints = (parameters.endpoints || []).map((ep) => {
     ep.function = ep.function || {};
     ep.function.functionName = funcInfo.FunctionName;
@@ -28,6 +28,9 @@ const formatApigwTrigger = (region, funcInfo, inputs, traffic = false) => {
       : '$LATEST';
     return ep;
   });
+  if (parameters.netTypes) {
+    triggerInputs.netTypes = parameters.netTypes;
+  }
   return {
     triggerInputs,
   };
