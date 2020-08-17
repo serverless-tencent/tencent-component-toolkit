@@ -1,5 +1,4 @@
 const { Capi } = require('@tencent-sdk/capi');
-const Cos = require('../cos');
 const apis = require('./apis');
 
 class Layer {
@@ -12,7 +11,6 @@ class Layer {
       SecretKey: credentials.SecretKey,
       Token: credentials.Token,
     });
-    this.cosClient = new Cos(credentials, region);
   }
   async checkExist(name) {
     const res = await apis.getLayerDetail(this.capi, name);
