@@ -32,11 +32,10 @@ async function getDbInstanceDetail(capi, dBInstanceName) {
       } = res;
       return dbDetail;
     }
-    return null;
   } catch (e) {
     console.log(e);
-    return null;
   }
+  return undefined;
 }
 
 /**
@@ -138,7 +137,6 @@ async function deleteDbInstance(capi, dBInstanceName) {
   const detail = await waitResponse({
     callback: async () => getDbInstanceDetail(capi, dBInstanceName),
     targetResponse: undefined,
-    targetProp: 'DBInstanceStatus',
     timeout: TIMEOUT,
   });
   console.log(`Removed postgres instance ${dBInstanceName}.`);
