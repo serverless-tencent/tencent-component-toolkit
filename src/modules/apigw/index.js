@@ -41,7 +41,7 @@ class Apigw {
     const {
       serviceId,
       protocols,
-      netTypes = ['OUTER'],
+      netTypes,
       serviceName = 'Serverless_Framework',
       serviceDesc = 'Created By Serverless Framework',
     } = serviceConf;
@@ -54,6 +54,7 @@ class Apigw {
         ServiceId: serviceId,
       });
       if (detail) {
+        detail.InnerSubDomain = detail.InternalSubDomain;
         exist = true;
         if (
           !(
@@ -62,25 +63,31 @@ class Apigw {
             protocols === detail.protocol
           )
         ) {
-          await this.request({
+          const apiInputs = {
             Action: 'ModifyService',
             serviceId,
             serviceDesc: serviceDesc || detail.serviceDesc,
             serviceName: serviceName || detail.serviceName,
             protocol: protocols,
-            netTypes: netTypes,
-          });
+          };
+          if (netTypes) {
+            apiInputs.netTypes = netTypes;
+          }
+          await this.request(apiInputs);
         }
       }
     }
     if (!exist) {
-      detail = await this.request({
+      const apiInputs = {
         Action: 'CreateService',
         serviceName: serviceName || 'Serverless_Framework',
         serviceDesc: serviceDesc || 'Created By Serverless Framework',
         protocol: protocols,
-        netTypes: netTypes,
-      });
+      };
+      if (netTypes) {
+        apiInputs.netTypes = netTypes;
+      }
+      detail = await this.request(apiInputs);
       serviceCreated = true;
     }
 
