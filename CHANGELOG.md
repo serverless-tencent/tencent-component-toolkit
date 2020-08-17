@@ -1,3 +1,10 @@
+## [1.14.7](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.14.6...v1.14.7) (2020-08-17)
+
+
+### Bug Fixes
+
+* **scf:** remove apigw default netTypes value ([309d843](https://github.com/serverless-tencent/tencent-component-toolkit/commit/309d843c335959dd61c205921d75d4aaee29e9b2))
+
 ## [1.14.6](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.14.5...v1.14.6) (2020-08-17)
 
 
