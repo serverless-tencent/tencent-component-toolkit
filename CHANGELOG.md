@@ -1,3 +1,10 @@
+## [1.15.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.15.0...v1.15.1) (2020-08-18)
+
+
+### Bug Fixes
+
+* **scf:** support custom runtime ([bf17fdd](https://github.com/serverless-tencent/tencent-component-toolkit/commit/bf17fdd30ff4a5aa76157e73c6f148f650ba01c5))
+
 # [1.15.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.14.7...v1.15.0) (2020-08-18)
 
 
