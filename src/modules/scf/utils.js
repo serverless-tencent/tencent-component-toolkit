@@ -198,6 +198,7 @@ const formatFunctionInputs = (region, inputs) => {
     Handler: inputs.handler,
     Runtime: inputs.runtime,
     Timeout: inputs.timeout || CONFIGS.defaultTimeout,
+    InitTimeout: inputs.initTimeout || CONFIGS.defaultInitTimeout,
     Namespace: inputs.namespace || CONFIGS.defaultNamespace,
     MemorySize: inputs.memorySize || CONFIGS.defaultMemorySize,
     CodeSource: 'Cos',
