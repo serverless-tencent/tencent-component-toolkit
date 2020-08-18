@@ -1,3 +1,18 @@
+# [1.15.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.14.7...v1.15.0) (2020-08-18)
+
+
+### Bug Fixes
+
+* **layer:** remove unuse code ([8a501ac](https://github.com/serverless-tencent/tencent-component-toolkit/commit/8a501ac5a5566e8ce3374773cef1d5c30f0cabfc))
+* **cdn:** update domain api error ([d69c244](https://github.com/serverless-tencent/tencent-component-toolkit/commit/d69c244edcd9c3f4101df470c30457c17609147f))
+* **postgresql:** wait for deleting success logical ([79a483d](https://github.com/serverless-tencent/tencent-component-toolkit/commit/79a483d64d39d09b95487020f6f5da0ab040b5f0))
+
+
+### Features
+
+* **cfs:** add cfs module ([40ee1fa](https://github.com/serverless-tencent/tencent-component-toolkit/commit/40ee1fa0334590cfc0129dca10c41e7e02deca8a))
+* **scf:** support cfs config ([65affaf](https://github.com/serverless-tencent/tencent-component-toolkit/commit/65affafabf9afd8c46a54cc5b03817b9caf74ce6))
+
 ## [1.14.7](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.14.6...v1.14.7) (2020-08-17)
 
 
