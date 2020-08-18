@@ -253,6 +253,24 @@ const formatFunctionInputs = (region, inputs) => {
       functionInputs['DeadLetterConfig.FilterType'] = inputs.deadLetter.filterType;
     }
   }
+
+  // cfs config
+  if (inputs.cfsConfig) {
+    functionInputs.CfsConfig = {
+      CfsInsList: [],
+    };
+    inputs.cfsConfig.forEach((item) => {
+      functionInputs.CfsConfig.CfsInsList.push({
+        CfsId: item.cfsId,
+        MountInsId: item.MountInsId || item.cfsId,
+        LocalMountDir: item.localMountDir,
+        RemoteMountDir: item.remoteMountDir,
+        UserGroupId: item.userGroupId || 10000,
+        UserId: item.userId || 10000,
+      });
+    });
+  }
+
   return functionInputs;
 };
 
