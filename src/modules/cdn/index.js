@@ -73,7 +73,7 @@ class Cdn {
       OnlyRefresh = false,
       Domain,
       Origin,
-      ServiceType = 'web',
+      ServiceType,
       Area = 'mainland',
       Https,
       Cache,
@@ -120,7 +120,6 @@ class Cdn {
     const cdnInputs = flushEmptyValue({
       Domain,
       Origin: formatOrigin(Origin),
-      ServiceType,
       Area,
       Cache,
       IpFilter,
@@ -182,13 +181,18 @@ class Cdn {
         // update
         console.log(`The CDN domain ${Domain} has existed.`);
         console.log('Updating...');
-        // when update, can not set ServiceType parameter
+        // TODO: when update, VIP user can not set ServiceType parameter, need CDN api optimize
+        if (ServiceType) {
+          cdnInputs.ServiceType = ServiceType;
+        }
         await UpdateDomainConfig(this.capi, cdnInputs);
         outputs.resourceId = cdnInfo.ResourceId;
       } else {
         // create
         console.log(`Adding CDN domain ${Domain}...`);
         try {
+          // if not config ServiceType, default to web
+          cdnInputs.ServiceType = ServiceType || 'web';
           await AddCdnDomain(this.capi, cdnInputs);
         } catch (e) {
           if (e.code === 9111) {
