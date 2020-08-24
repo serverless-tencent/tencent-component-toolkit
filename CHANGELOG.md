@@ -1,3 +1,10 @@
+## [1.15.5](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.15.4...v1.15.5) (2020-08-24)
+
+
+### Bug Fixes
+
+* uniform api error message ([bec2e5e](https://github.com/serverless-tencent/tencent-component-toolkit/commit/bec2e5e11831d4a4b3cc4d4e02de5c67e00bb82d))
+
 ## [1.15.4](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.15.3...v1.15.4) (2020-08-24)
 
 
