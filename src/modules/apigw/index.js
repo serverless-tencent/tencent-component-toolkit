@@ -16,6 +16,9 @@ class Apigw {
   }
 
   getProtocolString(protocols) {
+    if (!protocols || protocols.length < 1) {
+      return 'http';
+    }
     const tempProtocol = protocols.join('&').toLowerCase();
     return tempProtocol === 'https&http'
       ? 'http&https'
