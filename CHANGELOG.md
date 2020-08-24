@@ -1,3 +1,11 @@
+## [1.15.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.15.1...v1.15.2) (2020-08-24)
+
+
+### Bug Fixes
+
+* **apigw:** do not throw error when got cname not config error ([07e3a0e](https://github.com/serverless-tencent/tencent-component-toolkit/commit/07e3a0e166c0be904e1700a3bc8a420a416bd818))
+* **postgresql:** not throw error when toggle db access ([ccf9729](https://github.com/serverless-tencent/tencent-component-toolkit/commit/ccf9729a3d1db90706fa4542e5e3861f1e09d788))
+
 ## [1.15.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.15.0...v1.15.1) (2020-08-18)
 
 
