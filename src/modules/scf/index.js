@@ -18,7 +18,7 @@ class Scf {
 
   // 绑定默认策略
   async bindScfQCSRole() {
-    console.log(`Creating and binding SCF_QcsRole ...`);
+    console.log(`Creating and binding SCF_QcsRole`);
     const camClient = new cam(this.credentials);
     const roleName = 'SCF_QcsRole';
     const policyId = 28341895;
@@ -58,7 +58,7 @@ class Scf {
   // get function detail
   async getFunction(namespace, functionName, qualifier = '$LATEST', showCode = false) {
     try {
-      const funcInfo = await this.scfClient.request({
+      const { Response } = await this.scfClient.request({
         Action: 'GetFunction',
         Version: '2018-04-16',
         Region: this.region,
@@ -67,21 +67,21 @@ class Scf {
         Qualifier: qualifier,
         ShowCode: showCode ? 'TRUE' : 'FALSE',
       });
-      if (funcInfo.Response && funcInfo.Response.Error) {
+      if (Response && Response.Error) {
         if (
-          funcInfo.Response.Error.Code == 'ResourceNotFound.FunctionName' ||
-          funcInfo.Response.Error.Code == 'ResourceNotFound.Function'
+          Response.Error.Code == 'ResourceNotFound.FunctionName' ||
+          Response.Error.Code == 'ResourceNotFound.Function'
         ) {
           return null;
         }
         throw new TypeError(
           'API_SCF_GetFunction',
-          JSON.stringify(funcInfo.Response),
+          `${Response.Error.Code}: ${Response.Error.Message} ${Response.RequestId}`,
           null,
-          funcInfo.Response.RequestId,
+          Response.RequestId,
         );
       } else {
-        return funcInfo.Response;
+        return Response;
       }
     } catch (e) {
       throw new TypeError('API_SCF_GetFunction', e.message, e.stack);
@@ -92,7 +92,7 @@ class Scf {
   // because creating/upadting function is asynchronous
   // if not become Active in 120 * 1000 miniseconds, return request result, and throw error
   async checkStatus(namespace = 'default', functionName, qualifier = '$LATEST') {
-    console.log(`Checking function ${functionName} status ...`);
+    console.log(`Checking function ${functionName} status`);
     let initialInfo = await this.getFunction(namespace, functionName, qualifier);
     let status = initialInfo.Status;
     let times = 120;
@@ -102,21 +102,26 @@ class Scf {
       await sleep(1000);
       times = times - 1;
     }
-    return status !== 'Active' ? initialInfo : true;
+    const { Status, StatusReasons } = initialInfo;
+    return status !== 'Active'
+      ? StatusReasons && StatusReasons.length > 0
+        ? `函数状态异常，${StatusReasons[0].ErrorCode} - ${StatusReasons[0].ErrorCode}`
+        : `函数状态异常, ${Status}`
+      : true;
   }
 
   // create function
   async createFunction(inputs) {
-    console.log(`Creating function ${inputs.name} in ${this.region} ... `);
+    console.log(`Creating function ${inputs.name} in ${this.region}`);
     const functionInputs = await formatFunctionInputs(this.region, inputs);
     functionInputs.Action = 'CreateFunction';
-    const funcInfo = await this.scfClient.request(functionInputs);
-    if (funcInfo.Response && funcInfo.Response.Error) {
+    const { Response } = await this.scfClient.request(functionInputs);
+    if (Response && Response.Error) {
       throw new TypeError(
         'API_SCF_CreateFunction',
-        JSON.stringify(funcInfo.Response),
+        `${Response.Error.Code}: ${Response.Error.Message} ${Response.RequestId}`,
         null,
-        funcInfo.Response.RequestId,
+        Response.RequestId,
       );
     } else {
       return true;
@@ -125,7 +130,7 @@ class Scf {
 
   // update function code
   async updateFunctionCode(inputs, funcInfo) {
-    console.log(`Updating function ${inputs.name}'s code in ${this.region} ...`);
+    console.log(`Updating function ${inputs.name}'s code in ${this.region}`);
     const functionInputs = await formatFunctionInputs(this.region, inputs);
     const updateFunctionConnfigure = {
       Action: 'UpdateFunctionCode',
@@ -137,13 +142,13 @@ class Scf {
       CosObjectName: functionInputs['Code.CosObjectName'],
       Namespace: inputs.Namespace || funcInfo.Namespace,
     };
-    const res = await this.scfClient.request(updateFunctionConnfigure);
-    if (res.Response && res.Response.Error) {
+    const { Response } = await this.scfClient.request(updateFunctionConnfigure);
+    if (Response && Response.Error) {
       throw new TypeError(
         'API_SCF_UpdateFunctionCode',
-        JSON.stringify(res.Response),
+        `${Response.Error.Code}: ${Response.Error.Message} ${Response.RequestId}`,
         null,
-        res.Response.RequestId,
+        Response.RequestId,
       );
     } else {
       return true;
@@ -152,7 +157,7 @@ class Scf {
 
   // update function configure
   async updatefunctionConfigure(inputs, funcInfo) {
-    console.log(`Updating function ${inputs.name}'s configure in ${this.region} ...`);
+    console.log(`Updating function ${inputs.name}'s configure in ${this.region}`);
     const functionInputs = await formatFunctionInputs(this.region, inputs);
     functionInputs.Action = 'UpdateFunctionConfiguration';
     functionInputs.Timeout = inputs.timeout || funcInfo.Timeout;
@@ -162,13 +167,13 @@ class Scf {
     delete functionInputs['Code.CosBucketName'];
     delete functionInputs['Code.CosObjectName'];
     delete functionInputs['CodeSource'];
-    const res = await this.scfClient.request(functionInputs);
-    if (res.Response && res.Response.Error) {
+    const { Response } = await this.scfClient.request(functionInputs);
+    if (Response && Response.Error) {
       throw new TypeError(
         'API_SCF_UpdateFunctionConfiguration',
-        JSON.stringify(res.Response),
+        `${Response.Error.Code}: ${Response.Error.Message} ${Response.RequestId}`,
         null,
-        res.Response.RequestId,
+        Response.RequestId,
       );
     } else {
       return true;
@@ -192,7 +197,7 @@ class Scf {
         // await this.apigwClient.remove(curTrigger);
       } else {
         console.log(`Removing ${curTrigger.Type} triggers: ${curTrigger.TriggerName}.`);
-        const delRes = await this.scfClient.request({
+        const { Response } = await this.scfClient.request({
           Action: 'DeleteTrigger',
           Version: '2018-04-16',
           Region: this.region,
@@ -202,12 +207,12 @@ class Scf {
           TriggerDesc: curTrigger.TriggerDesc,
           TriggerName: curTrigger.TriggerName,
         });
-        if (delRes.Response && delRes.Response.Error) {
+        if (Response && Response.Error) {
           throw new TypeError(
             'API_SCF_DeleteTrigger',
-            JSON.stringify(delRes.Response),
+            `${Response.Error.Code}: ${Response.Error.Message} ${Response.RequestId}`,
             null,
-            delRes.Response.RequestId,
+            Response.RequestId,
           );
         }
       }
@@ -243,7 +248,7 @@ class Scf {
         if (Response && Response.Error) {
           throw new TypeError(
             'API_SCF_CreateTrigger',
-            JSON.stringify(Response),
+            `${Response.Error.Code}: ${Response.Error.Message} ${Response.RequestId}`,
             null,
             Response.RequestId,
           );
@@ -257,44 +262,44 @@ class Scf {
 
   // deploy tags
   async deployTags(funcInfo, inputs) {
-    console.log(`Adding tags for function ${inputs.name} in ${this.region} ... `);
+    console.log(`Adding tags for function ${inputs.name} in ${this.region}`);
     const deleteTags = {};
     for (let i = 0; i < funcInfo.Tags.length; i++) {
       if (!inputs.tags.hasOwnProperty(funcInfo.Tags[i].Key)) {
         deleteTags[funcInfo.Tags[i].Key] = funcInfo.Tags[i].Value;
       }
     }
-    const res = await this.tagClient.deploy({
+    const { Response } = await this.tagClient.deploy({
       resource: `qcs::scf:${this.region}::lam/${funcInfo.FunctionId}`,
       replaceTags: inputs.tags,
       deleteTags: deleteTags,
     });
 
-    if (res.Response && res.Response.Error) {
+    if (Response && Response.Error) {
       throw new TypeError(
         'API_TAG_ModifyResourceTags',
-        JSON.stringify(res.Response),
+        `${Response.Error.Code}: ${Response.Error.Message} ${Response.RequestId}`,
         null,
-        res.Response.RequestId,
+        Response.RequestId,
       );
     }
   }
 
   // 删除函数
   async deleteFunction(functionName, namespace) {
-    const res = await this.scfClient.request({
+    const { Response } = await this.scfClient.request({
       Action: 'DeleteFunction',
       Version: '2018-04-16',
       Region: this.region,
       FunctionName: functionName,
       Namespace: namespace || CONFIGS.defaultNamespace,
     });
-    if (res.Response && res.Response.Error) {
+    if (Response && Response.Error) {
       throw new TypeError(
         'API_SCF_DeleteFunction',
-        JSON.stringify(res.Response),
+        `${Response.Error.Code}: ${Response.Error.Message} ${Response.RequestId}`,
         null,
-        res.Response.RequestId,
+        Response.RequestId,
       );
     }
   }
@@ -304,7 +309,7 @@ class Scf {
    * @param {object} inputs publish version parameter
    */
   async publishVersion(inputs) {
-    console.log(`Publish function ${inputs.functionName} version...`);
+    console.log(`Publish function ${inputs.functionName} version`);
     const publishInputs = {
       Action: 'PublishVersion',
       Version: '2018-04-16',
@@ -313,20 +318,18 @@ class Scf {
       Description: inputs.description || 'Published by Serverless Component',
       Namespace: inputs.namespace || 'default',
     };
-    const res = await this.scfClient.request(publishInputs);
+    const { Response } = await this.scfClient.request(publishInputs);
 
-    if (res.Response && res.Response.Error) {
+    if (Response && Response.Error) {
       throw new TypeError(
         'API_SCF_PublishVersion',
-        JSON.stringify(res.Response),
+        `${Response.Error.Code}: ${Response.Error.Message} ${Response.RequestId}`,
         null,
-        res.Response.RequestId,
+        Response.RequestId,
       );
     }
-    console.log(
-      `Published function ${inputs.functionName} version ${res.Response.FunctionVersion}`,
-    );
-    return res.Response;
+    console.log(`Published function ${inputs.functionName} version ${Response.FunctionVersion}`);
+    return Response;
   }
 
   async publishVersionAndConfigTraffic(inputs) {
@@ -344,22 +347,22 @@ class Scf {
       },
       Description: inputs.description || 'Published by Serverless Component',
     };
-    const res = await this.scfClient.request(publishInputs);
-    if (res.Response && res.Response.Error) {
+    const { Response } = await this.scfClient.request(publishInputs);
+    if (Response && Response.Error) {
       throw new TypeError(
         'API_SCF_CreateAlias',
-        JSON.stringify(res.Response),
+        `${Response.Error.Code}: ${Response.Error.Message} ${Response.RequestId}`,
         null,
-        res.Response.RequestId,
+        Response.RequestId,
       );
     }
-    return res.Response;
+    return Response;
   }
 
   async updateAliasTraffic(inputs) {
     const weight = strip(1 - inputs.traffic);
     console.log(
-      `Config function ${inputs.functionName} traffic ${weight} for version ${inputs.lastVersion}...`,
+      `Config function ${inputs.functionName} traffic ${weight} for version ${inputs.lastVersion}`,
     );
     const publishInputs = {
       Action: 'UpdateAlias',
@@ -374,19 +377,19 @@ class Scf {
       },
       Description: inputs.description || 'Configured by Serverless Component',
     };
-    const res = await this.scfClient.request(publishInputs);
-    if (res.Response && res.Response.Error) {
+    const { Response } = await this.scfClient.request(publishInputs);
+    if (Response && Response.Error) {
       throw new TypeError(
         'API_SCF_UpdateAlias',
-        JSON.stringify(res.Response),
+        `${Response.Error.Code}: ${Response.Error.Message} ${Response.RequestId}`,
         null,
-        res.Response.RequestId,
+        Response.RequestId,
       );
     }
     console.log(
       `Config function ${inputs.functionName} traffic ${weight} for version ${inputs.lastVersion} success`,
     );
-    return res.Response;
+    return Response;
   }
 
   async getAlias(inputs) {
@@ -398,16 +401,16 @@ class Scf {
       Name: inputs.functionVersion || '$DEFAULT',
       Namespace: inputs.namespace || 'default',
     };
-    const res = await this.scfClient.request(publishInputs);
-    if (res.Response && res.Response.Error) {
+    const { Response } = await this.scfClient.request(publishInputs);
+    if (Response && Response.Error) {
       throw new TypeError(
         'API_SCF_ListAliases',
-        JSON.stringify(res.Response),
+        `${Response.Error.Code}: ${Response.Error.Message} ${Response.RequestId}`,
         null,
-        res.Response.RequestId,
+        Response.RequestId,
       );
     }
-    return res.Response;
+    return Response;
   }
 
   /**
@@ -421,7 +424,7 @@ class Scf {
     if (res === true) {
       return true;
     }
-    throw new TypeError('API_SCF_isOperationalStatus', JSON.stringify(res), null, res.RequestId);
+    throw new TypeError('API_SCF_isOperationalStatus', res);
   }
 
   // deploy SCF flow
@@ -532,19 +535,19 @@ class Scf {
   // 移除函数的主逻辑
   async remove(inputs = {}) {
     const functionName = inputs.functionName || inputs.FunctionName;
-    console.log(`Removing function ${functionName} ...`);
+    console.log(`Removing function ${functionName}`);
     const namespace = inputs.namespace || inputs.Namespace || CONFIGS.defaultNamespace;
 
     // check function exist, then delete
     const func = await this.getFunction(namespace, functionName);
 
     if (!func) {
-      console.log(`Function ${functionName} not exist...`);
+      console.log(`Function ${functionName} not exist`);
       return;
     }
 
     if (func.Status === 'Updating' || func.Status === 'Creating') {
-      console.log(`Function ${functionName} status is ${func.Status}, can not delete...`);
+      console.log(`Function ${functionName} status is ${func.Status}, can not delete`);
       return;
     }
 
@@ -568,7 +571,7 @@ class Scf {
   }
 
   async invoke(functionName, inputs = {}) {
-    const res = await this.scfClient.request({
+    const { Response } = await this.scfClient.request({
       Action: 'Invoke',
       Version: '2018-04-16',
       Region: this.region,
@@ -578,15 +581,15 @@ class Scf {
       LogType: inputs.logType || 'Tail',
       InvocationType: inputs.invocationType || 'RequestResponse',
     });
-    if (res.Response && res.Response.Error) {
+    if (Response && Response.Error) {
       throw new TypeError(
         'API_SCF_Invoke',
-        JSON.stringify(res.Response),
+        `${Response.Error.Code}: ${Response.Error.Message} ${Response.RequestId}`,
         null,
-        res.Response.RequestId,
+        Response.RequestId,
       );
     }
-    return res.Response;
+    return Response;
   }
 }
 

@@ -15,14 +15,14 @@ class Cam {
       if (res.Response && res.Response.Error) {
         throw new TypeError(
           `API_CAM_${data.Action}`,
-          JSON.stringify(res.Response),
+          `${res.Response.Error.Code}: ${res.Response.Error.Message} ${res.Response.RequestId}`,
           null,
           res.Response.RequestId,
         );
       }
       return res;
     } catch (e) {
-      throw new TypeError(`API_CAM_${data.Action}`, e.message, e.stack);
+      throw new TypeError(`API_CAM_${data.Action}`, e.message, e.stack, e.reqId);
     }
   }
 

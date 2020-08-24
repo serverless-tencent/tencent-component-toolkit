@@ -8,11 +8,11 @@ class ClientTest {
       SecretId: '',
       SecretKey: '',
     });
-    const scfDemo = {
+    const inputs = {
       name: 'express-test',
       code: {
         bucket: 'sls-cloudfunction-ap-guangzhou-code',
-        object: 'express_component_27ararf-1594798167.zip',
+        object: 'express_component_5dwuabh-1597994417.zip',
       },
       handler: 'sl_handler.handler',
       runtime: 'Nodejs12.16',
@@ -54,11 +54,7 @@ class ClientTest {
         },
         {
           apigw: {
-            name: 'serverless_test',
             parameters: {
-              protocols: ['http'],
-              description: 'Created by Serverless Framework',
-              environment: 'release',
               endpoints: [{
                 path: '/',
                 method: 'GET',
@@ -71,29 +67,35 @@ class ClientTest {
     };
 
     // 1. deploy test
-    const result = await scf.deploy(scfDemo);
-    console.log(JSON.stringify(result));
+    const res1 = await scf.deploy(inputs);
+    console.log('deploy: ', JSON.stringify(res1));
+    console.log('++++++++++++++++++');
 
     // 2. publish version test
-    // const res = await scf.publishVersion({
-    //   functionName: 'test',
-    //   region: 'ap-guangzhou',
-    // });
+    const res2 = await scf.publishVersion({
+      functionName: inputs.name,
+      region: 'ap-guangzhou',
+    });
 
-    // console.log('res', JSON.stringify(res));
+    console.log('publishVersion: ', JSON.stringify(res2));
+    console.log('++++++++++++++++++');
+    await scf.isOperationalStatus(res1.namespace, inputs.name, res2.FunctionVersion);
 
     // 3. update alias traffic
-    // const res = await scf.updateAliasTraffic({
-    //   functionName: 'test',
-    //   region: 'ap-guangzhou',
-    //   traffic: 0.8,
-    //   lastVersion: 3,
-    // });
+    const res3 = await scf.updateAliasTraffic({
+      functionName: inputs.name,
+      region: 'ap-guangzhou',
+      traffic: 0.8,
+      lastVersion: res2.FunctionVersion,
+    });
 
-    // console.log('res', JSON.stringify(res));
+    console.log('updateAliasTraffic: ', JSON.stringify(res3));
+    console.log('++++++++++++++++++');
 
     // 4. remove function
-    // await scf.remove(result);
+    await scf.remove({
+      functionName: inputs.name,
+    });
   }
 }
 
