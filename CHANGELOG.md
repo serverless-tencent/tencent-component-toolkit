@@ -1,3 +1,10 @@
+## [1.15.3](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.15.2...v1.15.3) (2020-08-24)
+
+
+### Bug Fixes
+
+* **apigw:** set protocol default to http ([ba51549](https://github.com/serverless-tencent/tencent-component-toolkit/commit/ba51549146580c35d3f28ead7340fb7f7613f74c))
+
 ## [1.15.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.15.1...v1.15.2) (2020-08-24)
 
 
