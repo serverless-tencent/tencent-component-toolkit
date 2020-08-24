@@ -46,7 +46,7 @@ function getDbExtranetAccess(netInfos) {
   let result = false;
   netInfos.forEach((item) => {
     if (item.NetType === 'public') {
-      result = item.Status === '1';
+      result = item.Status === 'opened';
     }
   });
   return result;
