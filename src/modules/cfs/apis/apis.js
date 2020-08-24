@@ -25,7 +25,7 @@ function apiFactory(actions) {
         if (Response && Response.Error && Response.Error.Code) {
           throw new TypeError(
             `API_CFS_${action}`,
-            Response.Error.Message,
+            `${Response.Error.Code}: ${Response.Error.Message} ${Response.RequestId}`,
             null,
             Response.RequestId,
           );

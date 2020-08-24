@@ -82,7 +82,7 @@ class Cos {
                 console.log(`Bucket ${inputs.bucket} already exist.`);
               }
             } else {
-              throw new TypeError(`API_COS_headBucket`, 'Could not find this bucket');
+              throw new TypeError(`API_COS_headBucket`, `Could not find bucket ${inputs.bucket}`);
             }
           } catch (err) {
             throw new TypeError(`API_COS_headBucket`, err.message, err.stack);

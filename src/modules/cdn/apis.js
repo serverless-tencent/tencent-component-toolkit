@@ -38,14 +38,14 @@ function apiFactory(actions) {
         if (Response && Response.Error && Response.Error.Code) {
           throw new TypeError(
             `API_CDN_${action}`,
-            Response.Error.Message,
+            `${Response.Error.Code}: ${Response.Error.Message} ${Response.RequestId}`,
             null,
             Response.RequestId,
           );
         }
         return Response;
       } catch (e) {
-        throw new TypeError(`API_CDN_${action}`, e.message, e.stack);
+        throw new TypeError(`API_CDN_${action}`, e.message, e.stack, e.reqId);
       }
     };
   });
