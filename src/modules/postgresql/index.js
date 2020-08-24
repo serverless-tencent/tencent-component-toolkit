@@ -47,7 +47,12 @@ class Postgresql {
       // exist and public access config different, update db instance
       if (publicAccess !== extranetAccess) {
         console.log(`DB instance ${dBInstanceName} existed, updating...`);
-        dbDetail = await toggleDbInstanceAccess(this.capi, dBInstanceName, extranetAccess);
+        // do not throw error when open public access
+        try {
+          dbDetail = await toggleDbInstanceAccess(this.capi, dBInstanceName, extranetAccess);
+        } catch (e) {
+          console.log(`Toggle DB Instane access failed, ${e.message}, ${e.reqId}`);
+        }
       } else {
         console.log(`DB instance ${dBInstanceName} existed.`);
       }
