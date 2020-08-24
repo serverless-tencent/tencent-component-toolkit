@@ -256,11 +256,11 @@ const formatFunctionInputs = (region, inputs) => {
   }
 
   // cfs config
-  if (inputs.cfsConfig) {
+  if (inputs.cfs) {
     functionInputs.CfsConfig = {
       CfsInsList: [],
     };
-    inputs.cfsConfig.forEach((item) => {
+    inputs.cfs.forEach((item) => {
       functionInputs.CfsConfig.CfsInsList.push({
         CfsId: item.cfsId,
         MountInsId: item.MountInsId || item.cfsId,
