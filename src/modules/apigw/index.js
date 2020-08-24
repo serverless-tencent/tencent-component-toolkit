@@ -1,6 +1,6 @@
 const { Capi } = require('@tencent-sdk/capi');
 const Apis = require('./apis');
-const { uniqueArray, camelCaseProperty } = require('../../utils/index');
+const { uniqueArray, camelCaseProperty, isArray } = require('../../utils/index');
 
 class Apigw {
   constructor(credentials = {}, region) {
@@ -511,20 +511,39 @@ class Apigw {
           netType: domainItem.netType ? domainItem.netType : 'OUTER',
           protocol: domainProtocol,
         };
-        await this.request({
-          Action: 'BindSubDomain',
-          ...domainInputs,
-        });
-        customDomainOutput.push({
-          created: true,
-          subDomain: domainItem.domain,
-          cname: subDomain,
-          url: `${domainProtocol.indexOf('https') !== -1 ? 'https' : 'http'}://${
-            domainItem.domain
-          }`,
-        });
-        console.log(`Custom domain for service ${serviceId} created successfullly.`);
-        console.log(`Please add CNAME record ${subDomain} for ${domainItem.domain}.`);
+
+        try {
+          await this.request({
+            Action: 'BindSubDomain',
+            ...domainInputs,
+          });
+
+          customDomainOutput.push({
+            isBinded: true,
+            created: true,
+            subDomain: domainItem.domain,
+            cname: subDomain,
+            url: `${domainProtocol.indexOf('https') !== -1 ? 'https' : 'http'}://${
+              domainItem.domain
+            }`,
+          });
+          console.log(`Custom domain for service ${serviceId} created successfullly.`);
+          console.log(`Please add CNAME record ${subDomain} for ${domainItem.domain}.`);
+        } catch (e) {
+          // User hasn't add cname dns record
+          if (e.message.indexOf('DomainResolveError') !== -1) {
+            customDomainOutput.push({
+              isBinded: false,
+              created: '创建失败',
+              subDomain: domainItem.domain,
+              cname: subDomain,
+              message: `您的自定义域名还未生效，请给域名 ${domainItem.domain} 添加 CNAME 记录 ${subDomain}，等待解析生效后，再次运行 'sls deploy' 完成自定义域名的配置`,
+              errorMsg: e.message,
+            });
+          } else {
+            throw e;
+          }
+        }
       }
     }
 
@@ -680,7 +699,7 @@ class Apigw {
     // bind custom domain
     const customDomains = await this.bindCustomDomain({
       serviceId,
-      subDomain,
+      subDomain: isArray(subDomain) ? subDomain[0] : subDomain,
       inputs,
     });
     if (customDomains.length > 0) {
