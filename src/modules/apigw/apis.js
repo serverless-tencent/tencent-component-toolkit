@@ -41,7 +41,7 @@ function apiFactory(actions) {
           if (Response.Error.Code.indexOf('ResourceNotFound') === -1) {
             throw new TypeError(
               `API_APIGW_${action}`,
-              Response.Error.Message,
+              `${Response.Error.Code}: ${Response.Error.Message}`,
               null,
               Response.RequestId,
             );
