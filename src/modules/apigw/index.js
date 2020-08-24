@@ -594,7 +594,7 @@ class Apigw {
   }
 
   async deploy(inputs) {
-    const { environment, oldState = {} } = inputs;
+    const { environment = 'release', oldState = {} } = inputs;
     inputs.protocols = this.getProtocolString(inputs.protocols);
 
     const { serviceId, serviceName, subDomain, serviceCreated } = await this.createOrUpdateService(
@@ -680,11 +680,11 @@ class Apigw {
       );
     }
 
-    console.log(`Releaseing service with id ${serviceId}, environment: ${inputs.environment}`);
+    console.log(`Releaseing service with id ${serviceId}, environment: ${environment}`);
     await this.request({
       Action: 'ReleaseService',
       serviceId: serviceId,
-      environmentName: inputs.environment,
+      environmentName: environment,
       releaseDesc: 'Serverless api-gateway component deploy',
     });
     console.log(`Deploy service with id ${serviceId} successfully.`);
@@ -695,7 +695,7 @@ class Apigw {
       serviceName,
       subDomain,
       protocols: inputs.protocols,
-      environment: inputs.environment,
+      environment: environment,
       apiList,
     };
 
