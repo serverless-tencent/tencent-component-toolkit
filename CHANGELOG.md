@@ -1,3 +1,10 @@
+## [1.15.4](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.15.3...v1.15.4) (2020-08-24)
+
+
+### Bug Fixes
+
+* **apigw:** make apigw environment default to release ([04af8f4](https://github.com/serverless-tencent/tencent-component-toolkit/commit/04af8f4a6c49cd694323906b1e56f1537fd3d3ed))
+
 ## [1.15.3](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.15.2...v1.15.3) (2020-08-24)
 
 
