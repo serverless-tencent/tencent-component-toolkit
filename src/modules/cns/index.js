@@ -1,5 +1,6 @@
 const { cns } = require('tencent-cloud-sdk');
 const { TypeError } = require('../../utils/error');
+const { getRealType } = require('../../utils');
 
 class Cns {
   constructor(credentials = {}, region = 'ap-guangzhou') {
@@ -9,21 +10,19 @@ class Cns {
   }
 
   haveRecord(newRecord, historyRcords) {
-    for (let i = 0; i < historyRcords.length; i++) {
-      if (newRecord.recordType == 'CNAME' && newRecord.value.slice(-1) != '.') {
-        newRecord.value = `${newRecord.value}.`;
-      }
-      if (
-        newRecord.domain == historyRcords[i].domain &&
-        newRecord.subDomain == historyRcords[i].subDomain &&
-        newRecord.recordType == historyRcords[i].recordType &&
-        newRecord.value == historyRcords[i].value &&
-        newRecord.recordLine == historyRcords[i].recordLine
-      ) {
-        return historyRcords[i];
-      }
+    if (newRecord.recordType === 'CNAME' && newRecord.value.slice(-1) !== '.') {
+      newRecord.value = `${newRecord.value}.`;
     }
-    return false;
+    const [exist] = historyRcords.filter((item) => {
+      return (
+        newRecord.domain === item.domain &&
+        newRecord.subDomain === item.subDomain &&
+        newRecord.recordType === item.recordType &&
+        newRecord.value === item.value &&
+        newRecord.recordLine === item.recordLine
+      );
+    });
+    return exist;
   }
 
   async deploy(inputs = {}) {
@@ -35,7 +34,7 @@ class Cns {
     const output = { records: [] };
 
     // 获取线上的域名记录列表
-    console.log(`Getting release domain records ... `);
+    console.log(`Getting release domain records`);
     try {
       while (domainLength == 100) {
         const statusInputs = {
@@ -45,40 +44,30 @@ class Cns {
           length: domainLength,
           domain: inputs.domain,
         };
-        let recordReleaseList = await this.cnsClient.request(statusInputs);
-        if (recordReleaseList.code != 0) {
-          // 如果没找到Domain，则尝试添加Domain
-          try {
-            console.log(`Get release domain error.`);
-            console.log(`Adding domain ...`);
-            await this.cnsClient.request({
-              Action: 'DomainCreate',
-              Region: this.region,
-              domain: inputs.domain,
-            });
-            output.DNS = 'Please set your domain DNS: f1g1ns1.dnspod.net,  f1g1ns1.dnspod.net';
-            console.log(`Added domain`);
-          } catch (e) {
-            console.log(`Add domain error`);
-            console.log(`Trying to deploy ...`);
-          }
+        const res = await this.cnsClient.request(statusInputs);
+        if (res.code !== 0) {
+          console.log(`${res.code}: ${res.message}`);
           break;
         }
-        recordReleaseList = recordReleaseList['data'];
-        if (recordReleaseList['records']) {
-          for (let i = 0; i < recordReleaseList['records'].length; i++) {
+
+        const {
+          data: { records },
+        } = res;
+        if (records) {
+          for (let i = 0; i < records.length; i++) {
+            const curRecord = records[i];
             recordRelease.push({
               domain: inputs.domain,
-              subDomain: recordReleaseList['records'][i].name,
-              recordType: recordReleaseList['records'][i].type,
-              value: recordReleaseList['records'][i].value,
-              recordId: recordReleaseList['records'][i].id,
-              mx: recordReleaseList['records'][i].mx,
-              ttl: recordReleaseList['records'][i].ttl,
-              recordLine: recordReleaseList['records'][i].line,
+              subDomain: curRecord.name,
+              recordType: curRecord.type,
+              value: curRecord.value,
+              recordId: curRecord.id,
+              mx: curRecord.mx,
+              ttl: curRecord.ttl,
+              recordLine: curRecord.line,
             });
           }
-          domainLength = recordReleaseList['records'].length;
+          domainLength = records.length;
         } else {
           domainLength = 0;
         }
@@ -88,30 +77,28 @@ class Cns {
     } catch (e) {}
 
     const records = [];
-    for (let recordNum = 0; recordNum < inputs.records.length; recordNum++) {
+    for (let i = 0; i < inputs.records.length; i++) {
+      const curRecord = inputs.records[i];
       const tempSubDomain =
-        typeof inputs.records[recordNum].subDomain == 'string'
-          ? [inputs.records[recordNum].subDomain]
-          : inputs.records[recordNum].subDomain;
+        getRealType(curRecord.subDomain) === 'String' ? [curRecord.subDomain] : curRecord.subDomain;
       const tempRecordLine =
-        typeof inputs.records[recordNum].recordLine == 'string'
-          ? [inputs.records[recordNum].recordLine]
-          : inputs.records[recordNum].recordLine;
+        getRealType(curRecord.recordLine) === 'String'
+          ? [curRecord.recordLine]
+          : curRecord.recordLine;
 
-      for (let subDomainNum = 0; subDomainNum < tempSubDomain.length; subDomainNum++) {
+      for (let j = 0; j < tempSubDomain.length; j++) {
         for (let recordLineNum = 0; recordLineNum < tempRecordLine.length; recordLineNum++) {
-          const tempRecord = JSON.parse(JSON.stringify(inputs.records[recordNum]));
-          tempRecord.subDomain = tempSubDomain[subDomainNum];
+          const tempRecord = JSON.parse(JSON.stringify(curRecord));
+          tempRecord.subDomain = tempSubDomain[j];
           tempRecord.recordLine = tempRecordLine[recordLineNum];
           records.push(tempRecord);
         }
       }
     }
 
-    // 增加/修改记录
-    console.log(`Doing action about domain records ... `);
-    for (let recordNum = 0; recordNum < records.length; recordNum++) {
-      const tempInputs = JSON.parse(JSON.stringify(records[recordNum]));
+    for (let i = 0; i < records.length; i++) {
+      const curRecord = records[i];
+      const tempInputs = JSON.parse(JSON.stringify(curRecord));
       tempInputs.domain = inputs.domain;
       tempInputs.Region = this.region;
       if (!tempInputs.status) {
@@ -125,7 +112,7 @@ class Cns {
           tempInputs.recordId = releseHistory.recordId;
         }
         tempInputs.recordId = Number(tempInputs.recordId);
-        console.log(`Modifying (recordId is ${tempInputs.recordId})... `);
+        console.log(`Modifying dns record ${tempInputs.recordId}`);
         tempInputs.Action = 'RecordModify';
         try {
           const modifyResult = await this.cnsClient.request(tempInputs);
@@ -135,10 +122,10 @@ class Cns {
         } catch (e) {
           throw new TypeError(`API_CNS_RecordModify`, e.message, e.stack);
         }
-        console.log(`Modified (recordId is ${tempInputs.recordId}) `);
+        console.log(`Modified dns record ${tempInputs.recordId} success`);
       } else {
         // 新建
-        console.log(`Creating ... `);
+        console.log(`Creating dns record`);
         tempInputs.Action = 'RecordCreate';
         try {
           let createOutputs = await this.cnsClient.request(tempInputs);
@@ -150,7 +137,7 @@ class Cns {
         } catch (e) {
           throw e;
         }
-        console.log(`Created (recordId is ${tempInputs.recordId}) `);
+        console.log(`Created dns record ${tempInputs.recordId}`);
       }
       recordList.push(tempInputs);
       output.records.push({
@@ -163,7 +150,7 @@ class Cns {
         domain: inputs.domain,
       });
       // 改状态
-      console.log(`Modifying status to ${tempInputs.status} `);
+      console.log(`Modifying status to ${tempInputs.status}`);
       const statusInputs = {
         Action: 'RecordStatus',
         Region: this.region,
@@ -179,7 +166,7 @@ class Cns {
       } catch (e) {
         throw new TypeError(`API_CNS_RecordStatus`, e.message, e.stack);
       }
-      console.log(`Modified status to ${tempInputs.status} `);
+      console.log(`Modified status to ${tempInputs.status}`);
     }
     return output;
   }
@@ -189,15 +176,14 @@ class Cns {
 
     if (deleteList.length > 0) {
       console.log(`Removing records which deployed by this project, but not in this records list`);
-      for (let recordNum = 0; recordNum < deleteList.length; recordNum++) {
-        console.log(
-          `Removing record ${deleteList[recordNum].subDomain} ${deleteList[recordNum].recordId} `,
-        );
+      for (let i = 0; i < deleteList.length; i++) {
+        const curRecord = deleteList[i];
+        console.log(`Removing record ${curRecord.subDomain} ${curRecord.recordId}`);
         const deleteInputs = {
           Action: 'RecordDelete',
           Region: this.region,
-          domain: deleteList[recordNum].domain,
-          recordId: deleteList[recordNum].recordId,
+          domain: curRecord.domain,
+          recordId: curRecord.recordId,
         };
         try {
           const deleteResult = await this.cnsClient.request(deleteInputs);
@@ -207,9 +193,7 @@ class Cns {
         } catch (e) {
           console.log(`Error API_CNS_RecordDelete: ${e.message}`);
         }
-        console.log(
-          `Remove record ${deleteList[recordNum].subDomain} ${deleteList[recordNum].recordId} success`,
-        );
+        console.log(`Remove record ${curRecord.subDomain} ${curRecord.recordId} success`);
       }
     }
     return true;
