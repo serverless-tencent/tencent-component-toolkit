@@ -1,3 +1,10 @@
+## [1.15.6](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.15.5...v1.15.6) (2020-08-25)
+
+
+### Bug Fixes
+
+* **scf:** change cfsConfig to cfs ([254f58b](https://github.com/serverless-tencent/tencent-component-toolkit/commit/254f58b14bc3e9b3919ff32de1d826765dcd6ba7))
+
 ## [1.15.5](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.15.4...v1.15.5) (2020-08-24)
 
 
