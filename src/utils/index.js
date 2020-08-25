@@ -2,6 +2,14 @@ const path = require('path');
 const fs = require('fs');
 
 /**
+ * return variable real type
+ * @param {any} obj input variable
+ */
+function getRealType(obj) {
+  return Object.prototype.toString.call(obj).slice(8, -1);
+}
+
+/**
  * is array
  * @param obj object
  */
@@ -162,4 +170,5 @@ module.exports = {
   camelCaseProperty,
   strip,
   traverseDirSync,
+  getRealType,
 };
