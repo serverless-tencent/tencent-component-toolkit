@@ -1,3 +1,11 @@
+## [1.15.7](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.15.6...v1.15.7) (2020-08-27)
+
+
+### Bug Fixes
+
+* add ApiError for api request error customize ([f54d24d](https://github.com/serverless-tencent/tencent-component-toolkit/commit/f54d24d1be8e7d3028275be41ad7c31d4fea8eb8))
+* **cns:** optimize cns deploy flow ([b8ec791](https://github.com/serverless-tencent/tencent-component-toolkit/commit/b8ec791ef2b46232977fae682bb6ee2c8517ac3d))
+
 ## [1.15.6](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.15.5...v1.15.6) (2020-08-25)
 
 
