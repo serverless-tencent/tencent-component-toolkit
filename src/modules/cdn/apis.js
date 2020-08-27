@@ -1,4 +1,4 @@
-const { TypeError } = require('../../utils/error');
+const { ApiError } = require('../../utils/error');
 
 function isEmpty(val) {
   return val === undefined || val === null || (typeof val === 'number' && isNaN(val));
@@ -36,16 +36,22 @@ function apiFactory(actions) {
           },
         );
         if (Response && Response.Error && Response.Error.Code) {
-          throw new TypeError(
-            `API_CDN_${action}`,
-            `${Response.Error.Code}: ${Response.Error.Message} ${Response.RequestId}`,
-            null,
-            Response.RequestId,
-          );
+          throw new ApiError({
+            type: `API_CDN_${action}`,
+            message: `${Response.Error.Message} (reqId: ${Response.RequestId})`,
+            reqId: Response.RequestId,
+            code: Response.Error.Code,
+          });
         }
         return Response;
       } catch (e) {
-        throw new TypeError(`API_CDN_${action}`, e.message, e.stack, e.reqId);
+        throw new ApiError({
+          type: `API_CDN_${action}`,
+          message: e.message,
+          stack: e.stack,
+          reqId: e.reqId,
+          code: e.code,
+        });
       }
     };
   });
