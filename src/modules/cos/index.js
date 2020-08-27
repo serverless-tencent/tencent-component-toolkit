@@ -4,7 +4,7 @@ const path = require('path');
 const fs = require('fs');
 const exec = util.promisify(require('child_process').exec);
 const { traverseDirSync } = require('../../utils');
-const { TypeError } = require('../../utils/error');
+const { TypeError, ApiError } = require('../../utils/error');
 
 class Cos {
   constructor(credentials = {}, region = 'ap-guangzhou') {
@@ -29,8 +29,8 @@ class Cos {
               reject(new Error(err.error));
             }
             const errMsg = err.error.Message
-              ? `${err.error.Code}: ${err.error.Message}, ${err.error.RequestId}`
-              : `${JSON.stringify(err.error)}__`;
+              ? `${err.error.Message} (reqId: ${err.error.RequestId})`
+              : `${JSON.stringify(err.error)}`;
 
             const e = new Error(errMsg);
             if (err.error && err.error.Code) {
@@ -50,7 +50,7 @@ class Cos {
   }
 
   async createBucket(inputs = {}) {
-    console.log(`Creating bucket: ${inputs.bucket} in ${this.region}  ...`);
+    console.log(`Creating bucket: ${inputs.bucket} in ${this.region} `);
     const createParams = {
       Bucket: inputs.bucket,
       Region: this.region,
@@ -59,9 +59,15 @@ class Cos {
     try {
       await createHandler(createParams);
     } catch (e) {
-      if (e.code == 'BucketAlreadyExists' || e.code == 'BucketAlreadyOwnedByYou') {
+      if (e.code === 'BucketAlreadyExists' || e.code === 'BucketAlreadyOwnedByYou') {
         if (!inputs.force) {
-          throw new TypeError(`API_COS_putBucket`, e.message, e.stack, e.reqId);
+          throw new ApiError({
+            type: `API_COS_putBucket`,
+            message: e.message,
+            stack: e.stack,
+            reqId: e.reqId,
+            code: e.code,
+          });
         } else {
           console.log(`Bucket ${inputs.bucket} already exist.`);
         }
@@ -72,30 +78,45 @@ class Cos {
           const headHandler = this.promisify(this.cosClient.headBucket.bind(this.cosClient));
           try {
             const isHave = await headHandler(createParams);
-            if (isHave.statusCode == 200) {
+            if (isHave.statusCode === 200) {
               if (!inputs.force) {
-                throw new TypeError(
-                  `API_COS_headBucket`,
-                  'BucketAlreadyExists and BucketAlreadyOwnedByYou',
-                );
+                throw new ApiError({
+                  type: `API_COS_headBucket`,
+                  message: `Bucket ${inputs.bucket} already exist`,
+                });
               } else {
-                console.log(`Bucket ${inputs.bucket} already exist.`);
+                console.log(`Bucket ${inputs.bucket} already exist`);
               }
             } else {
-              throw new TypeError(`API_COS_headBucket`, `Could not find bucket ${inputs.bucket}`);
+              throw new ApiError({
+                type: `API_COS_headBucket`,
+                message: `Could not find bucket ${inputs.bucket}`,
+              });
             }
           } catch (err) {
-            throw new TypeError(`API_COS_headBucket`, err.message, err.stack);
+            throw new ApiError({
+              type: `API_COS_headBucket`,
+              message: err.message,
+              stack: err.stack,
+              reqId: err.reqId,
+              code: err.code,
+            });
           }
         } else {
-          throw new TypeError(`API_COS_putBucket`, e.message, e.stack, e.reqId);
+          throw new ApiError({
+            type: `API_COS_putBucke`,
+            message: e.message,
+            stack: e.stack,
+            reqId: e.reqId,
+            code: e.code,
+          });
         }
       }
     }
   }
 
   async setAcl(inputs = {}) {
-    console.log(`Setting acl for ${this.region}'s bucket: ${inputs.bucket} ...`);
+    console.log(`Setting acl for ${this.region}'s bucket: ${inputs.bucket}`);
     const setAclParams = {
       Bucket: inputs.bucket,
       Region: this.region,
@@ -152,12 +173,18 @@ class Cos {
     try {
       await setAclHandler(setAclParams);
     } catch (e) {
-      throw new TypeError(`API_COS_putBucketAcl`, JSON.stringify(e), e.stack);
+      throw new ApiError({
+        type: `API_COS_putBucketAcl`,
+        message: e.message,
+        stack: e.stack,
+        reqId: e.reqId,
+        code: e.code,
+      });
     }
   }
 
   async setTags(inputs = {}) {
-    console.log(`Setting tags for ${this.region}'s bucket: ${inputs.bucket} ...`);
+    console.log(`Setting tags for ${this.region}'s bucket: ${inputs.bucket}`);
     const tags = [];
     for (let i = 0; i < inputs.tags.length; i++) {
       tags.push({
@@ -176,12 +203,18 @@ class Cos {
     try {
       await setTagsHandler(setTagsParams);
     } catch (e) {
-      throw new TypeError(`API_COS_putBucketTagging`, e.message, e.stack);
+      throw new ApiError({
+        type: `API_COS_putBucketTagging`,
+        message: e.message,
+        stack: e.stack,
+        reqId: e.reqId,
+        code: e.code,
+      });
     }
   }
 
   async deleteTags(inputs = {}) {
-    console.log(`Removing tags for ${this.region}'s bucket: ${inputs.bucket} ...`);
+    console.log(`Removing tags for ${this.region}'s bucket: ${inputs.bucket}`);
     const deleteTagsHandler = this.promisify(
       this.cosClient.deleteBucketTagging.bind(this.cosClient),
     );
@@ -191,12 +224,18 @@ class Cos {
         Region: this.region,
       });
     } catch (e) {
-      throw new TypeError(`API_COS_deleteBucketTagging`, e.message, e.stack);
+      throw new ApiError({
+        type: `API_COS_deleteBucketTagging`,
+        message: e.message,
+        stack: e.stack,
+        reqId: e.reqId,
+        code: e.code,
+      });
     }
   }
 
   async setCors(inputs = {}) {
-    console.log(`Setting lifecycle for ${this.region}'s bucket: ${inputs.bucket} ...`);
+    console.log(`Setting lifecycle for ${this.region}'s bucket: ${inputs.bucket}`);
     const cors = [];
     for (let i = 0; i < inputs.cors.length; i++) {
       const tempCors = {
@@ -226,12 +265,18 @@ class Cos {
     try {
       await setCorsHandler(setCorsParams);
     } catch (e) {
-      throw new TypeError(`API_COS_putBucketCors`, e.message, e.stack);
+      throw new ApiError({
+        type: `API_COS_putBucketCors`,
+        message: e.message,
+        stack: e.stack,
+        reqId: e.reqId,
+        code: e.code,
+      });
     }
   }
 
   async deleteCors(inputs = {}) {
-    console.log(`Removing cors for ${this.region}'s bucket: ${inputs.bucket} ...`);
+    console.log(`Removing cors for ${this.region}'s bucket: ${inputs.bucket}`);
     const deleteCorsHandler = this.promisify(this.cosClient.deleteBucketCors.bind(this.cosClient));
     try {
       await deleteCorsHandler({
@@ -239,12 +284,18 @@ class Cos {
         Region: this.region,
       });
     } catch (e) {
-      throw new TypeError(`API_COS_deleteBucketCors`, e.message, e.stack);
+      throw new ApiError({
+        type: `API_COS_deleteBucketCors`,
+        message: e.message,
+        stack: e.stack,
+        reqId: e.reqId,
+        code: e.code,
+      });
     }
   }
 
   async setLifecycle(inputs = {}) {
-    console.log(`Setting lifecycle for ${this.region}'s bucket: ${inputs.bucket} ...`);
+    console.log(`Setting lifecycle for ${this.region}'s bucket: ${inputs.bucket}`);
     const lifecycle = [];
     for (let i = 0; i < inputs.lifecycle.length; i++) {
       const tempLifecycle = {
@@ -295,12 +346,18 @@ class Cos {
     try {
       await setLifecycleHandler(JSON.parse(JSON.stringify(setLifecycleParams)));
     } catch (e) {
-      throw new TypeError(`API_COS_putBucketLifecycle`, e.message, e.stack);
+      throw new ApiError({
+        type: `API_COS_putBucketLifecycle`,
+        message: e.message,
+        stack: e.stack,
+        reqId: e.reqId,
+        code: e.code,
+      });
     }
   }
 
   async deleteLifecycle(inputs = {}) {
-    console.log(`Removing lifecycle for ${this.region}'s bucket: ${inputs.bucket} ...`);
+    console.log(`Removing lifecycle for ${this.region}'s bucket: ${inputs.bucket}`);
     const deleteLifecycle = this.promisify(
       this.cosClient.deleteBucketLifecycle.bind(this.cosClient),
     );
@@ -310,12 +367,18 @@ class Cos {
         Region: this.region,
       });
     } catch (e) {
-      throw new TypeError(`API_COS_deleteBucketLifecycle`, e.message, e.stack);
+      throw new ApiError({
+        type: `API_COS_deleteBucketLifecycle`,
+        message: e.message,
+        stack: e.stack,
+        reqId: e.reqId,
+        code: e.code,
+      });
     }
   }
 
   async setVersioning(inputs = {}) {
-    console.log(`Setting versioning for ${this.region}'s bucket: ${inputs.bucket} ...`);
+    console.log(`Setting versioning for ${this.region}'s bucket: ${inputs.bucket}`);
 
     const setVersioningParams = {
       Bucket: inputs.bucket,
@@ -330,12 +393,18 @@ class Cos {
     try {
       await setVersioningHandler(setVersioningParams);
     } catch (e) {
-      throw new TypeError(`API_COS_putBucketVersioning`, e.message, e.stack);
+      throw new ApiError({
+        type: `API_COS_putBucketVersioning`,
+        message: e.message,
+        stack: e.stack,
+        reqId: e.reqId,
+        code: e.code,
+      });
     }
   }
 
   async setWebsite(inputs = {}) {
-    console.log(`Setting Website for ${this.region}'s bucket: ${inputs.bucket} ...`);
+    console.log(`Setting Website for ${this.region}'s bucket: ${inputs.bucket}`);
 
     const staticHostParams = {
       Bucket: inputs.bucket,
@@ -361,7 +430,13 @@ class Cos {
     try {
       await setWebsiteHandler(staticHostParams);
     } catch (e) {
-      throw new TypeError(`API_COS_putBucketWebsite`, e.message, e.stack);
+      throw new ApiError({
+        type: `API_COS_putBucketWebsite`,
+        message: e.message,
+        stack: e.stack,
+        reqId: e.reqId,
+        code: e.code,
+      });
     }
   }
 
@@ -374,7 +449,13 @@ class Cos {
       });
       return res;
     } catch (e) {
-      throw new TypeError(`API_COS_getBucket`, e.message, e.stack);
+      throw new ApiError({
+        type: `API_COS_getBucket`,
+        message: e.message,
+        stack: e.stack,
+        reqId: e.reqId,
+        code: e.code,
+      });
     }
   }
 
@@ -394,7 +475,13 @@ class Cos {
       });
       return Url;
     } catch (e) {
-      throw new TypeError(`API_COS_getObjectUrl`, e.message, e.stack);
+      throw new ApiError({
+        type: `API_COS_getObjectUrl`,
+        message: e.message,
+        stack: e.stack,
+        reqId: e.reqId,
+        code: e.code,
+      });
     }
   }
 
@@ -406,7 +493,7 @@ class Cos {
       throw new TypeError(`PARAMETER_COS`, 'Bucket name is required');
     }
 
-    console.log(`Uploding files to ${this.region}'s bucket: ${inputs.bucket} ...`);
+    console.log(`Uploding files to ${this.region}'s bucket: ${inputs.bucket}`);
     if (inputs.dir && (await fs.existsSync(inputs.dir))) {
       const options = { keyPrefix: inputs.keyPrefix };
 
@@ -448,7 +535,13 @@ class Cos {
       try {
         await Promise.all(uploadItems);
       } catch (e) {
-        throw new TypeError(`API_COS_putObject`, e.message, e.stack);
+        throw new ApiError({
+          type: `API_COS_putObject`,
+          message: e.message,
+          stack: e.stack,
+          reqId: e.reqId,
+          code: e.code,
+        });
       }
     } else if (inputs.file && (await fs.existsSync(inputs.file))) {
       const itemParams = {
@@ -461,7 +554,13 @@ class Cos {
       try {
         await handler(itemParams);
       } catch (e) {
-        throw new TypeError(`API_COS_putObject`, e.message, e.stack);
+        throw new ApiError({
+          type: `API_COS_putObject`,
+          message: e.message,
+          stack: e.stack,
+          reqId: e.reqId,
+          code: e.code,
+        });
       }
     }
   }
@@ -574,14 +673,14 @@ class Cos {
   }
 
   async remove(inputs = {}) {
-    console.log(`Removing bucket from ${this.region} ...`);
+    console.log(`Removing bucket from ${this.region}`);
 
     // 获取全部文件
     let detail;
     try {
       detail = await this.getBucket(inputs);
     } catch (e) {
-      if (e.message.indexOf('NoSuchBucket') !== -1) {
+      if (e.code === 'NoSuchBucket') {
         console.log(`Bucket ${inputs.bucket} not exist`);
         return;
       }
@@ -618,10 +717,16 @@ class Cos {
           Bucket: inputs.bucket,
         });
       } catch (e) {
-        if (e.message.indexOf('NoSuchBucket') !== -1) {
+        if (e.code === 'NoSuchBucket') {
           console.log(`Bucket ${inputs.bucket} not exist`);
         } else {
-          throw new TypeError(`API_APIGW_deleteBucket`, e.message, e.stack);
+          throw new ApiError({
+            type: `API_APIGW_deleteBucket`,
+            message: e.message,
+            stack: e.stack,
+            reqId: e.reqId,
+            code: e.code,
+          });
         }
       }
     }

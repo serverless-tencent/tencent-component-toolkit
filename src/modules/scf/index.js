@@ -1,6 +1,6 @@
 const { scf, cam } = require('tencent-cloud-sdk');
 const { sleep } = require('@ygkit/request');
-const { TypeError } = require('../../utils/error');
+const { TypeError, ApiError } = require('../../utils/error');
 const { strip } = require('../../utils');
 const TagsUtils = require('../tag/index');
 const ApigwUtils = require('../apigw/index');
@@ -74,17 +74,23 @@ class Scf {
         ) {
           return null;
         }
-        throw new TypeError(
-          'API_SCF_GetFunction',
-          `${Response.Error.Code}: ${Response.Error.Message} ${Response.RequestId}`,
-          null,
-          Response.RequestId,
-        );
+        throw new ApiError({
+          type: 'API_SCF_GetFunction',
+          message: `${Response.Error.Message} (reqId: ${Response.RequestId})`,
+          reqId: Response.RequestId,
+          code: Response.Error.Code,
+        });
       } else {
         return Response;
       }
     } catch (e) {
-      throw new TypeError('API_SCF_GetFunction', e.message, e.stack);
+      throw new ApiError({
+        type: 'API_SCF_GetFunction',
+        message: e.message,
+        stack: e.stack,
+        reqId: e.reqId,
+        code: e.code,
+      });
     }
   }
 
@@ -105,7 +111,7 @@ class Scf {
     const { Status, StatusReasons } = initialInfo;
     return status !== 'Active'
       ? StatusReasons && StatusReasons.length > 0
-        ? `函数状态异常，${StatusReasons[0].ErrorCode} - ${StatusReasons[0].ErrorCode}`
+        ? `函数状态异常, ${StatusReasons[0].ErrorMessage}`
         : `函数状态异常, ${Status}`
       : true;
   }
@@ -117,12 +123,12 @@ class Scf {
     functionInputs.Action = 'CreateFunction';
     const { Response } = await this.scfClient.request(functionInputs);
     if (Response && Response.Error) {
-      throw new TypeError(
-        'API_SCF_CreateFunction',
-        `${Response.Error.Code}: ${Response.Error.Message} ${Response.RequestId}`,
-        null,
-        Response.RequestId,
-      );
+      throw new ApiError({
+        type: 'API_SCF_CreateFunction',
+        message: `${Response.Error.Message} (reqId: ${Response.RequestId})`,
+        reqId: Response.RequestId,
+        code: Response.Error.Code,
+      });
     } else {
       return true;
     }
@@ -144,12 +150,12 @@ class Scf {
     };
     const { Response } = await this.scfClient.request(updateFunctionConnfigure);
     if (Response && Response.Error) {
-      throw new TypeError(
-        'API_SCF_UpdateFunctionCode',
-        `${Response.Error.Code}: ${Response.Error.Message} ${Response.RequestId}`,
-        null,
-        Response.RequestId,
-      );
+      throw new ApiError({
+        type: 'API_SCF_UpdateFunctionCode',
+        message: `${Response.Error.Message} (reqId: ${Response.RequestId})`,
+        reqId: Response.RequestId,
+        code: Response.Error.Code,
+      });
     } else {
       return true;
     }
@@ -169,12 +175,12 @@ class Scf {
     delete functionInputs['CodeSource'];
     const { Response } = await this.scfClient.request(functionInputs);
     if (Response && Response.Error) {
-      throw new TypeError(
-        'API_SCF_UpdateFunctionConfiguration',
-        `${Response.Error.Code}: ${Response.Error.Message} ${Response.RequestId}`,
-        null,
-        Response.RequestId,
-      );
+      throw new ApiError({
+        type: 'API_SCF_UpdateFunctionConfiguration',
+        message: `${Response.Error.Message} (reqId: ${Response.RequestId})`,
+        reqId: Response.RequestId,
+        code: Response.Error.Code,
+      });
     } else {
       return true;
     }
@@ -208,12 +214,12 @@ class Scf {
           TriggerName: curTrigger.TriggerName,
         });
         if (Response && Response.Error) {
-          throw new TypeError(
-            'API_SCF_DeleteTrigger',
-            `${Response.Error.Code}: ${Response.Error.Message} ${Response.RequestId}`,
-            null,
-            Response.RequestId,
-          );
+          throw new ApiError({
+            type: 'API_SCF_DeleteTrigger',
+            message: `${Response.Error.Message} (reqId: ${Response.RequestId})`,
+            reqId: Response.RequestId,
+            code: Response.Error.Code,
+          });
         }
       }
     }
@@ -246,12 +252,12 @@ class Scf {
         const { Response } = await this.scfClient.request(triggerInputs);
 
         if (Response && Response.Error) {
-          throw new TypeError(
-            'API_SCF_CreateTrigger',
-            `${Response.Error.Code}: ${Response.Error.Message} ${Response.RequestId}`,
-            null,
-            Response.RequestId,
-          );
+          throw new ApiError({
+            type: 'API_SCF_CreateTrigger',
+            message: `${Response.Error.Message} (reqId: ${Response.RequestId})`,
+            reqId: Response.RequestId,
+            code: Response.Error.Code,
+          });
         }
         deployTriggerResult.push(Response.TriggerInfo);
       }
@@ -276,12 +282,12 @@ class Scf {
     });
 
     if (Response && Response.Error) {
-      throw new TypeError(
-        'API_TAG_ModifyResourceTags',
-        `${Response.Error.Code}: ${Response.Error.Message} ${Response.RequestId}`,
-        null,
-        Response.RequestId,
-      );
+      throw new ApiError({
+        type: 'API_TAG_ModifyResourceTags',
+        message: `${Response.Error.Message} (reqId: ${Response.RequestId})`,
+        reqId: Response.RequestId,
+        code: Response.Error.Code,
+      });
     }
   }
 
@@ -295,12 +301,12 @@ class Scf {
       Namespace: namespace || CONFIGS.defaultNamespace,
     });
     if (Response && Response.Error) {
-      throw new TypeError(
-        'API_SCF_DeleteFunction',
-        `${Response.Error.Code}: ${Response.Error.Message} ${Response.RequestId}`,
-        null,
-        Response.RequestId,
-      );
+      throw new ApiError({
+        type: 'API_SCF_DeleteFunction',
+        message: `${Response.Error.Message} (reqId: ${Response.RequestId})`,
+        reqId: Response.RequestId,
+        code: Response.Error.Code,
+      });
     }
   }
 
@@ -321,12 +327,12 @@ class Scf {
     const { Response } = await this.scfClient.request(publishInputs);
 
     if (Response && Response.Error) {
-      throw new TypeError(
-        'API_SCF_PublishVersion',
-        `${Response.Error.Code}: ${Response.Error.Message} ${Response.RequestId}`,
-        null,
-        Response.RequestId,
-      );
+      throw new ApiError({
+        type: 'API_SCF_PublishVersion',
+        message: `${Response.Error.Message} (reqId: ${Response.RequestId})`,
+        reqId: Response.RequestId,
+        code: Response.Error.Code,
+      });
     }
     console.log(`Published function ${inputs.functionName} version ${Response.FunctionVersion}`);
     return Response;
@@ -349,12 +355,12 @@ class Scf {
     };
     const { Response } = await this.scfClient.request(publishInputs);
     if (Response && Response.Error) {
-      throw new TypeError(
-        'API_SCF_CreateAlias',
-        `${Response.Error.Code}: ${Response.Error.Message} ${Response.RequestId}`,
-        null,
-        Response.RequestId,
-      );
+      throw new ApiError({
+        type: 'API_SCF_CreateAlias',
+        message: `${Response.Error.Message} (reqId: ${Response.RequestId})`,
+        reqId: Response.RequestId,
+        code: Response.Error.Code,
+      });
     }
     return Response;
   }
@@ -379,12 +385,12 @@ class Scf {
     };
     const { Response } = await this.scfClient.request(publishInputs);
     if (Response && Response.Error) {
-      throw new TypeError(
-        'API_SCF_UpdateAlias',
-        `${Response.Error.Code}: ${Response.Error.Message} ${Response.RequestId}`,
-        null,
-        Response.RequestId,
-      );
+      throw new ApiError({
+        type: 'API_SCF_UpdateAlias',
+        message: `${Response.Error.Message} (reqId: ${Response.RequestId})`,
+        reqId: Response.RequestId,
+        code: Response.Error.Code,
+      });
     }
     console.log(
       `Config function ${inputs.functionName} traffic ${weight} for version ${inputs.lastVersion} success`,
@@ -403,12 +409,12 @@ class Scf {
     };
     const { Response } = await this.scfClient.request(publishInputs);
     if (Response && Response.Error) {
-      throw new TypeError(
-        'API_SCF_ListAliases',
-        `${Response.Error.Code}: ${Response.Error.Message} ${Response.RequestId}`,
-        null,
-        Response.RequestId,
-      );
+      throw new ApiError({
+        type: 'API_SCF_ListAliases',
+        message: `${Response.Error.Message} (reqId: ${Response.RequestId})`,
+        reqId: Response.RequestId,
+        code: Response.Error.Code,
+      });
     }
     return Response;
   }
@@ -582,12 +588,12 @@ class Scf {
       InvocationType: inputs.invocationType || 'RequestResponse',
     });
     if (Response && Response.Error) {
-      throw new TypeError(
-        'API_SCF_Invoke',
-        `${Response.Error.Code}: ${Response.Error.Message} ${Response.RequestId}`,
-        null,
-        Response.RequestId,
-      );
+      throw new ApiError({
+        type: 'API_SCF_Invoke',
+        message: `${Response.Error.Message} (reqId: ${Response.RequestId})`,
+        reqId: Response.RequestId,
+        code: Response.Error.Code,
+      });
     }
     return Response;
   }

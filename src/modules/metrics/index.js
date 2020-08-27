@@ -3,7 +3,7 @@ const assert = require('assert');
 const moment = require('moment');
 const util = require('util');
 const url = require('url');
-const { TypeError } = require('../../utils/error');
+const { TypeError, ApiError } = require('../../utils/error');
 
 class Metrics {
   constructor(credentials = {}, options = {}) {
@@ -45,7 +45,13 @@ class Metrics {
       );
       return responses;
     } catch (e) {
-      throw new TypeError(`API_METRICS_getScfMetrics`, e.message, e.stack);
+      throw new ApiError({
+        type: 'API_METRICS_getScfMetrics',
+        message: e.message,
+        stack: e.stack,
+        reqId: e.reqId,
+        code: e.code,
+      });
     }
   }
 
@@ -65,7 +71,13 @@ class Metrics {
       );
       return responses;
     } catch (e) {
-      throw new TypeError(`API_METRICS_getApigwMetrics`, e.message, e.stack);
+      throw new ApiError({
+        type: 'API_METRICS_getApigwMetrics',
+        message: e.message,
+        stack: e.stack,
+        reqId: e.reqId,
+        code: e.code,
+      });
     }
   }
 
@@ -92,7 +104,13 @@ class Metrics {
       );
       return responses;
     } catch (e) {
-      throw new TypeError(`API_METRICS_getCustomMetrics`, e.message, e.stack);
+      throw new ApiError({
+        type: 'API_METRICS_getCustomMetrics',
+        message: e.message,
+        stack: e.stack,
+        reqId: e.reqId,
+        code: e.code,
+      });
     }
   }
 

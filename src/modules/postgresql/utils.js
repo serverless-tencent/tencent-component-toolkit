@@ -90,7 +90,7 @@ async function toggleDbInstanceAccess(capi, dBInstanceName, extranetAccess) {
     console.log(`Open db extranet access success`);
     return detail;
   }
-  console.log(`Start close db extranet access...`);
+  console.log(`Start close db extranet access`);
   await CloseServerlessDBExtranetAccess(capi, {
     DBInstanceName: dBInstanceName,
   });
@@ -110,7 +110,7 @@ async function toggleDbInstanceAccess(capi, dBInstanceName, extranetAccess) {
  * @param {object} postgresInputs create db instance inputs
  */
 async function createDbInstance(capi, postgresInputs) {
-  console.log(`Start create DB instance ${postgresInputs.DBInstanceName}...`);
+  console.log(`Start create DB instance ${postgresInputs.DBInstanceName}`);
   const { DBInstanceId } = await CreateServerlessDBInstance(capi, postgresInputs);
   console.log(`Creating DB instance ID: ${DBInstanceId}`);
 

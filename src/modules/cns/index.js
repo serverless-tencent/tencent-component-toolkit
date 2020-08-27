@@ -1,5 +1,5 @@
 const { cns } = require('tencent-cloud-sdk');
-const { TypeError } = require('../../utils/error');
+const { ApiError } = require('../../utils/error');
 const { getRealType } = require('../../utils');
 
 class Cns {
@@ -116,11 +116,20 @@ class Cns {
         tempInputs.Action = 'RecordModify';
         try {
           const modifyResult = await this.cnsClient.request(tempInputs);
-          if (modifyResult.code != 0) {
-            throw new TypeError(`API_CNS_RecordModify`, JSON.stringify(modifyResult));
+          if (modifyResult.code !== 0) {
+            throw new ApiError({
+              type: `API_CNS_RecordModify`,
+              message: modifyResult.message,
+              code: modifyResult.code,
+            });
           }
         } catch (e) {
-          throw new TypeError(`API_CNS_RecordModify`, e.message, e.stack);
+          throw new ApiError({
+            type: `API_CNS_RecordModify`,
+            message: e.message,
+            stack: e.stack,
+            code: e.code,
+          });
         }
         console.log(`Modified dns record ${tempInputs.recordId} success`);
       } else {
@@ -129,13 +138,22 @@ class Cns {
         tempInputs.Action = 'RecordCreate';
         try {
           let createOutputs = await this.cnsClient.request(tempInputs);
-          if (createOutputs.code != 0) {
-            throw new TypeError(`API_CNS_RecordCreate`, JSON.stringify(createOutputs));
+          if (createOutputs.code !== 0) {
+            throw new ApiError({
+              type: `API_CNS_RecordCreate`,
+              message: createOutputs.message,
+              code: createOutputs.code,
+            });
           }
           createOutputs = createOutputs['data'];
           tempInputs.recordId = createOutputs.record.id;
         } catch (e) {
-          throw e;
+          throw new ApiError({
+            type: `API_CNS_RecordCreate`,
+            message: e.message,
+            stack: e.stack,
+            code: e.code,
+          });
         }
         console.log(`Created dns record ${tempInputs.recordId}`);
       }
@@ -160,11 +178,20 @@ class Cns {
       };
       try {
         const statusResult = await this.cnsClient.request(statusInputs);
-        if (statusResult.code != 0) {
-          throw new TypeError(`API_CNS_RecordStatus`, JSON.stringify(statusResult));
+        if (statusResult.code !== 0) {
+          throw new ApiError({
+            type: `API_CNS_RecordStatus`,
+            message: statusResult.message,
+            code: statusResult.code,
+          });
         }
       } catch (e) {
-        throw new TypeError(`API_CNS_RecordStatus`, e.message, e.stack);
+        throw new ApiError({
+          type: `API_CNS_RecordStatus`,
+          message: e.message,
+          stack: e.stack,
+          code: e.code,
+        });
       }
       console.log(`Modified status to ${tempInputs.status}`);
     }
@@ -187,7 +214,7 @@ class Cns {
         };
         try {
           const deleteResult = await this.cnsClient.request(deleteInputs);
-          if (deleteResult.code != 0) {
+          if (deleteResult.code !== 0) {
             console.log(`Error API_CNS_RecordDelete: ${JSON.stringify(deleteResult)}`);
           }
         } catch (e) {
