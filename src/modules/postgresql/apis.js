@@ -1,4 +1,4 @@
-const { TypeError } = require('../../utils/error');
+const { ApiError } = require('../../utils/error');
 
 function apiFactory(actions) {
   const apis = {};
@@ -26,16 +26,22 @@ function apiFactory(actions) {
           false,
         );
         if (Response && Response.Error && Response.Error.Code) {
-          throw new TypeError(
-            `API_POSTGRESQL_${action}`,
-            `${Response.Error.Code}: ${Response.Error.Message} ${Response.RequestId}`,
-            null,
-            Response.RequestId,
-          );
+          throw new ApiError({
+            type: `API_POSTGRESQL_${action}`,
+            message: `${Response.Error.Message} (reqId: ${Response.RequestId})`,
+            reqId: Response.RequestId,
+            code: Response.Error.Code,
+          });
         }
         return Response;
       } catch (e) {
-        throw new TypeError(`API_POSTGRESQL_${action}`, e.message, e.stack, e.reqId);
+        throw new ApiError({
+          type: `API_POSTGRESQL_${action}`,
+          message: e.message,
+          stack: e.stack,
+          reqId: e.reqId,
+          code: e.code,
+        });
       }
     };
   });

@@ -1,5 +1,5 @@
 const { cam } = require('tencent-cloud-sdk');
-const { TypeError } = require('../../utils/error');
+const { ApiError } = require('../../utils/error');
 
 class Cam {
   constructor(credentials = {}, region) {
@@ -13,16 +13,22 @@ class Cam {
       const res = await this.camClient.request(data);
 
       if (res.Response && res.Response.Error) {
-        throw new TypeError(
-          `API_CAM_${data.Action}`,
-          `${res.Response.Error.Code}: ${res.Response.Error.Message} ${res.Response.RequestId}`,
-          null,
-          res.Response.RequestId,
-        );
+        throw new ApiError({
+          type: `API_CAM_${data.action}`,
+          message: `${res.Response.Error.Message} (reqId: ${res.Response.RequestId})`,
+          reqId: res.Response.RequestId,
+          code: res.Response.Error.Code,
+        });
       }
       return res;
     } catch (e) {
-      throw new TypeError(`API_CAM_${data.Action}`, e.message, e.stack, e.reqId);
+      throw new ApiError({
+        type: `API_CAM_${data.action}`,
+        message: e.message,
+        stack: e.stack,
+        reqId: e.reqId,
+        code: e.code,
+      });
     }
   }
 

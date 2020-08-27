@@ -27,7 +27,7 @@ class Tag {
     tagsInputs = await this.addArray(tagsInputs, inputs.replaceTags, 'ReplaceTags');
     tagsInputs = await this.addArray(tagsInputs, inputs.deleteTags, 'DeleteTags');
 
-    console.log(`Updating tags...`);
+    console.log(`Updating tags`);
     try {
       await this.tagClient.request(tagsInputs);
     } catch (e) {

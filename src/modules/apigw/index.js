@@ -534,14 +534,13 @@ class Apigw {
           console.log(`Please add CNAME record ${subDomain} for ${domainItem.domain}.`);
         } catch (e) {
           // User hasn't add cname dns record
-          if (e.message.indexOf('DomainResolveError') !== -1) {
+          if (e.code === 'FailedOperation.DomainResolveError') {
             customDomainOutput.push({
               isBinded: false,
               created: '创建失败',
               subDomain: domainItem.domain,
               cname: subDomain,
               message: `您的自定义域名还未生效，请给域名 ${domainItem.domain} 添加 CNAME 记录 ${subDomain}，等待解析生效后，再次运行 'sls deploy' 完成自定义域名的配置`,
-              errorMsg: e.message,
             });
           } else {
             throw e;
