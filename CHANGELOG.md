@@ -1,3 +1,10 @@
+## [1.16.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.16.0...v1.16.1) (2020-08-31)
+
+
+### Bug Fixes
+
+* token missing for capi ([1eaf146](https://github.com/serverless-tencent/tencent-component-toolkit/commit/1eaf14697a13675e3bca7ef171a4f4b575e27909))
+
 # [1.16.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.15.7...v1.16.0) (2020-08-31)
 
 
