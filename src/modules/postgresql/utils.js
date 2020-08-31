@@ -139,7 +139,7 @@ async function deleteDbInstance(capi, dBInstanceName) {
     targetResponse: undefined,
     timeout: TIMEOUT,
   });
-  console.log(`Removed postgres instance ${dBInstanceName}.`);
+  console.log(`Removed postgres instance ${dBInstanceName} successfully`);
   return detail;
 }
 

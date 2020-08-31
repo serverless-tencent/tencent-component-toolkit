@@ -56,6 +56,7 @@ class Apigw {
         Action: 'DescribeService',
         ServiceId: serviceId,
       });
+      console.log('detail', detail);
       if (detail) {
         detail.InnerSubDomain = detail.InternalSubDomain;
         exist = true;
@@ -537,7 +538,6 @@ class Apigw {
           if (e.code === 'FailedOperation.DomainResolveError') {
             customDomainOutput.push({
               isBinded: false,
-              created: '创建失败',
               subDomain: domainItem.domain,
               cname: subDomain,
               message: `您的自定义域名还未生效，请给域名 ${domainItem.domain} 添加 CNAME 记录 ${subDomain}，等待解析生效后，再次运行 'sls deploy' 完成自定义域名的配置`,

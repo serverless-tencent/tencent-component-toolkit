@@ -1,4 +1,4 @@
-const { cos } = require('tencent-cloud-sdk');
+const COS = require('cos-nodejs-sdk-v5');
 const util = require('util');
 const path = require('path');
 const fs = require('fs');
@@ -17,7 +17,7 @@ class Cos {
     if (credentials.Token) {
       this.credentials.XCosSecurityToken = credentials.Token;
     }
-    this.cosClient = new cos(this.credentials);
+    this.cosClient = new COS(this.credentials);
   }
 
   promisify(callback) {

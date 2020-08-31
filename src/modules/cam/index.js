@@ -1,41 +1,27 @@
-const { cam } = require('tencent-cloud-sdk');
-const { ApiError } = require('../../utils/error');
+const { Capi } = require('@tencent-sdk/capi');
+const Apis = require('./apis');
 
 class Cam {
   constructor(credentials = {}, region) {
     this.region = region || 'ap-guangzhou';
     this.credentials = credentials;
-    this.camClient = new cam(this.credentials);
+    this.capi = new Capi({
+      Region: this.region,
+      AppId: this.credentials.AppId,
+      SecretId: this.credentials.SecretId,
+      SecretKey: this.credentials.SecretKey,
+      Token: this.credentials.Token,
+    });
   }
 
-  async request(data) {
-    try {
-      const res = await this.camClient.request(data);
-
-      if (res.Response && res.Response.Error) {
-        throw new ApiError({
-          type: `API_CAM_${data.action}`,
-          message: `${res.Response.Error.Message} (reqId: ${res.Response.RequestId})`,
-          reqId: res.Response.RequestId,
-          code: res.Response.Error.Code,
-        });
-      }
-      return res;
-    } catch (e) {
-      throw new ApiError({
-        type: `API_CAM_${data.action}`,
-        message: e.message,
-        stack: e.stack,
-        reqId: e.reqId,
-        code: e.code,
-      });
-    }
+  async request({ Action, ...data }) {
+    const result = await Apis[Action](this.capi, data);
+    return result;
   }
 
   async DescribeRoleList(page, limit) {
     const reqParams = {
       Action: 'DescribeRoleList',
-      Version: '2019-01-16',
       Page: page,
       Rp: limit,
     };
@@ -45,7 +31,6 @@ class Cam {
   async ListRolePoliciesByRoleId(roleId, page, limit) {
     const reqParams = {
       Action: 'ListAttachedRolePolicies',
-      Version: '2019-01-16',
       Page: page,
       Rp: limit,
       RoleId: roleId,
@@ -56,39 +41,52 @@ class Cam {
   async CreateRole(roleName, policiesDocument) {
     const reqParams = {
       Action: 'CreateRole',
-      Version: '2019-01-16',
       RoleName: roleName,
       PolicyDocument: policiesDocument,
-      Description: 'Serverless Framework',
+      Description: 'Created By Serverless Framework',
     };
     return this.request(reqParams);
+  }
+
+  async GetRole(roleName) {
+    return this.request({
+      Action: 'GetRole',
+      RoleName: roleName,
+    });
+  }
+
+  async DeleteRole(roleName) {
+    return this.request({
+      Action: 'DeleteRole',
+      RoleName: roleName,
+    });
   }
 
   // api limit qps 3/s
   async AttachRolePolicyByName(roleId, policyName) {
     const reqParams = {
       Action: 'AttachRolePolicy',
-      Version: '2019-01-16',
       AttachRoleId: roleId,
       PolicyName: policyName,
     };
     return this.request(reqParams);
   }
 
-  async CheckSCFExcuteRole() {
-    const ScfExcuteRoleName = 'QCS_SCFExcuteRole';
+  async isRoleExist(roleName) {
+    const { List = [] } = await this.DescribeRoleList(1, 200);
 
-    const roles = await this.DescribeRoleList(1, 200);
+    for (var i = 0; i < List.length; i++) {
+      const roleItem = List[i];
 
-    const len = roles.Response.List.length;
-    for (var i = 0; i < len; i++) {
-      const roleItem = roles.Response.List[i];
-
-      if (roleItem.RoleName == ScfExcuteRoleName) {
+      if (roleItem.RoleName === roleName) {
         return true;
       }
     }
     return false;
+  }
+
+  async CheckSCFExcuteRole() {
+    return this.isRoleExist('QCS_SCFExcuteRole');
   }
 }
 

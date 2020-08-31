@@ -1,13 +1,13 @@
 const TagsUtils = require('./index');
 
 class ClientTest {
-  async tagsTest() {
+  async run() {
     const tags = new TagsUtils({
       SecretId: '',
       SecretKey: '',
     });
     const tagsDemo = {
-      resource: 'qcs::scf:ap-shanghai:uin/100005358439:lam/lam-rooizssdom',
+      resource: 'qcs::scf:ap-guangzhou:uin/739360256:lam/lam-rooizssdom',
       replaceTags: { abcdd: 'def' },
       deleteTags: {},
     };
@@ -16,7 +16,7 @@ class ClientTest {
   }
 }
 
-new ClientTest().tagsTest();
+new ClientTest().run();
 
 process.on('unhandledRejection', (e) => {
   throw e;

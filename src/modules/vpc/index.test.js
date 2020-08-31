@@ -8,8 +8,8 @@ async function runTest() {
   const inputs = {
     region: 'ap-guangzhou',
     zone: 'ap-guangzhou-2',
-    vpcName: 'serverless',
-    subnetName: 'serverless',
+    subnetId: 'subnet-3ofyccsy',
+    subnetName: 'serverless1',
     cidrBlock: '10.0.0.0/16',
   };
   const vpc = new Vpc(credentials, inputs.region);

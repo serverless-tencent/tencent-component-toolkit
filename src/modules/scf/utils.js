@@ -46,8 +46,6 @@ const formatTimerTrigger = (region, funcInfo, inputs) => {
   const { parameters, name } = inputs;
   const triggerInputs = {
     Action: 'CreateTrigger',
-    Version: '2018-04-16',
-    Region: region,
     FunctionName: funcInfo.FunctionName,
     Namespace: funcInfo.Namespace,
   };
@@ -78,8 +76,6 @@ const formatCosTrigger = (region, funcInfo, inputs) => {
   const { parameters } = inputs;
   const triggerInputs = {
     Action: 'CreateTrigger',
-    Version: '2018-04-16',
-    Region: region,
     FunctionName: funcInfo.FunctionName,
     Namespace: funcInfo.Namespace,
   };
@@ -117,8 +113,6 @@ const formatCkafkaTrigger = (region, funcInfo, inputs) => {
   const { parameters } = inputs;
   const triggerInputs = {
     Action: 'CreateTrigger',
-    Version: '2018-04-16',
-    Region: region,
     FunctionName: funcInfo.FunctionName,
     Namespace: funcInfo.Namespace,
   };
@@ -148,8 +142,6 @@ const formatCmqTrigger = (region, funcInfo, inputs) => {
   const { parameters } = inputs;
   const triggerInputs = {
     Action: 'CreateTrigger',
-    Version: '2018-04-16',
-    Region: region,
     FunctionName: funcInfo.FunctionName,
     Namespace: funcInfo.Namespace,
   };
@@ -190,18 +182,25 @@ const formatTrigger = (type, region, funcInfo, inputs, traffic) => {
 // get function basement configure
 const formatFunctionInputs = (region, inputs) => {
   const functionInputs = {
-    Version: '2018-04-16',
-    Region: region,
     FunctionName: inputs.name,
-    'Code.CosBucketName': inputs.code.bucket,
-    'Code.CosObjectName': inputs.code.object,
+    CodeSource: 'Cos',
+    Code: {
+      CosBucketName: inputs.code.bucket,
+      CosObjectName: inputs.code.object,
+    },
     Handler: inputs.handler,
     Runtime: inputs.runtime,
-    Timeout: inputs.timeout || CONFIGS.defaultTimeout,
-    InitTimeout: inputs.initTimeout || CONFIGS.defaultInitTimeout,
     Namespace: inputs.namespace || CONFIGS.defaultNamespace,
-    MemorySize: inputs.memorySize || CONFIGS.defaultMemorySize,
-    CodeSource: 'Cos',
+    Timeout: +inputs.timeout || CONFIGS.defaultTimeout,
+    InitTimeout: +inputs.initTimeout || CONFIGS.defaultInitTimeout,
+    MemorySize: +inputs.memorySize || CONFIGS.defaultMemorySize,
+    PublicNetConfig: {
+      PublicNetStatus: inputs.publicAccess === false ? 'DISABLE' : 'ENABLE',
+      EipConfig: {
+        EipStatus: inputs.eip === true ? 'ENABLE' : 'DISABLE',
+      },
+    },
+    L5Enable: inputs.l5Enable === true ? 'TRUE' : 'FALSE',
   };
 
   // 非必须参数
@@ -220,38 +219,46 @@ const formatFunctionInputs = (region, inputs) => {
     }
   }
   if (inputs.environment && inputs.environment.variables) {
-    let index = 0;
-    for (const item in inputs.environment.variables) {
-      functionInputs[`Environment.Variables.${index}.Key`] = item;
-      functionInputs[`Environment.Variables.${index}.Value`] = inputs.environment.variables[item];
-      index++;
-    }
+    functionInputs.Environment = {
+      Variables: [],
+    };
+    Object.entries(inputs.environment.variables).forEach(([key, val]) => {
+      functionInputs.Environment.Variables.push({
+        Key: key,
+        Value: String(val),
+      });
+    });
   }
   if (inputs.vpcConfig) {
+    functionInputs.VpcConfig = {};
     if (inputs.vpcConfig.vpcId) {
-      functionInputs['VpcConfig.VpcId'] = inputs.vpcConfig.vpcId;
+      functionInputs.VpcConfig.VpcId = inputs.vpcConfig.vpcId;
     }
     if (inputs.vpcConfig.subnetId) {
-      functionInputs['VpcConfig.SubnetId'] = inputs.vpcConfig.subnetId;
+      functionInputs.VpcConfig.SubnetId = inputs.vpcConfig.subnetId;
     }
   }
-  functionInputs['EipConfig.EipFixed'] = inputs.eip === true ? 'TRUE' : 'FALSE';
-  functionInputs.L5Enable = inputs.l5Enable === true ? 'TRUE' : 'FALSE';
   if (inputs.layers) {
-    inputs.layers.forEach((item, index) => {
-      functionInputs[`Layers.${index}.LayerName`] = item.name;
-      functionInputs[`Layers.${index}.LayerVersion`] = item.version;
+    functionInputs.Layers = [];
+    inputs.layers.forEach((item) => {
+      functionInputs.Layers.push({
+        LayerName: item.name,
+        LayerVersion: item.version,
+      });
     });
   }
   if (inputs.deadLetter) {
+    functionInputs.DeadLetterConfig = {};
     if (inputs.deadLetter.type) {
+      functionInputs.DeadLetterConfig.Type = inputs.deadLetter.type;
       functionInputs['DeadLetterConfig.Type'] = inputs.deadLetter.type;
     }
     if (inputs.deadLetter.name) {
+      functionInputs.DeadLetterConfig.Name = inputs.deadLetter.name;
       functionInputs['DeadLetterConfig.Name'] = inputs.deadLetter.name;
     }
     if (inputs.deadLetter.filterType) {
-      functionInputs['DeadLetterConfig.FilterType'] = inputs.deadLetter.filterType;
+      functionInputs.DeadLetterConfig.FilterType = inputs.deadLetter.filterType;
     }
   }
 

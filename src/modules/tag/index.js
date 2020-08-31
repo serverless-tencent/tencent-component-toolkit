@@ -1,9 +1,23 @@
-const { tag } = require('tencent-cloud-sdk');
+const { Capi } = require('@tencent-sdk/capi');
+const Apis = require('./apis');
+const { camelCaseProperty } = require('../../utils/index');
+
 class Tag {
   constructor(credentials = {}, region = 'ap-guangzhou') {
-    this.credentials = credentials;
     this.region = region;
-    this.tagClient = new tag(this.credentials);
+    this.credentials = credentials;
+    this.capi = new Capi({
+      Region: this.region,
+      AppId: this.credentials.AppId,
+      SecretId: this.credentials.SecretId,
+      SecretKey: this.credentials.SecretKey,
+      Token: this.credentials.Token,
+    });
+  }
+
+  async request({ Action, ...data }) {
+    const result = await Apis[Action](this.capi, camelCaseProperty(data));
+    return result;
   }
 
   async addArray(body, tags, key) {
@@ -17,19 +31,29 @@ class Tag {
   }
 
   async deploy(inputs = {}) {
-    let tagsInputs = {
+    const tagsInputs = {
       Action: 'ModifyResourceTags',
-      Version: '2018-08-13',
-      Region: this.region,
       Resource: inputs.resource,
     };
 
-    tagsInputs = await this.addArray(tagsInputs, inputs.replaceTags, 'ReplaceTags');
-    tagsInputs = await this.addArray(tagsInputs, inputs.deleteTags, 'DeleteTags');
+    const { replaceTags = {}, deleteTags = {} } = inputs;
+
+    if (Object.keys(replaceTags).length > 0) {
+      tagsInputs.ReplaceTags = Object.entries(replaceTags).map(([key, val]) => ({
+        TagKey: key,
+        TagValue: val,
+      }));
+    }
+    if (Object.keys(deleteTags).length > 0) {
+      tagsInputs.DeleteTags = Object.entries(deleteTags).map(([key, val]) => ({
+        TagKey: key,
+        TagValue: val,
+      }));
+    }
 
     console.log(`Updating tags`);
     try {
-      await this.tagClient.request(tagsInputs);
+      await this.request(tagsInputs);
     } catch (e) {
       console.log(e);
     }

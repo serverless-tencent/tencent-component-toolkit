@@ -18,7 +18,7 @@ async function runTest() {
         domain: 'test.yugasun.com',
         // TODO: change to your certId
         certificateId: 'cWOJJjax',
-        isDefaultMapping: 'true',
+        isDefaultMapping: false,
         pathMappingSet: [
           {
             path: '/',
@@ -46,10 +46,9 @@ async function runTest() {
         },
         auth: {
           serviceTimeout: 15,
-          secretName: 'secret',
+          secretName: 'authName',
           secretIds: ['xxx'],
         },
-
       },
       {
         path: '/mo',
@@ -101,7 +100,6 @@ async function runTest() {
   const apigw = new Apigw(credentials, inputs.region);
   const outputs = await apigw.deploy(inputs);
   console.log('outputs', JSON.stringify(outputs));
-
 
   await apigw.remove(outputs);
 }

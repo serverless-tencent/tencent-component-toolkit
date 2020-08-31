@@ -1,53 +1,4 @@
-const { ApiError } = require('../../utils/error');
-
-function apiFactory(actions) {
-  const apis = {};
-  actions.forEach((action) => {
-    apis[action] = async (apig, inputs) => {
-      const data = {
-        Version: '2017-03-12',
-        Action: action,
-        RequestClient: 'ServerlessComponent',
-        ...inputs,
-      };
-
-      if (apig.options.Token) {
-        data.Token = apig.options.Token;
-      }
-      try {
-        const { Response } = await apig.request(
-          data,
-          // this is preset options for apigateway
-          {
-            debug: false,
-            ServiceType: 'vpc',
-            host: 'vpc.tencentcloudapi.com',
-          },
-          false,
-        );
-        if (Response && Response.Error && Response.Error.Code) {
-          throw new ApiError({
-            type: `API_VPC_${action}`,
-            message: `${Response.Error.Message} (reqId: ${Response.RequestId})`,
-            reqId: Response.RequestId,
-            code: Response.Error.Code,
-          });
-        }
-        return Response;
-      } catch (e) {
-        throw new ApiError({
-          type: `API_VPC_${action}`,
-          message: e.message,
-          stack: e.stack,
-          reqId: e.reqId,
-          code: e.code,
-        });
-      }
-    };
-  });
-
-  return apis;
-}
+const { ApiFactory } = require('../../utils/api');
 
 const ACTIONS = [
   'CreateDefaultVpc',
@@ -60,6 +11,12 @@ const ACTIONS = [
   'ModifyVpcAttribute',
   'ModifySubnetAttribute',
 ];
-const APIS = apiFactory(ACTIONS);
+
+const APIS = ApiFactory({
+  // debug: true,
+  serviceType: 'vpc',
+  version: '2017-03-12',
+  actions: ACTIONS,
+});
 
 module.exports = APIS;
