@@ -1,3 +1,10 @@
+# [1.16.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.15.7...v1.16.0) (2020-08-31)
+
+
+### Features
+
+* extract api factory and add RequestClient ([47c1fbf](https://github.com/serverless-tencent/tencent-component-toolkit/commit/47c1fbfc59b59a5f187908744bf6a6649bc3620c))
+
 ## [1.15.7](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.15.6...v1.15.7) (2020-08-27)
 
 
