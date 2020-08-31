@@ -34,7 +34,7 @@ const ACTIONS = [
 ];
 
 const APIS = ApiFactory({
-  debug: true,
+  // debug: true,
   serviceType: 'apigateway',
   version: '2018-08-08',
   actions: ACTIONS,

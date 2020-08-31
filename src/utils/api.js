@@ -33,7 +33,6 @@ function ApiFactory({
       const reqData = cleanEmptyValue({
         Action: action,
         Version: version,
-        Token: capi.options.Token || null,
         ...inputs,
       });
       inputs = cleanEmptyValue(inputs);

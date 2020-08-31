@@ -56,7 +56,6 @@ class Apigw {
         Action: 'DescribeService',
         ServiceId: serviceId,
       });
-      console.log('detail', detail);
       if (detail) {
         detail.InnerSubDomain = detail.InternalSubDomain;
         exist = true;
