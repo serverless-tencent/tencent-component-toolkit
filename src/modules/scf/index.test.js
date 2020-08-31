@@ -3,8 +3,6 @@ const ScfUtils = require('./index');
 class ClientTest {
   async scfTest() {
     const scf = new ScfUtils({
-      // SecretId: process.env.TENCENT_SECRET_ID,
-      // SecretKey: process.env.TENCENT_SECRET_KEY,
       SecretId: '',
       SecretKey: '',
     });
@@ -14,20 +12,23 @@ class ClientTest {
         bucket: 'sls-cloudfunction-ap-guangzhou-code',
         object: 'express_component_5dwuabh-1597994417.zip',
       },
+      role: 'SCF_QcsRole',
       handler: 'sl_handler.handler',
       runtime: 'Nodejs12.16',
       region: 'ap-guangzhou',
       description: 'Created by Serverless Framework',
-      memorySize: '256',
-      timeout: '20',
+      memorySize: 256,
+      timeout: 20,
       tags: {
         mytest: 'abc',
       },
       environment: {
         variables: {
           TEST: 'value',
+          ttt: '111',
         },
       },
+      eip: true,
       events: [
         {
           timer: {
@@ -43,10 +44,11 @@ class ClientTest {
           cos: {
             name: 'sls-cloudfunction-ap-guangzhou-code-1251556596.cos.ap-guangzhou.myqcloud.com',
             parameters: {
-              bucket: 'sls-cloudfunction-ap-guangzhou-code-1251556596.cos.ap-guangzhou.myqcloud.com',
+              bucket:
+                'sls-cloudfunction-ap-guangzhou-code-1251556596.cos.ap-guangzhou.myqcloud.com',
               enable: true,
               events: 'cos:ObjectCreated:*',
-              filter:{
+              filter: {
                 prefix: 'aaaasad',
               },
             },
@@ -55,12 +57,13 @@ class ClientTest {
         {
           apigw: {
             parameters: {
-              endpoints: [{
-                path: '/',
-                method: 'GET',
-              }],
+              endpoints: [
+                {
+                  path: '/',
+                  method: 'GET',
+                },
+              ],
             },
-
           },
         },
       ],
@@ -90,6 +93,13 @@ class ClientTest {
     });
 
     console.log('updateAliasTraffic: ', JSON.stringify(res3));
+    console.log('++++++++++++++++++');
+
+    // 5. invoke function
+    const invokeRes = await scf.invoke({
+      functionName: inputs.name,
+    });
+    console.log('invoke res: ', JSON.stringify(invokeRes));
     console.log('++++++++++++++++++');
 
     // 4. remove function

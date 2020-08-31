@@ -2,6 +2,14 @@ const path = require('path');
 const fs = require('fs');
 
 /**
+ * simple deep clone object
+ * @param {object} obj object
+ */
+function deepClone(obj) {
+  return JSON.parse(JSON.stringify(obj));
+}
+
+/**
  * return variable real type
  * @param {any} obj input variable
  */
@@ -171,4 +179,5 @@ module.exports = {
   strip,
   traverseDirSync,
   getRealType,
+  deepClone,
 };

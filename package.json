@@ -70,8 +70,9 @@
     "semantic-release": "^17.0.4"
   },
   "dependencies": {
-    "@tencent-sdk/capi": "^0.2.17",
+    "@tencent-sdk/capi": "^0.3.0",
     "@ygkit/request": "^0.1.1",
+    "cos-nodejs-sdk-v5": "^2.6.2",
     "moment": "^2.25.3",
     "tencent-cloud-sdk": "^1.0.3"
   }

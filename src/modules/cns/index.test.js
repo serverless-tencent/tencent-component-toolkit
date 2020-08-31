@@ -1,7 +1,7 @@
 const CnsUtils = require('./index');
 
 class ClientTest {
-  async cnsTest() {
+  async run() {
     const cns = new CnsUtils({
       SecretId: '',
       SecretKey: '',
@@ -30,14 +30,13 @@ class ClientTest {
       ],
     };
     const result = await cns.deploy(cnsDemo);
-    console.log(JSON.stringify(result));
     console.log(result);
-    const delRes = await cns.remove({ deleteList: result.records });
+    const delRes = await cns.remove({ records: result.records });
     console.log(delRes);
   }
 }
 
-new ClientTest().cnsTest();
+new ClientTest().run();
 
 process.on('unhandledRejection', (e) => {
   throw e;

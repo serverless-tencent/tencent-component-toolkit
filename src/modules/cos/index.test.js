@@ -40,7 +40,6 @@ async function runTest() {
   await cos.remove({
     bucket: `${bucketName}-${APP_ID}`,
   });
-
 }
 
 runTest();
@@ -48,4 +47,3 @@ runTest();
 process.on('unhandledRejection', (e) => {
   console.log(e);
 });
-
