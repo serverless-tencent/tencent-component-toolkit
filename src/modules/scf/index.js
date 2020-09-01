@@ -31,13 +31,12 @@ class Scf {
     return result;
   }
 
-  // 绑定默认策略
+  // bind SCF_QcsRole role
   async bindScfQCSRole() {
     console.log(`Creating and binding SCF_QcsRole`);
     const camClient = new Cam(this.credentials);
     const roleName = 'SCF_QcsRole';
     const policyId = 28341895;
-    // 创建默认角色
     try {
       await camClient.request({
         Action: 'CreateRole',
@@ -58,7 +57,6 @@ class Scf {
         }),
       });
     } catch (e) {}
-    //  绑定默认策略
     try {
       await camClient.request({
         Action: 'AttachRolePolicy',
@@ -99,21 +97,27 @@ class Scf {
   // because creating/upadting function is asynchronous
   // if not become Active in 120 * 1000 miniseconds, return request result, and throw error
   async checkStatus(namespace = 'default', functionName, qualifier = '$LATEST') {
-    console.log(`Checking function ${functionName} status`);
     let initialInfo = await this.getFunction(namespace, functionName, qualifier);
-    let status = initialInfo;
+    let { Status } = initialInfo;
     let times = 120;
-    while (CONFIGS.waitStatus.indexOf(status) !== -1 && times > 0) {
+    while (CONFIGS.waitStatus.indexOf(Status) !== -1 && times > 0) {
       initialInfo = await this.getFunction(namespace, functionName, qualifier);
-      status = initialInfo.Status;
+      if (!initialInfo) {
+        return true;
+      }
+      ({ Status } = initialInfo);
+      // if change to failed status break loop
+      if (CONFIGS.failStatus.indexOf(Status) !== -1) {
+        break;
+      }
       await sleep(1000);
       times = times - 1;
     }
     const { StatusReasons } = initialInfo;
-    return status !== 'Active'
+    return Status !== 'Active'
       ? StatusReasons && StatusReasons.length > 0
         ? `函数状态异常, ${StatusReasons[0].ErrorMessage}`
-        : `函数状态异常, ${status}`
+        : `函数状态异常, ${Status}`
       : true;
   }
 
@@ -237,7 +241,7 @@ class Scf {
   }
 
   // 删除函数
-  async deleteFunction(functionName, namespace) {
+  async deleteFunction(namespace, functionName) {
     await this.request({
       Action: 'DeleteFunction',
       FunctionName: functionName,
@@ -315,7 +319,7 @@ class Scf {
   }
 
   /**
-   * check whether function status is operational
+   * check whether function status is operational, mostly for asynchronous operation
    * @param {string} namespace
    * @param {string} functionName funcitn name
    */
@@ -328,15 +332,63 @@ class Scf {
     throw new TypeError('API_SCF_isOperationalStatus', res);
   }
 
+  async tryToDeleteFunction(namespace, functionName) {
+    try {
+      console.log(`正在尝试删除创建失败的函数，命令空间：${namespace}，函数名称：${functionName}`);
+      await this.deleteFunction(namespace, functionName);
+      await this.isOperationalStatus(namespace, functionName);
+    } catch (e) {}
+  }
+
+  // check whether scf is operational
+  async isOperational(namespace, functionName, qualifier = '$LATEST') {
+    const funcInfo = await this.getFunction(namespace, functionName, qualifier);
+    if (funcInfo) {
+      const { Status, StatusReasons } = funcInfo;
+      const reason = StatusReasons && StatusReasons.length > 0 ? StatusReasons[0].ErrorMessage : '';
+      if (Status === 'Active') {
+        return true;
+      }
+      let errorMsg = '';
+      switch (Status) {
+        case 'Creating':
+          errorMsg = '当前函数正在创建中，无法更新代码，请稍后再试';
+          break;
+        case 'Updating':
+          errorMsg = '当前函数正在更新中，无法更新代码，请稍后再试';
+          break;
+        case 'Publishing':
+          errorMsg = '当前函数正在版本发布中，无法更新代码，请稍后再试';
+          break;
+        case 'Deleting':
+          errorMsg = '当前函数正在删除中，无法更新代码，请稍后再试';
+          break;
+        case 'CreateFailed':
+          console.log(`函数创建失败，${reason || Status}`);
+          await this.tryToDeleteFunction(namespace, functionName);
+          break;
+        case 'DeleteFailed':
+          errorMsg = `函数删除失败，${reason || Status}`;
+          break;
+      }
+      if (errorMsg) {
+        throw new TypeError('API_SCF_isOperational', errorMsg);
+      }
+    }
+  }
+
   // deploy SCF flow
   async deploy(inputs = {}) {
+    const namespace = inputs.namespace || CONFIGS.defaultNamespace;
+
+    // before deploy a scf, we should check whether
+    // if is CreateFailed, try to remove it
+    await this.isOperational(namespace, inputs.name);
+
     // whether auto create/bind role
     if (inputs.enableRoleAuth) {
       await this.bindScfQCSRole();
     }
-
-    const namespace = inputs.namespace || CONFIGS.defaultNamespace;
-
     // check SCF exist
     // exist: update it, not: create it
     let funcInfo = await this.getFunction(namespace, inputs.name);
@@ -452,7 +504,7 @@ class Scf {
       return;
     }
 
-    await this.deleteFunction(functionName, namespace);
+    await this.deleteFunction(namespace, functionName);
 
     if (inputs.Triggers) {
       for (let i = 0; i < inputs.Triggers.length; i++) {

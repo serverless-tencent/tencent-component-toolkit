@@ -1,4 +1,5 @@
 const { Capi } = require('@tencent-sdk/capi');
+const capis = require('./apis/apis');
 const apis = require('./apis');
 
 class Layer {
@@ -12,9 +13,19 @@ class Layer {
       Token: credentials.Token,
     });
   }
-  async checkExist(name) {
-    const res = await apis.getLayerDetail(this.capi, name);
-    return !!res.LayerVersion;
+
+  async request({ Action, ...data }) {
+    const result = await capis[Action](this.capi, data);
+    return result;
+  }
+
+  async getLayerDetail(name, version) {
+    try {
+      const detail = await apis.getLayerDetail(this.capi, name, version);
+      return detail;
+    } catch (e) {
+      return null;
+    }
   }
 
   async deploy(inputs = {}) {
