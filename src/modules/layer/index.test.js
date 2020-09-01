@@ -16,11 +16,21 @@ async function runTest() {
     runtimes: ['Nodejs10.15', 'Nodejs12.16'],
   };
   const layer = new Layer(credentials, inputs.region);
-  const outputs = await layer.deploy(inputs);
-  console.log('outputs', JSON.stringify(outputs));
+  const res1 = await layer.deploy(inputs);
+  console.log('deploy result: ', res1);
+  console.log('+++++++++++++++++++++');
+
+  // get layer
+  const res2 = await layer.getLayerDetail(inputs.name, res1.version);
+  console.log('get detail: ', res2);
+  console.log('+++++++++++++++++++++');
 
   await sleep(1000);
-  await layer.remove(outputs);
+  await layer.remove({
+    name: inputs.name,
+    version: res1.version,
+  });
+
 }
 
 runTest();
