@@ -1,3 +1,10 @@
+## [1.16.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.16.1...v1.16.2) (2020-09-01)
+
+
+### Bug Fixes
+
+* **scf:** optimize deploy flow ([e153d64](https://github.com/serverless-tencent/tencent-component-toolkit/commit/e153d64c6c4cc2cc085fc4fff13ed6c3a98ad2db))
+
 ## [1.16.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.16.0...v1.16.1) (2020-08-31)
 
 
