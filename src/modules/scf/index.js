@@ -101,7 +101,7 @@ class Scf {
   async checkStatus(namespace = 'default', functionName, qualifier = '$LATEST') {
     console.log(`Checking function ${functionName} status`);
     let initialInfo = await this.getFunction(namespace, functionName, qualifier);
-    let status = initialInfo.Status;
+    let status = initialInfo;
     let times = 120;
     while (CONFIGS.waitStatus.indexOf(status) !== -1 && times > 0) {
       initialInfo = await this.getFunction(namespace, functionName, qualifier);
@@ -109,11 +109,11 @@ class Scf {
       await sleep(1000);
       times = times - 1;
     }
-    const { Status, StatusReasons } = initialInfo;
+    const { StatusReasons } = initialInfo;
     return status !== 'Active'
       ? StatusReasons && StatusReasons.length > 0
         ? `函数状态异常, ${StatusReasons[0].ErrorMessage}`
-        : `函数状态异常, ${Status}`
+        : `函数状态异常, ${status}`
       : true;
   }
 
