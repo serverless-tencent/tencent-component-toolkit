@@ -1,3 +1,10 @@
+## [1.16.3](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.16.2...v1.16.3) (2020-09-02)
+
+
+### Bug Fixes
+
+* **scf:** change cfs UserGroupId to string ([bfa9d00](https://github.com/serverless-tencent/tencent-component-toolkit/commit/bfa9d005df987fdab57ea5365d95ef13309cf734))
+
 ## [1.16.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.16.1...v1.16.2) (2020-09-01)
 
 
