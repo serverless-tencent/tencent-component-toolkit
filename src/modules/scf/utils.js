@@ -273,8 +273,8 @@ const formatFunctionInputs = (region, inputs) => {
         MountInsId: item.MountInsId || item.cfsId,
         LocalMountDir: item.localMountDir,
         RemoteMountDir: item.remoteMountDir,
-        UserGroupId: item.userGroupId || 10000,
-        UserId: item.userId || 10000,
+        UserGroupId: String(item.userGroupId || 10000),
+        UserId: String(item.userId || 10000),
       });
     });
   }
