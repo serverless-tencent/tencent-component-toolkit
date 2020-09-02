@@ -1,16 +1,18 @@
 const ScfUtils = require('./index');
+const CFS = require('../cfs');
 
 class ClientTest {
   async scfTest() {
-    const scf = new ScfUtils({
+    const credentials = {
       SecretId: '',
       SecretKey: '',
-    });
+    };
+    const scf = new ScfUtils(credentials);
     const inputs = {
       name: 'express-test',
       code: {
         bucket: 'sls-cloudfunction-ap-guangzhou-code',
-        object: 'express_component_5dwuabh-1597994417.zip',
+        object: 'express_component_5dwuabh-1598513206.zip',
       },
       role: 'SCF_QcsRole',
       handler: 'sl_handler.handler',
@@ -29,6 +31,16 @@ class ClientTest {
         },
       },
       eip: true,
+      vpcConfig: {
+        vpcId: 'vpc-cp54x9m7',
+        subnetId: 'subnet-267yufru',
+      },
+      cfs: [
+        {
+          localMountDir: '/mnt/',
+          remoteMountDir: '/',
+        },
+      ],
       events: [
         {
           timer: {
@@ -69,6 +81,24 @@ class ClientTest {
       ],
     };
 
+    // 0. deploy cfs
+    const cfsInputs = {
+      fsName: 'cfs-test',
+      region: 'ap-guangzhou',
+      zone: 'ap-guangzhou-3',
+      netInterface: 'VPC',
+      vpc: {
+        vpcId: 'vpc-cp54x9m7',
+        subnetId: 'subnet-267yufru',
+      },
+    };
+    const cfsClient = new CFS(credentials, inputs.region);
+    const cfsRes = await cfsClient.deploy(cfsInputs);
+    console.log('cfs deploy: ', JSON.stringify(cfsRes));
+    console.log('++++++++++++++++++');
+    inputs.cfs[0].cfsId = cfsRes.fileSystemId;
+
+
     // 1. deploy test
     const res1 = await scf.deploy(inputs);
     console.log('deploy: ', JSON.stringify(res1));
@@ -106,6 +136,9 @@ class ClientTest {
     await scf.remove({
       functionName: inputs.name,
     });
+
+    // 5. remove cfs
+    await cfsClient.remove(cfsRes);
   }
 }
 

@@ -1,7 +1,7 @@
 const { Capi } = require('@tencent-sdk/capi');
 const apis = require('./apis');
 
-class Layer {
+class CFS {
   constructor(credentials = {}, region) {
     this.region = region || 'ap-guangzhou';
     this.credentials = credentials;
@@ -96,4 +96,4 @@ class Layer {
   }
 }
 
-module.exports = Layer;
+module.exports = CFS;
