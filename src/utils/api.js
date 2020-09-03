@@ -17,7 +17,7 @@ function cleanEmptyValue(obj) {
 
 function ApiFactory({
   debug = false,
-  isV3 = true,
+  isV3 = false,
   actions,
   serviceType,
   host,

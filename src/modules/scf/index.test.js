@@ -11,7 +11,7 @@ class ClientTest {
     const inputs = {
       name: 'express-test',
       code: {
-        bucket: 'sls-cloudfunction-ap-guangzhou-code',
+        bucket: 'test',
         object: 'express_component_5dwuabh-1598513206.zip',
       },
       role: 'SCF_QcsRole',

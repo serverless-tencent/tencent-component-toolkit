@@ -251,11 +251,9 @@ const formatFunctionInputs = (region, inputs) => {
     functionInputs.DeadLetterConfig = {};
     if (inputs.deadLetter.type) {
       functionInputs.DeadLetterConfig.Type = inputs.deadLetter.type;
-      functionInputs['DeadLetterConfig.Type'] = inputs.deadLetter.type;
     }
     if (inputs.deadLetter.name) {
       functionInputs.DeadLetterConfig.Name = inputs.deadLetter.name;
-      functionInputs['DeadLetterConfig.Name'] = inputs.deadLetter.name;
     }
     if (inputs.deadLetter.filterType) {
       functionInputs.DeadLetterConfig.FilterType = inputs.deadLetter.filterType;
