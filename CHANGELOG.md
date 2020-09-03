@@ -1,3 +1,10 @@
+## [1.16.4](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.16.3...v1.16.4) (2020-09-03)
+
+
+### Bug Fixes
+
+* revert api sign to old version ([7756faa](https://github.com/serverless-tencent/tencent-component-toolkit/commit/7756faa697ab8ef819709f6272adaab05fe0c4a0))
+
 ## [1.16.3](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.16.2...v1.16.3) (2020-09-02)
 
 
