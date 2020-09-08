@@ -7,7 +7,7 @@ class Vpc {
     this.region = region || 'ap-guangzhou';
     this.credentials = credentials;
     this.capi = new Capi({
-      Region: region,
+      Region: this.region,
       AppId: credentials.AppId,
       SecretId: credentials.SecretId,
       SecretKey: credentials.SecretKey,

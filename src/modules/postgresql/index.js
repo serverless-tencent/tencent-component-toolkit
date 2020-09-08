@@ -13,7 +13,7 @@ class Postgresql {
     this.region = region || 'ap-guangzhou';
     this.credentials = credentials;
     this.capi = new Capi({
-      Region: region,
+      Region: this.region,
       AppId: this.credentials.AppId,
       SecretId: this.credentials.SecretId,
       SecretKey: this.credentials.SecretKey,
@@ -74,11 +74,11 @@ class Postgresql {
         postgresInputs.SubnetId = vpcConfig.subnetId;
       }
       dbDetail = await createDbInstance(this.capi, postgresInputs);
-      outputs.dBInstanceId = dbDetail.DBInstanceId;
       if (extranetAccess) {
         dbDetail = await toggleDbInstanceAccess(this.capi, dBInstanceName, extranetAccess);
       }
     }
+    outputs.dBInstanceId = dbDetail.DBInstanceId;
 
     const {
       DBInstanceNetInfo,

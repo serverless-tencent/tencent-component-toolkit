@@ -21,7 +21,7 @@ const utils = {
       });
       return res;
     } catch (e) {
-      return {};
+      return null;
     }
   },
 

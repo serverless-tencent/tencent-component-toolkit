@@ -1,6 +1,5 @@
 const { Capi } = require('@tencent-sdk/capi');
 const Apis = require('./apis');
-const { camelCaseProperty } = require('../../utils/index');
 
 class Tag {
   constructor(credentials = {}, region = 'ap-guangzhou') {
@@ -16,18 +15,19 @@ class Tag {
   }
 
   async request({ Action, ...data }) {
-    const result = await Apis[Action](this.capi, camelCaseProperty(data));
+    const result = await Apis[Action](this.capi, data);
     return result;
   }
 
-  async addArray(body, tags, key) {
-    let index = 0;
-    for (const item in tags) {
-      body[`${key}.${index}.TagKey`] = item;
-      body[`${key}.${index}.TagValue`] = tags[item];
-      index++;
-    }
-    return body;
+  async getScfResourceTags(inputs) {
+    const data = {
+      Action: 'DescribeResourceTags',
+      ResourcePrefix: 'namespace',
+      ResourceId: `${inputs.namespace || 'default'}/function/${inputs.functionName}`,
+    };
+
+    const { Rows } = await this.request(data);
+    return Rows;
   }
 
   async deploy(inputs = {}) {
@@ -45,9 +45,8 @@ class Tag {
       }));
     }
     if (Object.keys(deleteTags).length > 0) {
-      tagsInputs.DeleteTags = Object.entries(deleteTags).map(([key, val]) => ({
+      tagsInputs.DeleteTags = Object.keys(deleteTags).map((key) => ({
         TagKey: key,
-        TagValue: val,
       }));
     }
 

@@ -7,7 +7,7 @@ class Layer {
     this.region = region || 'ap-guangzhou';
     this.credentials = credentials;
     this.capi = new Capi({
-      Region: region,
+      Region: this.region,
       SecretId: credentials.SecretId,
       SecretKey: credentials.SecretKey,
       Token: credentials.Token,
@@ -67,7 +67,7 @@ class Layer {
       console.log(e);
     }
 
-    return {};
+    return true;
   }
 }
 
