@@ -6,7 +6,7 @@ class CFS {
     this.region = region || 'ap-guangzhou';
     this.credentials = credentials;
     this.capi = new Capi({
-      Region: region,
+      Region: this.region,
       SecretId: credentials.SecretId,
       SecretKey: credentials.SecretKey,
       Token: credentials.Token,

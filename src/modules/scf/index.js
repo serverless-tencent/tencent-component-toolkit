@@ -394,7 +394,6 @@ class Scf {
     let funcInfo = await this.getFunction(namespace, inputs.name);
     if (!funcInfo) {
       await this.createFunction(inputs);
-      funcInfo = await this.getFunction(namespace, inputs.name);
     } else {
       await this.updateFunctionCode(inputs, funcInfo);
 
@@ -402,13 +401,13 @@ class Scf {
       await this.isOperationalStatus(namespace, inputs.name);
 
       await this.updatefunctionConfigure(inputs, funcInfo);
-
-      // after updating function, get latest function info
-      funcInfo = await this.getFunction(namespace, inputs.name);
     }
 
     // should check function status is active, then continue
     await this.isOperationalStatus(namespace, inputs.name);
+
+    // after create/update function, get latest function info
+    funcInfo = await this.getFunction(namespace, inputs.name);
 
     const outputs = funcInfo;
     if (inputs.publish) {
@@ -506,6 +505,10 @@ class Scf {
 
     await this.deleteFunction(namespace, functionName);
 
+    try {
+      await this.isOperationalStatus(namespace, functionName);
+    } catch (e) {}
+
     if (inputs.Triggers) {
       for (let i = 0; i < inputs.Triggers.length; i++) {
         if (inputs.Triggers[i].serviceId) {
@@ -521,6 +524,8 @@ class Scf {
     }
 
     console.log(`Remove function ${functionName} and it's triggers success`);
+
+    return true;
   }
 
   async invoke(inputs = {}) {

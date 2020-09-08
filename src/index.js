@@ -12,6 +12,7 @@ const Vpc = require('./modules/vpc');
 const Cam = require('./modules/cam');
 const Metrics = require('./modules/metrics');
 const Layer = require('./modules/layer');
+const Cfs = require('./modules/cfs');
 
 module.exports = {
   Apigw,
@@ -28,4 +29,5 @@ module.exports = {
   Cam,
   Metrics,
   Layer,
+  Cfs,
 };
