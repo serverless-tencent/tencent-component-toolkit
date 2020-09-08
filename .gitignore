@@ -17,6 +17,8 @@ dist
 .idea
 build
 .env*
+.env.test
+!.env.example
 env.js
 package-lock.json
 yarn.lock

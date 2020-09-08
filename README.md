@@ -34,6 +34,12 @@ support type：
 
 Most of time, we just use `feat` and `fix`.
 
+## Test
+
+For running integration tests we should setup some environment variables in `.env.test` locally or `secrets` in CI.
+
+Just copy `.env.example` to `.env.test`, then change to test account.
+
 ## License
 
 Copyright (c) 2019-present Tencent Cloud, Inc.
