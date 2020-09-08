@@ -1,3 +1,10 @@
+## [1.16.5](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.16.4...v1.16.5) (2020-09-08)
+
+
+### Bug Fixes
+
+* optimize code ([6d1d224](https://github.com/serverless-tencent/tencent-component-toolkit/commit/6d1d224efeb36619c81a1a6eb906d0d98c41ac0e))
+
 ## [1.16.4](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.16.3...v1.16.4) (2020-09-03)
 
 
