@@ -12,6 +12,7 @@ const config = {
 
 if (process.env.MODULE) {
   config.testRegex = `/__tests__/${process.env.MODULE}.test.js`;
+  config.testPathIgnorePatterns = ['/node_modules/'];
 }
 
 module.exports = config;
