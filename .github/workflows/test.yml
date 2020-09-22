@@ -3,9 +3,6 @@ name: IntegrationTest
 on:
   pull_request:
     branches: [master]
-  push:
-    paths:
-      - 'src/**'
 
 jobs:
   IntegrationTest:
