@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { DescribeDomains } = require('./apis');
+const { DescribeDomains, OpenCdnService } = require('./apis');
 
 const ONE_SECOND = 1000;
 // timeout 5 minutes
@@ -128,6 +128,19 @@ function flushEmptyValue(obj) {
   return newObj;
 }
 
+async function openCdnService(capi) {
+  try {
+    await OpenCdnService(capi, {
+      PayTypeMainland: 'flux',
+      PayTypeOverseas: 'flux',
+    });
+  } catch (e) {
+    if (e.code !== 'ResourceInUse.CdnUserExists') {
+      throw e;
+    }
+  }
+}
+
 module.exports = {
   ONE_SECOND,
   TIMEOUT,
@@ -139,4 +152,5 @@ module.exports = {
   formatOrigin,
   camelCaseProperty,
   flushEmptyValue,
+  openCdnService,
 };

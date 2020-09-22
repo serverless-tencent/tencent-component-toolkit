@@ -16,6 +16,7 @@ const {
   camelCaseProperty,
   getCdnByDomain,
   flushEmptyValue,
+  openCdnService,
 } = require('./utils');
 
 class Cdn {
@@ -66,6 +67,7 @@ class Cdn {
   }
 
   async deploy(inputs = {}) {
+    await openCdnService(this.capi);
     const { oldState = {} } = inputs;
     delete inputs.oldState;
     const {
@@ -151,7 +153,7 @@ class Cdn {
       domain: Domain,
       origins: cdnInputs.Origin.Origins,
       cname: `${Domain}.cdn.dnsv1.com`,
-      inputCache: JSON.stringify(cdnInputs),
+      inputCache: JSON.stringify(inputs),
     };
 
     if (Https) {
@@ -172,11 +174,17 @@ class Cdn {
       };
     }
 
-    const cdnInfo = await getCdnByDomain(this.capi, Domain);
+    let cdnInfo = await getCdnByDomain(this.capi, Domain);
 
     const sourceInputs = JSON.parse(JSON.stringify(cdnInputs));
 
     const createOrUpdateCdn = async () => {
+      if (cdnInfo && cdnInfo.Status === 'offline') {
+        console.log(`The CDN domain ${Domain} is offline.`);
+        console.log(`Recreating CDN domain ${Domain}`);
+        await DeleteCdnDomain(this.capi, { Domain: Domain });
+        cdnInfo = null;
+      }
       if (cdnInfo) {
         // update
         console.log(`The CDN domain ${Domain} has existed.`);
@@ -195,7 +203,7 @@ class Cdn {
           cdnInputs.ServiceType = ServiceType || 'web';
           await AddCdnDomain(this.capi, cdnInputs);
         } catch (e) {
-          if (e.code === 9111) {
+          if (e.code === 'ResourceNotFound.CdnUserNotExists') {
             console.log(`Please goto https://console.cloud.tencent.com/cdn open CDN service.`);
           }
           throw e;
@@ -203,7 +211,6 @@ class Cdn {
         await sleep(1000);
         const detail = await getCdnByDomain(this.capi, Domain);
 
-        outputs.created = true;
         outputs.resourceId = detail && detail.ResourceId;
       }
 
