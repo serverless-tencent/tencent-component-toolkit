@@ -495,12 +495,12 @@ class Scf {
 
     if (!func) {
       console.log(`Function ${functionName} not exist`);
-      return;
+      return true;
     }
 
     if (func.Status === 'Updating' || func.Status === 'Creating') {
       console.log(`Function ${functionName} status is ${func.Status}, can not delete`);
-      return;
+      return false;
     }
 
     await this.deleteFunction(namespace, functionName);
