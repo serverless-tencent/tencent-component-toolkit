@@ -1,0 +1,15 @@
+node_modules
+*.map
+tsconfig.tsbuildinfo
+test
+__tests__
+.github
+.env*
+jest.config.js
+.eslint.js
+.eslintignore
+.prettierignore
+prettier.config.js
+release.config.js
+commitlint.config.js
+.editorconfig
