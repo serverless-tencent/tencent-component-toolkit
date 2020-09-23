@@ -10,9 +10,9 @@ describe('Cdn', () => {
   const inputs = {
     async: false,
     area: 'overseas',
-    domain: 'test.yuga.chat',
+    domain: process.env.SUB_DOMAIN,
     origin: {
-      origins: ['up6pwd9-89hm718-xxx.cos-website.ap-guangzhou.myqcloud.com'],
+      origins: [`${process.env.BUCKET}-${process.env.TENCENT_APP_ID}.cos.${process.env.REGION}.myqcloud.com`],
       originType: 'cos',
       originPullProtocol: 'https',
     },
@@ -21,7 +21,7 @@ describe('Cdn', () => {
       switch: 'on',
       http2: 'on',
       certInfo: {
-        certId: 'cWOJJjax',
+        certId: process.env.SUB_DOMAIN_CERT_ID,
       },
     },
     forceRedirect: {
