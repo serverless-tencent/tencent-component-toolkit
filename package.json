@@ -78,6 +78,6 @@
     "@ygkit/request": "^0.1.1",
     "cos-nodejs-sdk-v5": "^2.6.2",
     "moment": "^2.25.3",
-    "tencent-cloud-sdk": "^1.0.3"
+    "tencent-cloud-sdk": "^1.0.5"
   }
 }

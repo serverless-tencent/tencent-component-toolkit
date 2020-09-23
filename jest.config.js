@@ -3,7 +3,7 @@ require('dotenv').config({ path: join(__dirname, '.env.test') });
 
 const config = {
   verbose: true,
-  silent: true,
+  silent: process.env.MODULE ? false : true,
   testTimeout: 60000,
   testEnvironment: 'node',
   testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.(js|ts)$',
