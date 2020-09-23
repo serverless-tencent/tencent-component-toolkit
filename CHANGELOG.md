@@ -1,3 +1,11 @@
+## [1.16.6](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.16.5...v1.16.6) (2020-09-23)
+
+
+### Bug Fixes
+
+* **cdn:** optimize cdn deploy and use v3 sign ([c15fdad](https://github.com/serverless-tencent/tencent-component-toolkit/commit/c15fdad894f17ee75db04cd5ab0de600a184ddf9))
+* update tencent-cloud-sdk ([3ab7335](https://github.com/serverless-tencent/tencent-component-toolkit/commit/3ab733586a7bda287d8285d7124fdc74d89e9600))
+
 ## [1.16.5](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.16.4...v1.16.5) (2020-09-08)
 
 
