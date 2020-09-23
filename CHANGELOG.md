@@ -1,3 +1,10 @@
+## [1.16.7](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.16.6...v1.16.7) (2020-09-23)
+
+
+### Bug Fixes
+
+* update deps ([8b9107b](https://github.com/serverless-tencent/tencent-component-toolkit/commit/8b9107b7f709f9d03fc61e8ab74c6eb8fb100e49))
+
 ## [1.16.6](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.16.5...v1.16.6) (2020-09-23)
 
 
