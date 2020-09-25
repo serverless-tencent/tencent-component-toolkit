@@ -154,6 +154,10 @@ class Scf {
     functionInputs.Timeout = inputs.timeout || funcInfo.Timeout;
     functionInputs.Namespace = inputs.namespace || funcInfo.Namespace;
     functionInputs.MemorySize = inputs.memorySize || funcInfo.MemorySize;
+    if (!functionInputs.ClsLogsetId) {
+      functionInputs.ClsLogsetId = '';
+      functionInputs.ClsTopicId = '';
+    }
     // can not update handler,code,codesource
     delete functionInputs.Handler;
     delete functionInputs.Code;
