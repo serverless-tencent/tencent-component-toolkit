@@ -1,3 +1,10 @@
+## [1.16.8](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.16.7...v1.16.8) (2020-09-25)
+
+
+### Bug Fixes
+
+* cls reset ([1e6c0e5](https://github.com/serverless-tencent/tencent-component-toolkit/commit/1e6c0e59cfc61d83d221a0131115878ac67119d0))
+
 ## [1.16.7](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.16.6...v1.16.7) (2020-09-23)
 
 
