@@ -30,7 +30,6 @@ describe('Layer', () => {
     });
 
     inputs.version = res.version;
-
   });
 
   test('should remove layer success', async () => {
@@ -43,7 +42,4 @@ describe('Layer', () => {
     const detail = await layer.getLayerDetail(inputs.name, inputs.version);
     expect(detail).toBeNull();
   });
-
 });
-
-

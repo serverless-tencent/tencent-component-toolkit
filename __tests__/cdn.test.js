@@ -12,7 +12,9 @@ describe('Cdn', () => {
     area: 'overseas',
     domain: process.env.SUB_DOMAIN,
     origin: {
-      origins: [`${process.env.BUCKET}-${process.env.TENCENT_APP_ID}.cos.${process.env.REGION}.myqcloud.com`],
+      origins: [
+        `${process.env.BUCKET}-${process.env.TENCENT_APP_ID}.cos.${process.env.REGION}.myqcloud.com`,
+      ],
       originType: 'cos',
       originPullProtocol: 'https',
     },
@@ -44,7 +46,6 @@ describe('Cdn', () => {
     });
   });
 
-
   test('should deploy CDN success with originType = domain', async () => {
     inputs.origin.originType = 'domain';
     const res = await cdn.deploy(inputs);
@@ -65,4 +66,3 @@ describe('Cdn', () => {
     expect(detail).toBeUndefined();
   });
 });
-

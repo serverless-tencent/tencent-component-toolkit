@@ -14,7 +14,4 @@ describe('Domain', () => {
       subDomain: expect.any(String),
     });
   });
-
 });
-
-

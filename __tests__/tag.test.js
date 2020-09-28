@@ -1,4 +1,3 @@
-
 const { Tag } = require('../src');
 
 describe('Tag', () => {
@@ -10,7 +9,7 @@ describe('Tag', () => {
   const inputs = {
     resource: `qcs::scf:${process.env.REGION}:uin/${process.env.TENCENT_UIN}:namespace/default/function/${functionName}`,
     replaceTags: { tagKey: 'tagValue' },
-    deleteTags: { abcdd: 'def'},
+    deleteTags: { abcdd: 'def' },
   };
   const tag = new Tag(credentials, process.env.REGION);
 
@@ -24,4 +23,3 @@ describe('Tag', () => {
     expect(curTag.TagValue).toBe('tagValue');
   });
 });
-

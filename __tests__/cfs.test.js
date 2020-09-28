@@ -41,4 +41,3 @@ describe('Cfs', () => {
     expect(detail).toBeUndefined();
   });
 });
-
