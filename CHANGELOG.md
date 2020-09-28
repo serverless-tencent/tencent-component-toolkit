@@ -1,3 +1,15 @@
+# [1.17.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.16.8...v1.17.0) (2020-09-28)
+
+
+### Bug Fixes
+
+* **layer:** add loop get status ([8000eef](https://github.com/serverless-tencent/tencent-component-toolkit/commit/8000eef46e4aa953532a756ab4492353604acf95))
+
+
+### Features
+
+* add cynosdb module ([c0dc39b](https://github.com/serverless-tencent/tencent-component-toolkit/commit/c0dc39bc23ca110d9a7d1ee5f030d0194600ba77))
+
 ## [1.16.8](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.16.7...v1.16.8) (2020-09-25)
 
 
