@@ -42,4 +42,3 @@ describe('Cam', () => {
     expect(res).toBe(true);
   });
 });
-

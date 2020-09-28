@@ -34,7 +34,7 @@ describe('Cos', () => {
     ],
   };
 
-  const websiteInputs =  {
+  const websiteInputs = {
     code: {
       src: staticPath,
     },
@@ -75,4 +75,3 @@ describe('Cos', () => {
     }
   });
 });
-

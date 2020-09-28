@@ -71,4 +71,3 @@ describe('Cns', () => {
     expect(res).toEqual(true);
   });
 });
-

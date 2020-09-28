@@ -106,53 +106,60 @@ describe('apigw', () => {
       subDomain: expect.stringContaining('.apigw.tencentcs.com'),
       protocols: inputs.protocols,
       environment: 'release',
-      apiList: [{
-        path: '/',
-        bindType: 'API',
-        internalDomain: null,
-        method: 'GET',
-        apiName: 'index',
-        apiId: expect.stringContaining('api-'),
-        created: true,
-        usagePlan:  {
+      apiList: [
+        {
+          path: '/',
+          bindType: 'API',
+          internalDomain: null,
+          method: 'GET',
+          apiName: 'index',
+          apiId: expect.stringContaining('api-'),
           created: true,
-          secrets:  {
-            'created': false,
-            'secretIds':  [],
+          usagePlan: {
+            created: true,
+            secrets: {
+              created: false,
+              secretIds: [],
+            },
+            usagePlanId: expect.stringContaining('usagePlan-'),
           },
-          usagePlanId: expect.stringContaining('usagePlan-'),
         },
-      },{
-        path: '/mo',
-        method: 'GET',
-        apiName: 'mo',
-        internalDomain: null,
-        apiId: expect.stringContaining('api-'),
-        created: true,
-      },{
-        path: '/auto',
-        method: 'GET',
-        apiName: 'auto-http',
-        internalDomain: null,
-        apiId: expect.stringContaining('api-'),
-        created: true,
-      },{
-        path: '/ws',
-        method: 'GET',
-        apiName: 'ws-test',
-        internalDomain: null,
-        apiId: expect.stringContaining('api-'),
-        created: true,
-      },{
-        path: '/wsf',
-        method: 'GET',
-        apiName: 'ws-scf',
-        internalDomain: expect.stringContaining('http://set-websocket.cb-common.apigateway.tencentyun.com'),
-        apiId: expect.stringContaining('api-'),
-        created: true,
-      }],
+        {
+          path: '/mo',
+          method: 'GET',
+          apiName: 'mo',
+          internalDomain: null,
+          apiId: expect.stringContaining('api-'),
+          created: true,
+        },
+        {
+          path: '/auto',
+          method: 'GET',
+          apiName: 'auto-http',
+          internalDomain: null,
+          apiId: expect.stringContaining('api-'),
+          created: true,
+        },
+        {
+          path: '/ws',
+          method: 'GET',
+          apiName: 'ws-test',
+          internalDomain: null,
+          apiId: expect.stringContaining('api-'),
+          created: true,
+        },
+        {
+          path: '/wsf',
+          method: 'GET',
+          apiName: 'ws-scf',
+          internalDomain: expect.stringContaining(
+            'http://set-websocket.cb-common.apigateway.tencentyun.com',
+          ),
+          apiId: expect.stringContaining('api-'),
+          created: true,
+        },
+      ],
     });
-
   });
 
   test('should remove apigw success', async () => {
@@ -165,4 +172,3 @@ describe('apigw', () => {
     expect(detail).toBeNull();
   });
 });
-

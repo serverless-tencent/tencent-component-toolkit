@@ -76,6 +76,3 @@ describe('Postgresql', () => {
     expect(detail).toBeUndefined();
   });
 });
-
-
-

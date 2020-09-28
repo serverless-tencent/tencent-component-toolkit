@@ -55,8 +55,7 @@ describe('Scf', () => {
         cos: {
           name: 'cos-trigger',
           parameters: {
-            bucket:
-              `${process.env.BUCKET}-${process.env.TENCENT_APP_ID}.cos.${process.env.REGION}.myqcloud.com`,
+            bucket: `${process.env.BUCKET}-${process.env.TENCENT_APP_ID}.cos.${process.env.REGION}.myqcloud.com`,
             enable: true,
             events: 'cos:ObjectCreated:*',
             filter: {
@@ -104,16 +103,20 @@ describe('Scf', () => {
 
   beforeAll(async () => {
     const { fileSystemId } = await cfs.deploy(cfsInputs);
-    inputs.cfs = [{
-      localMountDir: '/mnt/',
-      remoteMountDir: '/',
-      cfsId: fileSystemId,
-    }];
+    inputs.cfs = [
+      {
+        localMountDir: '/mnt/',
+        remoteMountDir: '/',
+        cfsId: fileSystemId,
+      },
+    ];
     const { name, version } = await layer.deploy(layerInputs);
-    inputs.layers = [{
-      name,
-      version,
-    }];
+    inputs.layers = [
+      {
+        name,
+        version,
+      },
+    ];
   });
 
   afterAll(async () => {
@@ -134,10 +137,14 @@ describe('Scf', () => {
       MemorySize: inputs.memorySize,
       Runtime: inputs.runtime,
       VpcConfig: { VpcId: vpcConfig.vpcId, SubnetId: vpcConfig.subnetId },
-      Environment: { Variables: [{
-        Key: 'TEST',
-        Value: 'value',
-      }]},
+      Environment: {
+        Variables: [
+          {
+            Key: 'TEST',
+            Value: 'value',
+          },
+        ],
+      },
       Handler: inputs.handler,
       UseGpu: 'FALSE',
       Role: inputs.role,
@@ -223,17 +230,19 @@ describe('Scf', () => {
       AccessInfo: { Host: '', Vip: '' },
       Type: 'Event',
       CfsConfig: {
-        CfsInsList: [{
-          UserId: '10000',
-          UserGroupId: '10000',
-          CfsId: inputs.cfs[0].cfsId,
-          MountInsId: inputs.cfs[0].cfsId,
-          LocalMountDir: inputs.cfs[0].localMountDir,
-          RemoteMountDir: inputs.cfs[0].remoteMountDir,
-          IpAddress: expect.any(String),
-          MountVpcId: inputs.vpcConfig.vpcId,
-          MountSubnetId: inputs.vpcConfig.subnetId,
-        }],
+        CfsInsList: [
+          {
+            UserId: '10000',
+            UserGroupId: '10000',
+            CfsId: inputs.cfs[0].cfsId,
+            MountInsId: inputs.cfs[0].cfsId,
+            LocalMountDir: inputs.cfs[0].localMountDir,
+            RemoteMountDir: inputs.cfs[0].remoteMountDir,
+            IpAddress: expect.any(String),
+            MountVpcId: inputs.vpcConfig.vpcId,
+            MountSubnetId: inputs.vpcConfig.subnetId,
+          },
+        ],
       },
       StatusReasons: [],
       RequestId: expect.any(String),
@@ -248,14 +257,14 @@ describe('Scf', () => {
     });
     expect(res).toEqual({
       Result: {
-        'MemUsage': expect.any(Number),
-        'Log': expect.any(String),
-        'RetMsg': expect.any(String),
-        'BillDuration': expect.any(Number),
-        'FunctionRequestId': expect.any(String),
-        'Duration': expect.any(Number),
-        'ErrMsg': expect.any(String),
-        'InvokeResult': expect.anything(),
+        MemUsage: expect.any(Number),
+        Log: expect.any(String),
+        RetMsg: expect.any(String),
+        BillDuration: expect.any(Number),
+        FunctionRequestId: expect.any(String),
+        Duration: expect.any(Number),
+        ErrMsg: expect.any(String),
+        InvokeResult: expect.anything(),
       },
       RequestId: expect.any(String),
     });

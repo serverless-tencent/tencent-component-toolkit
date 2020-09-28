@@ -3,7 +3,13 @@ const { TypeError, ApiError } = require('../src/utils/error');
 describe('Custom Error', () => {
   test('TypeError', async () => {
     try {
-      throw new TypeError('TEST_TypeError', 'This is a test error', 'error stack',  123, 'error test');
+      throw new TypeError(
+        'TEST_TypeError',
+        'This is a test error',
+        'error stack',
+        123,
+        'error test',
+      );
     } catch (e) {
       expect(e.type).toEqual('TEST_TypeError');
       expect(e.message).toEqual('This is a test error');
@@ -32,4 +38,3 @@ describe('Custom Error', () => {
     }
   });
 });
-
