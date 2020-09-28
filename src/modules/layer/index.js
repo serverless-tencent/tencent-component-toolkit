@@ -1,6 +1,10 @@
 const { Capi } = require('@tencent-sdk/capi');
+const { waitResponse } = require('@ygkit/request');
 const capis = require('./apis/apis');
 const apis = require('./apis');
+
+// timeout 2 minutes
+const TIMEOUT = 2 * 60 * 1000;
 
 class Layer {
   constructor(credentials = {}, region) {
@@ -52,6 +56,13 @@ class Layer {
     // publish layer
     console.log(`Creating layer ${inputs.name}`);
     const version = await apis.publishLayer(this.capi, layerInputs);
+    // loop for active status
+    await waitResponse({
+      callback: async () => this.getLayerDetail(inputs.name, version),
+      targetProp: 'Status',
+      targetResponse: 'Active',
+      timeout: TIMEOUT,
+    });
     console.log(`Created layer: ${inputs.name}, version: ${version} successful`);
     outputs.version = version;
 
