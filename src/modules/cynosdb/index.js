@@ -37,6 +37,10 @@ class Cynosdb {
       storageLimit = 1000,
       instanceCount = 2,
       adminPassword,
+      payMode = 1,
+      timeSpan = 1,
+      timeUnit = 'm',
+      autoVoucher = 1,
     } = inputs;
 
     const outputs = {
@@ -70,8 +74,10 @@ class Cynosdb {
         Memory: memory,
         StorageLimit: storageLimit,
         InstanceCount: instanceCount,
-        PayMode: 0,
-        AutoVoucher: 1,
+        PayMode: payMode,
+        TimeSpan: timeSpan,
+        TimeUnit: timeUnit,
+        AutoVoucher: autoVoucher,
         RollbackStrategy: 'noneRollback',
         OrderSource: 'serverless',
         VpcId: vpcConfig.vpcId,

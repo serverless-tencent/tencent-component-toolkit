@@ -7,7 +7,7 @@ const config = {
   testTimeout: 60000,
   testEnvironment: 'node',
   testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.(js|ts)$',
-  testPathIgnorePatterns: ['/node_modules/', '/__tests__/cdn.test.js'],
+  testPathIgnorePatterns: ['/node_modules/', '/__tests__/cdn.test.js', '/__tests__/cynos.test.js'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
 };
 
