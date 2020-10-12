@@ -1,3 +1,10 @@
+## [1.17.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.17.0...v1.17.1) (2020-10-12)
+
+
+### Bug Fixes
+
+* **cynosdb:** paymode and using voucher ([#138](https://github.com/serverless-tencent/tencent-component-toolkit/issues/138)) ([99b1fca](https://github.com/serverless-tencent/tencent-component-toolkit/commit/99b1fca59e9e1da760618b4bf47cfbd4d7583114))
+
 # [1.17.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.16.8...v1.17.0) (2020-09-28)
 
 
