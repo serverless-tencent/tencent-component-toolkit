@@ -1,3 +1,10 @@
+## [1.17.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.17.1...v1.17.2) (2020-10-13)
+
+
+### Bug Fixes
+
+* update capi ([28cd2ae](https://github.com/serverless-tencent/tencent-component-toolkit/commit/28cd2aef1e1e3ab30041819596c4b3fe91de0376))
+
 ## [1.17.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.17.0...v1.17.1) (2020-10-12)
 
 
