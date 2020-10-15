@@ -42,6 +42,7 @@ describe('Cos', () => {
     src: staticPath,
     force: true,
     protocol: 'https',
+    replace: true,
   };
   const cos = new Cos(credentials, process.env.REGION);
 
