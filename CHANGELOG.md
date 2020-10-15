@@ -1,3 +1,10 @@
+## [1.17.3](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.17.2...v1.17.3) (2020-10-15)
+
+
+### Bug Fixes
+
+* **cos:** support replace for deployment ([e6580b7](https://github.com/serverless-tencent/tencent-component-toolkit/commit/e6580b70cab2454690b7ff91c3d738f314cfe33e))
+
 ## [1.17.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.17.1...v1.17.2) (2020-10-13)
 
 
