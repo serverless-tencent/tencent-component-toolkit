@@ -485,15 +485,59 @@ class Cos {
     }
   }
 
+  async flushBucketFiles(bucket) {
+    console.log(`Start to clear all files in bucket ${bucket}`);
+    let detail;
+    try {
+      detail = await this.getBucket({
+        bucket,
+      });
+    } catch (e) {
+      if (e.code === 'NoSuchBucket') {
+        console.log(`Bucket ${bucket} not exist`);
+        return;
+      }
+    }
+
+    if (detail) {
+      if (detail.Contents && detail.Contents.length > 0) {
+        // delete files
+        const objectList = (detail.Contents || []).map((item) => {
+          return {
+            Key: item.Key,
+          };
+        });
+
+        try {
+          const deleteMultipleObjectHandler = this.promisify(
+            this.cosClient.deleteMultipleObject.bind(this.cosClient),
+          );
+          await deleteMultipleObjectHandler({
+            Region: this.region,
+            Bucket: bucket,
+            Objects: objectList,
+          });
+          console.log(`Clear all files in bucket ${bucket} success`);
+        } catch (e) {
+          console.log(e);
+        }
+      }
+    }
+  }
+
   async upload(inputs = {}) {
-    const { bucket } = inputs;
+    const { bucket, replace } = inputs;
     const { region } = this;
 
     if (!bucket) {
       throw new TypeError(`PARAMETER_COS`, 'Bucket name is required');
     }
 
-    console.log(`Uploding files to ${this.region}'s bucket: ${inputs.bucket}`);
+    if (replace) {
+      await this.flushBucketFiles(bucket);
+    }
+
+    console.log(`Uploding files to bucket: ${bucket}, region: ${this.region}`);
     if (inputs.dir && (await fs.existsSync(inputs.dir))) {
       const options = { keyPrefix: inputs.keyPrefix };
 
@@ -620,6 +664,7 @@ class Cos {
     const dirToUploadPath = inputs.code.src || inputs.code.root;
     const uploadDict = {
       bucket: inputs.bucket,
+      replace: inputs.replace,
     };
     if (fs.lstatSync(dirToUploadPath).isDirectory()) {
       uploadDict.dir = dirToUploadPath;
@@ -660,6 +705,7 @@ class Cos {
       const uploadDict = {
         bucket: inputs.bucket,
         keyPrefix: inputs.keyPrefix || '/',
+        replace: inputs.replace,
       };
 
       if (fs.lstatSync(dirToUploadPath).isDirectory()) {
@@ -675,7 +721,6 @@ class Cos {
   async remove(inputs = {}) {
     console.log(`Removing bucket from ${this.region}`);
 
-    // 获取全部文件
     let detail;
     try {
       detail = await this.getBucket(inputs);
@@ -686,29 +731,13 @@ class Cos {
       }
     }
 
+    // if bucket exist, begain to delate
     if (detail) {
-      if (detail.Contents && detail.Contents.length > 0) {
-        // delete files
-        const objectList = (detail.Contents || []).map((item) => {
-          return {
-            Key: item.Key,
-          };
-        });
-
-        try {
-          const deleteMultipleObjectHandler = this.promisify(
-            this.cosClient.deleteMultipleObject.bind(this.cosClient),
-          );
-          await deleteMultipleObjectHandler({
-            Region: this.region,
-            Bucket: inputs.bucket,
-            Objects: objectList,
-          });
-        } catch (e) {
-          console.log(e);
-        }
-      }
       try {
+        // 1. flush all files
+        await this.flushBucketFiles(inputs.bucket);
+
+        // 2. delete bucket
         const deleteBucketHandler = this.promisify(
           this.cosClient.deleteBucket.bind(this.cosClient),
         );
@@ -717,6 +746,8 @@ class Cos {
           Bucket: inputs.bucket,
         });
       } catch (e) {
+        // why do this judgement again
+        // because when requesting to delete, bucket may be deleted even though it exist before.
         if (e.code === 'NoSuchBucket') {
           console.log(`Bucket ${inputs.bucket} not exist`);
         } else {
