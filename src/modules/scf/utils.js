@@ -122,6 +122,7 @@ const formatCkafkaTrigger = (region, funcInfo, inputs) => {
   triggerInputs.TriggerDesc = JSON.stringify({
     maxMsgNum: parameters.maxMsgNum,
     offset: parameters.offset,
+    retry: parameters.retry,
   });
   triggerInputs.Enable = parameters.enable ? 'OPEN' : 'CLOSE';
   const triggerKey = `${triggerInputs.Type}-${triggerInputs.TriggerName}`;
