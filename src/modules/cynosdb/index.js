@@ -37,7 +37,7 @@ class Cynosdb {
       storageLimit = 1000,
       instanceCount = 2,
       adminPassword,
-      payMode = 1,
+      payMode = 0,
       timeSpan = 1,
       timeUnit = 'm',
       autoVoucher = 1,
@@ -75,8 +75,6 @@ class Cynosdb {
         StorageLimit: storageLimit,
         InstanceCount: instanceCount,
         PayMode: payMode,
-        TimeSpan: timeSpan,
-        TimeUnit: timeUnit,
         AutoVoucher: autoVoucher,
         RollbackStrategy: 'noneRollback',
         OrderSource: 'serverless',
@@ -87,6 +85,11 @@ class Cynosdb {
         SubnetId: vpcConfig.subnetId,
         AdminPassword: adminPassword || generatePwd(),
       };
+      // prepay need set timespan 1month
+      if (payMode === 1) {
+        dbInputs.TimeSpan = timeSpan;
+        dbInputs.TimeUnit = timeUnit;
+      }
 
       clusterDetail = await createCluster(this.capi, dbInputs);
       outputs.clusterId = clusterDetail.ClusterId;
