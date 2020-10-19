@@ -1,3 +1,11 @@
+## [1.17.4](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.17.3...v1.17.4) (2020-10-19)
+
+
+### Bug Fixes
+
+* **scf:** ckafka trigger support retry parameter ([1996204](https://github.com/serverless-tencent/tencent-component-toolkit/commit/1996204e0d12c9fdd14b8fc0eb85bab672ad5a97))
+* **cynosdb:** set payMode default to 0, post-paid order ([199cc83](https://github.com/serverless-tencent/tencent-component-toolkit/commit/199cc83d78c36f2eb0c0e58b9d2f6cb1d9bad5b6))
+
 ## [1.17.3](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.17.2...v1.17.3) (2020-10-15)
 
 
