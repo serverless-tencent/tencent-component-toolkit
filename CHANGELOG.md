@@ -1,3 +1,10 @@
+## [1.17.5](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.17.4...v1.17.5) (2020-10-20)
+
+
+### Bug Fixes
+
+* **cdn:** only refresh output ([e128736](https://github.com/serverless-tencent/tencent-component-toolkit/commit/e128736569276ad90bd9657a8a228675a8177b43))
+
 ## [1.17.4](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.17.3...v1.17.4) (2020-10-19)
 
 
