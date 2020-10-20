@@ -30,7 +30,7 @@ class Cos {
             }
             const errMsg = err.error.Message
               ? `${err.error.Message} (reqId: ${err.error.RequestId})`
-              : `${JSON.stringify(err.error)}`;
+              : `${err.error}`;
 
             const e = new Error(errMsg);
             if (err.error && err.error.Code) {
