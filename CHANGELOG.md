@@ -1,3 +1,10 @@
+## [1.17.6](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.17.5...v1.17.6) (2020-10-20)
+
+
+### Bug Fixes
+
+* **cos:** api error JSON.stringify error ([098e9e8](https://github.com/serverless-tencent/tencent-component-toolkit/commit/098e9e8d2c9c9931afbe96eabd6dec3281e56f30))
+
 ## [1.17.5](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.17.4...v1.17.5) (2020-10-20)
 
 
