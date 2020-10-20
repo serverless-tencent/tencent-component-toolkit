@@ -113,8 +113,11 @@ class Cdn {
         await this.purgeCdnUrls(RefreshCdn.Urls, RefreshCdn.FlushType);
       }
       return {
+        resourceId: domainExist.ResourceId,
+        https: !!Https,
         domain: Domain,
         origins: domainExist.Origin.Origins,
+        cname: `${Domain}.cdn.dnsv1.com`,
         refreshUrls: RefreshCdn.Urls,
       };
     }
@@ -149,7 +152,7 @@ class Cdn {
     });
 
     const outputs = {
-      https: false,
+      https: !!Https,
       domain: Domain,
       origins: cdnInputs.Origin.Origins,
       cname: `${Domain}.cdn.dnsv1.com`,
@@ -157,7 +160,6 @@ class Cdn {
     };
 
     if (Https) {
-      outputs.https = true;
       cdnInputs.Https = {
         Switch: Https.Switch || 'on',
         Http2: Https.Http2 || 'off',
