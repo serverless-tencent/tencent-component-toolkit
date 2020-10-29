@@ -259,7 +259,6 @@ class Scf {
   }
 
   async publishVersionAndConfigTraffic(inputs) {
-    const weight = strip(1 - inputs.traffic);
     const publishInputs = {
       Action: 'CreateAlias',
       FunctionName: inputs.functionName,
@@ -267,7 +266,7 @@ class Scf {
       Name: inputs.aliasName,
       Namespace: inputs.namespace || 'default',
       RoutingConfig: {
-        AdditionalVersionWeights: [{ Version: inputs.functionVersion, Weight: weight }],
+        AdditionalVersionWeights: [{ Version: inputs.lastVersion, Weight: inputs.traffic }],
       },
       Description: inputs.description || 'Published by Serverless Component',
     };
@@ -276,9 +275,8 @@ class Scf {
   }
 
   async updateAliasTraffic(inputs) {
-    const weight = strip(1 - inputs.traffic);
     console.log(
-      `Config function ${inputs.functionName} traffic ${weight} for version ${inputs.lastVersion}`,
+      `Config function ${inputs.functionName} traffic ${inputs.traffic} for version ${inputs.lastVersion}`,
     );
     const publishInputs = {
       Action: 'UpdateAlias',
@@ -287,13 +285,13 @@ class Scf {
       Name: inputs.aliasName || '$DEFAULT',
       Namespace: inputs.namespace || 'default',
       RoutingConfig: {
-        AdditionalVersionWeights: [{ Version: inputs.lastVersion, Weight: weight }],
+        AdditionalVersionWeights: [{ Version: inputs.lastVersion, Weight: inputs.traffic }],
       },
       Description: inputs.description || 'Configured by Serverless Component',
     };
     const Response = await this.request(publishInputs);
     console.log(
-      `Config function ${inputs.functionName} traffic ${weight} for version ${inputs.lastVersion} success`,
+      `Config function ${inputs.functionName} traffic ${inputs.traffic} for version ${inputs.lastVersion} success`,
     );
     return Response;
   }
@@ -304,6 +302,28 @@ class Scf {
       FunctionName: inputs.functionName,
       Name: inputs.functionVersion || '$DEFAULT',
       Namespace: inputs.namespace || 'default',
+    };
+    const Response = await this.request(publishInputs);
+    return Response;
+  }
+
+  async deleteAlias(inputs) {
+    const publishInputs = {
+      Action: 'DeleteAlias',
+      FunctionName: inputs.functionName,
+      Name: inputs.aliasName || '$DEFAULT',
+      Namespace: inputs.namespace || 'default',
+    };
+    const Response = await this.request(publishInputs);
+    return Response;
+  }
+
+  async listAlias(inputs) {
+    const publishInputs = {
+      Action: 'ListAliases',
+      FunctionName: inputs.functionName,
+      Namespace: inputs.namespace || 'default',
+      FunctionVersion: inputs.functionVersion,
     };
     const Response = await this.request(publishInputs);
     return Response;

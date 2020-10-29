@@ -9,8 +9,10 @@ const ACTIONS = [
   'CreateTrigger',
   'DeleteTrigger',
   'PublishVersion',
+  'ListAliases',
   'CreateAlias',
   'UpdateAlias',
+  'DeleteAlias',
   'GetAlias',
   'Invoke',
 ];
