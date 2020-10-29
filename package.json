@@ -53,8 +53,8 @@
   },
   "homepage": "https://github.com/serverless-tencent/tencent-component-toolkit#readme",
   "devDependencies": {
-    "@commitlint/cli": "^11.0.0",
-    "@commitlint/config-conventional": "^11.0.0",
+    "@commitlint/cli": "^8.3.5",
+    "@commitlint/config-conventional": "^8.3.4",
     "@semantic-release/changelog": "^5.0.0",
     "@semantic-release/commit-analyzer": "^8.0.1",
     "@semantic-release/git": "^9.0.0",
@@ -74,11 +74,9 @@
     "semantic-release": "^17.0.4"
   },
   "dependencies": {
-    "@octokit/core": "^3.2.0",
     "@tencent-sdk/capi": "^1.1.5",
     "@ygkit/request": "^0.1.1",
     "cos-nodejs-sdk-v5": "^2.6.2",
-    "lint": "^0.7.0",
     "moment": "^2.25.3",
     "tencent-cloud-sdk": "^1.0.5"
   }
