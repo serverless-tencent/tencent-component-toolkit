@@ -5,9 +5,10 @@ const { strip } = require('../../utils');
 const TagsUtils = require('../tag/index');
 const ApigwUtils = require('../apigw/index');
 const Cam = require('../cam/index');
-const { formatTrigger, formatFunctionInputs } = require('./utils');
+const { formatFunctionInputs } = require('./utils');
 const CONFIGS = require('./config');
 const Apis = require('./apis');
+const Triggers = require('./triggers');
 
 class Scf {
   constructor(credentials = {}, region) {
@@ -177,55 +178,41 @@ class Scf {
     const oldTriggers = funcInfo.Triggers || [];
     for (let tIdx = 0, len = oldTriggers.length; tIdx < len; tIdx++) {
       const curTrigger = oldTriggers[tIdx];
+      const { Type } = curTrigger;
+      const triggerClass = Triggers[Type];
 
-      if (curTrigger.Type === 'apigw') {
+      if (Type === 'apigw') {
         // TODO: now apigw can not sync in SCF trigger list
         // await this.apigwClient.remove(curTrigger);
       } else {
         console.log(`Removing ${curTrigger.Type} triggers: ${curTrigger.TriggerName}.`);
-        await this.request({
-          Action: 'DeleteTrigger',
-          FunctionName: funcInfo.FunctionName,
-          Namespace: funcInfo.Namespace,
-          Type: curTrigger.Type,
-          TriggerDesc: curTrigger.TriggerDesc,
-          TriggerName: curTrigger.TriggerName,
-        });
+        await triggerClass.delete(this, funcInfo, curTrigger);
       }
     }
 
     // create all new triggers
-    const deployTriggerResult = [];
+    const triggerResult = [];
     for (let i = 0; i < inputs.events.length; i++) {
       const event = inputs.events[i];
       const eventType = Object.keys(event)[0];
-
-      if (eventType === 'apigw') {
-        const { triggerInputs } = formatTrigger(
-          eventType,
+      const triggerClass = Triggers[eventType];
+      if (!triggerClass) {
+        throw TypeError('PARAMETER_SCF', `Unknow trigger type ${eventType}`);
+      }
+      try {
+        const triggerOutput = await triggerClass.create(
+          this,
           this.region,
           funcInfo,
           event[eventType],
-          inputs.needSetTraffic,
         );
-        try {
-          const apigwOutput = await this.apigwClient.deploy(triggerInputs);
 
-          deployTriggerResult.push(apigwOutput);
-        } catch (e) {
-          throw e;
-        }
-      } else {
-        const { triggerInputs } = formatTrigger(eventType, this.region, funcInfo, event[eventType]);
-
-        console.log(`Creating ${eventType} triggers: ${event[eventType].name}.`);
-        const Response = await this.request(triggerInputs);
-
-        deployTriggerResult.push(Response.TriggerInfo);
+        triggerResult.push(triggerOutput);
+      } catch (e) {
+        throw e;
       }
     }
-    funcInfo.Triggers = deployTriggerResult;
-    return deployTriggerResult;
+    return triggerResult;
   }
 
   // deploy tags
@@ -481,7 +468,7 @@ class Scf {
 
     // create/update/delete triggers
     if (inputs.events) {
-      await this.deployTrigger(funcInfo, inputs);
+      outputs.Triggers = await this.deployTrigger(funcInfo, inputs);
     }
 
     console.log(`Deploy function ${funcInfo.FunctionName} success.`);
