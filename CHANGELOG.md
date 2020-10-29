@@ -1,3 +1,10 @@
+## [1.17.7](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.17.6...v1.17.7) (2020-10-29)
+
+
+### Bug Fixes
+
+* **scf:** support qualifier config of triggers ([#144](https://github.com/serverless-tencent/tencent-component-toolkit/issues/144)) ([2bfa4d5](https://github.com/serverless-tencent/tencent-component-toolkit/commit/2bfa4d510cd2baa1264f499eed292476c4261e34))
+
 ## [1.17.6](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.17.5...v1.17.6) (2020-10-20)
 
 
