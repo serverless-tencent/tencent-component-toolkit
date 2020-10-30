@@ -352,7 +352,7 @@ class Scf {
     const publishInputs = {
       Action: 'GetAlias',
       FunctionName: inputs.functionName,
-      Name: inputs.functionVersion || '$DEFAULT',
+      Name: inputs.aliasName || '$DEFAULT',
       Namespace: inputs.namespace || 'default',
     };
     const Response = await this.request(publishInputs);
