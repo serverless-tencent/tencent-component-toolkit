@@ -259,6 +259,46 @@ class Scf {
   }
 
   async publishVersionAndConfigTraffic(inputs) {
+    const weight = strip(1 - inputs.traffic);
+    const publishInputs = {
+      Action: 'CreateAlias',
+      FunctionName: inputs.functionName,
+      FunctionVersion: inputs.functionVersion,
+      Name: inputs.aliasName,
+      Namespace: inputs.namespace || 'default',
+      RoutingConfig: {
+        AdditionalVersionWeights: [{ Version: inputs.functionVersion, Weight: weight }],
+      },
+      Description: inputs.description || 'Published by Serverless Component',
+    };
+    const Response = await this.request(publishInputs);
+    return Response;
+  }
+
+  async updateAliasTraffic(inputs) {
+    const weight = strip(1 - inputs.traffic);
+    console.log(
+      `Config function ${inputs.functionName} traffic ${weight} for version ${inputs.lastVersion}`,
+    );
+    const publishInputs = {
+      Action: 'UpdateAlias',
+      FunctionName: inputs.functionName,
+      FunctionVersion: inputs.functionVersion || '$LATEST',
+      Name: inputs.aliasName || '$DEFAULT',
+      Namespace: inputs.namespace || 'default',
+      RoutingConfig: {
+        AdditionalVersionWeights: [{ Version: inputs.lastVersion, Weight: weight }],
+      },
+      Description: inputs.description || 'Configured by Serverless Component',
+    };
+    const Response = await this.request(publishInputs);
+    console.log(
+      `Config function ${inputs.functionName} traffic ${weight} for version ${inputs.lastVersion} success`,
+    );
+    return Response;
+  }
+
+  async createAlias(inputs) {
     const publishInputs = {
       Action: 'CreateAlias',
       FunctionName: inputs.functionName,
@@ -274,7 +314,7 @@ class Scf {
     return Response;
   }
 
-  async updateAliasTraffic(inputs) {
+  async updateAlias(inputs) {
     console.log(
       `Config function ${inputs.functionName} traffic ${inputs.traffic} for version ${inputs.lastVersion}`,
     );
