@@ -1,3 +1,10 @@
+# [1.18.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.17.7...v1.18.0) (2020-10-30)
+
+
+### Features
+
+* add listAlias/deleteAlias ([#146](https://github.com/serverless-tencent/tencent-component-toolkit/issues/146)) ([77cc223](https://github.com/serverless-tencent/tencent-component-toolkit/commit/77cc2239a6d03d4067e3f351f1e59b6dd25abbe1))
+
 ## [1.17.7](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.17.6...v1.17.7) (2020-10-29)
 
 
