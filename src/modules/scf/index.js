@@ -298,12 +298,72 @@ class Scf {
     return Response;
   }
 
+  async createAlias(inputs) {
+    const publishInputs = {
+      Action: 'CreateAlias',
+      FunctionName: inputs.functionName,
+      FunctionVersion: inputs.functionVersion,
+      Name: inputs.aliasName,
+      Namespace: inputs.namespace || 'default',
+      RoutingConfig: {
+        AdditionalVersionWeights: [{ Version: inputs.lastVersion, Weight: inputs.traffic }],
+      },
+      Description: inputs.description || 'Published by Serverless Component',
+    };
+    const Response = await this.request(publishInputs);
+    return Response;
+  }
+
+  async updateAlias(inputs) {
+    console.log(
+      `Config function ${inputs.functionName} traffic ${inputs.traffic} for version ${inputs.lastVersion}`,
+    );
+    const publishInputs = {
+      Action: 'UpdateAlias',
+      FunctionName: inputs.functionName,
+      FunctionVersion: inputs.functionVersion || '$LATEST',
+      Name: inputs.aliasName || '$DEFAULT',
+      Namespace: inputs.namespace || 'default',
+      RoutingConfig: {
+        AdditionalVersionWeights: [{ Version: inputs.lastVersion, Weight: inputs.traffic }],
+      },
+      Description: inputs.description || 'Configured by Serverless Component',
+    };
+    const Response = await this.request(publishInputs);
+    console.log(
+      `Config function ${inputs.functionName} traffic ${inputs.traffic} for version ${inputs.lastVersion} success`,
+    );
+    return Response;
+  }
+
   async getAlias(inputs) {
     const publishInputs = {
       Action: 'GetAlias',
       FunctionName: inputs.functionName,
       Name: inputs.functionVersion || '$DEFAULT',
       Namespace: inputs.namespace || 'default',
+    };
+    const Response = await this.request(publishInputs);
+    return Response;
+  }
+
+  async deleteAlias(inputs) {
+    const publishInputs = {
+      Action: 'DeleteAlias',
+      FunctionName: inputs.functionName,
+      Name: inputs.aliasName || '$DEFAULT',
+      Namespace: inputs.namespace || 'default',
+    };
+    const Response = await this.request(publishInputs);
+    return Response;
+  }
+
+  async listAlias(inputs) {
+    const publishInputs = {
+      Action: 'ListAliases',
+      FunctionName: inputs.functionName,
+      Namespace: inputs.namespace || 'default',
+      FunctionVersion: inputs.functionVersion,
     };
     const Response = await this.request(publishInputs);
     return Response;
