@@ -1,3 +1,10 @@
+## [1.18.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.18.0...v1.18.1) (2020-10-30)
+
+
+### Bug Fixes
+
+* **scf:** get trigger list method ([8aae828](https://github.com/serverless-tencent/tencent-component-toolkit/commit/8aae828fe934f851078f0dec46748aed5f00fb58))
+
 # [1.18.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.17.7...v1.18.0) (2020-10-30)
 
 
