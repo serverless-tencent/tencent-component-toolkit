@@ -15,6 +15,7 @@ const BaseTrigger = {
         Type: inputs.Type,
         TriggerDesc: inputs.TriggerDesc,
         TriggerName: inputs.TriggerName,
+        Qualifier: inputs.Qualifier,
       });
       return true;
     } catch (e) {
