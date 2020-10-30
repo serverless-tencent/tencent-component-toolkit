@@ -8,7 +8,7 @@ const Cam = require('../cam/index');
 const { formatFunctionInputs } = require('./utils');
 const CONFIGS = require('./config');
 const Apis = require('./apis');
-const Triggers = require('./triggers');
+const TRIGGERS = require('./triggers');
 
 class Scf {
   constructor(credentials = {}, region) {
@@ -167,6 +167,21 @@ class Scf {
     return true;
   }
 
+  async getTriggerList(functionName, namespace = 'default') {
+    const { Triggers = [], TotalCount } = await this.request({
+      Action: 'ListTriggers',
+      FunctionName: functionName,
+      Namespace: namespace,
+      Limit: 100,
+    });
+    if (TotalCount > 100) {
+      const res = await this.getTriggerList(functionName, namespace);
+      return Triggers.concat(res);
+    }
+
+    return Triggers;
+  }
+
   // deploy SCF triggers
   async deployTrigger(funcInfo, inputs) {
     console.log(`Deploying ${inputs.name}'s triggers in ${this.region}.`);
@@ -174,19 +189,21 @@ class Scf {
     // should check function status is active, then continue
     await this.isOperationalStatus(inputs.namespace, inputs.name);
 
-    // remove all old triggers
-    const oldTriggers = funcInfo.Triggers || [];
-    for (let tIdx = 0, len = oldTriggers.length; tIdx < len; tIdx++) {
-      const curTrigger = oldTriggers[tIdx];
-      const { Type } = curTrigger;
-      const triggerClass = Triggers[Type];
+    // get all triggers
+    const triggerList = await this.getTriggerList(funcInfo.FunctionName, funcInfo.Namespace);
 
-      if (Type === 'apigw') {
-        // TODO: now apigw can not sync in SCF trigger list
-        // await this.apigwClient.remove(curTrigger);
-      } else {
-        console.log(`Removing ${curTrigger.Type} triggers: ${curTrigger.TriggerName}.`);
-        await triggerClass.delete(this, funcInfo, curTrigger);
+    // remove all old triggers
+    for (let i = 0, len = triggerList.length; i < len; i++) {
+      const curTrigger = triggerList[i];
+      const { Type } = curTrigger;
+      const triggerClass = TRIGGERS[Type];
+      if (triggerClass) {
+        if (Type === 'apigw') {
+          // TODO: now apigw can not sync in SCF trigger list
+          // await this.apigwClient.remove(curTrigger);
+        } else {
+          await triggerClass.delete(this, funcInfo, curTrigger);
+        }
       }
     }
 
@@ -194,18 +211,13 @@ class Scf {
     const triggerResult = [];
     for (let i = 0; i < inputs.events.length; i++) {
       const event = inputs.events[i];
-      const eventType = Object.keys(event)[0];
-      const triggerClass = Triggers[eventType];
+      const Type = Object.keys(event)[0];
+      const triggerClass = TRIGGERS[Type];
       if (!triggerClass) {
-        throw TypeError('PARAMETER_SCF', `Unknow trigger type ${eventType}`);
+        throw TypeError('PARAMETER_SCF', `Unknow trigger type ${Type}`);
       }
       try {
-        const triggerOutput = await triggerClass.create(
-          this,
-          this.region,
-          funcInfo,
-          event[eventType],
-        );
+        const triggerOutput = await triggerClass.create(this, this.region, funcInfo, event[Type]);
 
         triggerResult.push(triggerOutput);
       } catch (e) {
@@ -245,7 +257,7 @@ class Scf {
    * @param {object} inputs publish version parameter
    */
   async publishVersion(inputs) {
-    console.log(`Publish function ${inputs.functionName} version`);
+    console.log(`Publishing function ${inputs.functionName} version`);
     const publishInputs = {
       Action: 'PublishVersion',
       FunctionName: inputs.functionName,

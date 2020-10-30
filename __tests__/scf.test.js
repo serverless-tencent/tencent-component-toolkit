@@ -15,7 +15,7 @@ describe('Scf', () => {
   };
 
   const inputs = {
-    name: 'serverless-test',
+    name: `serverless-test-${Date.now()}`,
     code: {
       bucket: process.env.BUCKET,
       object: 'express_code.zip',
@@ -226,7 +226,7 @@ describe('Scf', () => {
       CodeResult: 'success',
       CodeError: '',
       ErrNo: 0,
-      Tags: [],
+      Tags: expect.any(Array),
       AccessInfo: { Host: '', Vip: '' },
       Type: 'Event',
       CfsConfig: {

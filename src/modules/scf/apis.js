@@ -13,6 +13,7 @@ const ACTIONS = [
   'UpdateAlias',
   'GetAlias',
   'Invoke',
+  'ListTriggers',
 ];
 
 const APIS = ApiFactory({
