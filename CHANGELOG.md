@@ -1,3 +1,10 @@
+## [1.18.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.18.1...v1.18.2) (2020-11-02)
+
+
+### Bug Fixes
+
+* **scf:** delete apigw trigger bug ([e0ac7fd](https://github.com/serverless-tencent/tencent-component-toolkit/commit/e0ac7fd73f02d07c30949a85d728003dc1956382))
+
 ## [1.18.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.18.0...v1.18.1) (2020-10-30)
 
 
