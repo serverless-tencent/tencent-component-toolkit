@@ -1,6 +1,6 @@
 const BaseTrigger = {
   async create(scf, region, funcInfo, inputs) {
-    const { triggerInputs } = this.formatInputs(funcInfo, inputs);
+    const { triggerInputs } = this.formatInputs(region, funcInfo, inputs);
     console.log(`Creating ${triggerInputs.Type} trigger ${triggerInputs.TriggerName}`);
     const { TriggerInfo } = await scf.request(triggerInputs);
     return TriggerInfo;
@@ -26,8 +26,10 @@ const BaseTrigger = {
 };
 
 const TimerTrigger = {
-  type: 'timer',
-  formatInputs(funcInfo, inputs) {
+  getKey(triggerInputs) {
+    return `${triggerInputs.Type}-${triggerInputs.TriggerName}-${triggerInputs.Qualifier}`;
+  },
+  formatInputs(region, funcInfo, inputs) {
     const { parameters, name } = inputs;
     const triggerInputs = {
       Action: 'CreateTrigger',
@@ -44,7 +46,7 @@ const TimerTrigger = {
     if (parameters.argument) {
       triggerInputs.CustomArgument = parameters.argument;
     }
-    const triggerKey = `${triggerInputs.Type}-${triggerInputs.TriggerName}`;
+    const triggerKey = this.getKey(triggerInputs);
 
     return {
       triggerInputs,
@@ -60,7 +62,15 @@ const TimerTrigger = {
 };
 
 const CosTrigger = {
-  formatInputs(funcInfo, inputs) {
+  getKey(triggerInputs) {
+    const tempDest = JSON.stringify({
+      bucketUrl: triggerInputs.TriggerName,
+      event: JSON.parse(triggerInputs.TriggerDesc).event,
+      filter: JSON.parse(triggerInputs.TriggerDesc).filter,
+    });
+    return `cos-${triggerInputs.TriggerName}-${tempDest}-${triggerInputs.Qualifier}`;
+  },
+  formatInputs(region, funcInfo, inputs) {
     const { parameters } = inputs;
     const triggerInputs = {
       Action: 'CreateTrigger',
@@ -79,12 +89,7 @@ const CosTrigger = {
       },
     });
     triggerInputs.Enable = parameters.enable ? 'OPEN' : 'CLOSE';
-    const tempDest = JSON.stringify({
-      bucketUrl: triggerInputs.TriggerName,
-      event: JSON.parse(triggerInputs.TriggerDesc).event,
-      filter: JSON.parse(triggerInputs.TriggerDesc).filter,
-    });
-    const triggerKey = `cos-${triggerInputs.TriggerName}-${tempDest}`;
+    const triggerKey = this.getKey(triggerInputs);
 
     return {
       triggerInputs,
@@ -100,7 +105,10 @@ const CosTrigger = {
 };
 
 const CkafkaTrigger = {
-  formatInputs(funcInfo, inputs) {
+  getKey(triggerInputs) {
+    return `${triggerInputs.Type}-${triggerInputs.TriggerName}-${triggerInputs.Qualifier}`;
+  },
+  formatInputs(region, funcInfo, inputs) {
     const { parameters } = inputs;
     const triggerInputs = {
       Action: 'CreateTrigger',
@@ -117,7 +125,7 @@ const CkafkaTrigger = {
       retry: parameters.retry,
     });
     triggerInputs.Enable = parameters.enable ? 'OPEN' : 'CLOSE';
-    const triggerKey = `${triggerInputs.Type}-${triggerInputs.TriggerName}`;
+    const triggerKey = this.getKey(triggerInputs);
 
     return {
       triggerInputs,
@@ -133,7 +141,10 @@ const CkafkaTrigger = {
 };
 
 const CmqTrigger = {
-  formatInputs(funcInfo, inputs) {
+  getKey(triggerInputs) {
+    return `${triggerInputs.Type}-${triggerInputs.TriggerName}-${triggerInputs.Qualifier}`;
+  },
+  formatInputs(region, funcInfo, inputs) {
     const { parameters } = inputs;
     const triggerInputs = {
       Action: 'CreateTrigger',
@@ -150,7 +161,7 @@ const CmqTrigger = {
     });
 
     triggerInputs.Enable = parameters.enable ? 'OPEN' : 'CLOSE';
-    const triggerKey = `${triggerInputs.Type}-${triggerInputs.TriggerName}`;
+    const triggerKey = this.getKey(triggerInputs);
 
     return {
       triggerInputs,
