@@ -1,7 +1,7 @@
 const { sleep } = require('@ygkit/request');
 const { Capi } = require('@tencent-sdk/capi');
 const { TypeError, ApiError } = require('../../utils/error');
-const { strip } = require('../../utils');
+const { deepClone, strip } = require('../../utils');
 const TagsUtils = require('../tag/index');
 const ApigwUtils = require('../apigw/index');
 const Cam = require('../cam/index');
@@ -182,6 +182,34 @@ class Scf {
     return Triggers;
   }
 
+  filterTriggers(funcInfo, events, oldList) {
+    const deleteList = deepClone(oldList);
+    const createList = deepClone(events);
+    const updateList = [];
+    events.forEach((event, index) => {
+      const Type = Object.keys(event)[0];
+      const triggerClass = TRIGGERS[Type];
+      if (Type !== 'apigw') {
+        const { triggerKey } = triggerClass.formatInputs(this.region, funcInfo, event[Type]);
+        for (let i = 0; i < oldList.length; i++) {
+          const curOld = oldList[i];
+          const oldTriggerClass = TRIGGERS[curOld.Type];
+          const oldKey = oldTriggerClass.getKey(curOld);
+          if (oldKey === triggerKey) {
+            deleteList[i] = null;
+            createList[index] = null;
+            updateList.push(createList[index]);
+          }
+        }
+      }
+    });
+    return {
+      updateList,
+      deleteList: deleteList.filter((item) => item),
+      createList: createList.filter((item) => item),
+    };
+  }
+
   // deploy SCF triggers
   async deployTrigger(funcInfo, inputs) {
     console.log(`Deploying ${inputs.name}'s triggers in ${this.region}.`);
@@ -192,9 +220,11 @@ class Scf {
     // get all triggers
     const triggerList = await this.getTriggerList(funcInfo.FunctionName, funcInfo.Namespace);
 
+    const { deleteList, createList } = this.filterTriggers(funcInfo, inputs.events, triggerList);
+
     // remove all old triggers
-    for (let i = 0, len = triggerList.length; i < len; i++) {
-      const curTrigger = triggerList[i];
+    for (let i = 0, len = deleteList.length; i < len; i++) {
+      const curTrigger = deleteList[i];
       const { Type } = curTrigger;
       const triggerClass = TRIGGERS[Type];
       if (triggerClass) {
@@ -209,8 +239,8 @@ class Scf {
 
     // create all new triggers
     const triggerResult = [];
-    for (let i = 0; i < inputs.events.length; i++) {
-      const event = inputs.events[i];
+    for (let i = 0; i < createList.length; i++) {
+      const event = createList[i];
       const Type = Object.keys(event)[0];
       const triggerClass = TRIGGERS[Type];
       if (!triggerClass) {
