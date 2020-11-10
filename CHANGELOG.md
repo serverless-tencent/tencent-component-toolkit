@@ -1,3 +1,10 @@
+## [1.18.3](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.18.2...v1.18.3) (2020-11-10)
+
+
+### Bug Fixes
+
+* **scf:** add trigger key for delete ([68566d8](https://github.com/serverless-tencent/tencent-component-toolkit/commit/68566d81aff2bb9cbd97560d975d76e9a7995bc2))
+
 ## [1.18.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.18.1...v1.18.2) (2020-11-02)
 
 
