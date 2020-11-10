@@ -1,3 +1,10 @@
+## [1.18.4](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.18.3...v1.18.4) (2020-11-10)
+
+
+### Bug Fixes
+
+* **cdn:** cdn not exist origin error ([b35ddd4](https://github.com/serverless-tencent/tencent-component-toolkit/commit/b35ddd4eea1f7b33543b8406e255679eef4c880c))
+
 ## [1.18.3](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.18.2...v1.18.3) (2020-11-10)
 
 
