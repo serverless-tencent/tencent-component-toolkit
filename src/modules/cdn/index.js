@@ -116,7 +116,7 @@ class Cdn {
         resourceId: domainExist.ResourceId,
         https: !!Https,
         domain: Domain,
-        origins: domainExist.Origin.Origins,
+        origins: Origin && Origin.Origins,
         cname: `${Domain}.cdn.dnsv1.com`,
         refreshUrls: RefreshCdn.Urls,
       };
