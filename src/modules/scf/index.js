@@ -163,6 +163,14 @@ class Scf {
     delete functionInputs.Handler;
     delete functionInputs.Code;
     delete functionInputs.CodeSource;
+    // handle unbind one layer
+    // this is a very strange logical for layer unbind, but backend api need me to do this.
+    if (functionInputs.Layers && functionInputs.Layers.length === 0) {
+      functionInputs.Layers.push({
+        LayerName: '',
+        LayerVersion: 0,
+      });
+    }
     await this.request(functionInputs);
     return true;
   }
