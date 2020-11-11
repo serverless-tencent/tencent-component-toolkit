@@ -27,7 +27,7 @@ const BaseTrigger = {
 
 const TimerTrigger = {
   getKey(triggerInputs) {
-    return `${triggerInputs.Type}-${triggerInputs.TriggerName}-${triggerInputs.Qualifier}`;
+    return `${triggerInputs.Type}-${triggerInputs.TriggerName}-${triggerInputs.TriggerDesc}-${triggerInputs.CustomArgument}-${triggerInputs.Qualifier}`;
   },
   formatInputs(region, funcInfo, inputs) {
     const { parameters, name } = inputs;
@@ -106,7 +106,7 @@ const CosTrigger = {
 
 const CkafkaTrigger = {
   getKey(triggerInputs) {
-    return `${triggerInputs.Type}-${triggerInputs.TriggerName}-${triggerInputs.Qualifier}`;
+    return `${triggerInputs.Type}-${triggerInputs.TriggerName}-${triggerInputs.TriggerDesc}-${triggerInputs.Qualifier}`;
   },
   formatInputs(region, funcInfo, inputs) {
     const { parameters } = inputs;
@@ -142,7 +142,7 @@ const CkafkaTrigger = {
 
 const CmqTrigger = {
   getKey(triggerInputs) {
-    return `${triggerInputs.Type}-${triggerInputs.TriggerName}-${triggerInputs.Qualifier}`;
+    return `${triggerInputs.Type}-${triggerInputs.TriggerName}-${triggerInputs.TriggerDesc}-${triggerInputs.Qualifier}`;
   },
   formatInputs(region, funcInfo, inputs) {
     const { parameters } = inputs;
