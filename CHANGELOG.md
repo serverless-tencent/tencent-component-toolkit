@@ -1,3 +1,10 @@
+## [1.18.5](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.18.4...v1.18.5) (2020-11-11)
+
+
+### Bug Fixes
+
+* **scf:** add desc for timer,ckafka,cmq trigger key ([3e0d036](https://github.com/serverless-tencent/tencent-component-toolkit/commit/3e0d0361b7006e18f7cdb76eb7b5b0ca5996b32a))
+
 ## [1.18.4](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.18.3...v1.18.4) (2020-11-10)
 
 
