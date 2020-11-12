@@ -1,3 +1,12 @@
+## [1.18.6](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.18.5...v1.18.6) (2020-11-12)
+
+
+### Bug Fixes
+
+* **scf:** clear all environment variables ([f579abd](https://github.com/serverless-tencent/tencent-component-toolkit/commit/f579abdf5e8c88d5e389e3c2a0a409bc38864019))
+* **scf:** timer trigger key with enable and cron expression ([95224bf](https://github.com/serverless-tencent/tencent-component-toolkit/commit/95224bfec5560c2958b46ec5610bc1e977f12b15))
+* **scf:** unbind on layer need to add empty layer config ([3ead811](https://github.com/serverless-tencent/tencent-component-toolkit/commit/3ead81175c40cd39922d4415cfaf33b9c94eff96))
+
 ## [1.18.5](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.18.4...v1.18.5) (2020-11-11)
 
 
