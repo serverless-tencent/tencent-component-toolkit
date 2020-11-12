@@ -25,9 +25,27 @@ const BaseTrigger = {
   },
 };
 
+const TRIGGER_STATUS_MAP = {
+  OPEN: 'OPEN',
+  CLOSE: 'CLOSE',
+  1: 'OPEN',
+  0: 'CLOSE',
+};
+
 const TimerTrigger = {
   getKey(triggerInputs) {
-    return `${triggerInputs.Type}-${triggerInputs.TriggerName}-${triggerInputs.TriggerDesc}-${triggerInputs.CustomArgument}-${triggerInputs.Qualifier}`;
+    // Very strange logical for Enable, fe post Enable is 'OPEN' or 'CLOSE'
+    // but get 1 or 0, parameter type cnaged......
+    const Enable = TRIGGER_STATUS_MAP[triggerInputs.Enable];
+    // Very strange logical for TriggerDesc, fe post TriggerDesc is "0 */6 * * * * *"
+    // but get "{"cron":"0 */6 * * * * *"}"
+    const Desc =
+      triggerInputs.TriggerDesc.indexOf('cron') !== -1
+        ? triggerInputs.TriggerDesc
+        : JSON.stringify({
+            cron: triggerInputs.TriggerDesc,
+          });
+    return `${triggerInputs.Type}-${triggerInputs.TriggerName}-${Desc}-${triggerInputs.CustomArgument}-${Enable}-${triggerInputs.Qualifier}`;
   },
   formatInputs(region, funcInfo, inputs) {
     const { parameters, name } = inputs;
@@ -39,7 +57,7 @@ const TimerTrigger = {
 
     triggerInputs.Type = 'timer';
     triggerInputs.Qualifier = parameters.qualifier || '$DEFAULT';
-    triggerInputs.TriggerName = name;
+    triggerInputs.TriggerName = parameters.name || name;
     triggerInputs.TriggerDesc = parameters.cronExpression;
     triggerInputs.Enable = parameters.enable ? 'OPEN' : 'CLOSE';
 
@@ -68,7 +86,8 @@ const CosTrigger = {
       event: JSON.parse(triggerInputs.TriggerDesc).event,
       filter: JSON.parse(triggerInputs.TriggerDesc).filter,
     });
-    return `cos-${triggerInputs.TriggerName}-${tempDest}-${triggerInputs.Qualifier}`;
+    const Enable = TRIGGER_STATUS_MAP[triggerInputs.Enable];
+    return `cos-${triggerInputs.TriggerName}-${tempDest}-${Enable}-${triggerInputs.Qualifier}`;
   },
   formatInputs(region, funcInfo, inputs) {
     const { parameters } = inputs;
@@ -106,7 +125,8 @@ const CosTrigger = {
 
 const CkafkaTrigger = {
   getKey(triggerInputs) {
-    return `${triggerInputs.Type}-${triggerInputs.TriggerName}-${triggerInputs.TriggerDesc}-${triggerInputs.Qualifier}`;
+    const Enable = TRIGGER_STATUS_MAP[triggerInputs.Enable];
+    return `${triggerInputs.Type}-${triggerInputs.TriggerName}-${triggerInputs.TriggerDesc}-${Enable}-${triggerInputs.Qualifier}`;
   },
   formatInputs(region, funcInfo, inputs) {
     const { parameters } = inputs;
@@ -142,7 +162,8 @@ const CkafkaTrigger = {
 
 const CmqTrigger = {
   getKey(triggerInputs) {
-    return `${triggerInputs.Type}-${triggerInputs.TriggerName}-${triggerInputs.TriggerDesc}-${triggerInputs.Qualifier}`;
+    const Enable = TRIGGER_STATUS_MAP[triggerInputs.Enable];
+    return `${triggerInputs.Type}-${triggerInputs.TriggerName}-${triggerInputs.TriggerDesc}-${Enable}-${triggerInputs.Qualifier}`;
   },
   formatInputs(region, funcInfo, inputs) {
     const { parameters } = inputs;
