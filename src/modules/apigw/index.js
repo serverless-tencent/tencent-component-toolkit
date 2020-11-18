@@ -40,71 +40,6 @@ class Apigw {
     }
   }
 
-  async createOrUpdateService(serviceConf) {
-    const {
-      serviceId,
-      protocols,
-      netTypes,
-      serviceName = 'Serverless_Framework',
-      serviceDesc = 'Created By Serverless Framework',
-    } = serviceConf;
-    let serviceCreated = false;
-    let detail;
-    let exist = false;
-    if (serviceId) {
-      detail = await this.request({
-        Action: 'DescribeService',
-        ServiceId: serviceId,
-      });
-      if (detail) {
-        detail.InnerSubDomain = detail.InternalSubDomain;
-        exist = true;
-        if (
-          !(
-            serviceName === detail.serviceName &&
-            serviceDesc === detail.serviceDesc &&
-            protocols === detail.protocol
-          )
-        ) {
-          const apiInputs = {
-            Action: 'ModifyService',
-            serviceId,
-            serviceDesc: serviceDesc || detail.serviceDesc,
-            serviceName: serviceName || detail.serviceName,
-            protocol: protocols,
-          };
-          if (netTypes) {
-            apiInputs.netTypes = netTypes;
-          }
-          await this.request(apiInputs);
-        }
-      }
-    }
-    if (!exist) {
-      const apiInputs = {
-        Action: 'CreateService',
-        serviceName: serviceName || 'Serverless_Framework',
-        serviceDesc: serviceDesc || 'Created By Serverless Framework',
-        protocol: protocols,
-      };
-      if (netTypes) {
-        apiInputs.netTypes = netTypes;
-      }
-      detail = await this.request(apiInputs);
-      serviceCreated = true;
-    }
-
-    return {
-      serviceName,
-      serviceId: detail.ServiceId,
-      subDomain:
-        detail.OuterSubDomain && detail.InnerSubDomain
-          ? [detail.OuterSubDomain, detail.InnerSubDomain]
-          : detail.OuterSubDomain || detail.InnerSubDomain,
-      serviceCreated,
-    };
-  }
-
   marshalServiceConfig(endpoint, apiInputs) {
     if (
       !endpoint.serviceConfig ||
@@ -210,104 +145,6 @@ class Apigw {
     }
   }
 
-  async createOrUpdateApi({ serviceId, endpoint, created }) {
-    const output = {
-      path: endpoint.path,
-      method: endpoint.method,
-      apiName: endpoint.apiName || 'index',
-      apiId: undefined,
-      created: false,
-    };
-
-    const apiInputs = {
-      protocol: endpoint.protocol || 'HTTP',
-      serviceId: serviceId,
-      apiName: endpoint.apiName || 'index',
-      apiDesc: endpoint.description,
-      apiType: 'NORMAL',
-      authType: endpoint.auth ? 'SECRET' : 'NONE',
-      // authRequired: endpoint.auth ? 'TRUE' : 'FALSE',
-      serviceType: endpoint.serviceType || 'SCF',
-      requestConfig: {
-        path: endpoint.path,
-        method: endpoint.method,
-      },
-      serviceTimeout: endpoint.serviceTimeout || 15,
-      responseType: endpoint.responseType || 'HTML',
-      enableCORS: endpoint.enableCORS === true ? true : false,
-    };
-
-    let exist = false;
-    let apiDetail = null;
-
-    // 没有apiId，还需要根据path来确定
-    if (!endpoint.apiId) {
-      const pathAPIList = await this.request({
-        Action: 'DescribeApisStatus',
-        ServiceId: serviceId,
-        Filters: [{ Name: 'ApiPath', Values: [endpoint.path] }],
-      });
-      if (pathAPIList.ApiIdStatusSet) {
-        for (let i = 0; i < pathAPIList.ApiIdStatusSet.length; i++) {
-          if (
-            pathAPIList.ApiIdStatusSet[i].Method.toLowerCase() === endpoint.method.toLowerCase() &&
-            pathAPIList.ApiIdStatusSet[i].Path === endpoint.path
-          ) {
-            endpoint.apiId = pathAPIList.ApiIdStatusSet[i].ApiId;
-            exist = true;
-          }
-        }
-      }
-    }
-
-    // get API info after apiId confirmed
-    if (endpoint.apiId) {
-      apiDetail = await this.request({
-        Action: 'DescribeApi',
-        serviceId: serviceId,
-        apiId: endpoint.apiId,
-      });
-
-      if (apiDetail && apiDetail.ApiId) {
-        exist = true;
-      }
-    }
-
-    if (!exist) {
-      this.marshalApiInput(endpoint, apiInputs);
-      const { ApiId } = await this.request({
-        Action: 'CreateApi',
-        ...apiInputs,
-      });
-
-      output.apiId = ApiId;
-      output.created = true;
-
-      console.log(`API with id ${output.apiId} created.`);
-      apiDetail = await this.request({
-        Action: 'DescribeApi',
-        serviceId: serviceId,
-        apiId: output.apiId,
-      });
-      output.internalDomain = apiDetail.InternalDomain;
-    } else {
-      console.log(`Updating api with api id ${endpoint.apiId}.`);
-      this.marshalApiInput(endpoint, apiInputs);
-      await this.request({
-        Action: 'ModifyApi',
-        apiId: endpoint.apiId,
-        ...apiInputs,
-      });
-      output.created = !!created;
-      output.apiId = endpoint.apiId;
-      output.internalDomain = apiDetail.InternalDomain;
-      console.log(`Service with id ${output.apiId} updated.`);
-    }
-
-    output.apiName = apiInputs.apiName;
-    return output;
-  }
-
   async setupUsagePlanSecret({ secretName, secretIds, created }) {
     const secretIdsOutput = {
       created: !!created,
@@ -375,7 +212,7 @@ class Apigw {
     return secretIdsOutput;
   }
 
-  async setupApiUsagePlan({ usagePlan }) {
+  async setupUsagePlan({ usagePlan }) {
     const usageInputs = {
       usagePlanName: usagePlan.usagePlanName || '',
       usagePlanDesc: usagePlan.usagePlanDesc || '',
@@ -404,7 +241,7 @@ class Apigw {
     }
 
     if (exist) {
-      console.log(`Updating usage plan with id ${usagePlan.usagePlanId}.`);
+      console.log(`Updating usage plan ${usagePlan.usagePlanId}.`);
       await this.request({
         Action: 'ModifyUsagePlan',
         usagePlanId: usagePlanOutput.usagePlanId,
@@ -418,7 +255,7 @@ class Apigw {
 
       usagePlanOutput.usagePlanId = UsagePlanId;
       usagePlanOutput.created = true;
-      console.log(`Usage plan with ID ${usagePlanOutput.usagePlanId} created.`);
+      console.log(`Usage plan ${usagePlanOutput.usagePlanId} created.`);
     }
 
     return usagePlanOutput;
@@ -552,53 +389,287 @@ class Apigw {
     return customDomainOutput;
   }
 
-  // bind environment of usage plan
-  async bindUsagePlanEnvironment({
-    environment,
-    bindType = 'API',
-    serviceId,
-    apiId,
-    endpoint,
-    usagePlan,
-  }) {
+  async bindUsagePlan({ apiId, serviceId, environment, usagePlanConfig, authConfig }) {
+    const usagePlan = await this.setupUsagePlan({
+      usagePlan: usagePlanConfig,
+    });
+
+    if (authConfig) {
+      const { secretIds = [] } = authConfig;
+      const secrets = await this.setupUsagePlanSecret({
+        secretName: authConfig.secretName,
+        secretIds,
+      });
+
+      const unboundSecretIds = await this.getUnboundSecretIds({
+        usagePlanId: usagePlan.usagePlanId,
+        secretIds: secrets.secretIds,
+      });
+
+      if (unboundSecretIds.length > 0) {
+        console.log(
+          `Binding secret key ${unboundSecretIds} to usage plan ${usagePlan.usagePlanId}.`,
+        );
+        await this.request({
+          Action: 'BindSecretIds',
+          usagePlanId: usagePlan.usagePlanId,
+          accessKeyIds: unboundSecretIds,
+        });
+        console.log('Binding secret key successed.');
+      }
+      // store in api list
+      usagePlan.secrets = secrets;
+    }
+
     const { ApiUsagePlanList } = await this.request({
       Action: 'DescribeApiUsagePlan',
       serviceId,
-      // ApiIds: [apiId],
       limit: 100,
     });
 
-    const oldUsagePlan = ApiUsagePlanList.find(
-      (item) => item.UsagePlanId === usagePlan.usagePlanId && item.ApiId === apiId,
-    );
+    const oldUsagePlan = ApiUsagePlanList.find((item) => {
+      return apiId
+        ? item.UsagePlanId === usagePlan.usagePlanId && item.ApiId === apiId
+        : item.UsagePlanId === usagePlan.usagePlanId;
+    });
 
     if (oldUsagePlan) {
-      console.log(
-        `Usage plan with id ${usagePlan.usagePlanId} already bind to api id ${apiId} path ${endpoint.method} ${endpoint.path}.`,
-      );
+      if (apiId) {
+        console.log(`Usage plan ${usagePlan.usagePlanId} already bind to api ${apiId}`);
+      } else {
+        console.log(
+          `Usage plan ${usagePlan.usagePlanId} already bind to enviromment ${environment}`,
+        );
+      }
     } else {
-      console.log(
-        `Binding usage plan with id ${usagePlan.usagePlanId} to api id ${apiId} path ${endpoint.method} ${endpoint.path}.`,
-      );
+      if (apiId) {
+        console.log(`Binding usage plan ${usagePlan.usagePlanId} to api ${apiId}`);
+        await this.request({
+          Action: 'BindEnvironment',
+          serviceId,
+          environment,
+          bindType: 'API',
+          usagePlanIds: [usagePlan.usagePlanId],
+          apiIds: [apiId],
+        });
+        console.log(`Bind usage plan ${usagePlan.usagePlanId} to api ${apiId} success`);
+      } else {
+        console.log(`Binding usage plan ${usagePlan.usagePlanId} to enviromment ${environment}`);
+        await this.request({
+          Action: 'BindEnvironment',
+          serviceId,
+          environment,
+          bindType: 'SERVICE',
+          usagePlanIds: [usagePlan.usagePlanId],
+        });
+        console.log(
+          `Bind usage plan ${usagePlan.usagePlanId} to enviromment ${environment} success`,
+        );
+      }
+    }
+
+    return usagePlan;
+  }
+
+  async createOrUpdateService(serviceConf) {
+    const {
+      environment,
+      serviceId,
+      protocols,
+      netTypes,
+      serviceName = 'Serverless_Framework',
+      serviceDesc = 'Created By Serverless Framework',
+    } = serviceConf;
+    let serviceCreated = false;
+    let detail;
+    let exist = false;
+    if (serviceId) {
+      detail = await this.request({
+        Action: 'DescribeService',
+        ServiceId: serviceId,
+      });
+      if (detail) {
+        detail.InnerSubDomain = detail.InternalSubDomain;
+        exist = true;
+        if (
+          !(
+            serviceName === detail.serviceName &&
+            serviceDesc === detail.serviceDesc &&
+            protocols === detail.protocol
+          )
+        ) {
+          const apiInputs = {
+            Action: 'ModifyService',
+            serviceId,
+            serviceDesc: serviceDesc || detail.serviceDesc,
+            serviceName: serviceName || detail.serviceName,
+            protocol: protocols,
+          };
+          if (netTypes) {
+            apiInputs.netTypes = netTypes;
+          }
+          await this.request(apiInputs);
+        }
+      }
+    }
+    if (!exist) {
+      const apiInputs = {
+        Action: 'CreateService',
+        serviceName: serviceName || 'Serverless_Framework',
+        serviceDesc: serviceDesc || 'Created By Serverless Framework',
+        protocol: protocols,
+      };
+      if (netTypes) {
+        apiInputs.netTypes = netTypes;
+      }
+      detail = await this.request(apiInputs);
+      serviceCreated = true;
+    }
+
+    const outputs = {
+      serviceName,
+      serviceId: detail.ServiceId,
+      subDomain:
+        detail.OuterSubDomain && detail.InnerSubDomain
+          ? [detail.OuterSubDomain, detail.InnerSubDomain]
+          : detail.OuterSubDomain || detail.InnerSubDomain,
+      serviceCreated,
+    };
+
+    if (serviceConf.usagePlan) {
+      outputs.usagePlan = await this.bindUsagePlan({
+        serviceId: detail.ServiceId,
+        environment,
+        usagePlanConfig: serviceConf.usagePlan,
+        authConfig: serviceConf.auth,
+      });
+    }
+
+    return outputs;
+  }
+
+  async createOrUpdateApi({ serviceId, endpoint, environment, created }) {
+    const output = {
+      path: endpoint.path,
+      method: endpoint.method,
+      apiName: endpoint.apiName || 'index',
+      apiId: undefined,
+      created: false,
+    };
+
+    const apiInputs = {
+      protocol: endpoint.protocol || 'HTTP',
+      serviceId: serviceId,
+      apiName: endpoint.apiName || 'index',
+      apiDesc: endpoint.description,
+      apiType: 'NORMAL',
+      authType: endpoint.auth ? 'SECRET' : 'NONE',
+      // authRequired: endpoint.auth ? 'TRUE' : 'FALSE',
+      serviceType: endpoint.serviceType || 'SCF',
+      requestConfig: {
+        path: endpoint.path,
+        method: endpoint.method,
+      },
+      serviceTimeout: endpoint.serviceTimeout || 15,
+      responseType: endpoint.responseType || 'HTML',
+      enableCORS: endpoint.enableCORS === true ? true : false,
+    };
+
+    let exist = false;
+    let apiDetail = null;
+
+    // 没有apiId，还需要根据path来确定
+    if (!endpoint.apiId) {
+      const pathAPIList = await this.request({
+        Action: 'DescribeApisStatus',
+        ServiceId: serviceId,
+        Filters: [{ Name: 'ApiPath', Values: [endpoint.path] }],
+      });
+      if (pathAPIList.ApiIdStatusSet) {
+        for (let i = 0; i < pathAPIList.ApiIdStatusSet.length; i++) {
+          if (
+            pathAPIList.ApiIdStatusSet[i].Method.toLowerCase() === endpoint.method.toLowerCase() &&
+            pathAPIList.ApiIdStatusSet[i].Path === endpoint.path
+          ) {
+            endpoint.apiId = pathAPIList.ApiIdStatusSet[i].ApiId;
+            exist = true;
+          }
+        }
+      }
+    }
+
+    // get API info after apiId confirmed
+    if (endpoint.apiId) {
+      apiDetail = await this.request({
+        Action: 'DescribeApi',
+        serviceId: serviceId,
+        apiId: endpoint.apiId,
+      });
+
+      if (apiDetail && apiDetail.ApiId) {
+        exist = true;
+      }
+    }
+
+    if (!exist) {
+      this.marshalApiInput(endpoint, apiInputs);
+      const { ApiId } = await this.request({
+        Action: 'CreateApi',
+        ...apiInputs,
+      });
+
+      output.apiId = ApiId;
+      output.created = true;
+
+      console.log(`API ${output.apiId} created.`);
+      apiDetail = await this.request({
+        Action: 'DescribeApi',
+        serviceId: serviceId,
+        apiId: output.apiId,
+      });
+      output.internalDomain = apiDetail.InternalDomain;
+    } else {
+      console.log(`Updating api with api id ${endpoint.apiId}.`);
+      this.marshalApiInput(endpoint, apiInputs);
       await this.request({
-        Action: 'BindEnvironment',
+        Action: 'ModifyApi',
+        apiId: endpoint.apiId,
+        ...apiInputs,
+      });
+      output.apiId = endpoint.apiId;
+      output.created = !!created;
+      output.internalDomain = apiDetail.InternalDomain;
+      console.log(`Service ${output.apiId} updated`);
+    }
+
+    output.apiName = apiInputs.apiName;
+
+    if (endpoint.usagePlan) {
+      const usagePlan = await this.bindUsagePlan({
+        apiId: output.apiId,
         serviceId,
         environment,
-        bindType: bindType,
-        usagePlanIds: [usagePlan.usagePlanId],
-        apiIds: [apiId],
+        usagePlanConfig: endpoint.usagePlan,
+        authConfig: endpoint.auth,
       });
-      console.log('Binding successed.');
+
+      output.usagePlan = usagePlan;
     }
+
+    return output;
   }
 
   async deploy(inputs) {
     const { environment = 'release', oldState = {} } = inputs;
     inputs.protocols = this.getProtocolString(inputs.protocols);
 
-    const { serviceId, serviceName, subDomain, serviceCreated } = await this.createOrUpdateService(
-      inputs,
-    );
+    const {
+      serviceId,
+      serviceName,
+      subDomain,
+      serviceCreated,
+      usagePlan,
+    } = await this.createOrUpdateService(inputs);
 
     const apiList = [];
     const stateApiList = oldState.apiList || [];
@@ -620,62 +691,12 @@ class Apigw {
       const curApi = await this.createOrUpdateApi({
         serviceId,
         endpoint,
+        environment,
         created: exist && exist.created,
       });
 
-      // set api auth and use plan
-      if (endpoint.auth) {
-        curApi.bindType = endpoint.bindType || 'API';
-        const usagePlan = await this.setupApiUsagePlan({
-          usagePlan: {
-            ...((exist && exist.usagePlan) || {}),
-            ...endpoint.usagePlan,
-          },
-        });
-
-        // store in api list
-        curApi.usagePlan = usagePlan;
-
-        let secretCreated = false;
-        let { secretIds = [] } = endpoint.auth;
-        if (exist && exist.usagePlan && exist.usagePlan.secrets) {
-          secretIds = secretIds.concat(exist.usagePlan.secrets.secretIds);
-          secretCreated = exist.usagePlan.secrets.created;
-        }
-        const secrets = await this.setupUsagePlanSecret({
-          secretName: endpoint.auth.secretName,
-          secretIds,
-          created: secretCreated,
-        });
-
-        const unboundSecretIds = await this.getUnboundSecretIds({
-          usagePlanId: usagePlan.usagePlanId,
-          secretIds: secrets.secretIds,
-        });
-
-        if (unboundSecretIds.length > 0) {
-          console.log(
-            `Binding secret key ${unboundSecretIds} to usage plan with id ${usagePlan.usagePlanId}.`,
-          );
-          await this.request({
-            Action: 'BindSecretIds',
-            usagePlanId: usagePlan.usagePlanId,
-            accessKeyIds: unboundSecretIds,
-          });
-          console.log('Binding secret key successed.');
-        }
-        // store in api list
-        curApi.usagePlan.secrets = secrets;
-
-        // bind environment
-        await this.bindUsagePlanEnvironment({
-          environment,
-          serviceId,
-          apiId: curApi.apiId,
-          bindType: curApi.bindType,
-          usagePlan,
-          endpoint,
-        });
+      if (exist) {
+        curApi.created = true;
       }
 
       apiList.push(curApi);
@@ -684,14 +705,14 @@ class Apigw {
       );
     }
 
-    console.log(`Releaseing service with id ${serviceId}, environment: ${environment}`);
+    console.log(`Releaseing service ${serviceId}, environment: ${environment}`);
     await this.request({
       Action: 'ReleaseService',
       serviceId: serviceId,
       environmentName: environment,
       releaseDesc: 'Serverless api-gateway component deploy',
     });
-    console.log(`Deploy service with id ${serviceId} successfully.`);
+    console.log(`Deploy service ${serviceId} success`);
 
     const outputs = {
       created: serviceCreated || oldState.created,
@@ -713,11 +734,76 @@ class Apigw {
       outputs.customDomains = customDomains;
     }
 
+    if (usagePlan) {
+      outputs.usagePlan = usagePlan;
+    }
+
     return outputs;
   }
 
+  async removeOrUnbindUsagePlan({ serviceId, environment, usagePlan, apiId }) {
+    // 1.1 unbind secrete ids
+    const { secrets } = usagePlan;
+
+    if (secrets && secrets.secretIds) {
+      await this.removeOrUnbindRequest({
+        Action: 'UnBindSecretIds',
+        accessKeyIds: secrets.secretIds,
+        usagePlanId: usagePlan.usagePlanId,
+      });
+      console.log(`Unbinding secret key from usage plan ${usagePlan.usagePlanId}.`);
+
+      // delelet all created api key
+      if (usagePlan.secrets.created === true) {
+        for (let sIdx = 0; sIdx < secrets.secretIds.length; sIdx++) {
+          const secretId = secrets.secretIds[sIdx];
+          console.log(`Removing any previously deployed secret key: ${secretId}`);
+          await this.removeOrUnbindRequest({
+            Action: 'DisableApiKey',
+            accessKeyId: secretId,
+          });
+          await this.removeOrUnbindRequest({
+            Action: 'DeleteApiKey',
+            accessKeyId: secretId,
+          });
+        }
+      }
+    }
+
+    // 1.2 unbind environment
+    if (apiId) {
+      await this.removeOrUnbindRequest({
+        Action: 'UnBindEnvironment',
+        serviceId,
+        usagePlanIds: [usagePlan.usagePlanId],
+        environment,
+        bindType: 'API',
+        apiIds: [apiId],
+      });
+    } else {
+      await this.removeOrUnbindRequest({
+        Action: 'UnBindEnvironment',
+        serviceId,
+        usagePlanIds: [usagePlan.usagePlanId],
+        environment,
+        bindType: 'SERVICE',
+      });
+    }
+
+    console.log(`Unbinding usage plan ${usagePlan.usagePlanId} from service ${serviceId}.`);
+
+    // 1.3 delete created usage plan
+    if (usagePlan.created === true) {
+      console.log(`Removing usage plan ${usagePlan.usagePlanId}`);
+      await this.removeOrUnbindRequest({
+        Action: 'DeleteUsagePlan',
+        usagePlanId: usagePlan.usagePlanId,
+      });
+    }
+  }
+
   async remove(inputs) {
-    const { created, environment, serviceId, apiList, customDomains } = inputs;
+    const { created, environment, serviceId, apiList, customDomains, usagePlan } = inputs;
 
     // check service exist
     const detail = await this.request({
@@ -729,65 +815,28 @@ class Apigw {
       console.log(`Service ${serviceId} not exist`);
       return;
     }
+
+    // remove usage plan
+    if (usagePlan) {
+      await this.removeOrUnbindUsagePlan({
+        serviceId,
+        environment,
+        usagePlan,
+      });
+    }
+
     // 1. remove all apis
     for (let i = 0; i < apiList.length; i++) {
       const curApi = apiList[i];
 
       // 1. remove usage plan
       if (curApi.usagePlan) {
-        // 1.1 unbind secrete ids
-        const { secrets } = curApi.usagePlan;
-
-        if (secrets && secrets.secretIds) {
-          await this.removeOrUnbindRequest({
-            Action: 'UnBindSecretIds',
-            accessKeyIds: secrets.secretIds,
-            usagePlanId: curApi.usagePlan.usagePlanId,
-          });
-          console.log(
-            `Unbinding secret key to usage plan with ID ${curApi.usagePlan.usagePlanId}.`,
-          );
-
-          // delelet all created api key
-          if (curApi.usagePlan.secrets.created === true) {
-            for (let sIdx = 0; sIdx < secrets.secretIds.length; sIdx++) {
-              const secretId = secrets.secretIds[sIdx];
-              console.log(`Removing any previously deployed secret key: ${secretId}`);
-              await this.removeOrUnbindRequest({
-                Action: 'DisableApiKey',
-                accessKeyId: secretId,
-              });
-              await this.removeOrUnbindRequest({
-                Action: 'DeleteApiKey',
-                accessKeyId: secretId,
-              });
-            }
-          }
-        }
-
-        // 1.2 unbind environment
-        await this.removeOrUnbindRequest({
-          Action: 'UnBindEnvironment',
+        await this.removeOrUnbindUsagePlan({
           serviceId,
-          usagePlanIds: [curApi.usagePlan.usagePlanId],
           environment,
-          bindType: curApi.bindType,
-          apiIds: [curApi.apiId],
+          apiId: curApi.apiId,
+          usagePlan: curApi.usagePlan,
         });
-        console.log(
-          `Unbinding usage plan with ID ${curApi.usagePlan.usagePlanId} to service with ID ${serviceId}.`,
-        );
-
-        // 1.3 delete created usage plan
-        if (curApi.usagePlan.created === true) {
-          console.log(
-            `Removing any previously deployed usage plan ids ${curApi.usagePlan.usagePlanId}`,
-          );
-          await this.removeOrUnbindRequest({
-            Action: 'DeleteUsagePlan',
-            usagePlanId: curApi.usagePlan.usagePlanId,
-          });
-        }
       }
 
       // 2. delete only apis created by serverless framework
@@ -806,7 +855,7 @@ class Apigw {
       for (let i = 0; i < customDomains.length; i++) {
         const curDomain = customDomains[i];
         if (curDomain.subDomain && curDomain.created === true) {
-          console.log(`Unbinding custom domain: ${curDomain.subDomain}`);
+          console.log(`Unbinding custom domain ${curDomain.subDomain}`);
           await this.removeOrUnbindRequest({
             Action: 'UnBindSubDomain',
             serviceId,
