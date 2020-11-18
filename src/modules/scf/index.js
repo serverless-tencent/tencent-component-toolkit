@@ -199,15 +199,15 @@ class Scf {
     return Triggers;
   }
 
-  filterTriggers(funcInfo, events, oldList) {
+  filterTriggers(funcInfo, triggers, oldList) {
     const deleteList = deepClone(oldList);
-    const createList = deepClone(events);
+    const createList = deepClone(triggers);
     const updateList = [];
-    events.forEach((event, index) => {
-      const Type = Object.keys(event)[0];
+    triggers.forEach((trigger, index) => {
+      const Type = trigger.type;
       const triggerClass = TRIGGERS[Type];
       if (Type !== 'apigw') {
-        const { triggerKey } = triggerClass.formatInputs(this.region, funcInfo, event[Type]);
+        const { triggerKey } = triggerClass.formatInputs(this.region, funcInfo, trigger);
         for (let i = 0; i < oldList.length; i++) {
           const curOld = oldList[i];
           const oldTriggerClass = TRIGGERS[curOld.Type];
@@ -236,8 +236,7 @@ class Scf {
 
     // get all triggers
     const triggerList = await this.getTriggerList(funcInfo.FunctionName, funcInfo.Namespace);
-
-    const { deleteList, createList } = this.filterTriggers(funcInfo, inputs.events, triggerList);
+    const { deleteList, createList } = this.filterTriggers(funcInfo, inputs.triggers, triggerList);
 
     // remove all old triggers
     for (let i = 0, len = deleteList.length; i < len; i++) {
@@ -258,18 +257,14 @@ class Scf {
     const triggerResult = [];
     for (let i = 0; i < createList.length; i++) {
       const event = createList[i];
-      const Type = Object.keys(event)[0];
+      const Type = event.type;
       const triggerClass = TRIGGERS[Type];
       if (!triggerClass) {
         throw TypeError('PARAMETER_SCF', `Unknow trigger type ${Type}`);
       }
-      try {
-        const triggerOutput = await triggerClass.create(this, this.region, funcInfo, event[Type]);
+      const triggerOutput = await triggerClass.create(this, this.region, funcInfo, event);
 
-        triggerResult.push(triggerOutput);
-      } catch (e) {
-        throw e;
-      }
+      triggerResult.push(triggerOutput);
     }
     return triggerResult;
   }
@@ -586,7 +581,7 @@ class Scf {
     }
 
     // create/update/delete triggers
-    if (inputs.events) {
+    if (inputs.triggers) {
       outputs.Triggers = await this.deployTrigger(funcInfo, inputs);
     }
 

@@ -47,8 +47,7 @@ const TimerTrigger = {
           });
     return `${triggerInputs.Type}-${triggerInputs.TriggerName}-${Desc}-${triggerInputs.CustomArgument}-${Enable}-${triggerInputs.Qualifier}`;
   },
-  formatInputs(region, funcInfo, inputs) {
-    const { parameters, name } = inputs;
+  formatInputs(region, funcInfo, parameters) {
     const triggerInputs = {
       Action: 'CreateTrigger',
       FunctionName: funcInfo.FunctionName,
@@ -57,7 +56,7 @@ const TimerTrigger = {
 
     triggerInputs.Type = 'timer';
     triggerInputs.Qualifier = parameters.qualifier || '$DEFAULT';
-    triggerInputs.TriggerName = parameters.name || name;
+    triggerInputs.TriggerName = parameters.name;
     triggerInputs.TriggerDesc = parameters.cronExpression;
     triggerInputs.Enable = parameters.enable ? 'OPEN' : 'CLOSE';
 
@@ -89,8 +88,7 @@ const CosTrigger = {
     const Enable = TRIGGER_STATUS_MAP[triggerInputs.Enable];
     return `cos-${triggerInputs.TriggerName}-${tempDest}-${Enable}-${triggerInputs.Qualifier}`;
   },
-  formatInputs(region, funcInfo, inputs) {
-    const { parameters } = inputs;
+  formatInputs(region, funcInfo, parameters) {
     const triggerInputs = {
       Action: 'CreateTrigger',
       FunctionName: funcInfo.FunctionName,
@@ -128,8 +126,7 @@ const CkafkaTrigger = {
     const Enable = TRIGGER_STATUS_MAP[triggerInputs.Enable];
     return `${triggerInputs.Type}-${triggerInputs.TriggerName}-${triggerInputs.TriggerDesc}-${Enable}-${triggerInputs.Qualifier}`;
   },
-  formatInputs(region, funcInfo, inputs) {
-    const { parameters } = inputs;
+  formatInputs(region, funcInfo, parameters) {
     const triggerInputs = {
       Action: 'CreateTrigger',
       FunctionName: funcInfo.FunctionName,
@@ -165,8 +162,7 @@ const CmqTrigger = {
     const Enable = TRIGGER_STATUS_MAP[triggerInputs.Enable];
     return `${triggerInputs.Type}-${triggerInputs.TriggerName}-${triggerInputs.TriggerDesc}-${Enable}-${triggerInputs.Qualifier}`;
   },
-  formatInputs(region, funcInfo, inputs) {
-    const { parameters } = inputs;
+  formatInputs(region, funcInfo, parameters) {
     const triggerInputs = {
       Action: 'CreateTrigger',
       FunctionName: funcInfo.FunctionName,
@@ -198,20 +194,18 @@ const CmqTrigger = {
 };
 
 const ApigwTrigger = {
-  formatInputs(region, funcInfo, inputs) {
-    const { parameters, name } = inputs;
+  formatInputs(region, funcInfo, parameters) {
     const triggerInputs = {};
     triggerInputs.oldState = parameters.oldState;
     triggerInputs.region = region;
     triggerInputs.protocols = parameters.protocols;
     triggerInputs.protocols = parameters.protocols;
     triggerInputs.environment = parameters.environment;
-    triggerInputs.serviceId = parameters.serviceId;
-    triggerInputs.serviceName = parameters.serviceName || name;
+    triggerInputs.serviceId = parameters.id;
+    triggerInputs.serviceName = parameters.name;
     triggerInputs.serviceDesc = parameters.description;
-    triggerInputs.serviceId = parameters.serviceId;
 
-    triggerInputs.endpoints = (parameters.endpoints || []).map((ep) => {
+    triggerInputs.endpoints = (parameters.apis || []).map((ep) => {
       ep.function = ep.function || {};
       ep.function.functionName = funcInfo.FunctionName;
       ep.function.functionNamespace = funcInfo.Namespace;

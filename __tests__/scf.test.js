@@ -40,42 +40,32 @@ describe('Scf', () => {
     },
     eip: true,
     vpcConfig: vpcConfig,
-    events: [
+    triggers: [
       {
-        timer: {
-          name: 'timer',
-          parameters: {
-            cronExpression: '0 */6 * * * * *',
-            enable: true,
-            argument: 'mytest argument',
-          },
+        type: 'timer',
+        name: 'timer',
+        cronExpression: '0 */6 * * * * *',
+        enable: true,
+        argument: 'mytest argument',
+      },
+      {
+        type: 'cos',
+        bucket: `${process.env.BUCKET}-${process.env.TENCENT_APP_ID}.cos.${process.env.REGION}.myqcloud.com`,
+        enable: true,
+        events: 'cos:ObjectCreated:*',
+        filter: {
+          prefix: 'aaaasad',
+          suffix: '.zip',
         },
       },
       {
-        cos: {
-          name: 'cos-trigger',
-          parameters: {
-            bucket: `${process.env.BUCKET}-${process.env.TENCENT_APP_ID}.cos.${process.env.REGION}.myqcloud.com`,
-            enable: true,
-            events: 'cos:ObjectCreated:*',
-            filter: {
-              prefix: 'aaaasad',
-              suffix: '.zip',
-            },
+        type: 'apigw',
+        apis: [
+          {
+            path: '/',
+            method: 'GET',
           },
-        },
-      },
-      {
-        apigw: {
-          parameters: {
-            endpoints: [
-              {
-                path: '/',
-                method: 'GET',
-              },
-            ],
-          },
-        },
+        ],
       },
     ],
   };
@@ -184,11 +174,11 @@ describe('Scf', () => {
         {
           AddTime: expect.any(String),
           AvailableStatus: 'Available',
-          CustomArgument: inputs.events[0].timer.parameters.argument,
+          CustomArgument: inputs.triggers[0].argument,
           Enable: 1,
           ModTime: expect.any(String),
-          TriggerDesc: `{"cron":"${inputs.events[0].timer.parameters.cronExpression}"}`,
-          TriggerName: inputs.events[0].timer.name,
+          TriggerDesc: `{"cron":"${inputs.triggers[0].cronExpression}"}`,
+          TriggerName: inputs.triggers[0].name,
           Type: 'timer',
           BindStatus: '',
           ResourceId: '',
@@ -200,7 +190,7 @@ describe('Scf', () => {
           CustomArgument: '',
           Enable: 1,
           ModTime: expect.any(String),
-          TriggerDesc: `{"bucketUrl":"${inputs.events[1].cos.parameters.bucket}","event":"${inputs.events[1].cos.parameters.events}","filter":{"Prefix":"${inputs.events[1].cos.parameters.filter.prefix}","Suffix":"${inputs.events[1].cos.parameters.filter.suffix}"}}`,
+          TriggerDesc: `{"bucketUrl":"${inputs.triggers[1].bucket}","event":"${inputs.triggers[1].events}","filter":{"Prefix":"${inputs.triggers[1].filter.prefix}","Suffix":"${inputs.triggers[1].filter.suffix}"}}`,
           TriggerName: expect.stringContaining('cos_'),
           Type: 'cos',
           BindStatus: '',
