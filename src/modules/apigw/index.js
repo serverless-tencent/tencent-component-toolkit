@@ -569,7 +569,7 @@ class Apigw {
     });
 
     const oldUsagePlan = ApiUsagePlanList.find(
-      (item) => item.UsagePlanId === usagePlan.usagePlanId,
+      (item) => item.UsagePlanId === usagePlan.usagePlanId && item.ApiId === apiId,
     );
 
     if (oldUsagePlan) {
