@@ -210,7 +210,7 @@ class Apigw {
     }
   }
 
-  async createOrUpdateApi({ serviceId, endpoint, oldState = {} }) {
+  async createOrUpdateApi({ serviceId, endpoint, created }) {
     const output = {
       path: endpoint.path,
       method: endpoint.method,
@@ -298,7 +298,7 @@ class Apigw {
         apiId: endpoint.apiId,
         ...apiInputs,
       });
-      output.created = !!oldState.created;
+      output.created = !!created;
       output.apiId = endpoint.apiId;
       output.internalDomain = apiDetail.InternalDomain;
       console.log(`Service with id ${output.apiId} updated.`);
@@ -620,7 +620,7 @@ class Apigw {
       const curApi = await this.createOrUpdateApi({
         serviceId,
         endpoint,
-        oldState: exist,
+        created: exist && exist.created,
       });
 
       // set api auth and use plan
