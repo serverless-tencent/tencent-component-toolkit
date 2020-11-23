@@ -210,7 +210,7 @@ class Apigw {
     }
   }
 
-  async createOrUpdateApi({ serviceId, endpoint }) {
+  async createOrUpdateApi({ serviceId, endpoint, oldState = {} }) {
     const output = {
       path: endpoint.path,
       method: endpoint.method,
@@ -298,6 +298,7 @@ class Apigw {
         apiId: endpoint.apiId,
         ...apiInputs,
       });
+      output.created = !!oldState.created;
       output.apiId = endpoint.apiId;
       output.internalDomain = apiDetail.InternalDomain;
       console.log(`Service with id ${output.apiId} updated.`);
@@ -307,9 +308,9 @@ class Apigw {
     return output;
   }
 
-  async setupUsagePlanSecret({ secretName, secretIds }) {
+  async setupUsagePlanSecret({ secretName, secretIds, created }) {
     const secretIdsOutput = {
-      created: false,
+      created: !!created,
       secretIds,
     };
 
@@ -321,7 +322,7 @@ class Apigw {
         SecretName: secretName,
         AccessKeyType: 'auto',
       });
-      console.log(`Secret key with ID ${AccessKeyId} and key ${AccessKeySecret} updated.`);
+      console.log(`Secret key with ID ${AccessKeyId} and key ${AccessKeySecret} created`);
       secretIdsOutput.secretIds = [AccessKeyId];
       secretIdsOutput.created = true;
     } else {
@@ -614,14 +615,13 @@ class Apigw {
 
       if (exist) {
         endpoint.apiId = exist.apiId;
+        endpoint.created = exist.created;
       }
       const curApi = await this.createOrUpdateApi({
         serviceId,
         endpoint,
+        oldState: exist,
       });
-      if (exist) {
-        curApi.created = true;
-      }
 
       // set api auth and use plan
       if (endpoint.auth) {
@@ -636,10 +636,16 @@ class Apigw {
         // store in api list
         curApi.usagePlan = usagePlan;
 
-        const { secretIds = [] } = endpoint.auth;
+        let secretCreated = false;
+        let { secretIds = [] } = endpoint.auth;
+        if (exist && exist.usagePlan && exist.usagePlan.secrets) {
+          secretIds = secretIds.concat(exist.usagePlan.secrets.secretIds);
+          secretCreated = exist.usagePlan.secrets.created;
+        }
         const secrets = await this.setupUsagePlanSecret({
           secretName: endpoint.auth.secretName,
           secretIds,
+          created: secretCreated,
         });
 
         const unboundSecretIds = await this.getUnboundSecretIds({
@@ -688,7 +694,7 @@ class Apigw {
     console.log(`Deploy service with id ${serviceId} successfully.`);
 
     const outputs = {
-      created: serviceCreated,
+      created: serviceCreated || oldState.created,
       serviceId,
       serviceName,
       subDomain,
@@ -810,16 +816,16 @@ class Apigw {
       }
     }
 
-    // 3. unrelease service
-    console.log(`Unreleasing service: ${serviceId}, environment: ${environment}`);
-    await this.removeOrUnbindRequest({
-      Action: 'UnReleaseService',
-      serviceId,
-      environmentName: environment,
-    });
-    console.log(`Unrelease service: ${serviceId}, environment: ${environment} success`);
-
     if (created === true) {
+      // unrelease service
+      console.log(`Unreleasing service: ${serviceId}, environment: ${environment}`);
+      await this.removeOrUnbindRequest({
+        Action: 'UnReleaseService',
+        serviceId,
+        environmentName: environment,
+      });
+      console.log(`Unrelease service: ${serviceId}, environment: ${environment} success`);
+
       // delete service
       console.log(`Removing service: ${serviceId}`);
       await this.removeOrUnbindRequest({
