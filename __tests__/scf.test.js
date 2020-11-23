@@ -190,6 +190,9 @@ describe('Scf', () => {
           TriggerDesc: `{"cron":"${inputs.events[0].timer.parameters.cronExpression}"}`,
           TriggerName: inputs.events[0].timer.name,
           Type: 'timer',
+          BindStatus: '',
+          ResourceId: '',
+          TriggerAttribute: '',
         },
         {
           AddTime: expect.any(String),
@@ -200,6 +203,9 @@ describe('Scf', () => {
           TriggerDesc: `{"bucketUrl":"${inputs.events[1].cos.parameters.bucket}","event":"${inputs.events[1].cos.parameters.events}","filter":{"Prefix":"${inputs.events[1].cos.parameters.filter.prefix}","Suffix":"${inputs.events[1].cos.parameters.filter.suffix}"}}`,
           TriggerName: expect.stringContaining('cos_'),
           Type: 'cos',
+          BindStatus: '',
+          ResourceId: '',
+          TriggerAttribute: '',
         },
         {
           created: true,
