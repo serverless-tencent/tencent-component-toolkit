@@ -201,7 +201,9 @@ const ApigwTrigger = {
   formatInputs(region, funcInfo, inputs) {
     const { parameters, name } = inputs;
     const triggerInputs = {};
+    triggerInputs.oldState = parameters.oldState;
     triggerInputs.region = region;
+    triggerInputs.protocols = parameters.protocols;
     triggerInputs.protocols = parameters.protocols;
     triggerInputs.environment = parameters.environment;
     triggerInputs.serviceId = parameters.serviceId;
@@ -221,6 +223,7 @@ const ApigwTrigger = {
     if (parameters.netTypes) {
       triggerInputs.netTypes = parameters.netTypes;
     }
+    triggerInputs.created = !!parameters.created;
     return {
       triggerInputs,
     };

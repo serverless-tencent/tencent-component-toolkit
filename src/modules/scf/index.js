@@ -625,18 +625,6 @@ class Scf {
           try {
             // delete apigw trigger
             const curTrigger = inputs.Triggers[i];
-            curTrigger.created = true;
-            const { apiList } = curTrigger;
-            curTrigger.apiList = apiList.map((item) => {
-              item.created = true;
-              if (item.usagePlan) {
-                item.usagePlan.created = true;
-                if (item.usagePlan.secrets) {
-                  item.usagePlan.secrets.created = true;
-                }
-              }
-              return item;
-            });
             await this.apigwClient.remove(curTrigger);
           } catch (e) {
             console.log(e);
