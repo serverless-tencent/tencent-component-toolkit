@@ -1,3 +1,10 @@
+## [1.18.7](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.18.6...v1.18.7) (2020-11-23)
+
+
+### Bug Fixes
+
+* scf remove apigw logical ([#156](https://github.com/serverless-tencent/tencent-component-toolkit/issues/156)) ([4329c38](https://github.com/serverless-tencent/tencent-component-toolkit/commit/4329c38866d15f79bca3bb3daed56f8e2bc27701))
+
 ## [1.18.6](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.18.5...v1.18.6) (2020-11-12)
 
 
