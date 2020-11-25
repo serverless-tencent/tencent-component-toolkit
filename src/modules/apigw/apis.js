@@ -14,6 +14,7 @@ const ACTIONS = [
   'ModifyApi',
   'DescribeApisStatus',
   'CreateUsagePlan',
+  'DescribeServiceUsagePlan',
   'DescribeApiUsagePlan',
   'DescribeUsagePlanSecretIds',
   'DescribeUsagePlan',

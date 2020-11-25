@@ -1,5 +1,9 @@
 const { Apigw } = require('../src');
 
+const deepClone = (obj) => {
+  return JSON.parse(JSON.stringify(obj));
+};
+
 describe('apigw', () => {
   const credentials = {
     SecretId: process.env.TENCENT_SECRET_ID,
@@ -25,6 +29,15 @@ describe('apigw', () => {
     //     protocols: ['http', 'https'],
     //   },
     // ],
+    usagePlan: {
+      usagePlanId: 'usagePlan-8bbr8pup',
+      usagePlanName: 'slscmp',
+      usagePlanDesc: 'sls create',
+      maxRequestNum: 1000,
+    },
+    auth: {
+      secretName: 'authName',
+    },
     endpoints: [
       {
         apiId: 'api-i84p7rla',
@@ -34,17 +47,6 @@ describe('apigw', () => {
         apiName: 'index',
         function: {
           functionName: 'egg-function',
-        },
-        usagePlan: {
-          usagePlanId: 'usagePlan-8bbr8pup',
-          usagePlanName: 'slscmp',
-          usagePlanDesc: 'sls create',
-          maxRequestNum: 1000,
-        },
-        auth: {
-          serviceTimeout: 15,
-          secretName: 'authName',
-          secretIds: ['xxx'],
         },
       },
       {
@@ -97,19 +99,99 @@ describe('apigw', () => {
   const apigw = new Apigw(credentials, process.env.REGION);
   let outputs;
 
-  test('should deploy a apigw success', async () => {
-    outputs = await apigw.deploy(inputs);
+  test('[Environment UsagePlan] should deploy a apigw success', async () => {
+    const apigwInputs = deepClone(inputs);
+    outputs = await apigw.deploy(apigwInputs);
     expect(outputs).toEqual({
       created: true,
       serviceId: expect.stringContaining('service-'),
       serviceName: 'serverless_test',
       subDomain: expect.stringContaining('.apigw.tencentcs.com'),
-      protocols: inputs.protocols,
+      protocols: 'http&https',
+      environment: 'release',
+      usagePlan: {
+        created: true,
+        secrets: {
+          created: true,
+          secretIds: expect.any(Array),
+        },
+        usagePlanId: expect.stringContaining('usagePlan-'),
+      },
+      apiList: [
+        {
+          path: '/',
+          internalDomain: null,
+          method: 'GET',
+          apiName: 'index',
+          apiId: expect.stringContaining('api-'),
+          created: true,
+        },
+        {
+          path: '/mo',
+          method: 'GET',
+          apiName: 'mo',
+          internalDomain: null,
+          apiId: expect.stringContaining('api-'),
+          created: true,
+        },
+        {
+          path: '/auto',
+          method: 'GET',
+          apiName: 'auto-http',
+          internalDomain: null,
+          apiId: expect.stringContaining('api-'),
+          created: true,
+        },
+        {
+          path: '/ws',
+          method: 'GET',
+          apiName: 'ws-test',
+          internalDomain: null,
+          apiId: expect.stringContaining('api-'),
+          created: true,
+        },
+        {
+          path: '/wsf',
+          method: 'GET',
+          apiName: 'ws-scf',
+          internalDomain: expect.stringContaining(
+            'http://set-websocket.cb-common.apigateway.tencentyun.com',
+          ),
+          apiId: expect.stringContaining('api-'),
+          created: true,
+        },
+      ],
+    });
+  });
+
+  test('[Environment UsagePlan] should remove apigw success', async () => {
+    await apigw.remove(outputs);
+    const detail = await apigw.request({
+      Action: 'DescribeService',
+      ServiceId: outputs.serviceId,
+    });
+
+    expect(detail).toBeNull();
+  });
+
+  test('[Api UsagePlan] should deploy a apigw success', async () => {
+    const apigwInputs = deepClone(inputs);
+    apigwInputs.endpoints[0].usagePlan = apigwInputs.usagePlan;
+    apigwInputs.endpoints[0].auth = apigwInputs.auth;
+    delete apigwInputs.usagePlan;
+    delete apigwInputs.auth;
+
+    outputs = await apigw.deploy(apigwInputs);
+    expect(outputs).toEqual({
+      created: true,
+      serviceId: expect.stringContaining('service-'),
+      serviceName: 'serverless_test',
+      subDomain: expect.stringContaining('.apigw.tencentcs.com'),
+      protocols: 'http&https',
       environment: 'release',
       apiList: [
         {
           path: '/',
-          bindType: 'API',
           internalDomain: null,
           method: 'GET',
           apiName: 'index',
@@ -118,8 +200,8 @@ describe('apigw', () => {
           usagePlan: {
             created: true,
             secrets: {
-              created: false,
-              secretIds: [],
+              created: true,
+              secretIds: expect.any(Array),
             },
             usagePlanId: expect.stringContaining('usagePlan-'),
           },
@@ -162,7 +244,7 @@ describe('apigw', () => {
     });
   });
 
-  test('should remove apigw success', async () => {
+  test('[Api UsagePlan] should remove apigw success', async () => {
     await apigw.remove(outputs);
     const detail = await apigw.request({
       Action: 'DescribeService',
