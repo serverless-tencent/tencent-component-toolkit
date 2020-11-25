@@ -319,9 +319,7 @@ class Apigw {
         for (let j = 0; j < stateDomains.length; j++) {
           // only list subDomain and created in state
           if (stateDomains[j].subDomain === domainItem.DomainName) {
-            console.log(
-              `Start unbind previus domain ${domainItem.DomainName} for service ${serviceId}`,
-            );
+            console.log(`Start unbind domain ${domainItem.DomainName} for service ${serviceId}`);
             await this.request({
               Action: 'UnBindSubDomain',
               serviceId,
@@ -629,7 +627,7 @@ class Apigw {
       });
       output.internalDomain = apiDetail.InternalDomain;
     } else {
-      console.log(`Updating api with api id ${endpoint.apiId}.`);
+      console.log(`Updating api ${endpoint.apiId}.`);
       this.marshalApiInput(endpoint, apiInputs);
       await this.request({
         Action: 'ModifyApi',
@@ -639,7 +637,7 @@ class Apigw {
       output.apiId = endpoint.apiId;
       output.created = !!created;
       output.internalDomain = apiDetail.InternalDomain;
-      console.log(`Service ${output.apiId} updated`);
+      console.log(`Api ${output.apiId} updated`);
     }
 
     output.apiName = apiInputs.apiName;
@@ -700,17 +698,15 @@ class Apigw {
       }
 
       apiList.push(curApi);
-      console.log(
-        `Deployment successful for the api named ${curApi.apiName} in the ${this.region} region.`,
-      );
+      console.log(`Deploy api ${curApi.apiName} success`);
     }
 
-    console.log(`Releaseing service ${serviceId}, environment: ${environment}`);
+    console.log(`Releaseing service ${serviceId}, environment ${environment}`);
     await this.request({
       Action: 'ReleaseService',
       serviceId: serviceId,
       environmentName: environment,
-      releaseDesc: 'Serverless api-gateway component deploy',
+      releaseDesc: 'Released by Serverless Component',
     });
     console.log(`Deploy service ${serviceId} success`);
 
@@ -757,7 +753,7 @@ class Apigw {
       if (usagePlan.secrets.created === true) {
         for (let sIdx = 0; sIdx < secrets.secretIds.length; sIdx++) {
           const secretId = secrets.secretIds[sIdx];
-          console.log(`Removing secret id: ${secretId}`);
+          console.log(`Removing secret key ${secretId}`);
           await this.removeOrUnbindRequest({
             Action: 'DisableApiKey',
             accessKeyId: secretId,
@@ -841,7 +837,7 @@ class Apigw {
 
       // 2. delete only apis created by serverless framework
       if (curApi.apiId && curApi.created === true) {
-        console.log(`Removing api: ${curApi.apiId}`);
+        console.log(`Removing api ${curApi.apiId}`);
         await this.removeOrUnbindRequest({
           Action: 'DeleteApi',
           apiId: curApi.apiId,
@@ -867,21 +863,21 @@ class Apigw {
 
     if (created === true) {
       // unrelease service
-      console.log(`Unreleasing service: ${serviceId}, environment: ${environment}`);
+      console.log(`Unreleasing service: ${serviceId}, environment ${environment}`);
       await this.removeOrUnbindRequest({
         Action: 'UnReleaseService',
         serviceId,
         environmentName: environment,
       });
-      console.log(`Unrelease service: ${serviceId}, environment: ${environment} success`);
+      console.log(`Unrelease service ${serviceId}, environment ${environment} success`);
 
       // delete service
-      console.log(`Removing service: ${serviceId}`);
+      console.log(`Removing service ${serviceId}`);
       await this.removeOrUnbindRequest({
         Action: 'DeleteService',
         serviceId,
       });
-      console.log(`Remove service: ${serviceId} success`);
+      console.log(`Remove service ${serviceId} success`);
     }
   }
 }
