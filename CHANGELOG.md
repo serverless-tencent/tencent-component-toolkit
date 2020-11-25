@@ -1,3 +1,10 @@
+## [1.18.8](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.18.7...v1.18.8) (2020-11-25)
+
+
+### Bug Fixes
+
+* **apigw:** bind same usage plan to different apis ([#157](https://github.com/serverless-tencent/tencent-component-toolkit/issues/157)) ([d369471](https://github.com/serverless-tencent/tencent-component-toolkit/commit/d369471ffa8850468299ddfea33620a71e0cad7e))
+
 ## [1.18.7](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.18.6...v1.18.7) (2020-11-23)
 
 
