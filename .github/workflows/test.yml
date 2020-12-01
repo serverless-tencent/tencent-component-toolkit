@@ -41,16 +41,16 @@ jobs:
       - name: Running integration tests
         run: npm run test
         env:
-          TENCENT_SECRET_ID: ${{ secrets.TENCENT_SECRET_ID}}
-          TENCENT_SECRET_KEY: ${{ secrets.TENCENT_SECRET_KEY}}
-          TENCENT_UIN: ${{ secrets.TENCENT_UIN}}
-          TENCENT_APP_ID: ${{ secrets.TENCENT_APP_ID}}
-          BUCKET: ${{ secrets.BUCKET}}
-          DOMAIN: ${{ secrets.DOMAIN}}
-          SUB_DOMAIN: ${{ secrets.SUB_DOMAIN}}
-          REGION: ${{ secrets.REGION}}
-          ZONE: ${{ secrets.ZONE}}
-          VPC_ID: ${{ secrets.VPC_ID}}
-          SUBNET_ID: ${{ secrets.SUBNET_ID}}
-          CFS_VPC_ID: ${{ secrets.CFS_VPC_ID}}
-          CFS_SUBNET_ID: ${{ secrets.CFS_SUBNET_ID}}
+          TENCENT_SECRET_ID: ${{ secrets.TENCENT_SECRET_ID }}
+          TENCENT_SECRET_KEY: ${{ secrets.TENCENT_SECRET_KEY }}
+          TENCENT_UIN: ${{ secrets.TENCENT_UIN }}
+          TENCENT_APP_ID: ${{ secrets.TENCENT_APP_ID }}
+          BUCKET: ${{ secrets.BUCKET }}
+          DOMAIN: ${{ secrets.DOMAIN }}
+          SUB_DOMAIN: ${{ secrets.SUB_DOMAIN }}
+          REGION: ${{ secrets.REGION }}
+          ZONE: ${{ secrets.ZONE }}
+          VPC_ID: ${{ secrets.VPC_ID }}
+          SUBNET_ID: ${{ secrets.SUBNET_ID }}
+          CFS_VPC_ID: ${{ secrets.CFS_VPC_ID }}
+          CFS_SUBNET_ID: ${{ secrets.CFS_SUBNET_ID }}
