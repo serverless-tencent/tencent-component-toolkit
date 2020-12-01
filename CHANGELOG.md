@@ -1,3 +1,10 @@
+## [1.19.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.19.1...v1.19.2) (2020-12-01)
+
+
+### Bug Fixes
+
+* **cls:** logset update ([e0d58c4](https://github.com/serverless-tencent/tencent-component-toolkit/commit/e0d58c4c6b190c3ed0e8dfed5ca6595f4daaec43))
+
 ## [1.19.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.19.0...v1.19.1) (2020-12-01)
 
 
