@@ -15,4 +15,5 @@ module.exports = {
   Layer: require('./modules/layer'),
   Cfs: require('./modules/cfs'),
   Cynosdb: require('./modules/cynosdb'),
+  Cls: require('./modules/cls'),
 };

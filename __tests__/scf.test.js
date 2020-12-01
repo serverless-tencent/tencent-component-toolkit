@@ -217,7 +217,7 @@ describe('Scf', () => {
           apiList: [
             {
               path: '/',
-              internalDomain: null,
+              internalDomain: expect.any(String),
               method: 'GET',
               apiName: 'index',
               apiId: expect.stringContaining('api-'),

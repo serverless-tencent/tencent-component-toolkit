@@ -625,7 +625,7 @@ class Apigw {
         serviceId: serviceId,
         apiId: output.apiId,
       });
-      output.internalDomain = apiDetail.InternalDomain;
+      output.internalDomain = apiDetail.InternalDomain || '';
     } else {
       console.log(`Updating api ${endpoint.apiId}.`);
       this.marshalApiInput(endpoint, apiInputs);
@@ -636,7 +636,7 @@ class Apigw {
       });
       output.apiId = endpoint.apiId;
       output.created = !!created;
-      output.internalDomain = apiDetail.InternalDomain;
+      output.internalDomain = apiDetail.InternalDomain || '';
       console.log(`Api ${output.apiId} updated`);
     }
 
