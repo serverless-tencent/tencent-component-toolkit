@@ -1,3 +1,10 @@
+## [1.19.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.19.0...v1.19.1) (2020-12-01)
+
+
+### Bug Fixes
+
+* **cls:** update sdk version ([08d83fe](https://github.com/serverless-tencent/tencent-component-toolkit/commit/08d83fe96628ce1a631aee3057fb2714c30e5358))
+
 # [1.19.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.18.8...v1.19.0) (2020-12-01)
 
 
