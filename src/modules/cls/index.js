@@ -12,7 +12,7 @@ class Cls {
       secretKey: credentials.SecretKey,
       token: credentials.Token,
       debug: false,
-      expire: expire || 300000,
+      expire: expire,
     });
   }
 

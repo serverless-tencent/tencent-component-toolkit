@@ -5,7 +5,7 @@ describe('Cls', () => {
     SecretId: process.env.TENCENT_SECRET_ID,
     SecretKey: process.env.TENCENT_SECRET_KEY,
   };
-  const client = new Cls(credentials, process.env.REGION, 600000);
+  const client = new Cls(credentials, process.env.REGION);
 
   let outputs = {};
 
