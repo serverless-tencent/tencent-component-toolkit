@@ -1,3 +1,10 @@
+# [1.19.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.18.8...v1.19.0) (2020-12-01)
+
+
+### Features
+
+* add cls module ([127ff5c](https://github.com/serverless-tencent/tencent-component-toolkit/commit/127ff5cc1eef2e1539e133f286d81c1555433f07))
+
 ## [1.18.8](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.18.7...v1.18.8) (2020-11-25)
 
 
