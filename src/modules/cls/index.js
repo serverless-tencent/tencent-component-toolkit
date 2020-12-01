@@ -20,6 +20,7 @@ class Cls {
     const outputs = {
       region: this.region,
       name: inputs.name,
+      period: inputs.period,
       logsetId: '',
     };
     let exist = false;
@@ -40,6 +41,7 @@ class Cls {
         exist = true;
         console.log(`Updating cls ${logsetId}`);
         const res = await this.cls.updateLogset({
+          period: inputs.period,
           logset_id: logsetId,
           logset_name: inputs.name,
         });
