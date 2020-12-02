@@ -65,7 +65,6 @@ class Apigw {
     }
 
     const { serviceType } = apiInputs;
-    endpoint.function = endpoint.function || {};
     // handle front-end API type of WEBSOCKET/HTTP
     if (endpoint.protocol === 'WEBSOCKET') {
       // handle WEBSOCKET API service type of WEBSOCKET/SCF
@@ -98,6 +97,7 @@ class Apigw {
       // hande HTTP API service type of SCF/HTTP/MOCK
       switch (serviceType) {
         case 'SCF':
+          endpoint.function = endpoint.function || {};
           if (!endpoint.function.functionName) {
             throw new TypeError(`PARAMETER_APIGW`, '"endpoints.function.functionName" is required');
           }
@@ -547,12 +547,17 @@ class Apigw {
   }
 
   async createOrUpdateApi({ serviceId, endpoint, environment, created }) {
+    // compatibility for secret auth config depends on auth & usagePlan
+    const authType = endpoint.auth ? 'SECRET' : endpoint.authType || 'NONE';
+    const businessType = endpoint.businessType || 'NORMAL';
     const output = {
       path: endpoint.path,
       method: endpoint.method,
       apiName: endpoint.apiName || 'index',
       apiId: undefined,
-      created: false,
+      created: true,
+      authType: authType,
+      businessType: businessType,
     };
 
     const apiInputs = {
@@ -561,8 +566,8 @@ class Apigw {
       apiName: endpoint.apiName || 'index',
       apiDesc: endpoint.description,
       apiType: 'NORMAL',
-      authType: endpoint.auth ? 'SECRET' : 'NONE',
-      // authRequired: endpoint.auth ? 'TRUE' : 'FALSE',
+      authType: authType,
+      apiBusinessType: endpoint.businessType || 'NORMAL',
       serviceType: endpoint.serviceType || 'SCF',
       requestConfig: {
         path: endpoint.path,
@@ -570,13 +575,20 @@ class Apigw {
       },
       serviceTimeout: endpoint.serviceTimeout || 15,
       responseType: endpoint.responseType || 'HTML',
-      enableCORS: endpoint.enableCORS === true ? true : false,
+      enableCORS: endpoint.enableCORS === true,
     };
+    if (endpoint.oauthConfig) {
+      apiInputs.oauthConfig = endpoint.oauthConfig;
+    }
+    if (endpoint.authRelationApiId) {
+      apiInputs.authRelationApiId = endpoint.authRelationApiId;
+      output.authRelationApiId = endpoint.authRelationApiId;
+    }
 
     let exist = false;
     let apiDetail = null;
 
-    // 没有apiId，还需要根据path来确定
+    // apiId not exist, need depend on path
     if (!endpoint.apiId) {
       const pathAPIList = await this.request({
         Action: 'DescribeApisStatus',
@@ -619,7 +631,7 @@ class Apigw {
       output.apiId = ApiId;
       output.created = true;
 
-      console.log(`API ${output.apiId} created.`);
+      console.log(`API ${ApiId} created.`);
       apiDetail = await this.request({
         Action: 'DescribeApi',
         serviceId: serviceId,
@@ -657,6 +669,48 @@ class Apigw {
     return output;
   }
 
+  async apiDeployer({ serviceId, environment, apiList = [], oldList, apiConfig, isOauthApi }) {
+    // if exist in state list, set created to be true
+    const [exist] = oldList.filter(
+      (item) =>
+        item.method.toLowerCase() === apiConfig.method.toLowerCase() &&
+        item.path === apiConfig.path,
+    );
+
+    if (exist) {
+      apiConfig.apiId = exist.apiId;
+      apiConfig.created = exist.created;
+
+      if (isOauthApi) {
+        apiConfig.authRelationApiId = exist.authRelationApiId;
+      }
+    }
+    if (isOauthApi && !apiConfig.authRelationApiId) {
+      // find reletive oauth api
+      const { authRelationApi } = apiConfig;
+      if (authRelationApi) {
+        const [relativeApi] = apiList.filter(
+          (item) =>
+            item.method.toLowerCase() === authRelationApi.method.toLowerCase() &&
+            item.path === authRelationApi.path,
+        );
+        if (relativeApi) {
+          apiConfig.authRelationApiId = relativeApi.apiId;
+        }
+      }
+    }
+
+    const curApi = await this.createOrUpdateApi({
+      serviceId,
+      environment,
+      endpoint: apiConfig,
+      created: exist && exist.created,
+    });
+
+    console.log(`Deploy api ${curApi.apiName} success`);
+    return curApi;
+  }
+
   async deploy(inputs) {
     const { environment = 'release', oldState = {} } = inputs;
     inputs.protocols = this.getProtocolString(inputs.protocols);
@@ -673,32 +727,37 @@ class Apigw {
     const stateApiList = oldState.apiList || [];
 
     const endpoints = inputs.endpoints || [];
+
+    const businessOauthApis = [];
+    // deploy normal api
     for (let i = 0, len = endpoints.length; i < len; i++) {
       const endpoint = endpoints[i];
-      // if exist in state list, set created to be true
-      const [exist] = stateApiList.filter(
-        (item) =>
-          item.method.toLowerCase() === endpoint.method.toLowerCase() &&
-          item.path === endpoint.path,
-      );
-
-      if (exist) {
-        endpoint.apiId = exist.apiId;
-        endpoint.created = exist.created;
+      if (endpoint.authType === 'OAUTH' && endpoint.businessType === 'NORMAL') {
+        businessOauthApis.push(endpoint);
+        continue;
       }
-      const curApi = await this.createOrUpdateApi({
+      const curApi = await this.apiDeployer({
         serviceId,
-        endpoint,
         environment,
-        created: exist && exist.created,
+        apiList,
+        oldList: stateApiList,
+        apiConfig: endpoint,
       });
-
-      if (exist) {
-        curApi.created = true;
-      }
-
       apiList.push(curApi);
-      console.log(`Deploy api ${curApi.apiName} success`);
+    }
+
+    // deploy oauth bisiness apis
+    for (let i = 0, len = businessOauthApis.length; i < len; i++) {
+      const endpoint = businessOauthApis[i];
+      const curApi = await this.apiDeployer({
+        serviceId,
+        environment,
+        apiList,
+        oldList: stateApiList,
+        apiConfig: endpoint,
+        isOauthApi: true,
+      });
+      apiList.push(curApi);
     }
 
     console.log(`Releaseing service ${serviceId}, environment ${environment}`);
@@ -798,6 +857,28 @@ class Apigw {
     }
   }
 
+  async apiRemover({ apiConfig, serviceId, environment }) {
+    // 1. remove usage plan
+    if (apiConfig.usagePlan) {
+      await this.removeOrUnbindUsagePlan({
+        serviceId,
+        environment,
+        apiId: apiConfig.apiId,
+        usagePlan: apiConfig.usagePlan,
+      });
+    }
+
+    // 2. delete only apis created by serverless framework
+    if (apiConfig.apiId && apiConfig.created === true) {
+      console.log(`Removing api ${apiConfig.apiId}`);
+      await this.removeOrUnbindRequest({
+        Action: 'DeleteApi',
+        apiId: apiConfig.apiId,
+        serviceId,
+      });
+    }
+  }
+
   async remove(inputs) {
     const { created, environment, serviceId, apiList, customDomains, usagePlan } = inputs;
 
@@ -822,28 +903,27 @@ class Apigw {
     }
 
     // 1. remove all apis
+    const oauthApis = [];
     for (let i = 0; i < apiList.length; i++) {
       const curApi = apiList[i];
-
-      // 1. remove usage plan
-      if (curApi.usagePlan) {
-        await this.removeOrUnbindUsagePlan({
-          serviceId,
-          environment,
-          apiId: curApi.apiId,
-          usagePlan: curApi.usagePlan,
-        });
+      if (curApi.authType === 'OAUTH' && curApi.businessType === 'OAUTH') {
+        oauthApis.push(curApi);
+        continue;
       }
 
-      // 2. delete only apis created by serverless framework
-      if (curApi.apiId && curApi.created === true) {
-        console.log(`Removing api ${curApi.apiId}`);
-        await this.removeOrUnbindRequest({
-          Action: 'DeleteApi',
-          apiId: curApi.apiId,
-          serviceId,
-        });
-      }
+      await this.apiRemover({
+        apiConfig: curApi,
+        serviceId,
+        environment,
+      });
+    }
+    for (let i = 0; i < oauthApis.length; i++) {
+      const curApi = oauthApis[i];
+      await this.apiRemover({
+        apiConfig: curApi,
+        serviceId,
+        environment,
+      });
     }
 
     // 2. unbind all custom domains
