@@ -68,6 +68,7 @@ describe('Scf', () => {
       {
         apigw: {
           parameters: {
+            serviceName: 'serverless_test',
             endpoints: [
               {
                 path: '/',
