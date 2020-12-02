@@ -210,7 +210,7 @@ describe('Scf', () => {
         {
           created: true,
           serviceId: expect.stringContaining('service-'),
-          serviceName: 'Serverless_Framework',
+          serviceName: 'serverless_test',
           subDomain: expect.stringContaining('.apigw.tencentcs.com'),
           protocols: 'http',
           environment: 'release',
@@ -222,6 +222,8 @@ describe('Scf', () => {
               apiName: 'index',
               apiId: expect.stringContaining('api-'),
               created: true,
+              authType: 'NONE',
+              businessType: 'NORMAL',
             },
           ],
         },
