@@ -54,3 +54,4 @@ jobs:
           SUBNET_ID: ${{ secrets.SUBNET_ID }}
           CFS_VPC_ID: ${{ secrets.CFS_VPC_ID }}
           CFS_SUBNET_ID: ${{ secrets.CFS_SUBNET_ID }}
+          API_PUBLIC_KEY: ${{ secrets.API_PUBLIC_KEY }}
