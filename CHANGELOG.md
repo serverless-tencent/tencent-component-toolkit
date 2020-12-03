@@ -1,3 +1,10 @@
+## [1.19.3](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.19.2...v1.19.3) (2020-12-03)
+
+
+### Bug Fixes
+
+* **apigw:** support oauth2.0 ([#161](https://github.com/serverless-tencent/tencent-component-toolkit/issues/161)) ([0d9b3e1](https://github.com/serverless-tencent/tencent-component-toolkit/commit/0d9b3e16a21bccd8c8ffba3ac4dfbff0c62861e4))
+
 ## [1.19.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.19.1...v1.19.2) (2020-12-01)
 
 
