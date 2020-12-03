@@ -216,7 +216,7 @@ class Apigw {
     const usageInputs = {
       usagePlanName: usagePlan.usagePlanName || '',
       usagePlanDesc: usagePlan.usagePlanDesc || '',
-      maxRequestNumPreSec: usagePlan.maxRequestNumPreSec || 1000,
+      maxRequestNumPreSec: usagePlan.maxRequestNumPreSec || -1,
       maxRequestNum: usagePlan.maxRequestNum || -1,
     };
 
