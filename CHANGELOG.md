@@ -1,3 +1,10 @@
+## [1.19.4](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.19.3...v1.19.4) (2020-12-04)
+
+
+### Bug Fixes
+
+* **apigw:** usagePlan maxRequestNumPreSec to -1 ([236b59f](https://github.com/serverless-tencent/tencent-component-toolkit/commit/236b59f0fd502bc01b2583104d32002a9482b39c))
+
 ## [1.19.3](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.19.2...v1.19.3) (2020-12-03)
 
 
