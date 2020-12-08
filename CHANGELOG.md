@@ -1,3 +1,11 @@
+## [1.19.5](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.19.4...v1.19.5) (2020-12-08)
+
+
+### Bug Fixes
+
+* **cos:** remove default acl config and support policy config ([0477c97](https://github.com/serverless-tencent/tencent-component-toolkit/commit/0477c9767842ed7726a93b692b9bc8a96234d3ee))
+* **scf:** support asyncRunEnable config ([daca8c5](https://github.com/serverless-tencent/tencent-component-toolkit/commit/daca8c522c38f6e02d98e4db292bc875756b27a9))
+
 ## [1.19.4](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.19.3...v1.19.4) (2020-12-04)
 
 
