@@ -98,6 +98,10 @@ const formatFunctionInputs = (region, inputs) => {
     });
   }
 
+  if (inputs.asyncRunEnable !== undefined) {
+    functionInputs.AsyncRunEnable = inputs.asyncRunEnable === true ? 'TRUE' : 'FALSE';
+  }
+
   return functionInputs;
 };
 
