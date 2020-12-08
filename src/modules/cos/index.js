@@ -183,6 +183,29 @@ class Cos {
     }
   }
 
+  async setPolicy(inputs = {}) {
+    console.log(`Setting policy for bucket ${inputs.bucket}`);
+    const setPolicyParams = {
+      Bucket: inputs.bucket,
+      Region: this.region,
+    };
+    if (inputs.policy) {
+      setPolicyParams.Policy = inputs.policy;
+    }
+    const setPolicyHandler = this.promisify(this.cosClient.putBucketPolicy.bind(this.cosClient));
+    try {
+      await setPolicyHandler(setPolicyParams);
+    } catch (e) {
+      throw new ApiError({
+        type: `API_COS_putBucketPolicy`,
+        message: e.message,
+        stack: e.stack,
+        reqId: e.reqId,
+        code: e.code,
+      });
+    }
+  }
+
   async setTags(inputs = {}) {
     console.log(`Setting tags for ${this.region}'s bucket: ${inputs.bucket}`);
     const tags = [];
@@ -422,10 +445,6 @@ class Cos {
       },
     };
 
-    if (inputs.cors && inputs.cors.length > 0) {
-      await this.setAcl(inputs);
-    }
-
     const setWebsiteHandler = this.promisify(this.cosClient.putBucketWebsite.bind(this.cosClient));
     try {
       await setWebsiteHandler(staticHostParams);
@@ -615,17 +634,16 @@ class Cos {
       force: true,
     });
 
-    inputs.acl = {
-      permissions: 'public-read',
-      grantRead: '',
-      grantWrite: '',
-      grantFullControl: '',
-    };
-    await this.setAcl(inputs);
+    if (inputs.acl) {
+      await this.setAcl(inputs);
+    }
+
+    if (inputs.policy) {
+      await this.setPolicy(inputs);
+    }
 
     await this.setWebsite(inputs);
 
-    // 对cors进行额外处理
     if (inputs.cors) {
       await this.setCors(inputs);
     }
@@ -680,6 +698,9 @@ class Cos {
     await this.createBucket(inputs);
     if (inputs.acl) {
       await this.setAcl(inputs);
+    }
+    if (inputs.policy) {
+      await this.setPolicy(inputs);
     }
     if (inputs.cors) {
       await this.setCors(inputs);
