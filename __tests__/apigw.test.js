@@ -46,7 +46,7 @@ describe('apigw', () => {
         method: 'GET',
         apiName: 'index',
         function: {
-          functionName: 'egg-function',
+          functionName: 'serverless-unit-test',
         },
       },
       {
@@ -90,8 +90,8 @@ describe('apigw', () => {
         function: {
           functionNamespace: 'default',
           functionQualifier: '$DEFAULT',
-          transportFunctionName: 'fullstack-api',
-          registerFunctionName: 'myRestAPI',
+          transportFunctionName: 'serverless-unit-test',
+          registerFunctionName: 'serverless-unit-test',
         },
       },
       // below two api is for oauth2.0 test
