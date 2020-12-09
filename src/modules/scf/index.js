@@ -210,12 +210,14 @@ class Scf {
         const { triggerKey } = triggerClass.formatInputs(this.region, funcInfo, event[Type]);
         for (let i = 0; i < oldList.length; i++) {
           const curOld = oldList[i];
-          const oldTriggerClass = TRIGGERS[curOld.Type];
-          const oldKey = oldTriggerClass.getKey(curOld);
-          if (oldKey === triggerKey) {
-            deleteList[i] = null;
-            createList[index] = null;
-            updateList.push(createList[index]);
+          if (curOld.Type === Type) {
+            const oldTriggerClass = TRIGGERS[curOld.Type];
+            const oldKey = oldTriggerClass.getKey(curOld);
+            if (oldKey === triggerKey) {
+              deleteList[i] = null;
+              createList[index] = null;
+              updateList.push(createList[index]);
+            }
           }
         }
       }
