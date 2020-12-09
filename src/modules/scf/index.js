@@ -163,6 +163,7 @@ class Scf {
     delete functionInputs.Handler;
     delete functionInputs.Code;
     delete functionInputs.CodeSource;
+    delete functionInputs.AsyncRunEnable;
     // +++++++++++++++++++++++
     // Below are very strange logical for layer unbind, but backend api need me to do this.
     // handle unbind one layer
