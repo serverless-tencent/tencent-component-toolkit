@@ -1,3 +1,10 @@
+## [1.19.6](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.19.5...v1.19.6) (2020-12-09)
+
+
+### Bug Fixes
+
+* **scf:** filter trigger ([fe6cb98](https://github.com/serverless-tencent/tencent-component-toolkit/commit/fe6cb988a9456284ccc8d69a3732fda63c67a94c))
+
 ## [1.19.5](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.19.4...v1.19.5) (2020-12-08)
 
 
