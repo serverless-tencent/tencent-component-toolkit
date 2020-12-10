@@ -1,4 +1,4 @@
-const { sleep } = require('@ygkit/request');
+const { sleep, waitResponse } = require('@ygkit/request');
 const { Capi } = require('@tencent-sdk/capi');
 const { TypeError, ApiError } = require('../../utils/error');
 const { deepClone, strip } = require('../../utils');
@@ -293,13 +293,28 @@ class Scf {
     });
   }
 
-  // 删除函数
+  // delete function
   async deleteFunction(namespace, functionName) {
-    await this.request({
+    namespace = namespace || CONFIGS.defaultNamespace;
+    const res = await this.request({
       Action: 'DeleteFunction',
       FunctionName: functionName,
-      Namespace: namespace || CONFIGS.defaultNamespace,
+      Namespace: namespace,
     });
+
+    try {
+      await waitResponse({
+        callback: async () => this.getFunction(namespace, functionName),
+        targetResponse: null,
+        timeout: 120 * 1000,
+      });
+    } catch (e) {
+      throw new ApiError({
+        type: 'API_SCF_DeleteFunction',
+        message: `Cannot delete function in 2 minutes, (reqId: ${res.RequestId})`,
+      });
+    }
+    return true;
   }
 
   /**
@@ -616,8 +631,6 @@ class Scf {
       return false;
     }
 
-    await this.deleteFunction(namespace, functionName);
-
     try {
       await this.isOperationalStatus(namespace, functionName);
     } catch (e) {}
@@ -635,6 +648,8 @@ class Scf {
         }
       }
     }
+
+    await this.deleteFunction(namespace, functionName);
 
     console.log(`Remove function ${functionName} and it's triggers success`);
 

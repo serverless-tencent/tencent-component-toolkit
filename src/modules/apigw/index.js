@@ -1,5 +1,6 @@
 const { Capi } = require('@tencent-sdk/capi');
 const Apis = require('./apis');
+const { ApigwTrigger } = require('../triggers');
 const { uniqueArray, camelCaseProperty, isArray } = require('../../utils/index');
 
 class Apigw {
@@ -13,6 +14,7 @@ class Apigw {
       SecretKey: this.credentials.SecretKey,
       Token: this.credentials.Token,
     });
+    this.trigger = new ApigwTrigger(credentials, this.region);
   }
 
   getProtocolString(protocols) {
@@ -38,6 +40,7 @@ class Apigw {
     } catch (e) {
       // no op
     }
+    return true;
   }
 
   marshalServiceConfig(endpoint, apiInputs) {
@@ -871,6 +874,10 @@ class Apigw {
     // 2. delete only apis created by serverless framework
     if (apiConfig.apiId && apiConfig.created === true) {
       console.log(`Removing api ${apiConfig.apiId}`);
+      await this.trigger.remove({
+        serviceId,
+        apiId: apiConfig.apiId,
+      });
       await this.removeOrUnbindRequest({
         Action: 'DeleteApi',
         apiId: apiConfig.apiId,
