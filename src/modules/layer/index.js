@@ -2,6 +2,7 @@ const { Capi } = require('@tencent-sdk/capi');
 const { waitResponse } = require('@ygkit/request');
 const capis = require('./apis/apis');
 const apis = require('./apis');
+const { ApiError } = require('../../utils/error');
 
 // timeout 2 minutes
 const TIMEOUT = 2 * 60 * 1000;
@@ -57,13 +58,32 @@ class Layer {
     console.log(`Creating layer ${inputs.name}`);
     const version = await apis.publishLayer(this.capi, layerInputs);
     // loop for active status
-    await waitResponse({
-      callback: async () => this.getLayerDetail(inputs.name, version),
-      targetProp: 'Status',
-      targetResponse: 'Active',
-      timeout: TIMEOUT,
-    });
-    console.log(`Created layer: ${inputs.name}, version: ${version} successful`);
+    try {
+      await waitResponse({
+        callback: async () => this.getLayerDetail(inputs.name, version),
+        targetProp: 'Status',
+        targetResponse: 'Active',
+        timeout: TIMEOUT,
+      });
+    } catch (e) {
+      const detail = await this.getLayerDetail(inputs.name, version);
+      if (detail) {
+        // if not active throw error
+        if (detail.Status !== 'Active') {
+          throw new ApiError({
+            type: 'API_LAYER_GetLayerVersion',
+            message: `Cannot create layer success in 2 minutes, status: ${detail.Status}(reqId: ${detail.RequestId})`,
+          });
+        }
+      } else {
+        // if can not get detail throw error
+        throw new ApiError({
+          type: 'API_LAYER_GetLayerVersion',
+          message: `Cannot create layer success in 2 minutes`,
+        });
+      }
+    }
+    console.log(`Created layer: ${inputs.name}, version: ${version} success`);
     outputs.version = version;
 
     return outputs;
@@ -71,9 +91,9 @@ class Layer {
 
   async remove(inputs = {}) {
     try {
-      console.log(`Start removing layer: ${inputs.name}, version: ${inputs.version}...`);
+      console.log(`Start removing layer: ${inputs.name}, version: ${inputs.version}`);
       await apis.deleteLayerVersion(this.capi, inputs.name, inputs.version);
-      console.log(`Remove layer: ${inputs.name}, version: ${inputs.version} successfully`);
+      console.log(`Remove layer: ${inputs.name}, version: ${inputs.version} success`);
     } catch (e) {
       console.log(e);
     }

@@ -13,7 +13,7 @@ describe('Layer', () => {
     name: 'layer-test',
     bucket: process.env.BUCKET,
     object: 'node_modules.zip',
-    description: 'Layer created by Serverless Component',
+    description: 'Created by Serverless Component',
     runtimes: ['Nodejs10.15', 'Nodejs12.16'],
   };
 
