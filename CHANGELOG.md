@@ -1,3 +1,12 @@
+## [1.19.7](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.19.6...v1.19.7) (2020-12-10)
+
+
+### Bug Fixes
+
+* **scf:** delete apigw trigger logical ([8276490](https://github.com/serverless-tencent/tencent-component-toolkit/commit/82764900216033cda3cf0df0839606d0ce98902c))
+* **layer:** optimize timeout message ([97b16e4](https://github.com/serverless-tencent/tencent-component-toolkit/commit/97b16e4c442866ee68992609a44c4ba5deb56f8e))
+* **scf:** update async run function error ([80a1530](https://github.com/serverless-tencent/tencent-component-toolkit/commit/80a153085f0d1962001a50576c0fe1f9edc8483e))
+
 ## [1.19.6](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.19.5...v1.19.6) (2020-12-09)
 
 
