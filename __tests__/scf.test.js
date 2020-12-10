@@ -120,12 +120,13 @@ describe('Scf', () => {
     ];
   });
 
-  afterAll(async () => {
+  afterAll(async (done) => {
     await cfs.remove({
       fsName: cfsInputs.fsName,
       fileSystemId: inputs.cfs[0].cfsId,
     });
     await layer.remove(inputs.layers[0]);
+    done();
   });
 
   test('should deploy SCF success', async () => {
