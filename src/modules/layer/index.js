@@ -63,16 +63,23 @@ class Layer {
         callback: async () => this.getLayerDetail(inputs.name, version),
         targetProp: 'Status',
         targetResponse: 'Active',
+        failResponse: ['PublishFailed'],
         timeout: TIMEOUT,
       });
     } catch (e) {
-      const detail = await this.getLayerDetail(inputs.name, version);
+      const detail = e.response;
       if (detail) {
         // if not active throw error
         if (detail.Status !== 'Active') {
+          let errMsg = '';
+          if (e.message.indexOf('TIMEOUT') !== -1) {
+            errMsg = `Cannot create layer success in 2 minutes, status: ${detail.Status} (reqId: ${detail.RequestId})`;
+          } else {
+            errMsg = `Publish layer fail, status: ${detail.Status} (reqId: ${detail.RequestId})`;
+          }
           throw new ApiError({
             type: 'API_LAYER_GetLayerVersion',
-            message: `Cannot create layer success in 2 minutes, status: ${detail.Status}(reqId: ${detail.RequestId})`,
+            message: errMsg,
           });
         }
       } else {
