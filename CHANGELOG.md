@@ -1,3 +1,10 @@
+## [1.19.8](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.19.7...v1.19.8) (2020-12-11)
+
+
+### Bug Fixes
+
+* **layer:** optimize create fail message ([6235160](https://github.com/serverless-tencent/tencent-component-toolkit/commit/62351600027ed10162d4f433291ef54c500075a2))
+
 ## [1.19.7](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.19.6...v1.19.7) (2020-12-10)
 
 
