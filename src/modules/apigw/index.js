@@ -1,6 +1,6 @@
 const { Capi } = require('@tencent-sdk/capi');
 const Apis = require('./apis');
-const { ApigwTrigger } = require('../triggers');
+const { apigw: ApigwTrigger } = require('../triggers');
 const { uniqueArray, camelCaseProperty, isArray } = require('../../utils/index');
 
 class Apigw {
@@ -14,7 +14,7 @@ class Apigw {
       SecretKey: this.credentials.SecretKey,
       Token: this.credentials.Token,
     });
-    this.trigger = new ApigwTrigger(credentials, this.region);
+    this.trigger = new ApigwTrigger({ credentials, region: this.region });
   }
 
   getProtocolString(protocols) {
@@ -591,22 +591,21 @@ class Apigw {
     let exist = false;
     let apiDetail = null;
 
-    // apiId not exist, need depend on path
-    if (!endpoint.apiId) {
-      const pathAPIList = await this.request({
-        Action: 'DescribeApisStatus',
-        ServiceId: serviceId,
-        Filters: [{ Name: 'ApiPath', Values: [endpoint.path] }],
-      });
-      if (pathAPIList.ApiIdStatusSet) {
-        for (let i = 0; i < pathAPIList.ApiIdStatusSet.length; i++) {
-          if (
-            pathAPIList.ApiIdStatusSet[i].Method.toLowerCase() === endpoint.method.toLowerCase() &&
-            pathAPIList.ApiIdStatusSet[i].Path === endpoint.path
-          ) {
-            endpoint.apiId = pathAPIList.ApiIdStatusSet[i].ApiId;
-            exist = true;
-          }
+    // check api method+path existance
+    const pathAPIList = await this.request({
+      Action: 'DescribeApisStatus',
+      ServiceId: serviceId,
+      Filters: [{ Name: 'ApiPath', Values: [endpoint.path] }],
+    });
+    if (pathAPIList.ApiIdStatusSet) {
+      for (let i = 0; i < pathAPIList.ApiIdStatusSet.length; i++) {
+        if (
+          pathAPIList.ApiIdStatusSet[i].Method.toLowerCase() === endpoint.method.toLowerCase() &&
+          pathAPIList.ApiIdStatusSet[i].Path === endpoint.path
+        ) {
+          console.log(`Api method ${endpoint.method}, path ${endpoint.path} already exist`);
+          endpoint.apiId = pathAPIList.ApiIdStatusSet[i].ApiId;
+          exist = true;
         }
       }
     }

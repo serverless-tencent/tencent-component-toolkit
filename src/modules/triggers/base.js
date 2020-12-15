@@ -3,7 +3,7 @@ const { Capi } = require('@tencent-sdk/capi');
 const Apis = require('./apis');
 
 class BaseTrigger {
-  constructor(credentials = {}, region) {
+  constructor({ credentials = {}, region }) {
     this.region = region || 'ap-guangzhou';
     this.credentials = credentials;
 
@@ -39,6 +39,41 @@ class BaseTrigger {
 
     return Triggers;
   }
+
+  async create({ scf, region, funcInfo, inputs }) {
+    const { triggerInputs } = this.formatInputs({ region, funcInfo, inputs });
+    console.log(`Creating ${triggerInputs.Type} trigger ${triggerInputs.TriggerName}`);
+    const { TriggerInfo } = await scf.request(triggerInputs);
+    return TriggerInfo;
+  }
+
+  async delete({ scf, funcInfo, inputs }) {
+    console.log(`Removing ${inputs.Type} trigger ${inputs.TriggerName}`);
+    try {
+      await scf.request({
+        Action: 'DeleteTrigger',
+        FunctionName: funcInfo.FunctionName,
+        Namespace: funcInfo.Namespace,
+        Type: inputs.Type,
+        TriggerDesc: inputs.TriggerDesc,
+        TriggerName: inputs.TriggerName,
+        Qualifier: inputs.Qualifier,
+      });
+      return true;
+    } catch (e) {
+      console.log(e);
+      return false;
+    }
+  }
 }
 
-module.exports = BaseTrigger;
+const TRIGGER_STATUS_MAP = {
+  OPEN: 'OPEN',
+  CLOSE: 'CLOSE',
+  1: 'OPEN',
+  0: 'CLOSE',
+};
+
+const CAN_UPDATE_TRIGGER = ['apigw', 'cls'];
+
+module.exports = { BaseTrigger, TRIGGER_STATUS_MAP, CAN_UPDATE_TRIGGER };
