@@ -91,15 +91,6 @@ class MpsTrigger extends BaseTrigger {
   async delete({ scf, inputs }) {
     console.log(`Removing ${inputs.type} trigger ${inputs.triggerName}`);
     try {
-      console.log('delete inputs: ', {
-        Action: 'DeleteTrigger',
-        FunctionName: inputs.functionName,
-        Namespace: inputs.namespace,
-        Type: inputs.type,
-        TriggerDesc: inputs.triggerDesc,
-        TriggerName: inputs.triggerName,
-        Qualifier: inputs.qualifier,
-      });
       const res = await scf.request({
         Action: 'DeleteTrigger',
         FunctionName: inputs.functionName,

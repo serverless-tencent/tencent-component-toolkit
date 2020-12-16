@@ -15,8 +15,7 @@ const config = {
 
 if (md) {
   if (md === 'triggers') {
-    // config.testRegex = `/__tests__/triggers/.*.test.js`;
-    config.testRegex = `/__tests__/triggers/mps.test.js`;
+    config.testRegex = `/__tests__/triggers/.*.test.js`;
   } else {
     config.testRegex = `/__tests__/${process.env.MODULE}.test.js`;
     config.testPathIgnorePatterns = ['/node_modules/'];

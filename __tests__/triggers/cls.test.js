@@ -58,12 +58,12 @@ describe('Cls', () => {
       },
     });
     expect(res).toEqual({
-      name_space: namespace,
-      function_name: functionName,
-      max_size: 100,
-      max_wait: 60,
+      namespace: namespace,
+      functionName: functionName,
+      maxSize: 100,
+      maxWait: 60,
       qualifier: '$DEFAULT',
-      topic_id: clsOutputs.topicId,
+      topicId: clsOutputs.topicId,
     });
   });
 
@@ -77,13 +77,13 @@ describe('Cls', () => {
       },
     });
     expect(res).toEqual({
-      name_space: namespace,
-      function_name: functionName,
-      effective: true,
-      max_size: 100,
-      max_wait: 60,
+      enable: true,
+      namespace: namespace,
+      functionName: functionName,
+      maxSize: 100,
+      maxWait: 60,
       qualifier: '$DEFAULT',
-      topic_id: clsOutputs.topicId,
+      topicId: clsOutputs.topicId,
     });
   });
 
@@ -97,13 +97,13 @@ describe('Cls', () => {
       },
     });
     expect(res).toEqual({
-      name_space: 'default',
-      function_name: 'serverless-unit-test',
-      effective: false,
-      max_size: 100,
-      max_wait: 60,
+      enable: false,
+      namespace: namespace,
+      functionName: functionName,
+      maxSize: 100,
+      maxWait: 60,
       qualifier: '$DEFAULT',
-      topic_id: clsOutputs.topicId,
+      topicId: clsOutputs.topicId,
     });
   });
 
