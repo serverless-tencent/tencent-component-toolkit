@@ -50,7 +50,7 @@ class Cos {
   }
 
   async createBucket(inputs = {}) {
-    console.log(`Creating bucket: ${inputs.bucket} in ${this.region} `);
+    console.log(`Creating bucket ${inputs.bucket}`);
     const createParams = {
       Bucket: inputs.bucket,
       Region: this.region,
@@ -116,7 +116,7 @@ class Cos {
   }
 
   async setAcl(inputs = {}) {
-    console.log(`Setting acl for ${this.region}'s bucket: ${inputs.bucket}`);
+    console.log(`Setting acl for bucket ${inputs.bucket}`);
     const setAclParams = {
       Bucket: inputs.bucket,
       Region: this.region,
@@ -207,7 +207,7 @@ class Cos {
   }
 
   async setTags(inputs = {}) {
-    console.log(`Setting tags for ${this.region}'s bucket: ${inputs.bucket}`);
+    console.log(`Setting tags for bucket ${inputs.bucket}`);
     const tags = [];
     for (let i = 0; i < inputs.tags.length; i++) {
       tags.push({
@@ -237,7 +237,7 @@ class Cos {
   }
 
   async deleteTags(inputs = {}) {
-    console.log(`Removing tags for ${this.region}'s bucket: ${inputs.bucket}`);
+    console.log(`Removing tags for bucket ${inputs.bucket}`);
     const deleteTagsHandler = this.promisify(
       this.cosClient.deleteBucketTagging.bind(this.cosClient),
     );
@@ -258,7 +258,7 @@ class Cos {
   }
 
   async setCors(inputs = {}) {
-    console.log(`Setting lifecycle for ${this.region}'s bucket: ${inputs.bucket}`);
+    console.log(`Setting lifecycle for bucket ${inputs.bucket}`);
     const cors = [];
     for (let i = 0; i < inputs.cors.length; i++) {
       const tempCors = {
@@ -299,7 +299,7 @@ class Cos {
   }
 
   async deleteCors(inputs = {}) {
-    console.log(`Removing cors for ${this.region}'s bucket: ${inputs.bucket}`);
+    console.log(`Removing cors for bucket ${inputs.bucket}`);
     const deleteCorsHandler = this.promisify(this.cosClient.deleteBucketCors.bind(this.cosClient));
     try {
       await deleteCorsHandler({
@@ -318,7 +318,7 @@ class Cos {
   }
 
   async setLifecycle(inputs = {}) {
-    console.log(`Setting lifecycle for ${this.region}'s bucket: ${inputs.bucket}`);
+    console.log(`Setting lifecycle for bucket ${inputs.bucket}`);
     const lifecycle = [];
     for (let i = 0; i < inputs.lifecycle.length; i++) {
       const tempLifecycle = {
@@ -380,7 +380,7 @@ class Cos {
   }
 
   async deleteLifecycle(inputs = {}) {
-    console.log(`Removing lifecycle for ${this.region}'s bucket: ${inputs.bucket}`);
+    console.log(`Removing lifecycle for bucket ${inputs.bucket}`);
     const deleteLifecycle = this.promisify(
       this.cosClient.deleteBucketLifecycle.bind(this.cosClient),
     );
@@ -401,7 +401,7 @@ class Cos {
   }
 
   async setVersioning(inputs = {}) {
-    console.log(`Setting versioning for ${this.region}'s bucket: ${inputs.bucket}`);
+    console.log(`Setting versioning for bucket ${inputs.bucket}`);
 
     const setVersioningParams = {
       Bucket: inputs.bucket,
@@ -427,7 +427,7 @@ class Cos {
   }
 
   async setWebsite(inputs = {}) {
-    console.log(`Setting Website for ${this.region}'s bucket: ${inputs.bucket}`);
+    console.log(`Setting Website for bucket ${inputs.bucket}`);
 
     const staticHostParams = {
       Bucket: inputs.bucket,
@@ -556,7 +556,7 @@ class Cos {
       await this.flushBucketFiles(bucket);
     }
 
-    console.log(`Uploding files to bucket: ${bucket}, region: ${this.region}`);
+    console.log(`Uploding files to bucket ${bucket}`);
     if (inputs.dir && (await fs.existsSync(inputs.dir))) {
       const options = { keyPrefix: inputs.keyPrefix };
 

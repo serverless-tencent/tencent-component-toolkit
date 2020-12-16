@@ -2,8 +2,6 @@ const { sleep } = require('@ygkit/request');
 const { Scf, Cfs, Layer } = require('../src');
 
 describe('Scf', () => {
-  jest.setTimeout(300000);
-
   const credentials = {
     SecretId: process.env.TENCENT_SECRET_ID,
     SecretKey: process.env.TENCENT_SECRET_KEY,
@@ -14,8 +12,69 @@ describe('Scf', () => {
     subnetId: process.env.CFS_SUBNET_ID,
   };
 
+  const triggers = {
+    timer: {
+      timer: {
+        name: 'timer',
+        parameters: {
+          cronExpression: '0 */6 * * * * *',
+          enable: true,
+          argument: 'mytest argument',
+        },
+      },
+    },
+    cos: {
+      cos: {
+        name: 'cos-trigger',
+        parameters: {
+          bucket: `${process.env.BUCKET}-${process.env.TENCENT_APP_ID}.cos.${process.env.REGION}.myqcloud.com`,
+          enable: true,
+          events: 'cos:ObjectCreated:*',
+          filter: {
+            prefix: 'aaaasad',
+            suffix: '.zip',
+          },
+        },
+      },
+    },
+    apigw: {
+      apigw: {
+        parameters: {
+          serviceName: 'serverless_test',
+          endpoints: [
+            {
+              path: '/',
+              method: 'GET',
+            },
+          ],
+        },
+      },
+    },
+    cls: {
+      cls: {
+        parameters: {
+          topicId: '31d3ce01-228b-42f5-aab5-7f740cc2fb11',
+          qualifier: '$DEFAULT',
+          maxWait: 60,
+          maxSize: 100,
+          enable: true,
+        },
+      },
+    },
+    mps: {
+      mps: {
+        parameters: {
+          qualifier: '$DEFAULT',
+          type: 'EditMediaTask',
+          enable: true,
+        },
+      },
+    },
+  };
+
   const inputs = {
-    name: `serverless-test-${Date.now()}`,
+    // name: `serverless-test-${Date.now()}`,
+    name: `serverless-test-1608035552006`,
     code: {
       bucket: process.env.BUCKET,
       object: 'express_code.zip',
@@ -40,45 +99,7 @@ describe('Scf', () => {
     },
     eip: true,
     vpcConfig: vpcConfig,
-    events: [
-      {
-        timer: {
-          name: 'timer',
-          parameters: {
-            cronExpression: '0 */6 * * * * *',
-            enable: true,
-            argument: 'mytest argument',
-          },
-        },
-      },
-      {
-        cos: {
-          name: 'cos-trigger',
-          parameters: {
-            bucket: `${process.env.BUCKET}-${process.env.TENCENT_APP_ID}.cos.${process.env.REGION}.myqcloud.com`,
-            enable: true,
-            events: 'cos:ObjectCreated:*',
-            filter: {
-              prefix: 'aaaasad',
-              suffix: '.zip',
-            },
-          },
-        },
-      },
-      {
-        apigw: {
-          parameters: {
-            serviceName: 'serverless_test',
-            endpoints: [
-              {
-                path: '/',
-                method: 'GET',
-              },
-            ],
-          },
-        },
-      },
-    ],
+    events: Object.entries(triggers).map(([, value]) => value),
   };
 
   const cfsInputs = {
@@ -94,7 +115,7 @@ describe('Scf', () => {
     name: 'layer-test',
     bucket: process.env.BUCKET,
     object: 'node_modules.zip',
-    description: 'Layer created by Serverless Component',
+    description: 'Created by Serverless Component',
     runtimes: ['Nodejs10.15', 'Nodejs12.16'],
   };
 
@@ -148,6 +169,9 @@ describe('Scf', () => {
         ],
       },
       Handler: inputs.handler,
+      AsyncRunEnable: 'FALSE',
+      LogType: 'normal',
+      TraceEnable: 'FALSE',
       UseGpu: 'FALSE',
       Role: inputs.role,
       CodeSize: 0,
@@ -186,11 +210,11 @@ describe('Scf', () => {
         {
           AddTime: expect.any(String),
           AvailableStatus: 'Available',
-          CustomArgument: inputs.events[0].timer.parameters.argument,
+          CustomArgument: triggers.timer.timer.parameters.argument,
           Enable: 1,
           ModTime: expect.any(String),
-          TriggerDesc: `{"cron":"${inputs.events[0].timer.parameters.cronExpression}"}`,
-          TriggerName: inputs.events[0].timer.name,
+          TriggerDesc: `{"cron":"${triggers.timer.timer.parameters.cronExpression}"}`,
+          TriggerName: triggers.timer.timer.name,
           Type: 'timer',
           BindStatus: '',
           ResourceId: '',
@@ -202,7 +226,7 @@ describe('Scf', () => {
           CustomArgument: '',
           Enable: 1,
           ModTime: expect.any(String),
-          TriggerDesc: `{"bucketUrl":"${inputs.events[1].cos.parameters.bucket}","event":"${inputs.events[1].cos.parameters.events}","filter":{"Prefix":"${inputs.events[1].cos.parameters.filter.prefix}","Suffix":"${inputs.events[1].cos.parameters.filter.suffix}"}}`,
+          TriggerDesc: `{"bucketUrl":"${triggers.cos.cos.parameters.bucket}","event":"${triggers.cos.cos.parameters.events}","filter":{"Prefix":"${triggers.cos.cos.parameters.filter.prefix}","Suffix":"${triggers.cos.cos.parameters.filter.suffix}"}}`,
           TriggerName: expect.stringContaining('cos_'),
           Type: 'cos',
           BindStatus: '',
@@ -228,6 +252,25 @@ describe('Scf', () => {
               businessType: 'NORMAL',
             },
           ],
+        },
+        {
+          enable: triggers.cls.cls.parameters.enable,
+          namespace: inputs.namespace || 'default',
+          functionName: inputs.name,
+          maxSize: triggers.cls.cls.parameters.maxSize,
+          maxWait: triggers.cls.cls.parameters.maxWait,
+          qualifier: triggers.cls.cls.parameters.qualifier,
+          topicId: triggers.cls.cls.parameters.topicId,
+        },
+        {
+          enable: triggers.mps.mps.parameters.enable,
+          namespace: inputs.namespace || 'default',
+          functionName: inputs.name,
+          qualifier: triggers.mps.mps.parameters.qualifier,
+          type: triggers.mps.mps.parameters.type,
+          resourceId: expect.stringContaining(
+            `TriggerType/${triggers.mps.mps.parameters.type}Event`,
+          ),
         },
       ],
       ClsLogsetId: '',

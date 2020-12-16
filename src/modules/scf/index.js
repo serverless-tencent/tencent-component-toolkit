@@ -8,7 +8,8 @@ const Cam = require('../cam/index');
 const { formatFunctionInputs } = require('./utils');
 const CONFIGS = require('./config');
 const Apis = require('./apis');
-const TRIGGERS = require('./triggers');
+const TRIGGERS = require('../triggers');
+const { CAN_UPDATE_TRIGGER } = require('../triggers/base');
 
 class Scf {
   constructor(credentials = {}, region) {
@@ -133,7 +134,7 @@ class Scf {
 
   // update function code
   async updateFunctionCode(inputs, funcInfo) {
-    console.log(`Updating function ${inputs.name}'s code in ${this.region}`);
+    console.log(`Updating function ${inputs.name} code in ${this.region}`);
     const functionInputs = await formatFunctionInputs(this.region, inputs);
     const updateFunctionConnfigure = {
       Action: 'UpdateFunctionCode',
@@ -149,7 +150,7 @@ class Scf {
 
   // update function configure
   async updatefunctionConfigure(inputs, funcInfo) {
-    console.log(`Updating function ${inputs.name}'s configure in ${this.region}`);
+    console.log(`Updating function ${inputs.name} configure in ${this.region}`);
     const functionInputs = await formatFunctionInputs(this.region, inputs);
     functionInputs.Action = 'UpdateFunctionConfiguration';
     functionInputs.Timeout = inputs.timeout || funcInfo.Timeout;
@@ -203,21 +204,38 @@ class Scf {
   filterTriggers(funcInfo, events, oldList) {
     const deleteList = deepClone(oldList);
     const createList = deepClone(events);
+    // const noKeyTypes = ['apigw'];
     const updateList = [];
     events.forEach((event, index) => {
       const Type = Object.keys(event)[0];
       const triggerClass = TRIGGERS[Type];
-      if (Type !== 'apigw') {
-        const { triggerKey } = triggerClass.formatInputs(this.region, funcInfo, event[Type]);
-        for (let i = 0; i < oldList.length; i++) {
-          const curOld = oldList[i];
-          if (curOld.Type === Type) {
-            const oldTriggerClass = TRIGGERS[curOld.Type];
-            const oldKey = oldTriggerClass.getKey(curOld);
-            if (oldKey === triggerKey) {
-              deleteList[i] = null;
+      const triggerInstance = new triggerClass({
+        credentials: this.credentials,
+        region: this.region,
+      });
+      const { triggerKey } = triggerInstance.formatInputs({
+        region: this.region,
+        inputs: {
+          namespace: funcInfo.Namespace,
+          functionName: funcInfo.FunctionName,
+          ...event[Type],
+        },
+      });
+      for (let i = 0; i < oldList.length; i++) {
+        const curOld = oldList[i];
+        if (curOld.Type === Type) {
+          const oldTriggerClass = TRIGGERS[curOld.Type];
+          const oldTriggerInstance = new oldTriggerClass({
+            credentials: this.credentials,
+            region: this.region,
+          });
+          const oldKey = oldTriggerInstance.getKey(curOld);
+
+          if (oldKey === triggerKey) {
+            deleteList[i] = null;
+            updateList.push(createList[index]);
+            if (CAN_UPDATE_TRIGGER.indexOf(Type) === -1) {
               createList[index] = null;
-              updateList.push(createList[index]);
             }
           }
         }
@@ -232,7 +250,7 @@ class Scf {
 
   // deploy SCF triggers
   async deployTrigger(funcInfo, inputs) {
-    console.log(`Deploying ${inputs.name}'s triggers in ${this.region}.`);
+    console.log(`Deploying triggers for function ${funcInfo.FunctionName}`);
 
     // should check function status is active, then continue
     await this.isOperationalStatus(inputs.namespace, inputs.name);
@@ -247,13 +265,23 @@ class Scf {
       const curTrigger = deleteList[i];
       const { Type } = curTrigger;
       const triggerClass = TRIGGERS[Type];
+      const triggerInstance = new triggerClass({
+        credentials: this.credentials,
+        region: this.region,
+      });
       if (triggerClass) {
-        if (Type === 'apigw') {
-          // TODO: now apigw can not sync in SCF trigger list
-          // await this.apigwClient.remove(curTrigger);
-        } else {
-          await triggerClass.delete(this, funcInfo, curTrigger);
-        }
+        await triggerInstance.delete({
+          scf: this,
+          region: this.region,
+          inputs: {
+            namespace: funcInfo.Namespace,
+            functionName: funcInfo.FunctionName,
+            type: curTrigger.Type,
+            triggerDesc: curTrigger.TriggerDesc,
+            triggerName: curTrigger.TriggerName,
+            qualifier: curTrigger.Qualifier,
+          },
+        });
       }
     }
 
@@ -266,13 +294,21 @@ class Scf {
       if (!triggerClass) {
         throw TypeError('PARAMETER_SCF', `Unknow trigger type ${Type}`);
       }
-      try {
-        const triggerOutput = await triggerClass.create(this, this.region, funcInfo, event[Type]);
+      const triggerInstance = new triggerClass({
+        credentials: this.credentials,
+        region: this.region,
+      });
+      const triggerOutput = await triggerInstance.create({
+        scf: this,
+        region: this.region,
+        inputs: {
+          namespace: funcInfo.Namespace,
+          functionName: funcInfo.FunctionName,
+          ...event[Type],
+        },
+      });
 
-        triggerResult.push(triggerOutput);
-      } catch (e) {
-        throw e;
-      }
+      triggerResult.push(triggerOutput);
     }
     return triggerResult;
   }
@@ -651,7 +687,7 @@ class Scf {
 
     await this.deleteFunction(namespace, functionName);
 
-    console.log(`Remove function ${functionName} and it's triggers success`);
+    console.log(`Remove function ${functionName} success`);
 
     return true;
   }

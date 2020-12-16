@@ -75,4 +75,128 @@ async function updateIndex(cls, data) {
   return res;
 }
 
-module.exports = { createLogset, createTopic, updateIndex };
+/**
+ * get cls trigger
+ * @param {ClsInstance} cls
+ * @param {Data} data
+ *  Data:
+ *  {
+ *    "topic_id": string,       日志主题 ID
+ *    "namespace": string,      函数命名空间
+ *    "function_name": string,  函数名称
+ *    "qualifier": string,      函数版本
+ *    "max_wait": number,       投递最长等待时间，单位 秒
+ *    "max_size": number        投递最大消息数
+ *  }
+ */
+async function getClsTrigger(cls, data) {
+  const res = await cls.request({
+    path: '/deliverfunction',
+    method: 'GET',
+    query: data,
+  });
+
+  if (res.error) {
+    if (res.error.message.indexOf('404') !== -1) {
+      return undefined;
+    }
+    throw new ApiError({
+      type: 'API_getClsTrigger',
+      message: res.error.message,
+    });
+  }
+  return res;
+}
+
+/**
+ * create cls trigger
+ * @param {ClsInstance} cls
+ * @param {Data} data
+ *  Data:
+ *  {
+ *    "topic_id": string,       日志主题 ID
+ *    "namespace": string,      函数命名空间
+ *    "function_name": string,  函数名称
+ *    "qualifier": string,      函数版本
+ *    "max_wait": number,       投递最长等待时间，单位 秒
+ *    "max_size": number        投递最大消息数
+ *  }
+ */
+async function createClsTrigger(cls, data) {
+  const res = await cls.request({
+    path: '/deliverfunction',
+    method: 'POST',
+    data,
+  });
+  if (res.error) {
+    throw new ApiError({
+      type: 'API_createClsTrigger',
+      message: res.error.message,
+    });
+  }
+  return res;
+}
+
+/**
+ * update cls trigger
+ * @param {ClsInstance} cls
+ * @param {Data} data
+ *  Data:
+ *  {
+ *    "topic_id": string,       日志主题 ID
+ *    "namespace": string,      函数命名空间
+ *    "function_name": string,  函数名称
+ *    "qualifier": string,      函数版本
+ *    "max_wait": number,       投递最长等待时间，单位 秒
+ *    "max_size": number        投递最大消息数
+ *    "effective": boolean      投递开关
+ *  }
+ */
+async function updateClsTrigger(cls, data) {
+  const res = await cls.request({
+    path: '/deliverfunction',
+    method: 'PUT',
+    data,
+  });
+  if (res.error) {
+    throw new ApiError({
+      type: 'API_updateClsTrigger',
+      message: res.error.message,
+    });
+  }
+  return res;
+}
+
+/**
+ * 删除 cls trigger
+ * @param {ClsInstance} cls
+ * @param {Data} data
+ *  Data:
+ *  {
+ *    "topic_id": string,       日志主题 ID
+ *  }
+ */
+async function deleteClsTrigger(cls, data) {
+  const res = await cls.request({
+    path: '/deliverfunction',
+    method: 'DELETE',
+    query: data,
+  });
+  if (res.error) {
+    throw new ApiError({
+      type: 'API_deleteClsTrigger',
+      message: res.error.message,
+    });
+  }
+  return res;
+}
+
+module.exports = {
+  createLogset,
+  createTopic,
+  updateIndex,
+  getClsTrigger,
+  createClsTrigger,
+  updateClsTrigger,
+  deleteClsTrigger,
+};

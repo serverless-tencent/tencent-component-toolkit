@@ -1,4 +1,4 @@
-const BaseTrigger = require('./base');
+const { BaseTrigger } = require('./base');
 const Apis = require('./apis');
 
 class ApigwTrigger extends BaseTrigger {
@@ -83,6 +83,78 @@ class ApigwTrigger extends BaseTrigger {
       });
     }
     return true;
+  }
+
+  getKey(triggerInputs) {
+    if (triggerInputs.ResourceId) {
+      // from ListTriggers API
+      const rStrArr = triggerInputs.ResourceId.split('service/');
+      const rStrArr1 = rStrArr[1].split('/API');
+      return rStrArr1[0];
+    }
+
+    return triggerInputs.TriggerDesc.serviceId;
+  }
+  formatInputs({ region, inputs }) {
+    const { parameters, name } = inputs;
+    const triggerInputs = {};
+    triggerInputs.oldState = parameters.oldState || {};
+    triggerInputs.region = region;
+    triggerInputs.protocols = parameters.protocols;
+    triggerInputs.protocols = parameters.protocols;
+    triggerInputs.environment = parameters.environment;
+    triggerInputs.serviceId = parameters.serviceId;
+    triggerInputs.serviceName = parameters.serviceName || name;
+    triggerInputs.serviceDesc = parameters.description;
+    triggerInputs.serviceId = parameters.serviceId;
+
+    triggerInputs.endpoints = (parameters.endpoints || []).map((ep) => {
+      ep.function = ep.function || {};
+      ep.function.functionName = inputs.functionName;
+      ep.function.functionNamespace = inputs.namespace;
+      ep.function.functionQualifier = ep.function.functionQualifier
+        ? ep.function.functionQualifier
+        : '$DEFAULT';
+      return ep;
+    });
+    if (parameters.netTypes) {
+      triggerInputs.netTypes = parameters.netTypes;
+    }
+    triggerInputs.created = !!parameters.created;
+    triggerInputs.TriggerDesc = {
+      serviceId: triggerInputs.serviceId,
+    };
+    const triggerKey = this.getKey(triggerInputs);
+    return {
+      triggerKey,
+      triggerInputs,
+    };
+  }
+  async create({ scf, region, inputs }) {
+    const { triggerInputs } = this.formatInputs({ region, inputs });
+    const res = await scf.apigwClient.deploy(triggerInputs);
+    return res;
+  }
+  async delete({ scf, inputs }) {
+    console.log(`Removing ${inputs.type} trigger ${inputs.triggerName}`);
+    try {
+      const res = await scf.request({
+        Action: 'DeleteTrigger',
+        FunctionName: inputs.functionName,
+        Namespace: inputs.namespace,
+        Type: inputs.type,
+        TriggerDesc: inputs.triggerDesc,
+        TriggerName: inputs.triggerName,
+        Qualifier: inputs.qualifier,
+      });
+      return {
+        requestId: res.RequestId,
+        success: true,
+      };
+    } catch (e) {
+      console.log(e);
+      return false;
+    }
   }
 }
 
