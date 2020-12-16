@@ -1,6 +1,6 @@
 const { MPS } = require('./apis');
 const { camelCaseProperty } = require('../../utils/index');
-const { BaseTrigger, TRIGGER_STATUS_MAP } = require('./base');
+const { BaseTrigger } = require('./base');
 
 class MpsTrigger extends BaseTrigger {
   async request({ Action, ...data }) {
@@ -9,15 +9,13 @@ class MpsTrigger extends BaseTrigger {
   }
 
   getKey(triggerInputs) {
-    const Enable = TRIGGER_STATUS_MAP[triggerInputs.Enable];
-
     if (triggerInputs.ResourceId) {
       // from ListTriggers API
       const rStrArr = triggerInputs.ResourceId.split('/');
-      return `${rStrArr[rStrArr.length - 1]}-${Enable}`;
+      return `${rStrArr[rStrArr.length - 1]}`;
     }
 
-    return `${triggerInputs.TriggerDesc.eventType}Event-${Enable}`;
+    return `${triggerInputs.TriggerDesc.eventType}Event`;
   }
 
   formatInputs({ inputs }) {

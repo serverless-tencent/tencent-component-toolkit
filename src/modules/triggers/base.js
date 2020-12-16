@@ -74,6 +74,6 @@ const TRIGGER_STATUS_MAP = {
   0: 'CLOSE',
 };
 
-const CAN_UPDATE_TRIGGER = ['apigw', 'cls'];
+const CAN_UPDATE_TRIGGER = ['apigw', 'cls', 'mps'];
 
 module.exports = { BaseTrigger, TRIGGER_STATUS_MAP, CAN_UPDATE_TRIGGER };
