@@ -1,3 +1,10 @@
+# [1.20.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.19.8...v1.20.0) (2020-12-16)
+
+
+### Features
+
+* support cls and mps trigger ([#167](https://github.com/serverless-tencent/tencent-component-toolkit/issues/167)) ([ea5bff3](https://github.com/serverless-tencent/tencent-component-toolkit/commit/ea5bff3f0a5a455effb1349482a500c2f1982b1f))
+
 ## [1.19.8](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.19.7...v1.19.8) (2020-12-11)
 
 
