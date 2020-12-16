@@ -1,3 +1,10 @@
+## [1.20.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.20.0...v1.20.1) (2020-12-16)
+
+
+### Bug Fixes
+
+* **triggers:** support mps disable ([54c6087](https://github.com/serverless-tencent/tencent-component-toolkit/commit/54c6087875e2701037d90b9ed767c07516e749ba))
+
 # [1.20.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.19.8...v1.20.0) (2020-12-16)
 
 
