@@ -34,6 +34,44 @@ describe('Mps', () => {
     });
   });
 
+  test('should disable trigger success', async () => {
+    data.enable = false;
+    const res = await client.create({
+      inputs: {
+        namespace: namespace,
+        functionName: functionName,
+        parameters: data,
+      },
+    });
+    expect(res).toEqual({
+      enable: false,
+      namespace: namespace,
+      functionName: functionName,
+      qualifier: '$DEFAULT',
+      type: data.type,
+      resourceId: expect.stringContaining(`TriggerType/${data.type}`),
+    });
+  });
+
+  test('should enable trigger success', async () => {
+    data.enable = true;
+    const res = await client.create({
+      inputs: {
+        namespace: namespace,
+        functionName: functionName,
+        parameters: data,
+      },
+    });
+    expect(res).toEqual({
+      enable: true,
+      namespace: namespace,
+      functionName: functionName,
+      qualifier: '$DEFAULT',
+      type: data.type,
+      resourceId: expect.stringContaining(`TriggerType/${data.type}`),
+    });
+  });
+
   test('should delete trigger success', async () => {
     const { Triggers = [] } = await scfClient.request({
       Action: 'ListTriggers',

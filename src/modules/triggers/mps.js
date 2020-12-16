@@ -70,9 +70,26 @@ class MpsTrigger extends BaseTrigger {
       namespace: inputs.namespace || 'default',
       functionName: inputs.functionName,
     });
+    let needBind = false;
     if (existTypeTrigger) {
+      if (data.enable === false) {
+        await this.request({
+          Action: 'UnbindTrigger',
+          Type: 'mps',
+          Qualifier: data.qualifier || '$DEFAULT',
+          FunctionName: inputs.functionName,
+          Namespace: inputs.namespace || 'default',
+          ResourceId: existTypeTrigger.ResourceId,
+        });
+      } else if (existTypeTrigger.BindStatus === 'off') {
+        needBind = true;
+      }
       output.resourceId = existTypeTrigger.ResourceId;
     } else {
+      needBind = true;
+    }
+
+    if (needBind) {
       const res = await this.request({
         Action: 'BindTrigger',
         ScfRegion: this.region,
