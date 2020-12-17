@@ -1,3 +1,10 @@
+## [1.20.3](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.20.2...v1.20.3) (2020-12-17)
+
+
+### Bug Fixes
+
+* **apigw:** judge api exist by path and method ([9a56046](https://github.com/serverless-tencent/tencent-component-toolkit/commit/9a5604658352e11bc7e7694690ae26f613eac37e))
+
 ## [1.20.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.20.1...v1.20.2) (2020-12-16)
 
 
