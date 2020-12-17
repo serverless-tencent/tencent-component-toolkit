@@ -549,6 +549,30 @@ class Apigw {
     return outputs;
   }
 
+  async getApiByPathAndMethod({ serviceId, path, method }) {
+    const { ApiIdStatusSet } = await this.request({
+      Action: 'DescribeApisStatus',
+      ServiceId: serviceId,
+      Filters: [{ Name: 'ApiType', Values: ['normal'] }],
+    });
+    let apiDetail;
+    if (ApiIdStatusSet) {
+      ApiIdStatusSet.forEach((item) => {
+        if (item.Path === path && item.Method.toLowerCase() === method.toLowerCase()) {
+          apiDetail = item;
+        }
+      });
+    }
+    if (apiDetail) {
+      apiDetail = await this.request({
+        Action: 'DescribeApi',
+        serviceId: serviceId,
+        apiId: apiDetail.ApiId,
+      });
+    }
+    return apiDetail;
+  }
+
   async createOrUpdateApi({ serviceId, endpoint, environment, created }) {
     // compatibility for secret auth config depends on auth & usagePlan
     const authType = endpoint.auth ? 'SECRET' : endpoint.authType || 'NONE';
@@ -588,48 +612,33 @@ class Apigw {
       output.authRelationApiId = endpoint.authRelationApiId;
     }
 
-    let exist = false;
-    let apiDetail = null;
+    this.marshalApiInput(endpoint, apiInputs);
 
-    // check api method+path existance
-    const pathAPIList = await this.request({
-      Action: 'DescribeApisStatus',
-      ServiceId: serviceId,
-      Filters: [{ Name: 'ApiPath', Values: [endpoint.path] }],
+    let apiDetail = await this.getApiByPathAndMethod({
+      serviceId,
+      path: endpoint.path,
+      method: endpoint.method,
     });
-    if (pathAPIList.ApiIdStatusSet) {
-      for (let i = 0; i < pathAPIList.ApiIdStatusSet.length; i++) {
-        if (
-          pathAPIList.ApiIdStatusSet[i].Method.toLowerCase() === endpoint.method.toLowerCase() &&
-          pathAPIList.ApiIdStatusSet[i].Path === endpoint.path
-        ) {
-          console.log(`Api method ${endpoint.method}, path ${endpoint.path} already exist`);
-          endpoint.apiId = pathAPIList.ApiIdStatusSet[i].ApiId;
-          exist = true;
-        }
-      }
-    }
 
-    // get API info after apiId confirmed
-    if (endpoint.apiId) {
-      apiDetail = await this.request({
-        Action: 'DescribeApi',
-        serviceId: serviceId,
+    if (apiDetail) {
+      console.log(`Api method ${endpoint.method}, path ${endpoint.path} already exist`);
+      endpoint.apiId = apiDetail.ApiId;
+
+      await this.request({
+        Action: 'ModifyApi',
         apiId: endpoint.apiId,
+        ...apiInputs,
       });
 
-      if (apiDetail && apiDetail.ApiId) {
-        exist = true;
-      }
-    }
-
-    if (!exist) {
-      this.marshalApiInput(endpoint, apiInputs);
+      output.apiId = endpoint.apiId;
+      output.created = !!created;
+      output.internalDomain = apiDetail.InternalDomain || '';
+      console.log(`Api ${output.apiId} updated`);
+    } else {
       const { ApiId } = await this.request({
         Action: 'CreateApi',
         ...apiInputs,
       });
-
       output.apiId = ApiId;
       output.created = true;
 
@@ -640,18 +649,6 @@ class Apigw {
         apiId: output.apiId,
       });
       output.internalDomain = apiDetail.InternalDomain || '';
-    } else {
-      console.log(`Updating api ${endpoint.apiId}.`);
-      this.marshalApiInput(endpoint, apiInputs);
-      await this.request({
-        Action: 'ModifyApi',
-        apiId: endpoint.apiId,
-        ...apiInputs,
-      });
-      output.apiId = endpoint.apiId;
-      output.created = !!created;
-      output.internalDomain = apiDetail.InternalDomain || '';
-      console.log(`Api ${output.apiId} updated`);
     }
 
     output.apiName = apiInputs.apiName;
