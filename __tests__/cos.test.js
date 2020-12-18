@@ -1,6 +1,6 @@
 const { Cos } = require('../src');
 const path = require('path');
-const request = require('request-promise-native');
+const axios = require('axios');
 const { sleep } = require('@ygkit/request');
 
 describe('Cos', () => {
@@ -55,6 +55,8 @@ describe('Cos', () => {
   const websiteInputs = {
     code: {
       src: staticPath,
+      index: 'index.html',
+      error: 'index.html',
     },
     bucket: bucket,
     src: staticPath,
@@ -71,9 +73,9 @@ describe('Cos', () => {
     const res = await cos.deploy(inputs);
     await sleep(1000);
     const reqUrl = `https://${bucket}.cos.${process.env.REGION}.myqcloud.com/index.html`;
-    const content = await request.get(reqUrl);
+    const { data } = await axios.get(reqUrl);
     expect(res).toEqual(inputs);
-    expect(content).toMatch(/Serverless\sFramework/gi);
+    expect(data).toMatch(/Serverless\sFramework/gi);
   });
 
   test('should deploy website success', async () => {
@@ -81,9 +83,27 @@ describe('Cos', () => {
     await sleep(1000);
     const websiteUrl = `${inputs.bucket}.cos-website.${process.env.REGION}.myqcloud.com`;
     const reqUrl = `${websiteInputs.protocol}://${websiteUrl}`;
-    const content = await request.get(reqUrl);
+    const { data } = await axios.get(reqUrl);
+    try {
+      await axios.get(`${reqUrl}/error.html`);
+    } catch (e) {
+      expect(e.response.status).toBe(404);
+      expect(e.response.data).toMatch(/Serverless\sFramework/gi);
+    }
     expect(res).toBe(websiteUrl);
-    expect(content).toMatch(/Serverless\sFramework/gi);
+    expect(data).toMatch(/Serverless\sFramework/gi);
+  });
+
+  test('should deploy website and error code with 200', async () => {
+    websiteInputs.disableErrorStatus = true;
+    const res = await cos.website(websiteInputs);
+    await sleep(1000);
+    const websiteUrl = `${inputs.bucket}.cos-website.${process.env.REGION}.myqcloud.com`;
+    const reqUrl = `${websiteInputs.protocol}://${websiteUrl}`;
+    const { data, status } = await axios.get(`${reqUrl}/error.html`);
+    expect(res).toBe(websiteUrl);
+    expect(data).toMatch(/Serverless\sFramework/gi);
+    expect(status).toBe(200);
   });
 
   test('should deploy Cos success with policy', async () => {
@@ -92,9 +112,9 @@ describe('Cos', () => {
     const res = await cos.deploy(inputs);
     await sleep(1000);
     const reqUrl = `https://${bucket}.cos.${process.env.REGION}.myqcloud.com/index.html`;
-    const content = await request.get(reqUrl);
+    const { data } = await axios.get(reqUrl);
     expect(res).toEqual(inputs);
-    expect(content).toMatch(/Serverless\sFramework/gi);
+    expect(data).toMatch(/Serverless\sFramework/gi);
   });
 
   test('should deploy website success with policy', async () => {
@@ -104,9 +124,9 @@ describe('Cos', () => {
     await sleep(1000);
     const websiteUrl = `${inputs.bucket}.cos-website.${process.env.REGION}.myqcloud.com`;
     const reqUrl = `${websiteInputs.protocol}://${websiteUrl}`;
-    const content = await request.get(reqUrl);
+    const { data } = await axios.get(reqUrl);
     expect(res).toBe(websiteUrl);
-    expect(content).toMatch(/Serverless\sFramework/gi);
+    expect(data).toMatch(/Serverless\sFramework/gi);
   });
 
   test('should remove Cos success', async () => {
