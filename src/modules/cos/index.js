@@ -1,8 +1,6 @@
 const COS = require('cos-nodejs-sdk-v5');
-const util = require('util');
 const path = require('path');
 const fs = require('fs');
-const exec = util.promisify(require('child_process').exec);
 const { traverseDirSync } = require('../../utils');
 const { TypeError, ApiError } = require('../../utils/error');
 
@@ -438,6 +436,7 @@ class Cos {
         },
         ErrorDocument: {
           Key: inputs.code.error || 'error.html',
+          OriginalHttpStatus: inputs.disableErrorStatus === true ? 'Disabled' : 'Enabled',
         },
         RedirectAllRequestsTo: {
           Protocol: inputs.protocol || 'http',
@@ -661,20 +660,6 @@ class Cos {
         await fs.writeFileSync(envFilePath, script);
       } catch (e) {
         throw new TypeError(`DEPLOY_COS_CREATE_ENV_FILE`, e.message, e.stack);
-      }
-    }
-
-    // If a hook is provided, build the website
-    if (inputs.code.hook) {
-      const options = { cwd: inputs.code.root };
-      try {
-        await exec(inputs.code.hook, options);
-      } catch (err) {
-        throw new TypeError(
-          `DEPLOY_COS_EXEC_HOOK`,
-          `Failed building website via "${inputs.code.hook}" due to the following error: "${err.stderr}"`,
-          err.stack,
-        );
       }
     }
 
