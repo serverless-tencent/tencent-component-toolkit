@@ -12,6 +12,9 @@ const ACTIONS = [
   'ResetAccountPassword',
   'DescribeClusters',
   'DescribeServerlessInstanceSpecs',
+  'OpenWan',
+  'CloseWan',
+  'DescribeClusterInstanceGrps',
 ];
 
 const APIS = ApiFactory({

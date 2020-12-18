@@ -105,6 +105,57 @@ describe('Cynosdb', () => {
     ({ clusterId } = res);
   });
 
+  test('[SERVERLESS] should enable public access', async () => {
+    inputs.clusterId = clusterId;
+    inputs.enablePublicAccess = true;
+
+    const res = await client.deploy(inputs);
+    expect(res).toEqual({
+      dbMode: 'SERVERLESS',
+      region: inputs.region,
+      zone: inputs.zone,
+      vpcConfig: inputs.vpcConfig,
+      instanceCount: 1,
+      // adminPassword: expect.stringMatching(pwdReg),
+      clusterId: expect.stringContaining('cynosdbmysql-'),
+      minCpu: 0.5,
+      maxCpu: 2,
+      connection: {
+        ip: expect.any(String),
+        port: 3306,
+        readList: expect.any(Array),
+      },
+      publicConnection: {
+        domain: expect.any(String),
+        ip: expect.any(String),
+        port: expect.any(Number),
+      },
+    });
+  });
+
+  test('[SERVERLESS] should disable public access', async () => {
+    inputs.enablePublicAccess = false;
+
+    const res = await client.deploy(inputs);
+    expect(res).toEqual({
+      dbMode: 'SERVERLESS',
+      region: inputs.region,
+      zone: inputs.zone,
+      vpcConfig: inputs.vpcConfig,
+      instanceCount: 1,
+      // adminPassword: expect.stringMatching(pwdReg),
+      clusterId: expect.stringContaining('cynosdbmysql-'),
+      minCpu: 0.5,
+      maxCpu: 2,
+      connection: {
+        ip: expect.any(String),
+        port: 3306,
+        readList: expect.any(Array),
+      },
+    });
+    inputs.clusterId = undefined;
+  });
+
   test('[SERVERLESS] remove', async () => {
     await sleep(300);
     const res = await client.remove({ clusterId });
@@ -115,47 +166,6 @@ describe('Cynosdb', () => {
   });
 
   test('[SERVERLESS] offline', async () => {
-    await sleep(300);
-    const res = await offlineCluster(client.capi, clusterId);
-    expect(res).toBeUndefined();
-  });
-
-  test('[SERVERLESS with minCpu and maxCpu] deploy', async () => {
-    inputs.dbMode = 'SERVERLESS';
-    inputs.minCpu = 2;
-    inputs.maxCpu = 4;
-
-    const res = await client.deploy(inputs);
-    expect(res).toEqual({
-      dbMode: 'SERVERLESS',
-      region: inputs.region,
-      zone: inputs.zone,
-      vpcConfig: inputs.vpcConfig,
-      instanceCount: 1,
-      adminPassword: expect.stringMatching(pwdReg),
-      clusterId: expect.stringContaining('cynosdbmysql-'),
-      minCpu: 2,
-      maxCpu: 4,
-      connection: {
-        ip: expect.any(String),
-        port: 3306,
-        readList: expect.any(Array),
-      },
-    });
-
-    ({ clusterId } = res);
-  });
-
-  test('[SERVERLESS with minCpu and maxCpu] remove', async () => {
-    await sleep(300);
-    const res = await client.remove({ clusterId });
-
-    const detail = await getClusterDetail(client.capi, clusterId);
-    expect(res).toEqual(true);
-    expect(detail.Status).toBe('isolated');
-  });
-
-  test('[SERVERLESS with minCpu and maxCpu] offline', async () => {
     await sleep(300);
     const res = await offlineCluster(client.capi, clusterId);
     expect(res).toBeUndefined();
