@@ -725,7 +725,7 @@ class Cos {
   }
 
   async remove(inputs = {}) {
-    console.log(`Removing bucket from ${this.region}`);
+    console.log(`Removing bucket ${inputs.bucket}`);
 
     let detail;
     try {
@@ -751,6 +751,7 @@ class Cos {
           Region: this.region,
           Bucket: inputs.bucket,
         });
+        console.log(`Remove bucket ${inputs.bucket} success`);
       } catch (e) {
         // why do this judgement again
         // because when requesting to delete, bucket may be deleted even though it exist before.
