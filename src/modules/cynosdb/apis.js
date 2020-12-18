@@ -4,8 +4,14 @@ const ACTIONS = [
   'CreateClusters',
   'DescribeClusterDetail',
   'IsolateCluster',
+  'OfflineCluster',
+  'OfflineInstance',
+  'DescribeInstances',
+  'DescribeInstanceDetail',
   'DescribeAccounts',
   'ResetAccountPassword',
+  'DescribeClusters',
+  'DescribeServerlessInstanceSpecs',
 ];
 
 const APIS = ApiFactory({

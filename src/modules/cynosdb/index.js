@@ -2,7 +2,7 @@ const { Capi } = require('@tencent-sdk/capi');
 const {
   createCluster,
   getClusterDetail,
-  deleteCluster,
+  isolateCluster,
   generatePwd,
   formatConnectOutput,
   resetPwd,
@@ -41,13 +41,20 @@ class Cynosdb {
       timeSpan = 1,
       timeUnit = 'm',
       autoVoucher = 1,
+      dbMode = 'NORMAL',
+      minCpu = 0.5,
+      maxCpu = 2,
+      autoPause = 'yes',
+      autoPauseDelay = 3600, // default 1h
     } = inputs;
 
     const outputs = {
+      dbMode,
       region: region,
       zone: zone,
       vpcConfig: vpcConfig,
       instanceCount,
+      dbMode,
     };
 
     let isExisted = false;
@@ -84,11 +91,23 @@ class Cynosdb {
         VpcId: vpcConfig.vpcId,
         SubnetId: vpcConfig.subnetId,
         AdminPassword: adminPassword || generatePwd(),
+        DbMode: dbMode,
       };
       // prepay need set timespan 1month
       if (payMode === 1) {
         dbInputs.TimeSpan = timeSpan;
         dbInputs.TimeUnit = timeUnit;
+      }
+
+      if (dbMode === 'SERVERLESS') {
+        dbInputs.MinCpu = minCpu;
+        dbInputs.MaxCpu = maxCpu;
+        dbInputs.AutoPause = autoPause;
+        dbInputs.AutoPauseDelay = autoPauseDelay;
+
+        outputs.minCpu = minCpu;
+        outputs.maxCpu = maxCpu;
+        outputs.instanceCount = 1;
       }
 
       clusterDetail = await createCluster(this.capi, dbInputs);
@@ -108,7 +127,7 @@ class Cynosdb {
     const clusterDetail = await getClusterDetail(this.capi, clusterId);
     if (clusterDetail && clusterDetail.ClusterId) {
       // need circle for deleting, after host status is 6, then we can delete it
-      await deleteCluster(this.capi, clusterId);
+      await isolateCluster(this.capi, clusterId);
     }
     return true;
   }
