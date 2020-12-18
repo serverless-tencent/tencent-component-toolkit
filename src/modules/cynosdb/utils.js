@@ -42,18 +42,19 @@ function isSupportZone(zone, isServerless = false) {
 }
 
 function formatConnectOutput(detail) {
-  const RoAddr = detail.RoAddr || [];
-  const readList = RoAddr.map((item) => {
-    return {
-      ip: item.IP,
-      port: item.Port,
-    };
-  });
   const info = {
     ip: detail.Vip,
     port: detail.Vport,
-    readList: readList,
   };
+  if (detail.DbMode !== 'SERVERLESS') {
+    const RoAddr = detail.RoAddr || [];
+    info.readList = RoAddr.map((item) => {
+      return {
+        ip: item.IP,
+        port: item.Port,
+      };
+    });
+  }
 
   return info;
 }

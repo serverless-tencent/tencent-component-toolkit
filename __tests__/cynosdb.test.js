@@ -98,7 +98,6 @@ describe('Cynosdb', () => {
       connection: {
         ip: expect.any(String),
         port: 3306,
-        readList: expect.any(Array),
       },
     });
 
@@ -123,7 +122,6 @@ describe('Cynosdb', () => {
       connection: {
         ip: expect.any(String),
         port: 3306,
-        readList: expect.any(Array),
       },
       publicConnection: {
         domain: expect.any(String),
@@ -150,7 +148,6 @@ describe('Cynosdb', () => {
       connection: {
         ip: expect.any(String),
         port: 3306,
-        readList: expect.any(Array),
       },
     });
     inputs.clusterId = undefined;
