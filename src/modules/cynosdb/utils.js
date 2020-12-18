@@ -8,6 +8,9 @@ const {
   DescribeServerlessInstanceSpecs,
   OfflineCluster,
   DescribeInstances,
+  OpenWan,
+  CloseWan,
+  DescribeClusterInstanceGrps,
 } = require('./apis');
 const { ApiError } = require('../../utils/error');
 
@@ -238,6 +241,49 @@ async function resetPwd(capi, inputs) {
   return true;
 }
 
+async function getClusterGrpsInfo(capi, clusterId) {
+  const { InstanceGrpInfoList = [] } = await DescribeClusterInstanceGrps(capi, {
+    ClusterId: clusterId,
+  });
+  return InstanceGrpInfoList[0];
+}
+
+async function openPublicAccess(capi, clusterId) {
+  const gprInfo = await getClusterGrpsInfo(capi, clusterId);
+
+  console.log(`Start opening public access to cluster ${clusterId}`);
+  await OpenWan(capi, {
+    InstanceGrpId: gprInfo.InstanceGrpId,
+  });
+
+  const res = await waitResponse({
+    callback: async () => getClusterGrpsInfo(capi, clusterId),
+    targetProp: 'WanStatus',
+    targetResponse: 'open',
+    timeout: TIMEOUT,
+  });
+  console.log(`Open public access to cluster ${clusterId} success`);
+  return res;
+}
+
+async function closePublicAccess(capi, clusterId) {
+  const gprInfo = await getClusterGrpsInfo(capi, clusterId);
+
+  console.log(`Start closing public access to cluster ${clusterId}`);
+  await CloseWan(capi, {
+    InstanceGrpId: gprInfo.InstanceGrpId,
+  });
+
+  const res = await waitResponse({
+    callback: async () => getClusterGrpsInfo(capi, clusterId),
+    targetProp: 'WanStatus',
+    targetResponse: 'closed',
+    timeout: TIMEOUT,
+  });
+  console.log(`Close public access to cluster ${clusterId} success`);
+  return res;
+}
+
 module.exports = {
   TIMEOUT,
   PWD_CHARS,
@@ -252,4 +298,6 @@ module.exports = {
   offlineCluster,
   offlineInstance,
   getInstanceDetail,
+  openPublicAccess,
+  closePublicAccess,
 };

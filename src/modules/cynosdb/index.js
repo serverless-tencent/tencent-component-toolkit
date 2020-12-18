@@ -6,6 +6,8 @@ const {
   generatePwd,
   formatConnectOutput,
   resetPwd,
+  openPublicAccess,
+  closePublicAccess,
 } = require('./utils');
 const { ApiError } = require('../../utils/error');
 
@@ -46,6 +48,7 @@ class Cynosdb {
       maxCpu = 2,
       autoPause = 'yes',
       autoPauseDelay = 3600, // default 1h
+      enablePublicAccess,
     } = inputs;
 
     const outputs = {
@@ -56,6 +59,12 @@ class Cynosdb {
       instanceCount,
       dbMode,
     };
+
+    if (dbMode === 'SERVERLESS') {
+      outputs.minCpu = minCpu;
+      outputs.maxCpu = maxCpu;
+      outputs.instanceCount = 1;
+    }
 
     let isExisted = false;
     let clusterDetail = null;
@@ -104,19 +113,28 @@ class Cynosdb {
         dbInputs.MaxCpu = maxCpu;
         dbInputs.AutoPause = autoPause;
         dbInputs.AutoPauseDelay = autoPauseDelay;
-
-        outputs.minCpu = minCpu;
-        outputs.maxCpu = maxCpu;
-        outputs.instanceCount = 1;
       }
 
       clusterDetail = await createCluster(this.capi, dbInputs);
       outputs.clusterId = clusterDetail.ClusterId;
 
       outputs.adminPassword = dbInputs.AdminPassword;
+    } else {
+      console.log(`Cynosdb cluster ${outputs.clusterId} already exist`);
     }
 
     outputs.connection = formatConnectOutput(clusterDetail);
+
+    if (enablePublicAccess) {
+      const wanInfo = await openPublicAccess(this.capi, outputs.clusterId);
+      outputs.publicConnection = {
+        domain: wanInfo.WanDomain,
+        ip: wanInfo.WanIP,
+        port: wanInfo.WanPort,
+      };
+    } else if (enablePublicAccess === false) {
+      await closePublicAccess(this.capi, outputs.clusterId);
+    }
 
     return outputs;
   }
