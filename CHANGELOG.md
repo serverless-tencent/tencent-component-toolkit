@@ -1,3 +1,12 @@
+## [1.20.4](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.20.3...v1.20.4) (2020-12-18)
+
+
+### Bug Fixes
+
+* **cos:** add remove success log ([22be97d](https://github.com/serverless-tencent/tencent-component-toolkit/commit/22be97dab374c56a1643b83616fbdcbe1ea27e16))
+* **cos:** support disableErrorStatus config for website ([7157d2c](https://github.com/serverless-tencent/tencent-component-toolkit/commit/7157d2cddd93231015bee7e57ce3136ac675a04d))
+* **cynosdb:** support serverless ([03876ac](https://github.com/serverless-tencent/tencent-component-toolkit/commit/03876acbed825e3eeca37f0f1f0827f43239195d))
+
 ## [1.20.3](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.20.2...v1.20.3) (2020-12-17)
 
 
