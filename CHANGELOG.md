@@ -1,3 +1,11 @@
+## [1.20.5](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.20.4...v1.20.5) (2020-12-21)
+
+
+### Bug Fixes
+
+* **cynosdb:** serverless db no readlist ([1ba675b](https://github.com/serverless-tencent/tencent-component-toolkit/commit/1ba675b60a1501000c3901ed452a979a51c2cfa4))
+* **cynosdb:** support enable/disable public access ([53373ee](https://github.com/serverless-tencent/tencent-component-toolkit/commit/53373ee5c416986158de313d1164559e69f138bc))
+
 ## [1.20.4](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.20.3...v1.20.4) (2020-12-18)
 
 
