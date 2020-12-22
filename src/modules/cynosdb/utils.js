@@ -251,6 +251,9 @@ async function getClusterGrpsInfo(capi, clusterId) {
 
 async function openPublicAccess(capi, clusterId) {
   const gprInfo = await getClusterGrpsInfo(capi, clusterId);
+  if (gprInfo.WanStatus === 'open') {
+    return gprInfo;
+  }
 
   console.log(`Start opening public access to cluster ${clusterId}`);
   await OpenWan(capi, {
@@ -269,7 +272,9 @@ async function openPublicAccess(capi, clusterId) {
 
 async function closePublicAccess(capi, clusterId) {
   const gprInfo = await getClusterGrpsInfo(capi, clusterId);
-
+  if (gprInfo.WanStatus !== 'open') {
+    return gprInfo;
+  }
   console.log(`Start closing public access to cluster ${clusterId}`);
   await CloseWan(capi, {
     InstanceGrpId: gprInfo.InstanceGrpId,
