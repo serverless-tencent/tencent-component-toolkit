@@ -1,3 +1,10 @@
+## [1.20.6](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.20.5...v1.20.6) (2020-12-22)
+
+
+### Bug Fixes
+
+* **cynosdb:** close wan error ([#173](https://github.com/serverless-tencent/tencent-component-toolkit/issues/173)) ([cac3cd0](https://github.com/serverless-tencent/tencent-component-toolkit/commit/cac3cd0a822ce60ebaefa2847f282505809ea925))
+
 ## [1.20.5](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.20.4...v1.20.5) (2020-12-21)
 
 
