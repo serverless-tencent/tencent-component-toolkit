@@ -41,45 +41,45 @@ describe('Cynosdb', () => {
     expect(res.length).toBe(6);
   });
 
-  test('[NORMAL] deploy', async () => {
-    const res = await client.deploy(inputs);
-    expect(res).toEqual({
-      dbMode: 'NORMAL',
-      region: inputs.region,
-      region: inputs.region,
-      zone: inputs.zone,
-      vpcConfig: inputs.vpcConfig,
-      instanceCount: 2,
-      adminPassword: expect.stringMatching(pwdReg),
-      clusterId: expect.stringContaining('cynosdbmysql-'),
-      connection: {
-        ip: expect.any(String),
-        port: 3306,
-        readList: [
-          {
-            ip: expect.any(String),
-            port: 3306,
-          },
-        ],
-      },
-    });
+  // test('[NORMAL] deploy', async () => {
+  //   const res = await client.deploy(inputs);
+  //   expect(res).toEqual({
+  //     dbMode: 'NORMAL',
+  //     region: inputs.region,
+  //     region: inputs.region,
+  //     zone: inputs.zone,
+  //     vpcConfig: inputs.vpcConfig,
+  //     instanceCount: 2,
+  //     adminPassword: expect.stringMatching(pwdReg),
+  //     clusterId: expect.stringContaining('cynosdbmysql-'),
+  //     connection: {
+  //       ip: expect.any(String),
+  //       port: 3306,
+  //       readList: [
+  //         {
+  //           ip: expect.any(String),
+  //           port: 3306,
+  //         },
+  //       ],
+  //     },
+  //   });
 
-    ({ clusterId } = res);
-  });
+  //   ({ clusterId } = res);
+  // });
 
-  test('[NORMAL] remove', async () => {
-    await sleep(300);
-    const res = await client.remove({ clusterId });
+  // test('[NORMAL] remove', async () => {
+  //   await sleep(300);
+  //   const res = await client.remove({ clusterId });
 
-    const detail = await getClusterDetail(client.capi, clusterId);
-    expect(res).toEqual(true);
-    expect(detail.Status).toBe('isolated');
-  });
-  test('[NORMAL] offline', async () => {
-    await sleep(300);
-    const res = await offlineCluster(client.capi, clusterId);
-    expect(res).toBeUndefined();
-  });
+  //   const detail = await getClusterDetail(client.capi, clusterId);
+  //   expect(res).toEqual(true);
+  //   expect(detail.Status).toBe('isolated');
+  // });
+  // test('[NORMAL] offline', async () => {
+  //   await sleep(300);
+  //   const res = await offlineCluster(client.capi, clusterId);
+  //   expect(res).toBeUndefined();
+  // });
 
   test('[SERVERLESS] deploy', async () => {
     inputs.dbMode = 'SERVERLESS';
