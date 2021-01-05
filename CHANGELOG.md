@@ -1,3 +1,10 @@
+## [1.20.7](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.20.6...v1.20.7) (2021-01-05)
+
+
+### Bug Fixes
+
+* **tag:** update deploy tag flow ([807f9c7](https://github.com/serverless-tencent/tencent-component-toolkit/commit/807f9c7e78313eb0f5290f2be46497c9aebce99f))
+
 ## [1.20.6](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.20.5...v1.20.6) (2020-12-22)
 
 
