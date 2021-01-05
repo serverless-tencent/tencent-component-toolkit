@@ -1,6 +1,14 @@
 const { ApiFactory } = require('../../utils/api');
 
-const ACTIONS = ['ModifyResourceTags', 'DescribeResourceTags'];
+const ACTIONS = [
+  'ModifyResourceTags',
+  'DescribeResourceTags',
+  'AttachResourcesTag',
+  'DetachResourcesTag',
+  'CreateTag',
+  'DeleteTag',
+  'DescribeTags',
+];
 
 const APIS = ApiFactory({
   // debug: true,
