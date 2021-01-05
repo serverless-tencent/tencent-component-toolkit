@@ -6,20 +6,52 @@ describe('Tag', () => {
     SecretKey: process.env.TENCENT_SECRET_KEY,
   };
   const functionName = 'serverless-unit-test';
-  const inputs = {
-    resource: `qcs::scf:${process.env.REGION}:uin/${process.env.TENCENT_UIN}:namespace/default/function/${functionName}`,
-    replaceTags: { tagKey: 'tagValue' },
-    deleteTags: { abcdd: 'def' },
+  const tagItem = { TagKey: 'slstest', TagValue: 'slstest' };
+  const commonInputs = {
+    resourceIds: [`default/function/${functionName}`],
+    resourcePrefix: 'namespace',
+    serviceType: 'scf',
   };
   const tag = new Tag(credentials, process.env.REGION);
 
-  test('should success modify tags', async () => {
-    const res = await tag.deploy(inputs);
-    const [curTag] = await tag.getScfResourceTags({
+  test('attach tags', async () => {
+    delete commonInputs.addTags;
+    commonInputs.attachTags = [tagItem];
+
+    const res = await tag.deploy(commonInputs);
+    const tagList = await tag.getScfResourceTags({
       functionName: functionName,
     });
+    const [exist] = tagList.filter(
+      (item) => item.TagKey === tagItem.TagKey && item.TagValue === tagItem.TagValue,
+    );
     expect(res).toBe(true);
-    expect(curTag.TagKey).toBe('tagKey');
-    expect(curTag.TagValue).toBe('tagValue');
+    expect(exist).toBeDefined();
+  });
+
+  test('detach tags', async () => {
+    delete commonInputs.addTags;
+    delete commonInputs.attachTags;
+    commonInputs.detachTags = [tagItem];
+
+    const res = await tag.deploy(commonInputs);
+    const tagList = await tag.getScfResourceTags({
+      functionName: functionName,
+    });
+    const [exist] = tagList.filter(
+      (item) => item.TagKey === tagItem.TagKey && item.TagValue === tagItem.TagValue,
+    );
+    expect(res).toBe(true);
+    expect(exist).toBeUndefined();
+  });
+
+  test('delete tags', async () => {
+    const res = await tag.deleteTags([tagItem]);
+
+    expect(res).toBe(true);
+
+    const exist = await tag.isTagExist(tagItem);
+
+    expect(exist).toBe(false);
   });
 });

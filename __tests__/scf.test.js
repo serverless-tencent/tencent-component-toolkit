@@ -90,7 +90,7 @@ describe('Scf', () => {
     publish: true,
     traffic: 0.8,
     tags: {
-      mytest: 'abc',
+      test: 'test',
     },
     environment: {
       variables: {
@@ -279,7 +279,12 @@ describe('Scf', () => {
       CodeResult: 'success',
       CodeError: '',
       ErrNo: 0,
-      Tags: expect.any(Array),
+      Tags: [
+        {
+          Key: 'test',
+          Value: 'test',
+        },
+      ],
       AccessInfo: { Host: '', Vip: '' },
       Type: 'Event',
       CfsConfig: {
