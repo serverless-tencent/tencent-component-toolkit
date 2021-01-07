@@ -2,6 +2,7 @@ const { Capi } = require('@tencent-sdk/capi');
 const {
   createCluster,
   getClusterDetail,
+  getClusterInstances,
   isolateCluster,
   generatePwd,
   formatConnectOutput,
@@ -135,6 +136,15 @@ class Cynosdb {
     } else if (enablePublicAccess === false) {
       await closePublicAccess(this.capi, outputs.clusterId);
     }
+
+    const clusterInstances = await getClusterInstances(this.capi, outputs.clusterId);
+    outputs.instances = clusterInstances.map((item) => ({
+      id: item.InstanceId,
+      name: item.InstanceName,
+      role: item.InstanceRole,
+      type: item.InstanceType,
+      status: item.Status,
+    }));
 
     return outputs;
   }

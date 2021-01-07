@@ -99,6 +99,15 @@ describe('Cynosdb', () => {
         ip: expect.any(String),
         port: 3306,
       },
+      instances: [
+        {
+          id: expect.stringContaining('cynosdbmysql-ins-'),
+          name: expect.stringContaining('cynosdbmysql-ins-'),
+          role: 'master',
+          type: 'rw',
+          status: 'running',
+        },
+      ],
     });
 
     ({ clusterId } = res);
@@ -128,6 +137,15 @@ describe('Cynosdb', () => {
         ip: expect.any(String),
         port: expect.any(Number),
       },
+      instances: [
+        {
+          id: expect.stringContaining('cynosdbmysql-ins-'),
+          name: expect.stringContaining('cynosdbmysql-ins-'),
+          role: 'master',
+          type: 'rw',
+          status: 'running',
+        },
+      ],
     });
   });
 
@@ -149,6 +167,15 @@ describe('Cynosdb', () => {
         ip: expect.any(String),
         port: 3306,
       },
+      instances: [
+        {
+          id: expect.stringContaining('cynosdbmysql-ins-'),
+          name: expect.stringContaining('cynosdbmysql-ins-'),
+          role: 'master',
+          type: 'rw',
+          status: 'running',
+        },
+      ],
     });
     inputs.clusterId = undefined;
   });
