@@ -1,3 +1,11 @@
+## [1.20.8](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.20.7...v1.20.8) (2021-01-07)
+
+
+### Bug Fixes
+
+* **cynosdb:** add instances output ([7940934](https://github.com/serverless-tencent/tencent-component-toolkit/commit/7940934c8f7ff4dca90cf52f4e5f8c998feaedfd))
+* **cfs:** support tag config ([5f253c5](https://github.com/serverless-tencent/tencent-component-toolkit/commit/5f253c52ab53d408852cf7fcde7cac266ee4218e))
+
 ## [1.20.7](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.20.6...v1.20.7) (2021-01-05)
 
 
