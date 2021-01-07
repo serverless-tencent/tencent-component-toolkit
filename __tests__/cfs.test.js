@@ -7,6 +7,7 @@ describe('Cfs', () => {
     SecretId: process.env.TENCENT_SECRET_ID,
     SecretKey: process.env.TENCENT_SECRET_KEY,
   };
+
   const inputs = {
     fsName: 'cfs-test',
     region: 'ap-guangzhou',
@@ -16,6 +17,12 @@ describe('Cfs', () => {
       vpcId: process.env.CFS_VPC_ID,
       subnetId: process.env.CFS_SUBNET_ID,
     },
+    tags: [
+      {
+        key: 'slstest',
+        value: 'slstest',
+      },
+    ],
   };
   const cfs = new Cfs(credentials, process.env.REGION);
 
@@ -29,6 +36,7 @@ describe('Cfs', () => {
       protocol: 'NFS',
       storageType: 'SD',
       fileSystemId: expect.stringContaining('cfs-'),
+      tags: inputs.tags,
     });
     inputs.fileSystemId = res.fileSystemId;
   });

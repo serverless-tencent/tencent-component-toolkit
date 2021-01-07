@@ -1,5 +1,6 @@
 const { Capi } = require('@tencent-sdk/capi');
 const apis = require('./apis');
+const Tag = require('../tag/index');
 
 class CFS {
   constructor(credentials = {}, region) {
@@ -11,6 +12,8 @@ class CFS {
       SecretKey: credentials.SecretKey,
       Token: credentials.Token,
     });
+
+    this.tagClient = new Tag(this.credentials, this.region);
   }
 
   async deploy(inputs = {}) {
@@ -71,13 +74,28 @@ class CFS {
         }
       }
 
-      if (inputs.tags) {
-        cfsInputs.ResourceTags = inputs.tags;
-      }
       console.log(`Creating CFS ${inputs.fsName}`);
       const { FileSystemId } = await apis.createCfs(this.capi, cfsInputs);
       console.log(`Created CFS ${inputs.fsName}, id ${FileSystemId} successful`);
       outputs.fileSystemId = FileSystemId;
+    }
+
+    if (inputs.tags) {
+      try {
+        const tags = await this.tagClient.deployResourceTags({
+          tags: inputs.tags.map((item) => ({ TagKey: item.key, TagValue: item.value })),
+          serviceType: 'cfs',
+          resourcePrefix: 'filesystem',
+          resourceId: outputs.fileSystemId,
+        });
+
+        outputs.tags = tags.map((item) => ({
+          key: item.TagKey,
+          value: item.TagValue,
+        }));
+      } catch (e) {
+        console.log(`Deploy cfs tags error: ${e.message}`);
+      }
     }
 
     return outputs;

@@ -19,6 +19,31 @@ class Tag {
     return result;
   }
 
+  async getResourceTags({ resourceId, serviceType, resourcePrefix, offset = 0, limit = 100 }) {
+    const { Tags, TotalCount } = await this.request({
+      Action: 'DescribeResourceTagsByResourceIds',
+      Limit: limit,
+      Offset: offset,
+      ServiceType: serviceType,
+      ResourceRegion: this.region,
+      ResourcePrefix: resourcePrefix,
+      ResourceIds: [resourceId],
+    });
+    if (TotalCount > limit) {
+      return Tags.concat(
+        await this.getResourceTags({
+          resourceId,
+          serviceType,
+          resourcePrefix,
+          offset: offset + limit,
+          limit,
+        }),
+      );
+    }
+
+    return Tags;
+  }
+
   async getTagList(offset = 0, limit = 100) {
     const { Tags, TotalCount } = await this.request({
       Action: 'DescribeTags',
@@ -41,14 +66,13 @@ class Tag {
   }
 
   async getScfResourceTags(inputs) {
-    const data = {
-      Action: 'DescribeResourceTags',
-      ResourcePrefix: 'namespace',
-      ResourceId: `${inputs.namespace || 'default'}/function/${inputs.functionName}`,
-    };
+    const tags = await this.getResourceTags({
+      resourceId: `${inputs.namespace || 'default'}/function/${inputs.functionName}`,
+      serviceType: 'scf',
+      resourcePrefix: 'namespace',
+    });
 
-    const { Rows } = await this.request(data);
-    return Rows;
+    return tags;
   }
 
   async attachTags({ serviceType, resourcePrefix, resourceIds, tags }) {
@@ -144,6 +168,62 @@ class Tag {
     console.log(`Update tags success`);
 
     return true;
+  }
+
+  async deployResourceTags({ tags, resourceId, serviceType, resourcePrefix }) {
+    console.log(`Adding tags for ${resourceId} in ${this.region}`);
+    const inputKeys = [];
+    tags.forEach(({ TagKey }) => {
+      inputKeys.push(TagKey);
+    });
+
+    const oldTags = await this.getResourceTags({
+      resourceId: resourceId,
+      serviceType: serviceType,
+      resourcePrefix: resourcePrefix,
+    });
+
+    const oldTagKeys = [];
+    oldTags.forEach(({ TagKey }) => {
+      oldTagKeys.push(TagKey);
+    });
+
+    const detachTags = [];
+    const attachTags = [];
+    const leftTags = [];
+
+    oldTags.forEach((item) => {
+      if (inputKeys.indexOf(item.TagKey) === -1) {
+        detachTags.push({
+          TagKey: item.TagKey,
+        });
+      } else {
+        const [inputTag] = tags.filter((t) => t.TagKey === item.TagKey);
+        const oldTagVal = item.TagValue;
+
+        if (inputTag.TagValue !== oldTagVal) {
+          attachTags.push(inputTag);
+        } else {
+          leftTags.push(item);
+        }
+      }
+    });
+
+    tags.forEach((item) => {
+      if (oldTagKeys.indexOf(item.TagKey) === -1) {
+        attachTags.push(item);
+      }
+    });
+
+    await this.deploy({
+      resourceIds: [resourceId],
+      resourcePrefix: resourcePrefix,
+      serviceType: serviceType,
+      detachTags,
+      attachTags,
+    });
+
+    return leftTags.concat(attachTags);
   }
 }
 
