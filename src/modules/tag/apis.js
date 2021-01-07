@@ -8,6 +8,7 @@ const ACTIONS = [
   'CreateTag',
   'DeleteTag',
   'DescribeTags',
+  'DescribeResourceTagsByResourceIds',
 ];
 
 const APIS = ApiFactory({

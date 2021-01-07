@@ -313,62 +313,6 @@ class Scf {
     return triggerResult;
   }
 
-  // deploy tags
-  async deployTags(funcInfo, inputs) {
-    console.log(`Adding tags for function ${inputs.name} in ${this.region}`);
-    const inputKeys = [];
-    const inputTags = Object.entries(inputs.tags).map(([key, value]) => {
-      inputKeys.push(key);
-      return {
-        Key: key,
-        Value: value,
-      };
-    });
-    const funcTags = funcInfo.Tags;
-    const funcTagKeys = funcTags.map((item) => item.Key);
-
-    const detachTags = [];
-    const attachTags = [];
-
-    for (let i = 0; i < funcTags.length; i++) {
-      const funcTag = funcTags[i];
-      if (inputKeys.indexOf(funcTag.Key) === -1) {
-        detachTags.push({
-          TagKey: funcTag.Key,
-        });
-      } else {
-        const inputTagVal = inputs.tags[funcTag.Key];
-        const funcTagVal = funcTags[i].Value;
-        if (inputTagVal !== funcTagVal) {
-          attachTags.push({
-            TagKey: funcTag.Key,
-            TagValue: inputTagVal,
-          });
-        }
-      }
-    }
-
-    for (let i = 0; i < inputTags.length; i++) {
-      const inputTag = inputTags[i];
-      if (funcTagKeys.indexOf(inputTag.Key) === -1) {
-        attachTags.push({
-          TagKey: inputTag.Key,
-          TagValue: inputTag.Value,
-        });
-      }
-    }
-
-    await this.tagClient.deploy({
-      resourceIds: [`${funcInfo.Namespace}/function/${funcInfo.FunctionName}`],
-      resourcePrefix: 'namespace',
-      serviceType: 'scf',
-      detachTags,
-      attachTags,
-    });
-
-    return attachTags;
-  }
-
   // delete function
   async deleteFunction(namespace, functionName) {
     namespace = namespace || CONFIGS.defaultNamespace;
@@ -676,7 +620,13 @@ class Scf {
 
     // create/update tags
     if (inputs.tags) {
-      const deployedTags = await this.deployTags(funcInfo, inputs);
+      const deployedTags = await this.tagClient.deployResourceTags({
+        tags: Object.entries(inputs.tags).map(([TagKey, TagValue]) => ({ TagKey, TagValue })),
+        resourceId: `${funcInfo.Namespace}/function/${funcInfo.FunctionName}`,
+        serviceType: 'scf',
+        resourcePrefix: 'namespace',
+      });
+
       outputs.Tags = deployedTags.map((item) => ({
         Key: item.TagKey,
         Value: item.TagValue,
