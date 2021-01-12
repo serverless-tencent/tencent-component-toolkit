@@ -1,4 +1,4 @@
-const { Tag } = require('../src');
+const { Tag } = require('../build');
 
 describe('Tag', () => {
   const credentials = {

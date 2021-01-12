@@ -1,4 +1,4 @@
-const { Metrics } = require('../src');
+const { Metrics } = require('../build');
 
 describe('Metrics', () => {
   const credentials = {

@@ -1,4 +1,4 @@
-const { Apigw } = require('../src');
+const { Apigw } = require('../build');
 
 const deepClone = (obj) => {
   return JSON.parse(JSON.stringify(obj));

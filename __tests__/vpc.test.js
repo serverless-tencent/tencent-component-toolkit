@@ -1,5 +1,5 @@
-const { Vpc } = require('../src');
-const vpcUtils = require('../src/modules/vpc/utils');
+const { Vpc } = require('../build');
+const vpcUtils = require('../build/modules/vpc/utils').default;
 
 describe('Vpc', () => {
   const credentials = {
@@ -31,7 +31,8 @@ describe('Vpc', () => {
       inputs.subnetId = res.subnetId;
     } catch (e) {
       console.log(e.message);
-      expect(e.code).toBe('LimitExceeded');
+      // expect(e.code).toBe('LimitExceeded');
+      expect(e.message).toBe(undefined);
     }
   });
 

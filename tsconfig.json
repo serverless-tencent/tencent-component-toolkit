@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "strict": true,
+    "moduleResolution": "node",
+    "noImplicitAny": true,
+    "rootDir": "./src",
+    "outDir": "./build",
+    "skipLibCheck": true,
+    "allowJs": true,
+    "lib": ["es2015"],
+    "sourceMap": true,
+    "declaration": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["./src"],
+  "exclude": ["./build"]
+}

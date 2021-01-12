@@ -1,0 +1,31 @@
+import { ApiFactory } from '../../utils/api';
+import { ServiceType } from '../interface';
+
+const ACTIONS = [
+  'CreateFunction',
+  'DeleteFunction',
+  'GetFunction',
+  'UpdateFunctionCode',
+  'UpdateFunctionConfiguration',
+  'CreateTrigger',
+  'DeleteTrigger',
+  'PublishVersion',
+  'ListAliases',
+  'CreateAlias',
+  'UpdateAlias',
+  'DeleteAlias',
+  'GetAlias',
+  'Invoke',
+  'ListTriggers',
+] as const;
+
+export type ActionType = typeof ACTIONS[number];
+
+const APIS = ApiFactory({
+  // debug: true,
+  serviceType: ServiceType.scf,
+  version: '2018-04-16',
+  actions: ACTIONS,
+});
+
+export default APIS;

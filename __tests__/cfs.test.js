@@ -1,6 +1,6 @@
 const { sleep } = require('@ygkit/request');
-const { Cfs } = require('../src');
-const apis = require('../src/modules/cfs/apis');
+const { Cfs } = require('../build');
+const utils = require('../build/modules/cfs/utils').default;
 
 describe('Cfs', () => {
   const credentials = {
@@ -44,7 +44,7 @@ describe('Cfs', () => {
   test('should remove CFS success', async () => {
     await sleep(1000);
     const res = await cfs.remove(inputs);
-    const detail = await apis.getCfs(cfs.capi, inputs.fileSystemId);
+    const detail = await utils.getCfs(cfs.capi, inputs.fileSystemId);
     expect(res).toEqual({});
     expect(detail).toBeUndefined();
   });

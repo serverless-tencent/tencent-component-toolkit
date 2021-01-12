@@ -1,5 +1,5 @@
-const { Postgresql } = require('../src');
-const { getDbInstanceDetail, sleep } = require('../src/modules/postgresql/utils');
+const { Postgresql } = require('../build');
+const { getDbInstanceDetail, sleep } = require('../build/modules/postgresql/utils');
 
 describe('Postgresql', () => {
   const credentials = {

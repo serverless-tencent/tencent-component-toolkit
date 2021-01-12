@@ -1,4 +1,4 @@
-const { Cynosdb } = require('../src');
+const { Cynosdb } = require('../build');
 const {
   getClusterDetail,
   sleep,

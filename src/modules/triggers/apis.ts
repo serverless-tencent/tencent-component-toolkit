@@ -1,0 +1,39 @@
+import { ApiFactory } from '../../utils/api';
+import { ApiError } from '../../utils/error';
+import { ServiceType } from '../interface';
+
+export const SCF = ApiFactory({
+  // debug: true,
+  serviceType: ServiceType.scf,
+  version: '2018-04-16',
+  actions: ['CreateTrigger', 'DeleteTrigger', 'ListTriggers'],
+});
+
+export const APIGW = ApiFactory({
+  // debug: true,
+  serviceType: ServiceType.apigateway,
+  version: '2018-08-08',
+  actions: ['DescribeApi'],
+  responseHandler(Response) {
+    return Response.Result || Response;
+  },
+  errorHandler(action, Response) {
+    if (Response.Error.Code.indexOf('ResourceNotFound') === -1) {
+      throw new ApiError({
+        type: `API_APIGW_${action}`,
+        message: `${Response.Error.Message} (reqId: ${Response.RequestId})`,
+        reqId: Response.RequestId,
+        code: Response.Error.Code,
+      });
+    }
+    return null;
+  },
+});
+
+export const MPS = ApiFactory({
+  // debug: true,
+  isV3: false,
+  serviceType: ServiceType.mps,
+  version: '2019-06-12',
+  actions: ['BindTrigger', 'UnbindTrigger'],
+});

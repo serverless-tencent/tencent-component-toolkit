@@ -1,0 +1,35 @@
+export interface DeployInputs {
+  oldState: any;
+  async: boolean;
+  onlyRefresh: boolean;
+  domain: string;
+  origin: string;
+  serviceType: string;
+  area: 'mainland' | string;
+  https: boolean;
+  cache: string;
+  ipFilter: string;
+  ipFreqLimit: string;
+  statusCodeCache: string;
+  ForceRedirect: string;
+  compression: string;
+  bandwidthAlert: string;
+  rangeOriginPull: string;
+  followRedirect: string;
+  errorPage: string;
+  requestHeader: string;
+  responseHeader: string;
+  downstreamCapping: string;
+  cacheKey: string;
+  responseHeaderCache: string;
+  videoSeek: string;
+  originPullOptimization: string;
+  authentication: string;
+  seo: string;
+  referer: string;
+  maxAge: string;
+  specificConfig: string;
+  originPullTimeout: string;
+  refreshCdn: string;
+  pushCdn: string;
+}

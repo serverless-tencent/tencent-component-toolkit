@@ -1,5 +1,5 @@
-const { Cdn } = require('../src');
-const { getCdnByDomain } = require('../src/modules/cdn/utils');
+const { Cdn } = require('../build');
+const { getCdnByDomain } = require('../build/modules/cdn/utils');
 
 describe('Cdn', () => {
   jest.setTimeout(600000);

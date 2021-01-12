@@ -3,7 +3,7 @@ const assert = require('assert');
 const moment = require('moment');
 const util = require('util');
 const url = require('url');
-const { TypeError, ApiError } = require('../../utils/error');
+const { ApiTypeError, ApiError } = require('../../utils/error');
 
 class Metrics {
   constructor(credentials = {}, options = {}) {
