@@ -73,8 +73,7 @@ describe('Scf', () => {
   };
 
   const inputs = {
-    // name: `serverless-test-${Date.now()}`,
-    name: `serverless-test-1608035552006`,
+    name: `serverless-test-${Date.now()}`,
     code: {
       bucket: process.env.BUCKET,
       object: 'express_code.zip',
