@@ -57,6 +57,10 @@ class CFS {
           console.log(`Updating CFS id: ${inputs.fileSystemId}, name: ${inputs.fsName}`);
           await apis.updateCfs(this.capi, inputs.fileSystemId, updateParams);
           console.log(`Update CFS id: ${inputs.fileSystemId}, name: ${inputs.fsName} success.`);
+        } else {
+          console.log(
+            `CFS ${inputs.fileSystemId}, name: ${inputs.fsName} already exist, nothing to update`,
+          );
         }
 
         outputs.fileSystemId = inputs.fileSystemId;

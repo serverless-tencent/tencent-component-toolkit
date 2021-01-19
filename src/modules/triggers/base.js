@@ -33,7 +33,7 @@ class BaseTrigger {
     }
     const { Triggers = [], TotalCount } = await Apis.SCF.ListTriggers(this.capi, listOptions);
     if (TotalCount > 100) {
-      const res = await this.getTriggerList(functionName, namespace, qualifier);
+      const res = await this.getTriggerList({ functionName, namespace, qualifier });
       return Triggers.concat(res);
     }
 
