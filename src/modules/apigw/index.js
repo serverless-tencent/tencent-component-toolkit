@@ -352,6 +352,7 @@ class Apigw {
           pathMappingSet: domainItem.pathMappingSet || [],
           netType: domainItem.netType ? domainItem.netType : 'OUTER',
           protocol: domainProtocol,
+          isForcedHttps: domainItem.isForcedHttps === true,
         };
 
         try {
