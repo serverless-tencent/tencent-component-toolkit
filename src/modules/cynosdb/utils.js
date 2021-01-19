@@ -16,26 +16,82 @@ const { ApiError } = require('../../utils/error');
 
 // timeout 5 minutes
 const TIMEOUT = 5 * 60 * 1000;
-const SUPPORT_ZONES = ['ap-beijing-3', 'ap-guangzhou-4', 'ap-nanjing-1', 'ap-shanghai-2'];
-const SERVERLESS_SUPPORT_ZONES = ['ap-shanghai-2', 'ap-nanjing-1'];
-const PWD_CHARS = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz~!@#$%^&*_-';
+const SUPPORT_ZONES = ['ap-beijing-3', 'ap-guangzhou-4', 'ap-shanghai-2', 'ap-nanjing-1'];
 
-function generatePwd(length) {
-  length = length || 8;
-  return Array(length)
-    .fill(PWD_CHARS)
-    .map((item) => {
-      return item[Math.floor(Math.random() * item.length)];
+function generatePwd(length = 8) {
+  const ALPHABET = 'abcdefghijklmnopqrstuvwxyz';
+  const NUMBER = '0123456789';
+  const SPECIAL = '~!@#$%^&*_-';
+
+  let password = '';
+  let character = '';
+  while (password.length < length) {
+    const entity1 = Math.ceil(ALPHABET.length * Math.random() * Math.random());
+    const entity2 = Math.ceil(SPECIAL.length * Math.random() * Math.random());
+    const entity3 = Math.ceil(NUMBER.length * Math.random() * Math.random());
+
+    let hold = ALPHABET.charAt(entity1);
+    hold = password.length % 2 === 0 ? hold.toUpperCase() : hold;
+    character += hold;
+    character += SPECIAL.charAt(entity2);
+    character += NUMBER.charAt(entity3);
+    password = character;
+  }
+  password = password
+    .split('')
+    .sort(function() {
+      return 0.5 - Math.random();
     })
     .join('');
+
+  return password.substr(0, length);
 }
 
-function isSupportZone(zone, isServerless = false) {
-  const supportZones = isServerless ? SERVERLESS_SUPPORT_ZONES : SUPPORT_ZONES;
-  if (supportZones.indexOf(zone) === -1) {
+function isValidPwd(password) {
+  const minLen = 8;
+  const maxLen = 64;
+  const pwdLen = password.length;
+  if (pwdLen < minLen || pwdLen > maxLen) {
+    return false;
+  }
+
+  const numStr = '0123456789';
+  const lowerCaseLetter = 'abcdefghijklmnopqrstuvwxyz';
+  const upperCaseLetter = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const specStr = "~!@#$%^&*_-+=`|\\(){}[]:;'<>,.?/";
+
+  let numFlag = 0;
+  let lowerCaseFlag = 0;
+  let upperCaseFlag = 0;
+  let specFlag = 0;
+
+  for (let i = 0; i < pwdLen; i++) {
+    const curChar = password[i];
+    if (numStr.indexOf(curChar) !== -1) {
+      numFlag = 1;
+    } else if (lowerCaseLetter.indexOf(curChar) !== -1) {
+      lowerCaseFlag = 1;
+    } else if (upperCaseLetter.indexOf(curChar) !== -1) {
+      upperCaseFlag = 1;
+    } else if (specStr.indexOf(curChar) !== -1) {
+      specFlag = 1;
+    } else {
+      return false;
+    }
+  }
+
+  if (numFlag + lowerCaseFlag + upperCaseFlag + specFlag < 3) {
+    return false;
+  }
+
+  return true;
+}
+
+function isSupportZone(zone) {
+  if (SUPPORT_ZONES.indexOf(zone) === -1) {
     throw ApiError({
       type: 'PARAMETER_CYNOSDB',
-      message: `Unsupported zone, support zones: ${supportZones.join(',')}`,
+      message: `Unsupported zone, support zones: ${SUPPORT_ZONES.join(',')}`,
     });
   }
   return true;
@@ -138,7 +194,7 @@ async function getServerlessSpecs(capi, { minCpu, maxCpu } = {}) {
  */
 async function createCluster(capi, dbInputs) {
   const isServerless = dbInputs.DbMode === 'SERVERLESS';
-  isSupportZone(dbInputs.Zone, isServerless);
+  isSupportZone(dbInputs.Zone);
 
   if (isServerless) {
     const curSpec = await getServerlessSpecs(capi, {
@@ -292,9 +348,9 @@ async function closePublicAccess(capi, clusterId) {
 
 module.exports = {
   TIMEOUT,
-  PWD_CHARS,
   sleep,
   generatePwd,
+  isValidPwd,
   formatConnectOutput,
   resetPwd,
   createCluster,

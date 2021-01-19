@@ -3,11 +3,9 @@ const {
   getClusterDetail,
   sleep,
   generatePwd,
+  isValidPwd,
   offlineCluster,
-  PWD_CHARS,
 } = require('../src/modules/cynosdb/utils');
-
-const pwdReg = new RegExp(`[${PWD_CHARS}]{8,64}`);
 
 describe('Cynosdb', () => {
   jest.setTimeout(600000);
@@ -33,6 +31,7 @@ describe('Cynosdb', () => {
     const res = generatePwd();
     expect(typeof res).toBe('string');
     expect(res.length).toBe(8);
+    expect(isValidPwd(res)).toBe(true);
   });
 
   test('[generatePwd] should get random password with customize length 6', () => {
@@ -91,7 +90,7 @@ describe('Cynosdb', () => {
       zone: inputs.zone,
       vpcConfig: inputs.vpcConfig,
       instanceCount: 1,
-      adminPassword: expect.stringMatching(pwdReg),
+      adminPassword: expect.any(String),
       clusterId: expect.stringContaining('cynosdbmysql-'),
       minCpu: 0.5,
       maxCpu: 2,
@@ -110,6 +109,7 @@ describe('Cynosdb', () => {
       ],
     });
 
+    expect(isValidPwd(res.adminPassword)).toBe(true);
     ({ clusterId } = res);
   });
 

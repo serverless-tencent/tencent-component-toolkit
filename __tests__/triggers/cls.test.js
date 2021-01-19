@@ -21,8 +21,8 @@ describe('Cls', () => {
 
   const clsInputs = {
     region: 'ap-guangzhou',
-    name: 'cls-test',
-    topic: 'cls-topic-test',
+    name: 'cls-trigger-test',
+    topic: 'cls-topic-trigger-test',
     period: 7,
     rule: {
       full_text: {
