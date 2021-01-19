@@ -574,6 +574,15 @@ class Apigw {
     return apiDetail;
   }
 
+  async getApiById({ serviceId, apiId }) {
+    const apiDetail = await this.request({
+      Action: 'DescribeApi',
+      serviceId: serviceId,
+      apiId: apiId,
+    });
+    return apiDetail;
+  }
+
   async createOrUpdateApi({ serviceId, endpoint, environment, created }) {
     // compatibility for secret auth config depends on auth & usagePlan
     const authType = endpoint.auth ? 'SECRET' : endpoint.authType || 'NONE';
@@ -615,11 +624,18 @@ class Apigw {
 
     this.marshalApiInput(endpoint, apiInputs);
 
-    let apiDetail = await this.getApiByPathAndMethod({
-      serviceId,
-      path: endpoint.path,
-      method: endpoint.method,
-    });
+    let apiDetail = null;
+    if (endpoint.apiId) {
+      apiDetail = await this.getApiById({ serviceId, apiId: endpoint.apiId });
+    }
+
+    if (!apiDetail) {
+      apiDetail = await this.getApiByPathAndMethod({
+        serviceId,
+        path: endpoint.path,
+        method: endpoint.method,
+      });
+    }
 
     if (apiDetail) {
       console.log(`Api method ${endpoint.method}, path ${endpoint.path} already exist`);
