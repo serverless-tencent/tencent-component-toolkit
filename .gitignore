@@ -16,6 +16,7 @@ node_modules
 dist
 .idea
 build
+lib
 .env*
 .env.test
 !.env.example

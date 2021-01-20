@@ -1,5 +1,5 @@
-const { Vpc } = require('../build');
-const vpcUtils = require('../build/modules/vpc/utils').default;
+const { Vpc } = require('../lib');
+const vpcUtils = require('../lib/modules/vpc/utils').default;
 
 describe('Vpc', () => {
   const credentials = {

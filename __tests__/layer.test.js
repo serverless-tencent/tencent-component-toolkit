@@ -1,5 +1,5 @@
 const { sleep } = require('@ygkit/request');
-const { Layer } = require('../build');
+const { Layer } = require('../lib');
 
 describe('Layer', () => {
   const credentials = {

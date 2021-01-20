@@ -1,5 +1,5 @@
 const { sleep } = require('@ygkit/request');
-const { Scf, Cfs, Layer } = require('../build');
+const { Scf, Cfs, Layer } = require('../lib');
 
 describe('Scf', () => {
   const credentials = {

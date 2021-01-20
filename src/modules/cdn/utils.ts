@@ -119,7 +119,10 @@ export function flushEmptyValue<T extends Record<string | number, any>>(obj: T) 
 
 export async function openCdnService(capi: Capi) {
   try {
-    await APIS.OpenCdnService(capi, );
+    await APIS.OpenCdnService(capi, {
+      PayTypeMainland: 'flux',
+      PayTypeOverseas: 'flux',
+    });
   } catch (e) {
     if (e.code !== 'ResourceInUse.CdnUserExists') {
       throw e;

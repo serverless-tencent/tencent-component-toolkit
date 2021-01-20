@@ -1,6 +1,6 @@
 const { sleep } = require('@ygkit/request');
-const { Cfs } = require('../build');
-const utils = require('../build/modules/cfs/utils').default;
+const { Cfs } = require('../lib');
+const utils = require('../lib/modules/cfs/utils').default;
 
 describe('Cfs', () => {
   const credentials = {

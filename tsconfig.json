@@ -6,14 +6,15 @@
     "moduleResolution": "node",
     "noImplicitAny": true,
     "rootDir": "./src",
-    "outDir": "./build",
+    "outDir": "./lib",
     "skipLibCheck": true,
     "allowJs": true,
     "lib": ["es2015"],
     "sourceMap": true,
     "declaration": true,
+    "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true
   },
   "include": ["./src"],
-  "exclude": ["./build"]
+  "exclude": ["./lib"]
 }

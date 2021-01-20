@@ -1,5 +1,5 @@
-const { Scf } = require('../../build');
-const MpsTrigger = require('../../build/modules/triggers/mps').default;
+const { Scf } = require('../../lib');
+const MpsTrigger = require('../../lib/modules/triggers/mps').default;
 
 // FIXME: all mps trigger bind fail
 describe('Mps', () => {

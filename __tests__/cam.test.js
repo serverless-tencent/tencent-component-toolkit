@@ -1,4 +1,4 @@
-const { Cam } = require('../build');
+const { Cam } = require('../lib');
 
 describe('Cam', () => {
   const credentials = {

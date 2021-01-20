@@ -1,4 +1,4 @@
-const { Cls } = require('../build');
+const { Cls } = require('../lib');
 const { sleep } = require('@ygkit/request');
 
 describe('Cls', () => {

@@ -1,5 +1,5 @@
-const { Cls, Scf } = require('../../build');
-const ClsTrigger = require('../../build/modules/triggers/cls').default;
+const { Cls, Scf } = require('../../lib');
+const ClsTrigger = require('../../lib/modules/triggers/cls').default;
 const { sleep } = require('@ygkit/request');
 
 describe('Cls', () => {

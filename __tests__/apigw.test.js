@@ -1,4 +1,4 @@
-const { Apigw } = require('../build');
+const { Apigw } = require('../lib');
 
 const deepClone = (obj) => {
   return JSON.parse(JSON.stringify(obj));

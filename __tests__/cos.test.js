@@ -1,4 +1,4 @@
-const { Cos } = require('../build');
+const { Cos } = require('../lib');
 const path = require('path');
 const axios = require('axios');
 const { sleep } = require('@ygkit/request');

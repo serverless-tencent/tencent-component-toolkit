@@ -1,4 +1,4 @@
-const { Cns } = require('../build');
+const { Cns } = require('../lib');
 
 describe('Cns', () => {
   const credentials = {
