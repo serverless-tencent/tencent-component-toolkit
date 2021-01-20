@@ -37,6 +37,10 @@ jobs:
         run: |
           npm update --no-save
           npm update --save-dev --no-save
+
+      - name: Build
+        run: npm run build
+
       - name: Releasing
         run: |
           npm run release
