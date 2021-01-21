@@ -1,4 +1,3 @@
-import { Region } from 'cos-nodejs-sdk-v5';
 import { RegionType, CapiCredentials, ApiServiceType } from './../interface';
 import { Capi } from '@tencent-sdk/capi';
 import utils from './utils';

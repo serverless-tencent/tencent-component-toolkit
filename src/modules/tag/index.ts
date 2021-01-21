@@ -1,7 +1,16 @@
+import { ActionType } from './apis';
 import { RegionType, CapiCredentials, ApiServiceType } from './../interface';
 import { Capi } from '@tencent-sdk/capi';
 import APIS from './apis';
-import { TagData, TagGetResourceTagsInputs, TagGetScfResourceTags, TagAttachTagsInputs, TagDetachTagsInputs, TagDeployInputs, TagDeployResourceTagsInputs } from './interface';
+import {
+  TagData,
+  TagGetResourceTagsInputs,
+  TagGetScfResourceTags,
+  TagAttachTagsInputs,
+  TagDetachTagsInputs,
+  TagDeployInputs,
+  TagDeployResourceTagsInputs,
+} from './interface';
 
 export default class Tag {
   region: RegionType;
@@ -14,14 +23,13 @@ export default class Tag {
     this.capi = new Capi({
       Region: this.region,
       ServiceType: ApiServiceType.tag,
-      // FIXME: AppId: this.credentials.AppId,
       SecretId: this.credentials.SecretId!,
       SecretKey: this.credentials.SecretKey!,
       Token: this.credentials.Token,
     });
   }
 
-  async request({ Action, ...data }: any) {
+  async request({ Action, ...data }: { Action: ActionType; [key: string]: any }) {
     const result = await APIS[Action](this.capi, data);
     return result;
   }
@@ -88,7 +96,7 @@ export default class Tag {
     return tags;
   }
 
-  async attachTags({ serviceType, resourcePrefix, resourceIds, tags }:TagAttachTagsInputs) {
+  async attachTags({ serviceType, resourcePrefix, resourceIds, tags }: TagAttachTagsInputs) {
     const commonInputs = {
       Action: 'AttachResourcesTag',
       ResourceIds: resourceIds,
@@ -98,21 +106,23 @@ export default class Tag {
     };
     // if tag not exsit, create it
 
-    for (let i = 0; i < tags.length; i++) {
-      const currentTag = tags[i];
-      const tagExist = await this.isTagExist(currentTag);
-      if (!tagExist) {
-        await this.createTag(currentTag);
+    if (tags) {
+      for (let i = 0; i < tags.length; i++) {
+        const currentTag = tags[i];
+        const tagExist = await this.isTagExist(currentTag);
+        if (!tagExist) {
+          await this.createTag(currentTag);
+        }
+        const tagInputs = {
+          ...commonInputs,
+          ...currentTag,
+        };
+        await this.request(tagInputs);
       }
-      const tagInputs = {
-        ...commonInputs,
-        ...currentTag,
-      };
-      await this.request(tagInputs);
     }
   }
 
-  async detachTags({ serviceType, resourcePrefix, resourceIds, tags }:TagDetachTagsInputs) {
+  async detachTags({ serviceType, resourcePrefix, resourceIds, tags }: TagDetachTagsInputs) {
     const commonInputs = {
       Action: 'DetachResourcesTag',
       ResourceIds: resourceIds,
@@ -120,13 +130,16 @@ export default class Tag {
       ResourceRegion: this.region,
       ResourcePrefix: resourcePrefix,
     };
-    for (let i = 0; i < tags.length; i++) {
-      const tagInputs = {
-        ...commonInputs,
-        ...tags[i],
-      };
-      delete (tagInputs as any).TagValue;
-      await this.request(tagInputs);
+
+    if (tags) {
+      for (let i = 0; i < tags.length; i++) {
+        const tagInputs = {
+          ...commonInputs,
+          ...tags[i],
+        };
+        delete (tagInputs as any).TagValue;
+        await this.request(tagInputs);
+      }
     }
   }
 
@@ -158,7 +171,7 @@ export default class Tag {
     return true;
   }
 
-  async deploy(inputs:TagDeployInputs = {} as any) {
+  async deploy(inputs: TagDeployInputs = {}) {
     const { detachTags = [], attachTags = [], serviceType, resourceIds, resourcePrefix } = inputs;
 
     console.log(`Updating tags`);
@@ -183,9 +196,14 @@ export default class Tag {
     return true;
   }
 
-  async deployResourceTags({ tags, resourceId, serviceType, resourcePrefix }: TagDeployResourceTagsInputs) {
+  async deployResourceTags({
+    tags,
+    resourceId,
+    serviceType,
+    resourcePrefix,
+  }: TagDeployResourceTagsInputs) {
     console.log(`Adding tags for ${resourceId} in ${this.region}`);
-    const inputKeys:string[] = [];
+    const inputKeys: string[] = [];
     tags.forEach(({ TagKey }) => {
       inputKeys.push(TagKey);
     });
@@ -196,14 +214,14 @@ export default class Tag {
       resourcePrefix: resourcePrefix,
     });
 
-    const oldTagKeys:string[] = [];
+    const oldTagKeys: string[] = [];
     oldTags.forEach(({ TagKey }) => {
       oldTagKeys.push(TagKey);
     });
 
-    const detachTags:TagData[] = [];
-    const attachTags:TagData[] = [];
-    const leftTags:TagData[] = [];
+    const detachTags: TagData[] = [];
+    const attachTags: TagData[] = [];
+    const leftTags: TagData[] = [];
 
     oldTags.forEach((item) => {
       if (inputKeys.indexOf(item.TagKey) === -1) {

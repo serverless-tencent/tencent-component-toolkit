@@ -20,25 +20,25 @@ export interface TagGetScfResourceTags {
 }
 
 export interface TagAttachTagsInputs {
-    serviceType: ApiServiceType;
-    resourcePrefix: string;
-    resourceIds: string[];
-    tags: TagData[]
+    serviceType?: ApiServiceType;
+    resourcePrefix?: string;
+    resourceIds?: string[];
+    tags?: TagData[]
 }
 
 export interface TagDetachTagsInputs {
-    serviceType: ApiServiceType;
-    resourcePrefix: string;
-    resourceIds: string[];
-    tags: TagData[];
+    serviceType?: ApiServiceType;
+    resourcePrefix?: string;
+    resourceIds?: string[];
+    tags?: TagData[];
 }
 
 export interface TagDeployInputs {
-    detachTags: TagData[],
-    attachTags: TagData[],
-    serviceType: ApiServiceType,
-    resourceIds: string[],
-    resourcePrefix: string
+    detachTags?: TagData[],
+    attachTags?: TagData[],
+    serviceType?: ApiServiceType,
+    resourceIds?: string[],
+    resourcePrefix?: string
 }
 
 

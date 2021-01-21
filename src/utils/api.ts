@@ -3,11 +3,11 @@ import { deepClone } from '.';
 import { ApiServiceType } from '../modules/interface';
 import { ApiError } from './error';
 
-function isEmpty(val: any) {
+function isEmpty<T>(val: T) {
   return val === undefined || val === null || (typeof val === 'number' && isNaN(val));
 }
 
-function cleanEmptyValue(obj : any) {
+function cleanEmptyValue<T>(obj : T):T {
   const newObj:any = {};
   for (const key in obj) {
     const val = obj[key];

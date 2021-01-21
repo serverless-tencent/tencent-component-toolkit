@@ -50,13 +50,16 @@ const utils = {
     }
   },
 
-  async createVpc(capi: Capi, inputs: {
-    VpcName: string;
-    EnableMulticast?: boolean;
-    DnsServers?: string[];
-    DomainName?: string;
-    VpcId?: string;
-  }) {
+  async createVpc(
+    capi: Capi,
+    inputs: {
+      VpcName: string;
+      EnableMulticast?: boolean;
+      DnsServers?: string[];
+      DomainName?: string;
+      VpcId?: string;
+    },
+  ) {
     // clean undefined
     inputs = deepClone(inputs);
     const res = await APIS.CreateVpc(capi, inputs);
@@ -87,7 +90,18 @@ const utils = {
     });
   },
 
-  async createSubnet(capi: Capi, inputs: any) {
+  async createSubnet(
+    capi: Capi,
+    inputs: {
+      SubnetName: string;
+      SubnetId?: string;
+      EnableBroadcast?: boolean;
+      Zone?: string;
+      VpcId?: string;
+      CidrBlock?: string;
+      Tags?: string[];
+    },
+  ) {
     // clean undefined
     inputs = deepClone(inputs);
     const res = await APIS.CreateSubnet(capi, inputs);
@@ -97,7 +111,18 @@ const utils = {
     }
   },
 
-  async modifySubnet(capi: Capi, inputs: any) {
+  async modifySubnet(
+    capi: Capi,
+    inputs: {
+      SubnetName?: string;
+      SubnetId?: string;
+      EnableBroadcast?: boolean;
+      Zone?: string;
+      VpcId?: string;
+      CidrBlock?: string;
+      Tags?: string[];
+    },
+  ) {
     // clean undefined
     inputs = deepClone(inputs);
     await APIS.ModifySubnetAttribute(capi, inputs);

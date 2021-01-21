@@ -18,6 +18,9 @@ export class ApiTypeError extends Error {
   }
 }
 
+/** @deprecated 不要使用和 JS 默认错误类型重名的 TypeError，可用 ApiTypeError 代替 */
+export const TypeError = ApiTypeError;
+
 interface ApiErrorOptions {
   message: string;
   stack?: string;
