@@ -1,4 +1,5 @@
-const { ApiFactory } = require('../../utils/api');
+import { ApiFactory } from '../../utils/api';
+import { ApiServiceType } from '../interface';
 
 const ACTIONS = [
   'CreateServerlessDBInstance',
@@ -7,11 +8,11 @@ const ACTIONS = [
   'OpenServerlessDBExtranetAccess',
   'CloseServerlessDBExtranetAccess',
   'UpdateCdnConfig',
-];
+] as const;
 
 const APIS = ApiFactory({
   // debug: true,
-  serviceType: 'postgres',
+  serviceType: ApiServiceType.postgres,
   version: '2017-03-12',
   actions: ACTIONS,
 });

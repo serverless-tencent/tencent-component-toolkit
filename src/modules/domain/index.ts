@@ -1,7 +1,8 @@
+import { ActionType } from './apis';
 import { ApiServiceType } from './../interface';
 import { Capi } from '@tencent-sdk/capi';
 import { RegionType, CapiCredentials } from '../interface';
-import Apis from './apis';
+import APIS from './apis';
 
 class Domain {
   region: RegionType;
@@ -20,8 +21,8 @@ class Domain {
     });
   }
 
-  async request({ Action, ...data }:any) {
-    const result = await Apis[Action](this.capi, data);
+  async request({ Action, ...data }:{Action:ActionType, [key:string]:any}) {
+    const result = await APIS[Action](this.capi, data);
     return result;
   }
 

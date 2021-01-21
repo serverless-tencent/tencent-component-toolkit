@@ -22,11 +22,11 @@ const utils = {
   },
 
   /**
-   * get layer versiosn
+   * 获取层版本
    * @param {object} capi capi instance
    * @param {string} LayerName
    */
-  async getLayerVersions(capi:Capi, LayerName:string) {
+  async getLayerVersions(capi:Capi, LayerName:string):Promise<{} | null> {
     // get instance detail
     const res = await APIS.ListLayerVersions(capi, {
       LayerName,
@@ -39,18 +39,18 @@ const utils = {
   },
 
   /**
-   *
+   * 部署层
    * @param {object} capi capi instance
    * @param {object} params publish layer parameters
    */
   async publishLayer(capi:Capi, params:{
-    LayerName: string,
-    CompatibleRuntimes: string[],
+    LayerName?: string,
+    CompatibleRuntimes?: string[],
     Content: {
-      CosBucketName: string;
-      CosObjectName: string;
+      CosBucketName?: string;
+      CosObjectName?: string;
     },
-    Description: string,
+    Description?: string,
     licenseInfo?: string,
   }) {
     const res = await APIS.PublishLayerVersion(capi, {
@@ -64,7 +64,7 @@ const utils = {
   },
 
   /**
-   * delete layer version
+   * 删除层的指定版本
    * @param {object} capi capi instance
    * @param {*} LayerName layer name
    * @param {*} LayerVersion layer version

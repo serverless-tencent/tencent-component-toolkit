@@ -1,3 +1,4 @@
+import { ActionType } from './../cns/apis';
 import { RegionType, CapiCredentials, ApiServiceType } from './../interface';
 
 import { Capi } from '@tencent-sdk/capi';
@@ -15,7 +16,7 @@ export default class Layer {
   region: RegionType;
   credentials: CapiCredentials;
 
-  constructor(credentials:CapiCredentials = {}, region:RegionType='ap-guangzhou') {
+  constructor(credentials: CapiCredentials = {}, region: RegionType = 'ap-guangzhou') {
     this.region = region;
     this.credentials = credentials;
     this.capi = new Capi({
@@ -27,12 +28,7 @@ export default class Layer {
     });
   }
 
-  async request({ Action, ...data }: any) {
-    const result = await (APIS as any)[Action](this.capi, data);
-    return result;
-  }
-
-  async getLayerDetail(name:string, version:string) {
+  async getLayerDetail(name: string, version: string) {
     try {
       const detail = await utils.getLayerDetail(this.capi, name, version);
       return detail;
@@ -41,7 +37,8 @@ export default class Layer {
     }
   }
 
-  async deploy(inputs:LayerDeployInputs = {} as any) {
+  /** 部署层 */
+  async deploy(inputs: LayerDeployInputs = {}) {
     const outputs = {
       region: this.region,
       name: inputs.name,
@@ -49,7 +46,7 @@ export default class Layer {
       object: inputs.object,
       description: inputs.description,
       runtimes: inputs.runtimes,
-      version: ''
+      version: '',
     };
 
     const layerInputs = {
@@ -69,7 +66,7 @@ export default class Layer {
     // loop for active status
     try {
       await waitResponse({
-        callback: async () => this.getLayerDetail(inputs.name, version),
+        callback: async () => this.getLayerDetail(inputs.name!, version),
         targetProp: 'Status',
         targetResponse: 'Active',
         failResponse: ['PublishFailed'],
@@ -105,10 +102,11 @@ export default class Layer {
     return outputs;
   }
 
-  async remove(inputs:LayerDeployInputs = {} as any) {
+  /** 删除层 */
+  async remove(inputs: LayerDeployInputs = {}) {
     try {
       console.log(`Start removing layer: ${inputs.name}, version: ${inputs.version}`);
-      await utils.deleteLayerVersion(this.capi, inputs.name, inputs.version);
+      await utils.deleteLayerVersion(this.capi, inputs.name!, inputs.version!);
       console.log(`Remove layer: ${inputs.name}, version: ${inputs.version} success`);
     } catch (e) {
       console.log(e);

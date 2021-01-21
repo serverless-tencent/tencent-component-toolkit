@@ -1,15 +1,14 @@
-import { Region } from 'cos-nodejs-sdk-v5';
 import { VpcConfig } from './../cynosdb/interface';
 import { RegionType } from './../interface';
 export interface PostgresqlDeployInputs {
-  region: RegionType;
-  zone: string;
-  projectId: string;
-  dBInstanceName: string;
-  dBVersion: string;
-  dBCharset: string;
-  extranetAccess: boolean;
-  vpcConfig: VpcConfig;
+  region?: RegionType;
+  zone?: string;
+  projectId?: string;
+  dBInstanceName?: string;
+  dBVersion?: string;
+  dBCharset?: string;
+  extranetAccess?: boolean;
+  vpcConfig?: VpcConfig;
 }
 
 export interface PostgresqlUrl {
@@ -22,15 +21,15 @@ export interface PostgresqlUrl {
 };
 
 export interface PostgresqlDeployOutputs {
-  region: RegionType;
-  zone: string;
-  vpcConfig: VpcConfig;
-  dBInstanceName: string;
+  region?: RegionType;
+  zone?: string;
+  vpcConfig?: VpcConfig;
+  dBInstanceName?: string;
   dBInstanceId?: string;
   private?: PostgresqlUrl;
   public?: PostgresqlUrl;
 }
 
 export interface PostgresqlRemoveInputs {
-  dBInstanceName: string;
+  dBInstanceName?: string;
 }

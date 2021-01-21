@@ -1,7 +1,11 @@
 import { RegionType, CapiCredentials, ApiServiceType } from './../interface';
 
 import { Capi } from '@tencent-sdk/capi';
-import { PostgresqlDeployInputs, PostgresqlDeployOutputs, PostgresqlRemoveInputs } from './interface';
+import {
+  PostgresqlDeployInputs,
+  PostgresqlDeployOutputs,
+  PostgresqlRemoveInputs,
+} from './interface';
 import {
   createDbInstance,
   getDbInstanceDetail,
@@ -16,7 +20,7 @@ export default class Postgresql {
   region: RegionType;
   credentials: CapiCredentials;
 
-  constructor(credentials:CapiCredentials = {}, region:RegionType) {
+  constructor(credentials: CapiCredentials = {}, region: RegionType) {
     this.region = region || 'ap-guangzhou';
     this.credentials = credentials;
     this.capi = new Capi({
@@ -28,7 +32,8 @@ export default class Postgresql {
     });
   }
 
-  async deploy(inputs: PostgresqlDeployInputs = {} as any) {
+  /** 部署 postgresql 实例 */
+  async deploy(inputs: PostgresqlDeployInputs = {}) {
     const {
       region,
       zone,
@@ -40,15 +45,14 @@ export default class Postgresql {
       vpcConfig,
     } = inputs;
 
-    const outputs:PostgresqlDeployOutputs = {
+    const outputs: PostgresqlDeployOutputs = {
       region: region,
       zone: zone,
       vpcConfig: vpcConfig,
       dBInstanceName: dBInstanceName,
     };
 
-
-    let dbDetail = await getDbInstanceDetail(this.capi, dBInstanceName);
+    let dbDetail = await getDbInstanceDetail(this.capi, dBInstanceName!);
 
     if (dbDetail && dbDetail.DBInstanceName && dbDetail.Zone === zone) {
       const publicAccess = getDbExtranetAccess(dbDetail.DBInstanceNetInfo);
@@ -57,7 +61,7 @@ export default class Postgresql {
         console.log(`DB instance ${dBInstanceName} existed, updating`);
         // do not throw error when open public access
         try {
-          dbDetail = await toggleDbInstanceAccess(this.capi, dBInstanceName, extranetAccess);
+          dbDetail = await toggleDbInstanceAccess(this.capi, dBInstanceName!, extranetAccess!);
         } catch (e) {
           console.log(`Toggle DB Instane access failed, ${e.message}, ${e.reqId}`);
         }
@@ -72,13 +76,15 @@ export default class Postgresql {
         DBInstanceName: dBInstanceName,
         DBVersion: dBVersion,
         DBCharset: dBCharset,
-        VpcId: vpcConfig.vpcId,
-        SubnetId: vpcConfig.subnetId,
+        VpcId: vpcConfig?.vpcId,
+        SubnetId: vpcConfig?.subnetId,
       };
 
-      dbDetail = await createDbInstance(this.capi, postgresInputs);
+      dbDetail = await createDbInstance(this.capi, {
+        DBInstanceName: postgresInputs.DBInstanceName!,
+      });
       if (extranetAccess) {
-        dbDetail = await toggleDbInstanceAccess(this.capi, dBInstanceName, extranetAccess);
+        dbDetail = await toggleDbInstanceAccess(this.capi, dBInstanceName!, extranetAccess);
       }
     }
     outputs.dBInstanceId = dbDetail.DBInstanceId;
@@ -88,18 +94,20 @@ export default class Postgresql {
       DBAccountSet: [accountInfo],
       DBDatabaseList: [dbName],
     } = dbDetail;
-    let internetInfo:{ Address?: string; Ip?: string; Port: string };
-    let extranetInfo:{ Address?: string; Ip?: string; Port: string };
+    let internetInfo: { Address?: string; Ip?: string; Port: string };
+    let extranetInfo: { Address?: string; Ip?: string; Port: string };
 
-    DBInstanceNetInfo.forEach((item: { Address?: string; Ip?: string; Port: string, NetType: 'private' | 'public' }) => {
-      if (item.NetType === 'private') {
-        internetInfo = item;
-      }
-      if (item.NetType === 'public') {
-        extranetInfo = item;
-      }
-    });
-    if (vpcConfig.vpcId) {
+    DBInstanceNetInfo.forEach(
+      (item: { Address?: string; Ip?: string; Port: string; NetType: 'private' | 'public' }) => {
+        if (item.NetType === 'private') {
+          internetInfo = item;
+        }
+        if (item.NetType === 'public') {
+          extranetInfo = item;
+        }
+      },
+    );
+    if (vpcConfig?.vpcId) {
       outputs.private = formatPgUrl(internetInfo!, accountInfo, dbName);
     }
     if (extranetAccess && extranetInfo!) {
@@ -109,15 +117,15 @@ export default class Postgresql {
     return outputs;
   }
 
-  async remove(inputs:PostgresqlRemoveInputs = {} as any) {
+  /** 移除 postgresql 实例 */
+  async remove(inputs: PostgresqlRemoveInputs = {}) {
     const { dBInstanceName } = inputs;
 
-    const dbDetail = await getDbInstanceDetail(this.capi, dBInstanceName);
+    const dbDetail = await getDbInstanceDetail(this.capi, dBInstanceName!);
     if (dbDetail && dbDetail.DBInstanceName) {
       // need circle for deleting, after host status is 6, then we can delete it
-      await deleteDbInstance(this.capi, dBInstanceName);
+      await deleteDbInstance(this.capi, dBInstanceName!);
     }
     return {};
   }
 }
-

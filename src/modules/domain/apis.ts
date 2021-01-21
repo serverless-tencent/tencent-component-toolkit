@@ -1,7 +1,7 @@
 import { ApiFactory } from '../../utils/api';
 import { ApiServiceType } from '../interface';
 
-const ACTIONS = ['CheckDomain'];
+const ACTIONS = ['CheckDomain'] as const;
 
 const APIS = ApiFactory({
   // debug: true,
@@ -9,5 +9,7 @@ const APIS = ApiFactory({
   version: '2018-08-08',
   actions: ACTIONS,
 });
+
+export type ActionType = typeof ACTIONS[number];
 
 export default APIS;

@@ -9,6 +9,8 @@ const ACTIONS = [
   'ListLayerVersions',
 ] as const;
 
+export type ActionType = typeof ACTIONS[number];
+
 const APIS = ApiFactory({
   // debug: true,
   serviceType: ApiServiceType.scf,

@@ -1,15 +1,15 @@
 import { RegionType } from './../interface';
 export interface LayerDeployInputs {
-    name: string;
-    bucket: string;
-    object: string;
+    name?: string;
+    bucket?: string;
+    object?: string;
 
-    description: string;
-    runtimes: string[];
+    description?: string;
+    runtimes?: string[];
 
-    region: RegionType;
+    region?: RegionType;
 
-    version: string;
+    version?: string;
 }
 
 export interface LayerRemoveInputs {
