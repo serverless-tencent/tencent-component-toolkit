@@ -50,6 +50,8 @@ export interface CustomDomain {
   isDefaultMapping?: boolean;
   pathMappingSet: [];
   netType: string;
+
+  isForcedHttps: boolean;
 }
 
 export interface ApigwBindCustomDomainInputs {
@@ -102,6 +104,9 @@ export interface ApiEndpoint {
     path: string;
   };
   internalDomain?: string;
+  isBase64Encoded?: boolean;
+  isBase64Trigger?: boolean;
+  base64EncodedTriggerRules?: string[];
 }
 
 export interface ApiDeployerInputs {

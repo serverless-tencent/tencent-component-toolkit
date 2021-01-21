@@ -434,53 +434,35 @@ export default class Apigw {
           isForcedHttps: domainItem.isForcedHttps === true,
         };
 
-    console.log(`Start bind custom domain for service ${serviceId}`);
-    for (let domainItem of customDomains) {
-      const domainProtocol = domainItem.protocols
-        ? this.getProtocolString(domainItem.protocols)
-        : inputs.protocols;
+        try {
+          await this.request({
+            Action: 'BindSubDomain',
+            ...domainInputs,
+          });
 
-      const domainInputs = {
-        serviceId,
-        subDomain: domainItem.domain,
-        netSubDomain: subDomain,
-        certificateId: domainItem.certificateId,
-        // default isDefaultMapping is true
-        isDefaultMapping: domainItem.isDefaultMapping === false ? false : true,
-        // if isDefaultMapping is false, should append pathMappingSet config
-        pathMappingSet: domainItem.pathMappingSet || [],
-        netType: domainItem.netType ?? 'OUTER',
-        protocol: domainProtocol,
-      };
-
-      try {
-        await this.request({
-          Action: 'BindSubDomain',
-          ...domainInputs,
-        });
-
-        customDomainOutput.push({
-          isBinded: true,
-          created: true,
-          subDomain: domainItem.domain,
-          cname: subDomain,
-          url: `${domainProtocol.indexOf('https') !== -1 ? 'https' : 'http'}://${
-            domainItem.domain
-          }`,
-        });
-        console.log(`Custom domain for service ${serviceId} created successfullly.`);
-        console.log(`Please add CNAME record ${subDomain} for ${domainItem.domain}.`);
-      } catch (e) {
-        // User hasn't add cname dns record
-        if (e.code === 'FailedOperation.DomainResolveError') {
           customDomainOutput.push({
-            isBinded: false,
+            isBinded: true,
+            created: true,
             subDomain: domainItem.domain,
             cname: subDomain,
-            message: `您的自定义域名还未生效，请给域名 ${domainItem.domain} 添加 CNAME 记录 ${subDomain}，等待解析生效后，再次运行 'sls deploy' 完成自定义域名的配置`,
+            url: `${domainProtocol.indexOf('https') !== -1 ? 'https' : 'http'}://${
+              domainItem.domain
+            }`,
           });
-        } else {
-          throw e;
+          console.log(`Custom domain for service ${serviceId} created successfullly.`);
+          console.log(`Please add CNAME record ${subDomain} for ${domainItem.domain}.`);
+        } catch (e) {
+          // User hasn't add cname dns record
+          if (e.code === 'FailedOperation.DomainResolveError') {
+            customDomainOutput.push({
+              isBinded: false,
+              subDomain: domainItem.domain,
+              cname: subDomain,
+              message: `您的自定义域名还未生效，请给域名 ${domainItem.domain} 添加 CNAME 记录 ${subDomain}，等待解析生效后，再次运行 'sls deploy' 完成自定义域名的配置`,
+            });
+          } else {
+            throw e;
+          }
         }
       }
     }
@@ -715,7 +697,7 @@ export default class Apigw {
     return apiDetail!;
   }
 
-  async getApiById({ serviceId, apiId }) {
+  async getApiById({ serviceId, apiId }: {serviceId: string, apiId: string}) {
     const apiDetail = await this.request({
       Action: 'DescribeApi',
       serviceId: serviceId,
@@ -756,22 +738,24 @@ export default class Apigw {
       responseType: endpoint.responseType || 'HTML',
       enableCORS: endpoint.enableCORS === true,
       isBase64Encoded: endpoint.isBase64Encoded === true,
+      isBase64Trigger: undefined as undefined | boolean,
+      base64EncodedTriggerRules: undefined as undefined | string[],
       oauthConfig: endpoint.oauthConfig,
-      authRelationApiId: endpoint.authRelationApiId
+      authRelationApiId: endpoint.authRelationApiId,
     };
 
     this.marshalApiInput(endpoint, apiInputs);
 
-    let apiDetail:{
-      ApiId?: string,
-      InternalDomain?: string,
+    let apiDetail: {
+      ApiId?: string;
+      InternalDomain?: string;
     };
 
     if (endpoint.apiId) {
       apiDetail = await this.getApiById({ serviceId, apiId: endpoint.apiId });
     }
 
-    if (!(apiDetail!)) {
+    if (!apiDetail!) {
       apiDetail = await this.getApiByPathAndMethod({
         serviceId,
         path: endpoint.path,
