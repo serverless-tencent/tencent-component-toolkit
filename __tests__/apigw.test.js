@@ -16,7 +16,7 @@ describe('apigw', () => {
     netTypes: ['OUTER'],
     // customDomains: [
     //   {
-    //     domain: 'test.yugasun.com',
+    //     domain: 'test.yuga.chat',
     //     // TODO: change to your certId
     //     certificateId: 'cWOJJjax',
     //     isDefaultMapping: false,
@@ -27,6 +27,7 @@ describe('apigw', () => {
     //       },
     //     ],
     //     protocols: ['http', 'https'],
+    //     isForcedHttps: true
     //   },
     // ],
     usagePlan: {
@@ -48,6 +49,18 @@ describe('apigw', () => {
         function: {
           functionName: 'serverless-unit-test',
         },
+        isBase64Encoded: true,
+        isBase64Trigger: true,
+        base64EncodedTriggerRules: [
+          {
+            name: 'Accept',
+            value: ['application/x-vpeg005', 'application/xhtml+xml'],
+          },
+          {
+            name: 'Content_Type',
+            value: ['application/x-vpeg005', 'application/xhtml+xml'],
+          },
+        ],
       },
       {
         path: '/mo',
@@ -162,6 +175,7 @@ describe('apigw', () => {
           created: true,
           authType: 'NONE',
           businessType: 'NORMAL',
+          isBase64Encoded: true,
         },
         {
           path: '/mo',
@@ -172,6 +186,7 @@ describe('apigw', () => {
           created: true,
           authType: 'NONE',
           businessType: 'NORMAL',
+          isBase64Encoded: false,
         },
         {
           path: '/auto',
@@ -182,6 +197,7 @@ describe('apigw', () => {
           created: true,
           authType: 'NONE',
           businessType: 'NORMAL',
+          isBase64Encoded: false,
         },
         {
           path: '/ws',
@@ -192,6 +208,7 @@ describe('apigw', () => {
           created: true,
           authType: 'NONE',
           businessType: 'NORMAL',
+          isBase64Encoded: false,
         },
         {
           path: '/wsf',
@@ -204,6 +221,7 @@ describe('apigw', () => {
           created: true,
           authType: 'NONE',
           businessType: 'NORMAL',
+          isBase64Encoded: false,
         },
         {
           path: '/oauth',
@@ -214,6 +232,7 @@ describe('apigw', () => {
           authType: 'OAUTH',
           businessType: 'OAUTH',
           internalDomain: expect.any(String),
+          isBase64Encoded: false,
         },
         {
           path: '/oauthwork',
@@ -225,6 +244,7 @@ describe('apigw', () => {
           businessType: 'NORMAL',
           authRelationApiId: expect.stringContaining('api-'),
           internalDomain: expect.any(String),
+          isBase64Encoded: false,
         },
       ],
     });
@@ -273,6 +293,7 @@ describe('apigw', () => {
             },
             usagePlanId: expect.stringContaining('usagePlan-'),
           },
+          isBase64Encoded: true,
         },
         {
           path: '/mo',
@@ -283,6 +304,7 @@ describe('apigw', () => {
           created: true,
           authType: 'NONE',
           businessType: 'NORMAL',
+          isBase64Encoded: false,
         },
         {
           path: '/auto',
@@ -293,6 +315,7 @@ describe('apigw', () => {
           created: true,
           authType: 'NONE',
           businessType: 'NORMAL',
+          isBase64Encoded: false,
         },
         {
           path: '/ws',
@@ -303,6 +326,7 @@ describe('apigw', () => {
           authType: 'NONE',
           businessType: 'NORMAL',
           created: true,
+          isBase64Encoded: false,
         },
         {
           path: '/wsf',
@@ -315,6 +339,7 @@ describe('apigw', () => {
           authType: 'NONE',
           businessType: 'NORMAL',
           created: true,
+          isBase64Encoded: false,
         },
         {
           path: '/oauth',
@@ -325,6 +350,7 @@ describe('apigw', () => {
           authType: 'OAUTH',
           businessType: 'OAUTH',
           internalDomain: expect.any(String),
+          isBase64Encoded: false,
         },
         {
           path: '/oauthwork',
@@ -336,6 +362,7 @@ describe('apigw', () => {
           businessType: 'NORMAL',
           authRelationApiId: expect.stringContaining('api-'),
           internalDomain: expect.any(String),
+          isBase64Encoded: false,
         },
       ],
     });

@@ -53,7 +53,7 @@ describe('Scf', () => {
     cls: {
       cls: {
         parameters: {
-          topicId: '31d3ce01-228b-42f5-aab5-7f740cc2fb11',
+          topicId: '6e60b6c7-a98e-4fc8-8ba8-bdfe4ab9c245',
           qualifier: '$DEFAULT',
           maxWait: 60,
           maxSize: 100,
