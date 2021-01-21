@@ -6,7 +6,8 @@ const {
   IsolateCluster,
   ResetAccountPassword,
   DescribeServerlessInstanceSpecs,
-  OfflineCluster,
+  // OfflineCluster,
+  OfflineInstance,
   DescribeInstances,
   OpenWan,
   CloseWan,
@@ -248,39 +249,44 @@ async function isolateCluster(capi, clusterId) {
  * @param {*} clusterId cluster id
  * @param {*} instanceId instance id
  */
-async function offlineInstance(capi, clusterId, instanceId) {
-  console.log(`Start offlining CynosDB instance id: ${instanceId}`);
-  await OfflineCluster(capi, {
-    ClusterId: clusterId,
-    InstanceIdList: [instanceId],
-  });
-  const detail = await waitResponse({
-    callback: async () => getInstanceDetail(capi, clusterId),
-    targetResponse: undefined,
-    timeout: TIMEOUT,
-  });
-  console.log(`Offlined CynosDB instance id: ${instanceId}`);
-  return detail;
-}
-
-/**
- * offline db cluster
- * @param {object} capi capi client
- * @param {string} clusterId cluster id
- */
 async function offlineCluster(capi, clusterId) {
-  console.log(`Start offlining CynosDB cluster id: ${clusterId}`);
-  await OfflineCluster(capi, {
+  // 1. get cluster instances
+  const instances = await getClusterInstances(capi, clusterId);
+  const instanceIds = instances.map((item) => item.InstanceId);
+  console.log(`Start offlining CynosDB id: ${clusterId}`);
+
+  await OfflineInstance(capi, {
     ClusterId: clusterId,
+    InstanceIdList: instanceIds,
   });
+
   const detail = await waitResponse({
     callback: async () => getClusterDetail(capi, clusterId),
     targetResponse: undefined,
     timeout: TIMEOUT,
   });
-  console.log(`Offlined CynosDB cluster id: ${clusterId}.`);
+  console.log(`Offlined CynosDB id: ${clusterId}`);
   return detail;
 }
+
+// /**
+//  * offline db cluster
+//  * @param {object} capi capi client
+//  * @param {string} clusterId cluster id
+//  */
+// async function offlineCluster(capi, clusterId) {
+//   console.log(`Start offlining CynosDB cluster id: ${clusterId}`);
+//   await OfflineCluster(capi, {
+//     ClusterId: clusterId,
+//   });
+//   const detail = await waitResponse({
+//     callback: async () => getClusterDetail(capi, clusterId),
+//     targetResponse: undefined,
+//     timeout: TIMEOUT,
+//   });
+//   console.log(`Offlined CynosDB cluster id: ${clusterId}.`);
+//   return detail;
+// }
 
 async function resetPwd(capi, inputs) {
   console.log(
@@ -358,7 +364,6 @@ module.exports = {
   getClusterInstances,
   isolateCluster,
   offlineCluster,
-  offlineInstance,
   getInstanceDetail,
   openPublicAccess,
   closePublicAccess,

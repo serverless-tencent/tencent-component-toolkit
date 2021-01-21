@@ -4,7 +4,6 @@ const {
   sleep,
   generatePwd,
   isValidPwd,
-  offlineCluster,
 } = require('../src/modules/cynosdb/utils');
 
 describe('Cynosdb', () => {
@@ -186,12 +185,6 @@ describe('Cynosdb', () => {
 
     const detail = await getClusterDetail(client.capi, clusterId);
     expect(res).toEqual(true);
-    expect(detail.Status).toBe('isolated');
-  });
-
-  test('[SERVERLESS] offline', async () => {
-    await sleep(300);
-    const res = await offlineCluster(client.capi, clusterId);
-    expect(res).toBeUndefined();
+    expect(detail).toBeUndefined();
   });
 });
