@@ -8,6 +8,11 @@ export async function getLogsetByName(cls: Cls, data: { name: string }) {
   return exist;
 }
 
+/**
+ * 创建 cls 日志集
+ * @param cls 
+ * @param data 
+ */
 export async function createLogset(cls: Cls, data: { name: string; period: number }) {
   console.log(`Creating cls ${data.name}`);
   const res = await cls.createLogset({
@@ -39,6 +44,11 @@ export async function getTopicByName(cls: Cls, data: { name: string; logsetId: s
   return exist;
 }
 
+/**
+ * 创建 cls 主题
+ * @param cls 
+ * @param data 
+ */
 export async function createTopic(cls: Cls, data: { name: string; logsetId: string }) {
   console.log(`Creating cls topic ${data.name}`);
   const res = await cls.createTopic({
@@ -85,7 +95,7 @@ export async function updateIndex(
 }
 
 /**
- * get cls trigger
+ * 获取 cls trigger
  * @param {ClsInstance} cls
  * @param {Data} data
  *  Data:
@@ -128,7 +138,7 @@ export async function getClsTrigger(
 }
 
 /**
- * create cls trigger
+ * 创建 cls trigger
  * @param {ClsInstance} cls
  * @param {Data} data
  *  Data:
@@ -167,7 +177,7 @@ export async function createClsTrigger(
 }
 
 /**
- * update cls trigger
+ * 更新 cls trigger
  * @param {ClsInstance} cls
  * @param {Data} data
  *  Data:

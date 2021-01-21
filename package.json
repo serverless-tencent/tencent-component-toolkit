@@ -87,6 +87,7 @@
     "cos-nodejs-sdk-v5": "^2.8.6",
     "lodash": "^4.17.20",
     "moment": "^2.25.3",
-    "tencent-cloud-sdk": "^1.0.5"
+    "tencent-cloud-sdk": "^1.0.5",
+    "type-fest": "^0.20.2"
   }
 }

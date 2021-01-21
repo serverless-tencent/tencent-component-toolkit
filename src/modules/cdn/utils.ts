@@ -1,3 +1,5 @@
+import { CertInfo } from './interface';
+import { PascalCasedProps } from './../../utils/index';
 import { Capi } from '@tencent-sdk/capi';
 import fs from 'fs';
 import path from 'path';
@@ -7,7 +9,11 @@ export const ONE_SECOND = 1000;
 // timeout 5 minutes
 export const TIMEOUT = 5 * 60 * ONE_SECOND;
 
-export function getPathContent(target: string) {
+/**
+ * 获取证书字符串所代表路径内容
+ * @param target 
+ */
+export function getCertPathContent(target: string) {
   let content = '';
 
   try {
@@ -26,13 +32,13 @@ export function getPathContent(target: string) {
   return content;
 }
 
+
+
 /**
- * format certinfo
+ * 格式化证书内容
  * @param {object} certInfo cert info
  */
-export function formatCertInfo(certInfo: {Certificate: string, PrivateKey: string, remarks: string}): {Certificate: string, PrivateKey: string, Message: string};
-export function formatCertInfo(certInfo: {CertId: string}): {CertId: string};
-export function formatCertInfo(certInfo: {CertId: string} | {Certificate: string, PrivateKey: string, remarks: string}):any {
+export function formatCertInfo(certInfo: PascalCasedProps<CertInfo>):any {
   /** 根据 CertId 获取 */
   const idInfo = certInfo as {CertId: string};
   if (idInfo.CertId) {
@@ -42,14 +48,17 @@ export function formatCertInfo(certInfo: {CertId: string} | {Certificate: string
   }
 
   /** 从本地路径获取 */
-  const pathInfo = certInfo as {Certificate: string, PrivateKey: string, remarks: string};
+  const pathInfo = certInfo as {Certificate: string, PrivateKey: string, Remarks: string};
   return {
-    Certificate: getPathContent(pathInfo.Certificate),
-    PrivateKey: getPathContent(pathInfo.PrivateKey),
-    Message: pathInfo.remarks ?? '',
+    Certificate: getCertPathContent(pathInfo.Certificate),
+    PrivateKey: getCertPathContent(pathInfo.PrivateKey),
+    // FIXME: remarks 必定是大写
+    // Message: pathInfo.remarks,
+    Message: pathInfo.Remarks ?? '',
   };
 }
 
+/** 格式化源站信息 */
 export function formatOrigin(origin: {
   Origins: string[],
   OriginType: string,
@@ -87,14 +96,17 @@ export function formatOrigin(origin: {
   return originInfo;
 }
 
+/** 格式化缓存信息 */
 export function formatCache(caches: {type: string, rule: string, time: string}[]) {
   return caches.map((cache) => [cache.type, cache.rule, cache.time]);
 }
 
+/** 格式化回源 Refer 信息 */
 export function formatRefer(refer: {type: string, list: string[], empty: boolean}) {
   return refer ? [refer.type, refer.list, refer.empty] : [];
 }
 
+/** 从 CDN 中获取域名 */
 export async function getCdnByDomain(capi: Capi, domain:string) {
   const { Domains } = await APIS.DescribeDomains(capi, {
     Filters: [{ Name: 'domain', Value: [domain] }],
@@ -106,17 +118,7 @@ export async function getCdnByDomain(capi: Capi, domain:string) {
   return undefined;
 }
 
-export function flushEmptyValue<T extends Record<string | number, any>>(obj: T) {
-  const newObj:T = {} as T;
-  Object.keys(obj).forEach((key) => {
-    if (obj[key] !== undefined) {
-      newObj[key as any] = obj[key];
-    }
-  });
-
-  return newObj;
-}
-
+/** 启用 CDN 服务 */
 export async function openCdnService(capi: Capi) {
   try {
     await APIS.OpenCdnService(capi, {

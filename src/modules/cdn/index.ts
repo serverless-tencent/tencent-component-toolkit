@@ -1,7 +1,7 @@
 import { ApiServiceType } from './../interface';
 import { Capi } from '@tencent-sdk/capi';
 import { sleep, waitResponse } from '@ygkit/request';
-import { camelCaseProperty } from '../../utils';
+import { pascalCaseProps, deepClone } from '../../utils';
 import { ApiTypeError } from '../../utils/error';
 import { CapiCredentials } from '../interface';
 import APIS from './apis';
@@ -11,7 +11,6 @@ import {
   formatCertInfo,
   formatOrigin,
   getCdnByDomain,
-  flushEmptyValue,
   openCdnService,
 } from './utils';
 
@@ -44,7 +43,7 @@ export default class Cdn {
     }
   }
 
-  async pushCdnUrls(urls: string, userAgent = 'flush', area = 'mainland') {
+  async pushCdnUrls(urls: string[], userAgent = 'flush', area = 'mainland') {
     console.log(`Pushing CDN caches...`);
     try {
       await APIS.PushUrlsCache(this.capi, {
@@ -73,13 +72,13 @@ export default class Cdn {
     await openCdnService(this.capi);
     const { oldState = {} } = inputs;
     delete inputs.oldState;
-    const pascalInputs = camelCaseProperty(inputs);
+    const pascalInputs = pascalCaseProps(inputs);
 
     // only refresh cdn
     if (pascalInputs.OnlyRefresh === true) {
       const domainExist = await getCdnByDomain(this.capi, pascalInputs.Domain);
       // refresh cdn urls
-      if (domainExist && pascalInputs.RefreshCdn && pascalInputs.RefreshCdn.Urls) {
+      if (domainExist && pascalInputs.RefreshCdn?.Urls) {
         await this.purgeCdnUrls(pascalInputs.RefreshCdn.Urls, pascalInputs.RefreshCdn.FlushType);
       }
       return {
@@ -88,11 +87,11 @@ export default class Cdn {
         domain: pascalInputs.Domain,
         origins: pascalInputs.Origin && pascalInputs.Origin.Origins,
         cname: `${pascalInputs.Domain}.cdn.dnsv1.com`,
-        refreshUrls: pascalInputs.RefreshCdn.Urls,
+        refreshUrls: pascalInputs.RefreshCdn?.Urls,
       };
     }
 
-    const cdnInputs = flushEmptyValue({
+    const cdnInputs = deepClone({
       ...pascalInputs,
       Origin: formatOrigin(pascalInputs.Origin),
     });
@@ -109,8 +108,8 @@ export default class Cdn {
 
     if (pascalInputs.Https) {
       cdnInputs.Https = {
-        Switch: pascalInputs.Https.Switch || 'on',
-        Http2: pascalInputs.Https.Http2 || 'off',
+        Switch: pascalInputs.Https.Switch ?? 'on',
+        Http2: pascalInputs.Https.Http2 ?? 'off',
         OcspStapling: pascalInputs.Https.OcspStapling || 'off',
         VerifyClient: pascalInputs.Https.VerifyClient || 'off',
         CertInfo: formatCertInfo(pascalInputs.Https.CertInfo),
@@ -118,7 +117,7 @@ export default class Cdn {
     }
     if (pascalInputs.ForceRedirect && pascalInputs.Https) {
       cdnInputs.ForceRedirect = {
-        Switch: pascalInputs.ForceRedirect.Switch || 'on',
+        Switch: pascalInputs.ForceRedirect.Switch ?? 'on',
         RedirectStatusCode: pascalInputs.ForceRedirect.RedirectStatusCode || 301,
         RedirectType: 'https',
       };
@@ -141,7 +140,7 @@ export default class Cdn {
         console.log('Updating...');
         // TODO: when update, VIP user can not set ServiceType parameter, need CDN api optimize
         if (cdnInputs.ServiceType && cdnInputs.ServiceType !== cdnInfo.ServiceType) {
-          cdnInputs.ServiceType = ApiServiceType;
+          cdnInputs.ServiceType = inputs.serviceType;
         }
         await APIS.UpdateDomainConfig(this.capi, cdnInputs);
         outputs.resourceId = cdnInfo.ResourceId;
@@ -150,7 +149,7 @@ export default class Cdn {
         console.log(`Adding CDN domain ${pascalInputs.Domain}...`);
         try {
           // if not config ServiceType, default to web
-          cdnInputs.ServiceType = ApiServiceType || 'web';
+          cdnInputs.ServiceType = inputs.serviceType ?? 'web';
           await APIS.AddCdnDomain(this.capi, cdnInputs);
         } catch (e) {
           if (e.code === 'ResourceNotFound.CdnUserNotExists') {

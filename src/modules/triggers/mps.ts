@@ -3,7 +3,7 @@ import { FunctionInfo } from './../scf/interface';
 import Scf from '../scf';
 import { TriggerInputs, MpsTriggerInputsParams } from './interface';
 import { MPS } from './apis';
-import { camelCaseProperty } from '../../utils/index';
+import { pascalCaseProps } from '../../utils/index';
 import BaseTrigger from './base';
 import { CapiCredentials, RegionType } from '../interface';
 
@@ -19,7 +19,7 @@ export default class MpsTrigger extends BaseTrigger<MpsTriggerInputsParams> {
   }
   
   async request({ Action, ...data }: any) {
-    const result = await MPS[Action](this.capi, camelCaseProperty(data));
+    const result = await MPS[Action](this.capi, pascalCaseProps(data));
     return result;
   }
 

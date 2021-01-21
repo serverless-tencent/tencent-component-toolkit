@@ -14,7 +14,7 @@ const ACTIONS = [
   'PurgePathCache',
 ] as const;
 
-type ActionType = typeof ACTIONS[number];
+export type ActionType = typeof ACTIONS[number];
 
 const APIS = ApiFactory<typeof ACTIONS>({
   // debug: true,

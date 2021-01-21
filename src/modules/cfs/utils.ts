@@ -17,7 +17,7 @@ export interface CreateCfsParams {
   MountIP?: string;
 }
 
-const apis = {
+const utils = {
   async getCfs(capi: Capi, FileSystemId:string) {
     try {
       const {
@@ -131,4 +131,4 @@ const apis = {
   },
 };
 
-export default apis;
+export default utils;

@@ -1,7 +1,7 @@
 import { RegionType } from '../interface';
 import { Capi } from '@tencent-sdk/capi';
 import { ApigwTrigger } from '../triggers';
-import { uniqueArray, camelCaseProperty, isArray, deepClone } from '../../utils';
+import { uniqueArray, pascalCaseProps, isArray, deepClone } from '../../utils';
 import { ApiTypeError } from '../../utils/error';
 import { CapiCredentials, ApiServiceType } from '../interface';
 import APIS, { ActionType } from './apis';
@@ -55,7 +55,7 @@ export default class Apigw {
   }
 
   private async request({ Action, ...data }: { Action: ActionType; [key: string]: any }) {
-    const result = await APIS[Action](this.capi, camelCaseProperty(data));
+    const result = await APIS[Action](this.capi, pascalCaseProps(data));
     return result as never;
   }
 
@@ -67,7 +67,7 @@ export default class Apigw {
     [key: string]: any;
   }) {
     try {
-      await APIS[Action](this.capi, camelCaseProperty(data));
+      await APIS[Action](this.capi, pascalCaseProps(data));
     } catch (e) {
       // no op
     }
