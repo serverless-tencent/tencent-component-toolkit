@@ -2,7 +2,7 @@ import { CapiCredentials, RegionType, ApiServiceType } from './../interface';
 import { Capi } from '@tencent-sdk/capi';
 import APIS, { ActionType } from './apis';
 import { getRealType, deepClone } from '../../utils';
-import { RecordInputs, CnsDeployInputs, RecordOutputs, CnsDeployOutputs } from './interface';
+import { CnsRecordInputs, CnsDeployInputs, CnsRecordOutputs, CnsDeployOutputs } from './interface';
 
 export default class Cns {
   region: RegionType;
@@ -27,7 +27,7 @@ export default class Cns {
     return result;
   }
 
-  haveRecord(newRecord: RecordInputs, historyRecords: RecordInputs[]) {
+  haveRecord(newRecord: CnsRecordInputs, historyRecords: CnsRecordInputs[]) {
     if (newRecord.recordType === 'CNAME' && newRecord.value.slice(-1) !== '.') {
       newRecord.value = `${newRecord.value}.`;
     }
@@ -43,7 +43,7 @@ export default class Cns {
     return exist;
   }
 
-  async getAllRecordList(domain: string): Promise<RecordOutputs[]> {
+  async getAllRecordList(domain: string): Promise<CnsRecordOutputs[]> {
     const maxLength = 100;
     const reqOptions = {
       Action: 'RecordList' as const,
@@ -53,7 +53,7 @@ export default class Cns {
     };
 
     let loopTimes = 0;
-    const loopGetList = async (offset: number): Promise<RecordOutputs[]> => {
+    const loopGetList = async (offset: number): Promise<CnsRecordOutputs[]> => {
       reqOptions.offset = offset;
       try {
         const { records } = await this.request(reqOptions);
@@ -77,7 +77,7 @@ export default class Cns {
     const output: CnsDeployOutputs = { records: [] };
     const allList = await this.getAllRecordList(inputs.domain);
     const existRecords = allList.map(
-      (item): RecordInputs => ({
+      (item): CnsRecordInputs => ({
         domain: inputs.domain,
         subDomain: item.name,
         recordType: item.type,
@@ -89,7 +89,7 @@ export default class Cns {
       }),
     );
 
-    const newRecords: RecordInputs[] = [];
+    const newRecords: CnsRecordInputs[] = [];
     inputs.records.forEach((item) => {
       const tempSubDomain =
         getRealType(item.subDomain) === 'String' ? [item.subDomain] : item.subDomain;
@@ -155,7 +155,7 @@ export default class Cns {
     return output;
   }
 
-  async remove(inputs: { records: RecordInputs[] } = {} as any) {
+  async remove(inputs: { records: CnsRecordInputs[] } = {} as any) {
     const { records = [] } = inputs;
 
     if (records.length > 0) {

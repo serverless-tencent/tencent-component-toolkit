@@ -13,6 +13,8 @@ const ACTIONS = [
   'DeleteMountTarget',
 ] as const;
 
+export type ActionType = typeof ACTIONS[number];
+
 /** 文件存储服务 (CFS) APIS */
 const APIS = ApiFactory({
   // debug: true,

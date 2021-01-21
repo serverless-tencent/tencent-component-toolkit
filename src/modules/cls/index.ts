@@ -101,7 +101,8 @@ export default class Cls {
         exist = true;
         console.log(`Updating cls topic ${topicId}`);
         const res = await this.cls.updateTopic({
-          // logset_id: '//FIXME 需要但是没有',
+          // FIXME: SDK 需要 logset_id, 但是没有
+          // logset_id: '',
           topic_id: topicId,
           topic_name: inputs.topic,
         } as any);

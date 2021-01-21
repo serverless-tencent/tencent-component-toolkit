@@ -17,6 +17,7 @@ const ACTIONS = [
   'CloseWan',
   'DescribeClusterInstanceGrps',
 ] as const;
+
 const APIS = ApiFactory({
   // debug: true,
   serviceType: ApiServiceType.cynosdb,

@@ -1,4 +1,4 @@
-export interface RecordInputs {
+export interface CnsRecordInputs {
     value: string;
     domain: string;
     subDomain: string;
@@ -10,7 +10,7 @@ export interface RecordInputs {
     status?: string;
 }
 
-export interface RecordOutputs {
+export interface CnsRecordOutputs {
     value: string;
     name: string;
     type: string;
@@ -24,7 +24,7 @@ export interface RecordOutputs {
     recordId: string;
 }
 
-export interface subDomain {
+export interface CnsSubDomain {
     subDomain: string,
     recordType: string,
 
@@ -41,9 +41,9 @@ export interface CnsDeployInputs {
         line: string,
         status: string,
     },
-    records: RecordInputs[],
+    records: CnsRecordInputs[],
 }
 
 export interface CnsDeployOutputs {
-    records: RecordInputs[]
+    records: CnsRecordInputs[]
 }

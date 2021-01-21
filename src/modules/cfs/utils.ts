@@ -18,7 +18,7 @@ export interface CreateCfsParams {
 }
 
 const utils = {
-  async getCfs(capi: Capi, FileSystemId:string) {
+  async getCfs(capi: Capi, FileSystemId: string) {
     try {
       const {
         FileSystems: [detail],
@@ -32,7 +32,7 @@ const utils = {
     return undefined;
   },
 
-  async createCfs(capi: Capi, params:CreateCfsParams) {
+  async createCfs(capi: Capi, params: CreateCfsParams) {
     const res = await APIS.CreateCfsFileSystem(capi, params);
 
     const detail = await waitResponse({
@@ -44,7 +44,7 @@ const utils = {
     return detail;
   },
 
-  async deleteMountTarget(capi:Capi, FileSystemId:string, MountTargetId:string) {
+  async deleteMountTarget(capi: Capi, FileSystemId: string, MountTargetId: string) {
     try {
       await APIS.DeleteMountTarget(capi, {
         FileSystemId,
@@ -92,15 +92,19 @@ const utils = {
     }
   },
 
-  async updateCfs(capi: Capi, FileSystemId: string, params: any) {
-    // update fs name
+  async updateCfs(
+    capi: Capi,
+    FileSystemId: string,
+    params: { fsName?: string; pGroupId?: string; fsLimit?: number },
+  ) {
+    // 更新 CFS 名称
     if (params.fsName) {
       await APIS.UpdateCfsFileSystemName(capi, {
         FileSystemId,
         FsName: params.fsName,
       });
     }
-    // update priority group
+    // 更新 CFS 权限组
     if (params.pGroupId) {
       await APIS.UpdateCfsFileSystemPGroup(capi, {
         FileSystemId,
@@ -114,7 +118,7 @@ const utils = {
         timeout: TIMEOUT,
       });
     }
-    // update fs storage limit
+    // 更新 CFS 存储限制
     if (params.fsLimit) {
       await APIS.UpdateCfsFileSystemSizeLimit(capi, {
         FileSystemId,

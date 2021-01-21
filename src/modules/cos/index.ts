@@ -35,17 +35,36 @@ import fs from 'fs';
 import { traverseDirSync } from '../../utils';
 import { ApiTypeError, ApiError } from '../../utils/error';
 
-function constructCosError(type: string, err: any) {
+function constructCosError(
+  type: string,
+  err: {
+    error: {
+      Code: string;
+      Message: string;
+      Stack: string;
+      RequestId: string;
+    };
+    stack: string;
+  },
+) {
   const e = convertCosError(err);
   return new ApiError({ type, ...e });
 }
 
 /** 将 Cos error 转为统一的形式 */
-function convertCosError(err: any) {
+function convertCosError(err: {
+  error: {
+    Code: string;
+    Message: string;
+    Stack: string;
+    RequestId: string;
+  };
+  stack: string;
+}) {
   const e = {
     code: err.error.Code,
-    message: err.error.message,
-    stack: err.stack,
+    message: err.error.Message,
+    stack: err.stack ?? err.error.Stack,
     reqId: err.error.RequestId,
   };
   return e;
@@ -69,10 +88,10 @@ export default class Cos {
     this.cosClient = new COS(this.credentials);
   }
 
-  async createBucket(inputs: CosCreateBucketInputs = {} as any) {
+  async createBucket(inputs: CosCreateBucketInputs = {}) {
     console.log(`Creating bucket ${inputs.bucket}`);
     const createParams = {
-      Bucket: inputs.bucket,
+      Bucket: inputs.bucket!,
       Region: this.region,
     };
 
@@ -117,10 +136,10 @@ export default class Cos {
     }
   }
 
-  async setAcl(inputs: CosSetAclInputs = {} as any) {
+  async setAcl(inputs: CosSetAclInputs = {}) {
     console.log(`Setting acl for bucket ${inputs.bucket}`);
     const setAclParams: PutBucketAclParams = {
-      Bucket: inputs.bucket,
+      Bucket: inputs.bucket!,
       Region: this.region,
     };
 
@@ -144,10 +163,10 @@ export default class Cos {
         Grants: {
           Permission: acp?.grants?.permission!,
           // FIXME: dont have URI
-          Grantee: <any>{
+          Grantee: {
             ID: acp?.grants?.grantee?.id!,
             DisplayName: acp.grants?.grantee?.displayName!,
-            URI: acp?.grants?.grantee?.uri!,
+            // URI: acp?.grants?.grantee?.uri!,
           },
         },
       };
@@ -160,11 +179,12 @@ export default class Cos {
     }
   }
 
-  async setPolicy(inputs: CosSetPolicyInputs = {} as any) {
+  async setPolicy(inputs: CosSetPolicyInputs = {}) {
     console.log(`Setting policy for bucket ${inputs.bucket}`);
     const setPolicyParams: PutBucketPolicyParams = {
       Policy: inputs.policy!,
-      Bucket: inputs.bucket,
+      Bucket: inputs.bucket!
+      ,
       Region: this.region,
     };
 
@@ -175,10 +195,10 @@ export default class Cos {
     }
   }
 
-  async setTags(inputs: CosSetTagInputs = {} as any) {
+  async setTags(inputs: CosSetTagInputs = {}) {
     console.log(`Setting tags for bucket ${inputs.bucket}`);
 
-    const tags = inputs.tags.map((item) => {
+    const tags = inputs.tags?.map((item) => {
       return {
         Key: item.key,
         Value: item.value,
@@ -186,13 +206,14 @@ export default class Cos {
     });
 
     const setTagsParams: PutBucketTaggingParams = {
-      Bucket: inputs.bucket,
+      Bucket: inputs.bucket!,
       Region: this.region,
       // FIXME: mismatch type
-      Tagging: {
-        Tags: tags,
-      },
-    } as any;
+      // Tagging: {
+      //   Tags: tags,
+      // },
+      Tags: tags!,
+    };
 
     try {
       await this.cosClient.putBucketTagging(setTagsParams);
@@ -201,11 +222,11 @@ export default class Cos {
     }
   }
 
-  async deleteTags(inputs: CosDeleteTagsInputs = {} as any) {
+  async deleteTags(inputs: CosDeleteTagsInputs = {}) {
     console.log(`Removing tags for bucket ${inputs.bucket}`);
     try {
       await this.cosClient.deleteBucketTagging({
-        Bucket: inputs.bucket,
+        Bucket: inputs.bucket!,
         Region: this.region,
       });
     } catch (err) {
@@ -213,26 +234,33 @@ export default class Cos {
     }
   }
 
-  async setCors(inputs: CosSetCorsInputs = {} as any) {
+  async setCors(inputs: CosSetCorsInputs = {}) {
     console.log(`Setting lifecycle for bucket ${inputs.bucket}`);
     const cors: CORSRule[] = [];
-    for (let i = 0; i < inputs.cors.length; i++) {
-      // FIXME: mismatch typing
-      const tempCors: CORSRule = {
-        AllowedMethods: inputs.cors[i].allowedMethods,
-        AllowedOrigins: inputs.cors[i].allowedOrigins,
-      } as any;
 
-      // FIXME:
-      (tempCors as any).MaxAgeSeconds = String(inputs.cors[i].maxAgeSeconds);
-      (tempCors as any).ID = inputs.cors[i].id;
-      (tempCors as any).AllowedHeaders = inputs.cors[i].allowedHeaders;
-      (tempCors as any).ExposeHeaders = inputs.cors[i].exposeHeaders;
+    if (inputs.cors) {
+      for (let i = 0; i < inputs.cors?.length; i++) {
+        // FIXME: mismatch typing
+        const tempCors: CORSRule = {
+          // AllowedMethods: inputs.cors[i].allowedMethods,
+          // AllowedOrigins: inputs.cors[i].allowedOrigins,
+          AllowedMethod: inputs.cors[i].allowedMethods,
+          AllowedOrigin: inputs.cors[i].allowedOrigins,
+        };
 
-      cors.push(tempCors);
+        // FIXME:
+        tempCors.MaxAgeSeconds = Number(inputs.cors[i].maxAgeSeconds);
+        // tempCors.ID = inputs.cors[i].id;
+        // tempCors.AllowedHeaders = inputs.cors[i].allowedHeaders;
+        // tempCors.ExposeHeaders = inputs.cors[i].exposeHeaders;
+        tempCors.AllowedHeader = inputs.cors[i].allowedHeaders;
+        tempCors.ExposeHeader = inputs.cors[i].exposeHeaders;
+
+        cors.push(tempCors);
+      }
     }
     const setCorsParams: PutBucketCorsParams = {
-      Bucket: inputs.bucket,
+      Bucket: inputs.bucket!,
       Region: this.region,
       CORSRules: cors,
     };
@@ -244,11 +272,11 @@ export default class Cos {
     }
   }
 
-  async deleteCors(inputs: CosDeleteCorsInputs = {} as any) {
+  async deleteCors(inputs: CosDeleteCorsInputs = {}) {
     console.log(`Removing cors for bucket ${inputs.bucket}`);
     try {
       await this.cosClient.deleteBucketCors({
-        Bucket: inputs.bucket,
+        Bucket: inputs.bucket!,
         Region: this.region,
       });
     } catch (err) {
@@ -256,51 +284,54 @@ export default class Cos {
     }
   }
 
-  async setLifecycle(inputs: CosSetLifecycleInputs = {} as any) {
+  async setLifecycle(inputs: CosSetLifecycleInputs = {}) {
     console.log(`Setting lifecycle for bucket ${inputs.bucket}`);
     const rules = [];
-    for (let i = 0; i < inputs.lifecycle.length; i++) {
-      const lc = inputs.lifecycle[i];
-      const tempLifecycle: LifecycleRule = {
-        ID: lc.id,
-        Status: lc.status,
-        Filter: {},
-      };
 
-      if (lc.filter?.prefix) {
-        tempLifecycle.Filter = {
-          Prefix: lc.filter?.prefix,
+    if (inputs.lifecycle) {
+      for (let i = 0; i < inputs.lifecycle.length; i++) {
+        const lc = inputs.lifecycle[i];
+        const tempLifecycle: LifecycleRule = {
+          ID: lc.id,
+          Status: lc.status,
+          Filter: {},
         };
-      }
 
-      if (lc.transition) {
-        tempLifecycle.Transition = {
-          Days: Number(lc.transition.days),
-          StorageClass: lc.transition.storageClass,
-        };
-      }
+        if (lc.filter?.prefix) {
+          tempLifecycle.Filter = {
+            Prefix: lc.filter?.prefix,
+          };
+        }
 
-      if (lc.NoncurrentVersionTransition) {
-        tempLifecycle.NoncurrentVersionTransition = {
-          NoncurrentDays: Number(lc.NoncurrentVersionTransition.noncurrentDays),
-          StorageClass: lc.NoncurrentVersionTransition.storageClass,
-        };
+        if (lc.transition) {
+          tempLifecycle.Transition = {
+            Days: Number(lc.transition.days),
+            StorageClass: lc.transition.storageClass,
+          };
+        }
+
+        if (lc.NoncurrentVersionTransition) {
+          tempLifecycle.NoncurrentVersionTransition = {
+            NoncurrentDays: Number(lc.NoncurrentVersionTransition.noncurrentDays),
+            StorageClass: lc.NoncurrentVersionTransition.storageClass,
+          };
+        }
+        if (lc.expiration) {
+          tempLifecycle.Expiration = {
+            Days: Number(lc.expiration.days),
+            ExpiredObjectDeleteMarker: lc.expiration.expiredObjectDeleteMarker,
+          };
+        }
+        if (lc.abortIncompleteMultipartUpload) {
+          tempLifecycle.AbortIncompleteMultipartUpload = {
+            DaysAfterInitiation: Number(lc.abortIncompleteMultipartUpload.daysAfterInitiation),
+          };
+        }
+        rules.push(tempLifecycle);
       }
-      if (lc.expiration) {
-        tempLifecycle.Expiration = {
-          Days: Number(lc.expiration.days),
-          ExpiredObjectDeleteMarker: lc.expiration.expiredObjectDeleteMarker,
-        };
-      }
-      if (lc.abortIncompleteMultipartUpload) {
-        tempLifecycle.AbortIncompleteMultipartUpload = {
-          DaysAfterInitiation: Number(lc.abortIncompleteMultipartUpload.daysAfterInitiation),
-        };
-      }
-      rules.push(tempLifecycle);
     }
     const setLifecycleParams: PutBucketLifecycleParams = {
-      Bucket: inputs.bucket,
+      Bucket: inputs.bucket!,
       Region: this.region,
       Rules: rules,
     };
@@ -312,11 +343,11 @@ export default class Cos {
     }
   }
 
-  async deleteLifecycle(inputs: CosDeleteLifecycleInputs = {} as any) {
+  async deleteLifecycle(inputs: CosDeleteLifecycleInputs = {}) {
     console.log(`Removing lifecycle for bucket ${inputs.bucket}`);
     try {
       await this.cosClient.deleteBucketLifecycle({
-        Bucket: inputs.bucket,
+        Bucket: inputs.bucket!,
         Region: this.region,
       });
     } catch (err) {
@@ -324,11 +355,11 @@ export default class Cos {
     }
   }
 
-  async setVersioning(inputs: CosSetVersioningInputs = {} as any) {
+  async setVersioning(inputs: CosSetVersioningInputs = {}) {
     console.log(`Setting versioning for bucket ${inputs.bucket}`);
 
     const setVersioningParams: PutBucketVersioningParams = {
-      Bucket: inputs.bucket,
+      Bucket: inputs.bucket!,
       Region: this.region,
       VersioningConfiguration: {
         Status: inputs.versioning,
@@ -341,18 +372,18 @@ export default class Cos {
     }
   }
 
-  async setWebsite(inputs: CosSetWebsiteInputs = {} as any) {
+  async setWebsite(inputs: CosSetWebsiteInputs = {}) {
     console.log(`Setting Website for bucket ${inputs.bucket}`);
 
     const staticHostParams: PutBucketWebsiteParams = {
-      Bucket: inputs.bucket,
+      Bucket: inputs.bucket!,
       Region: this.region,
       WebsiteConfiguration: {
         IndexDocument: {
-          Suffix: inputs.code.index ?? 'index.html',
+          Suffix: inputs.code?.index ?? 'index.html',
         },
         ErrorDocument: {
-          Key: inputs.code.error ?? 'error.html',
+          Key: inputs.code?.error ?? 'error.html',
           // FIXME: cors "Enabled" type error
           OriginalHttpStatus: inputs.disableErrorStatus === true ? 'Disabled' : ('Enabled' as any),
         },
@@ -369,10 +400,10 @@ export default class Cos {
     }
   }
 
-  async getBucket(inputs: CosGetBucketInputs = {} as any) {
+  async getBucket(inputs: CosGetBucketInputs = {}) {
     try {
       const res = await this.cosClient.getBucket({
-        Bucket: inputs.bucket,
+        Bucket: inputs.bucket!,
         Region: this.region,
       });
       return res;
@@ -381,12 +412,12 @@ export default class Cos {
     }
   }
 
-  async getObjectUrl(inputs: CosGetObjectUrlInputs = {} as any) {
+  async getObjectUrl(inputs: CosGetObjectUrlInputs = {}) {
     try {
       const { Url } = await this.cosClient.getObjectUrl({
-        Bucket: inputs.bucket,
+        Bucket: inputs.bucket!,
         Region: this.region,
-        Key: inputs.object,
+        Key: inputs.object!,
         // default request method is GET
         Method: inputs.method ?? 'GET',
         // default expire time is 15min
@@ -438,7 +469,7 @@ export default class Cos {
     }
   }
 
-  async upload(inputs: CosUploadInputs = {} as any) {
+  async upload(inputs: CosUploadInputs = {}) {
     const { bucket, replace } = inputs;
     const { region } = this;
 
@@ -506,7 +537,7 @@ export default class Cos {
     }
   }
 
-  async website(inputs: CosWebsiteInputs = {} as any) {
+  async website(inputs: CosWebsiteInputs = {}) {
     await this.createBucket({
       bucket: inputs.bucket,
       force: true,
@@ -527,12 +558,12 @@ export default class Cos {
     }
 
     // Build environment variables
-    const envPath = inputs.code.envPath || inputs.code.root;
+    const envPath = inputs.code?.envPath || inputs.code?.root;
     if (inputs.env && Object.keys(inputs.env).length && envPath) {
       let script = 'window.env = {};\n';
       inputs.env = inputs.env || {};
       Object.keys(inputs.env).forEach((e) => {
-        script += `window.env.${e} = ${JSON.stringify(inputs.env[e])};\n`;
+        script += `window.env.${e} = ${JSON.stringify(inputs.env![e])};\n`;
       });
 
       const envFilePath = path.join(envPath, 'env.js');
@@ -544,12 +575,12 @@ export default class Cos {
     }
 
     // upload
-    const dirToUploadPath: string = inputs.code.src ?? inputs.code.root;
+    const dirToUploadPath: string | undefined = inputs.code?.src ?? inputs.code?.root;
     const uploadDict: CosUploadInputs = {
       bucket: inputs.bucket,
-      replace: inputs.replace,
+      replace: inputs.replace!,
     };
-    if (fs.lstatSync(dirToUploadPath).isDirectory()) {
+    if (fs.lstatSync(dirToUploadPath!).isDirectory()) {
       uploadDict.dir = dirToUploadPath;
     } else {
       uploadDict.file = dirToUploadPath;
@@ -559,7 +590,7 @@ export default class Cos {
     return `${inputs.bucket}.cos-website.${this.region}.myqcloud.com`;
   }
 
-  async deploy(inputs: CosDeployInputs = {} as any) {
+  async deploy(inputs: CosDeployInputs = {}) {
     await this.createBucket(inputs);
     if (inputs.acl) {
       await this.setAcl(inputs);
@@ -589,7 +620,7 @@ export default class Cos {
       // upload
       const dirToUploadPath = inputs.src;
       const uploadDict: CosUploadInputs = {
-        bucket: inputs.bucket,
+        bucket: inputs.bucket!,
         keyPrefix: inputs.keyPrefix || '/',
         replace: inputs.replace,
       };
@@ -604,7 +635,7 @@ export default class Cos {
     return inputs;
   }
 
-  async remove(inputs: CosRemoveBucketInputs = {} as any) {
+  async remove(inputs: CosRemoveBucketInputs = {}) {
     console.log(`Removing bucket ${inputs.bucket}`);
 
     let detail;
@@ -622,12 +653,12 @@ export default class Cos {
     if (detail) {
       try {
         // 1. flush all files
-        await this.flushBucketFiles(inputs.bucket);
+        await this.flushBucketFiles(inputs.bucket!);
 
         // 2. delete bucket
         await this.cosClient.deleteBucket({
           Region: this.region,
-          Bucket: inputs.bucket,
+          Bucket: inputs.bucket!,
         });
         console.log(`Remove bucket ${inputs.bucket} success`);
       } catch (err) {

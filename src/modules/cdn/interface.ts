@@ -3,6 +3,7 @@ export interface CertInfo {
   certificate?: string;
   privateKey?: string;
   remarks?: string;
+  message?: string;
 };
 
 export interface DeployInputs {

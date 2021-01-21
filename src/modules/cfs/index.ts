@@ -1,5 +1,4 @@
 import { TagData } from './../tag/interface';
-import { Region } from 'cos-nodejs-sdk-v5';
 import { RegionType } from './../interface';
 import { CreateCfsParams } from './utils';
 import { CapiCredentials, ApiServiceType } from '../interface';
@@ -20,7 +19,6 @@ export default class CFS {
     this.credentials = credentials;
     this.capi = new Capi({
       Region: this.region,
-      // FIXME: no serviceType
       ServiceType: ApiServiceType.cfs,
       SecretId: credentials.SecretId!,
       SecretKey: credentials.SecretKey!,

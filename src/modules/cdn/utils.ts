@@ -38,7 +38,7 @@ export function getCertPathContent(target: string) {
  * 格式化证书内容
  * @param {object} certInfo cert info
  */
-export function formatCertInfo(certInfo: PascalCasedProps<CertInfo>):any {
+export function formatCertInfo(certInfo: PascalCasedProps<CertInfo>):PascalCasedProps<CertInfo> {
   /** 根据 CertId 获取 */
   const idInfo = certInfo as {CertId: string};
   if (idInfo.CertId) {
@@ -52,7 +52,7 @@ export function formatCertInfo(certInfo: PascalCasedProps<CertInfo>):any {
   return {
     Certificate: getCertPathContent(pathInfo.Certificate),
     PrivateKey: getCertPathContent(pathInfo.PrivateKey),
-    // FIXME: remarks 必定是大写
+    // FIXME: remarks 必定是大写？
     // Message: pathInfo.remarks,
     Message: pathInfo.Remarks ?? '',
   };

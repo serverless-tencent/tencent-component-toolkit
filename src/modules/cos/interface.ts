@@ -1,10 +1,10 @@
 export interface CosCreateBucketInputs {
-  bucket: string;
+  bucket?: string;
   force?: boolean;
 }
 
 export interface CosSetAclInputs {
-  bucket: string;
+  bucket?: string;
   acl?: {
     accessControlPolicy?: {
       owner?: {
@@ -30,23 +30,23 @@ export interface CosSetAclInputs {
 }
 
 export interface CosSetPolicyInputs {
-  bucket: string;
+  bucket?: string;
   policy?: object;
 }
 
 export interface CosSetTagInputs {
-  bucket: string;
-  tags: { key: string; value: string }[];
+  bucket?: string;
+  tags?: { key: string; value: string }[];
 }
 
 export interface CosDeleteTagsInputs {
-  bucket: string;
-  tags: { key: string; value: string }[];
+  bucket?: string;
+  tags?: { key: string; value: string }[];
 }
 
 export interface CosSetCorsInputs {
-  bucket: string;
-  cors: {
+  bucket?: string;
+  cors?: {
     allowedMethods: string[];
     allowedOrigins: string[];
 
@@ -58,8 +58,8 @@ export interface CosSetCorsInputs {
 }
 
 export interface CosDeleteCorsInputs {
-  bucket: string;
-  cors: {
+  bucket?: string;
+  cors?: {
     allowedMethods: string[];
     allowedOrigins: string[];
 
@@ -71,8 +71,8 @@ export interface CosDeleteCorsInputs {
 }
 
 export interface CosSetLifecycleInputs {
-  bucket: string;
-  lifecycle: {
+  bucket?: string;
+  lifecycle?: {
     id: string;
     status: 'Enabled' | 'Disabled';
     filter?: {
@@ -82,7 +82,7 @@ export interface CosSetLifecycleInputs {
       days: number | string;
       storageClass: string;
     };
-    // FIXME: casing
+    // FIXME: 此处应为小写？
     NoncurrentVersionTransition?: {
       noncurrentDays: number | string;
       storageClass: number | string;
@@ -98,32 +98,32 @@ export interface CosSetLifecycleInputs {
 }
 
 export interface CosDeleteLifecycleInputs {
-  bucket: string;
+  bucket?: string;
 }
 
 export interface CosSetVersioningInputs {
-  bucket: string;
-  versioning: string;
+  bucket?: string;
+  versioning?: string;
 }
 
 export interface CosSetWebsiteInputs extends CosSetAclInputs, CosSetPolicyInputs, CosSetCorsInputs {
-  bucket: string;
-  code: {
+  bucket?: string;
+  code?: {
     src: string;
     root?: string;
     index?: string;
     envPath: string;
     error?: string;
   };
-  replace: string;
-  env: Record<string, any>;
-  protocol: string;
+  replace?: string;
+  env?: Record<string, any>;
+  protocol?: string;
   disableErrorStatus?: string | boolean;
 }
 
 export interface CosGetObjectUrlInputs {
-  bucket: string;
-  object: string;
+  bucket?: string;
+  object?: string;
   method?:
     | 'GET'
     | 'DELETE'
@@ -136,16 +136,16 @@ export interface CosGetObjectUrlInputs {
     | 'put'
     | 'options';
   expires?: number;
-  sign: boolean;
+  sign?: boolean;
 }
 
 export interface CosGetBucketInputs {
-  bucket: string;
+  bucket?: string;
 }
 
 export interface CosUploadInputs {
-  bucket: string;
-  replace: string;
+  bucket?: string;
+  replace?: string;
   dir?: string;
   keyPrefix?: string;
   file?: string;
@@ -153,7 +153,7 @@ export interface CosUploadInputs {
 }
 
 export interface CosWebsiteInputs extends CosSetWebsiteInputs {
-  bucket: string;
+  bucket?: string;
   force?: boolean;
 }
 
@@ -164,11 +164,11 @@ export interface CosDeployInputs
     CosSetTagInputs,
     CosSetLifecycleInputs,
     CosSetVersioningInputs {
-  src: string;
-  keyPrefix: string;
-  replace: string
+  src?: string;
+  keyPrefix?: string;
+  replace?: string
 }
 
 export interface CosRemoveBucketInputs {
-  bucket: string;
+  bucket?: string;
 }
