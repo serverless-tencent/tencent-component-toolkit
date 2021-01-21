@@ -114,7 +114,7 @@ describe('Cls', () => {
   });
 
   test('should delete trigger success', async () => {
-    await sleep(2000);
+    await sleep(5000);
     const { Triggers = [] } = await scf.request({
       Action: 'ListTriggers',
       Namespace: namespace,

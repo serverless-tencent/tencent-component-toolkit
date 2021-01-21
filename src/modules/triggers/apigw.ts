@@ -158,9 +158,8 @@ export default class ApigwTrigger extends BaseTrigger<ApigwTriggerInputsParams> 
       },
       created: !!(parameters?.created),
     };
-    const triggerKey = this.getKey({
-      TriggerDesc: serviceId
-    });
+    const triggerKey = this.getKey(triggerInputs);
+    
     return {
       triggerKey,
       triggerInputs,

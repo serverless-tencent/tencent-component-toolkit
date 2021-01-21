@@ -743,5 +743,3 @@ export default class Scf {
     return Response;
   }
 }
-
-module.exports = Scf;

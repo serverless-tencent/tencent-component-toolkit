@@ -70,7 +70,11 @@ export function getDbExtranetAccess(netInfos: { NetType: string; Status: string 
  * @param {string} dBInstanceName db instance name
  * @param {boolean} extranetAccess whether open extranet accesss
  */
-export async function toggleDbInstanceAccess(capi: Capi, dBInstanceName: string, extranetAccess: boolean) {
+export async function toggleDbInstanceAccess(
+  capi: Capi,
+  dBInstanceName: string,
+  extranetAccess: boolean,
+) {
   if (extranetAccess) {
     console.log(`Start open db extranet access...`);
     await APIS.OpenServerlessDBExtranetAccess(capi, {
@@ -104,7 +108,18 @@ export async function toggleDbInstanceAccess(capi: Capi, dBInstanceName: string,
  * @param {object} capi capi client
  * @param {object} postgresInputs create db instance inputs
  */
-export async function createDbInstance(capi: Capi, postgresInputs: { DBInstanceName: string }) {
+export async function createDbInstance(
+  capi: Capi,
+  postgresInputs: {
+    Zone: string;
+    ProjectId: string;
+    DBInstanceName: string;
+    DBVersion: string;
+    DBCharset: string;
+    VpcId: string;
+    SubnetId: string;
+  },
+) {
   console.log(`Start create DB instance ${postgresInputs.DBInstanceName}`);
   const { DBInstanceId } = await APIS.CreateServerlessDBInstance(capi, postgresInputs);
   console.log(`Creating DB instance ID: ${DBInstanceId}`);

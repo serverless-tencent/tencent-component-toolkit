@@ -1,5 +1,6 @@
 const { Postgresql } = require('../lib');
-const { getDbInstanceDetail, sleep } = require('../lib/modules/postgresql/utils');
+const { getDbInstanceDetail } = require('../lib/modules/postgresql/utils');
+const { sleep } = require('@ygkit/request');
 
 describe('Postgresql', () => {
   const credentials = {

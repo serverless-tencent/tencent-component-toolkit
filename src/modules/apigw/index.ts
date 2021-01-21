@@ -762,12 +762,16 @@ export default class Apigw {
 
     this.marshalApiInput(endpoint, apiInputs);
 
-    let apiDetail = null;
+    let apiDetail:{
+      ApiId?: string,
+      InternalDomain?: string,
+    };
+
     if (endpoint.apiId) {
       apiDetail = await this.getApiById({ serviceId, apiId: endpoint.apiId });
     }
 
-    if (!apiDetail) {
+    if (!(apiDetail!)) {
       apiDetail = await this.getApiByPathAndMethod({
         serviceId,
         path: endpoint.path,

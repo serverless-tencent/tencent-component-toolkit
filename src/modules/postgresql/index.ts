@@ -71,18 +71,16 @@ export default class Postgresql {
     } else {
       // not exist, create
       const postgresInputs = {
-        Zone: zone,
-        ProjectId: projectId,
-        DBInstanceName: dBInstanceName,
-        DBVersion: dBVersion,
-        DBCharset: dBCharset,
-        VpcId: vpcConfig?.vpcId,
-        SubnetId: vpcConfig?.subnetId,
+        Zone: zone!,
+        ProjectId: projectId!,
+        DBInstanceName: dBInstanceName!,
+        DBVersion: dBVersion!,
+        DBCharset: dBCharset!,
+        VpcId: vpcConfig?.vpcId!,
+        SubnetId: vpcConfig?.subnetId!,
       };
 
-      dbDetail = await createDbInstance(this.capi, {
-        DBInstanceName: postgresInputs.DBInstanceName!,
-      });
+      dbDetail = await createDbInstance(this.capi, postgresInputs);
       if (extranetAccess) {
         dbDetail = await toggleDbInstanceAccess(this.capi, dBInstanceName!, extranetAccess);
       }
