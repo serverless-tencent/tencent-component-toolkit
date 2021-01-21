@@ -12,8 +12,13 @@ export interface ApigwSetupUsagePlanInputs {
   usagePlanDesc?: string;
   maxRequestNumPreSec?: number;
   maxRequestNum?: number;
+
   created?: boolean;
-  secrets?: ApigwSetupUsagePlanSecretInputs;
+
+  secrets?: {secretIds:string[], created:boolean};
+}
+
+export interface ApigwSetupUsagePlanOutputs extends ApigwSetupUsagePlanInputs {
 }
 
 export interface ApigwBindUsagePlanInputs {
@@ -24,15 +29,38 @@ export interface ApigwBindUsagePlanInputs {
   authConfig?: ApigwSetupUsagePlanSecretInputs;
 }
 
+export interface ApigwBindUsagePlanOutputs extends ApigwBindUsagePlanInputs{
+}
+
+
 export interface ApigwSetupUsagePlanSecretInputs {
+  /** 要使用的密钥 id 列表 */
   secretIds: string[];
+  /** 用户自定义的密钥名 */
   secretName: string;
   created?: boolean;
 }
 
+export interface CustomDomain {
+  domain: string;
+  subDomain: string;
+  protocols: ('http' | 'https')[];
+
+  certificateId: string;
+  isDefaultMapping?: boolean;
+  pathMappingSet: [];
+  netType: string;
+}
+
+export interface ApigwBindCustomDomainInputs {
+  customDomains?: CustomDomain[]
+  protocols: ('http' | 'https')[] | string;
+  oldState?: Partial<ApigwBindCustomDomainInputs>;
+}
+
 export interface ApigwCreateOrUpdateServiceInputs {
   environment?: EnviromentType;
-  protocols: string | ('http' | 'https')[];
+  protocols: ('http' | 'https')[] | string;
   netTypes: string[];
   serviceName?: string;
   serviceDesc?: string;
@@ -85,11 +113,10 @@ export interface ApiDeployerInputs {
   isOauthApi?: boolean;
 }
 
-export interface ApigwDeployInputs extends ApigwCreateOrUpdateServiceInputs {
+export interface ApigwDeployInputs extends ApigwCreateOrUpdateServiceInputs, ApigwBindCustomDomainInputs {
   region: RegionType;
   oldState: any;
   environment?: EnviromentType;
-  protocols: string | ('http' | 'https')[];
 
   endpoints: ApiEndpoint[];
 }
@@ -112,8 +139,8 @@ export interface ApigwDeployOutputs {
   created?: boolean;
   serviceId: string;
   serviceName: string;
-  subDomain: string;
-  protocols: string;
+  subDomain: string | string[];
+  protocols: string | ('http' | 'https')[];
   environment: EnviromentType;
   apiList: ApiEndpoint[];
   customDomains?: ApigwBindCustomDomainOutputs[];

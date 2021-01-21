@@ -21,19 +21,6 @@ export interface EndpointFunction extends ApiEndpoint {
 export interface TriggerInputsParams {}
 
 export interface ApigwTriggerInputsParams extends ApigwDeployInputs {
-  //   Type?: string;
-  //   TriggerName?: string;
-  //   Enable?: string;
-
-  //   oldState: any;
-  //   region: string;
-  //   protocols: string[];
-  //   environment: 'release' | 'prepub' | 'test';
-  //   serviceId: string;
-  //   serviceName: string;
-  //   serviceDesc: string;
-//   endpoints: []];
-  //   netTypes: string[];
     created: boolean;
 
     TriggerDesc:

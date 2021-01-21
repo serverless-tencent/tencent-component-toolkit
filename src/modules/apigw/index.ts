@@ -1,4 +1,3 @@
-// FIXME: re-check the apigw
 import { RegionType } from '../interface';
 import { Capi } from '@tencent-sdk/capi';
 import { ApigwTrigger } from '../triggers';
@@ -22,6 +21,9 @@ import {
   ApigwRemoveOrUnbindUsagePlanInputs,
   ApigwApiRemoverInputs,
   ApigwRemoveInputs,
+  ApigwBindCustomDomainInputs,
+  ApigwBindUsagePlanOutputs,
+  CustomDomain,
 } from './interface';
 
 export default class Apigw {
@@ -36,13 +38,11 @@ export default class Apigw {
     this.region = region;
     this.capi = new Capi({
       Region: this.region,
-      // ServiceType: ServiceType.apigateway,
-      // FIXME: pass this or not?
-      AppId: this.credentials.AppId as undefined,
+      ServiceType: ServiceType.apigateway,
       SecretId: this.credentials.SecretId!,
       SecretKey: this.credentials.SecretKey!,
       Token: this.credentials.Token,
-    } as any);
+    });
     this.trigger = new ApigwTrigger({ credentials, region: this.region });
   }
 
@@ -51,19 +51,21 @@ export default class Apigw {
       return 'http';
     }
     const tempProtocol = protocols.join('&').toLowerCase();
-    return tempProtocol === 'https&http'
-      ? 'http&https'
-      : tempProtocol
-      ? tempProtocol
-      : 'http&https';
+    return (tempProtocol === 'https&http' ? 'http&https' : tempProtocol) ?? 'http&https';
   }
 
-  async request({ Action, ...data }: { Action: ActionType; [key: string]: any }) {
+  private async request({ Action, ...data }: { Action: ActionType; [key: string]: any }) {
     const result = await APIS[Action](this.capi, camelCaseProperty(data));
-    return result;
+    return result as never;
   }
 
-  async removeOrUnbindRequest({ Action, ...data }: { Action: ActionType; [key:string]:any }) {
+  private async removeOrUnbindRequest({
+    Action,
+    ...data
+  }: {
+    Action: ActionType;
+    [key: string]: any;
+  }) {
     try {
       await APIS[Action](this.capi, camelCaseProperty(data));
     } catch (e) {
@@ -72,7 +74,7 @@ export default class Apigw {
     return true;
   }
 
-  marshalServiceConfig(endpoint: any, apiInputs: any) {
+  private marshalServiceConfig(endpoint: any, apiInputs: any) {
     if (
       !endpoint.serviceConfig ||
       !endpoint.serviceConfig.url ||
@@ -91,7 +93,7 @@ export default class Apigw {
     };
   }
 
-  marshalApiInput(endpoint: any, apiInputs: any) {
+  private marshalApiInput(endpoint: any, apiInputs: any) {
     if (endpoint.param) {
       apiInputs.requestParameters = endpoint.param;
     }
@@ -180,6 +182,7 @@ export default class Apigw {
     }
   }
 
+  /** 设置 API 网关密钥 */
   async setupUsagePlanSecret({ secretName, secretIds, created }: ApigwSetupUsagePlanSecretInputs) {
     const secretIdsOutput = {
       created: !!created,
@@ -187,7 +190,7 @@ export default class Apigw {
     };
 
     // user not setup secret ids, just auto generate one
-    if (secretIds.length === 0) {
+    if (!secretIds || secretIds.length === 0) {
       console.log(`Creating a new Secret key.`);
       const { AccessKeyId, AccessKeySecret } = await this.request({
         Action: 'CreateApiKey',
@@ -204,7 +207,7 @@ export default class Apigw {
       const uniqSecretIds = uniqueArray(secretIds);
 
       // get all secretId, check local secretId exists
-      const { ApiKeySet } = await this.request({
+      const { ApiKeySet } = (await this.request({
         Action: 'DescribeApiKeysStatus',
         Limit: uniqSecretIds.length,
         Filters: [
@@ -213,7 +216,9 @@ export default class Apigw {
             Values: uniqSecretIds,
           },
         ],
-      });
+      })) as {
+        ApiKeySet: { AccessKeyId: string; Status: string }[];
+      };
 
       const existKeysLen = ApiKeySet.length;
 
@@ -247,12 +252,17 @@ export default class Apigw {
     return secretIdsOutput;
   }
 
-  async setupUsagePlan({ usagePlan }: { usagePlan: ApigwSetupUsagePlanInputs }) {
+  /** 设置 API 网关的使用计划 */
+  async setupUsagePlan({
+    usagePlan,
+  }: {
+    usagePlan: ApigwSetupUsagePlanInputs;
+  }): Promise<ApigwSetupUsagePlanInputs> {
     const usageInputs = {
-      usagePlanName: usagePlan.usagePlanName || '',
-      usagePlanDesc: usagePlan.usagePlanDesc || '',
-      maxRequestNumPreSec: usagePlan.maxRequestNumPreSec || -1,
-      maxRequestNum: usagePlan.maxRequestNum || -1,
+      usagePlanName: usagePlan.usagePlanName ?? '',
+      usagePlanDesc: usagePlan.usagePlanDesc ?? '',
+      maxRequestNumPreSec: usagePlan.maxRequestNumPreSec ?? -1,
+      maxRequestNum: usagePlan.maxRequestNum ?? -1,
     };
 
     const usagePlanOutput = {
@@ -263,10 +273,12 @@ export default class Apigw {
     let exist = false;
     if (usagePlan.usagePlanId) {
       try {
-        const detail = await this.request({
+        const detail = (await this.request({
           Action: 'DescribeUsagePlan',
           UsagePlanId: usagePlan.usagePlanId,
-        });
+        })) as {
+          UsagePlanId: string;
+        };
         if (detail && detail.UsagePlanId) {
           exist = true;
         }
@@ -296,8 +308,35 @@ export default class Apigw {
     return usagePlanOutput;
   }
 
+  /** 获取 secrets 列表 */
+  async getAllBoundSecrets(
+    usagePlanId: string,
+    res: Secret[] = [],
+    { limit, offset = 0 }: { limit: number; offset?: number },
+  ): Promise<Secret[]> {
+    const { AccessKeyList } = (await this.request({
+      Action: 'DescribeUsagePlanSecretIds',
+      usagePlanId,
+      limit,
+      offset,
+    })) as {
+      AccessKeyList: Secret[];
+    };
+
+    if (AccessKeyList.length < limit) {
+      return AccessKeyList;
+    }
+    const more = await this.getAllBoundSecrets(usagePlanId, AccessKeyList, {
+      limit,
+      offset: offset + AccessKeyList.length,
+    });
+    // FIXME: more is same type with res, why concat?
+    // return res.concat(more.AccessKeyList);
+    return res.concat(more);
+  }
+
   /**
-   * get all unbound secretids
+   * 找到所有不存在的 secretIds
    */
   async getUnboundSecretIds({
     usagePlanId,
@@ -306,28 +345,7 @@ export default class Apigw {
     usagePlanId: string;
     secretIds: string[];
   }) {
-    const getAllBoundSecrets = async (
-      res: Secret[] = [],
-      { limit, offset = 0 }: { limit: number; offset?: number },
-    ): Promise<Secret[]> => {
-      const { AccessKeyList } = await this.request({
-        Action: 'DescribeUsagePlanSecretIds',
-        usagePlanId,
-        limit,
-        offset,
-      });
-
-      if (AccessKeyList.length < limit) {
-        return AccessKeyList;
-      }
-      const more = await getAllBoundSecrets(AccessKeyList, {
-        limit,
-        offset: offset + AccessKeyList.length,
-      });
-      // FIXME: wtf
-      return res.concat((more as any).AccessKeyList);
-    };
-    const allBoundSecretObjs = await getAllBoundSecrets([], { limit: 100 });
+    const allBoundSecretObjs = await this.getAllBoundSecrets(usagePlanId, [], { limit: 100 });
     const allBoundSecretIds = allBoundSecretObjs.map((item) => item.AccessKeyId);
 
     const unboundSecretIds = secretIds.filter((item) => {
@@ -340,33 +358,24 @@ export default class Apigw {
     return unboundSecretIds;
   }
 
-  // bind custom domains
-  async bindCustomDomain({
-    serviceId,
-    subDomain,
-    inputs,
-  }: {
-    serviceId: string;
-    subDomain: string;
-    inputs: any;
-  }): Promise<ApigwBindCustomDomainOutputs[]> {
-    const { customDomains, oldState = {} } = inputs;
-    if (!customDomains) {
-      return [];
-    }
-    // 1. unbind all custom domain
-    const customDomainDetail = await this.request({
+  /**
+   * 解绑 API 网关所有自定义域名
+   * @param serviceId API 网关 ID
+   */
+  async unbindCustomDomain(serviceId: string, customDomains: CustomDomain[]) {
+    const customDomainDetail = (await this.request({
       Action: 'DescribeServiceSubDomains',
       serviceId,
-    });
-    if (
-      customDomainDetail &&
-      customDomainDetail.DomainSet &&
-      customDomainDetail.DomainSet.length > 0
-    ) {
-      const { DomainSet = [] } = customDomainDetail;
+    })) as
+      | {
+          DomainSet?: { DomainName: string }[];
+        }
+      | undefined;
+
+    if ((customDomainDetail?.DomainSet?.length ?? 0) > 0) {
+      const { DomainSet = [] } = customDomainDetail!;
       // unbind all created domain
-      const stateDomains = oldState.customDomains || [];
+      const stateDomains = customDomains || [];
       for (let i = 0; i < DomainSet.length; i++) {
         const domainItem = DomainSet[i];
         for (let j = 0; j < stateDomains.length; j++) {
@@ -382,6 +391,26 @@ export default class Apigw {
         }
       }
     }
+  }
+
+  /**
+   * 为 API 网关服务绑定自定义域名
+   */
+  async bindCustomDomain({
+    serviceId,
+    subDomain,
+    inputs,
+  }: {
+    serviceId: string;
+    subDomain: string;
+    inputs: ApigwBindCustomDomainInputs;
+  }): Promise<ApigwBindCustomDomainOutputs[]> {
+    const { customDomains, oldState = {} } = inputs;
+    if (!customDomains) return [];
+
+    // 1. unbind all custom domain
+    this.unbindCustomDomain(serviceId, oldState?.customDomains ?? []);
+
     // 2. bind user config domain
     const customDomainOutput = [];
     if (customDomains && customDomains.length > 0) {
@@ -405,35 +434,53 @@ export default class Apigw {
           isForcedHttps: domainItem.isForcedHttps === true,
         };
 
-        try {
-          await this.request({
-            Action: 'BindSubDomain',
-            ...domainInputs,
-          });
+    console.log(`Start bind custom domain for service ${serviceId}`);
+    for (let domainItem of customDomains) {
+      const domainProtocol = domainItem.protocols
+        ? this.getProtocolString(domainItem.protocols)
+        : inputs.protocols;
 
+      const domainInputs = {
+        serviceId,
+        subDomain: domainItem.domain,
+        netSubDomain: subDomain,
+        certificateId: domainItem.certificateId,
+        // default isDefaultMapping is true
+        isDefaultMapping: domainItem.isDefaultMapping === false ? false : true,
+        // if isDefaultMapping is false, should append pathMappingSet config
+        pathMappingSet: domainItem.pathMappingSet || [],
+        netType: domainItem.netType ?? 'OUTER',
+        protocol: domainProtocol,
+      };
+
+      try {
+        await this.request({
+          Action: 'BindSubDomain',
+          ...domainInputs,
+        });
+
+        customDomainOutput.push({
+          isBinded: true,
+          created: true,
+          subDomain: domainItem.domain,
+          cname: subDomain,
+          url: `${domainProtocol.indexOf('https') !== -1 ? 'https' : 'http'}://${
+            domainItem.domain
+          }`,
+        });
+        console.log(`Custom domain for service ${serviceId} created successfullly.`);
+        console.log(`Please add CNAME record ${subDomain} for ${domainItem.domain}.`);
+      } catch (e) {
+        // User hasn't add cname dns record
+        if (e.code === 'FailedOperation.DomainResolveError') {
           customDomainOutput.push({
-            isBinded: true,
-            created: true,
+            isBinded: false,
             subDomain: domainItem.domain,
             cname: subDomain,
-            url: `${domainProtocol.indexOf('https') !== -1 ? 'https' : 'http'}://${
-              domainItem.domain
-            }`,
+            message: `您的自定义域名还未生效，请给域名 ${domainItem.domain} 添加 CNAME 记录 ${subDomain}，等待解析生效后，再次运行 'sls deploy' 完成自定义域名的配置`,
           });
-          console.log(`Custom domain for service ${serviceId} created successfullly.`);
-          console.log(`Please add CNAME record ${subDomain} for ${domainItem.domain}.`);
-        } catch (e) {
-          // User hasn't add cname dns record
-          if (e.code === 'FailedOperation.DomainResolveError') {
-            customDomainOutput.push({
-              isBinded: false,
-              subDomain: domainItem.domain,
-              cname: subDomain,
-              message: `您的自定义域名还未生效，请给域名 ${domainItem.domain} 添加 CNAME 记录 ${subDomain}，等待解析生效后，再次运行 'sls deploy' 完成自定义域名的配置`,
-            });
-          } else {
-            throw e;
-          }
+        } else {
+          throw e;
         }
       }
     }
@@ -441,13 +488,14 @@ export default class Apigw {
     return customDomainOutput;
   }
 
+  /** API 网关绑定用量计划 */
   async bindUsagePlan({
     apiId,
     serviceId,
     environment,
     usagePlanConfig,
     authConfig,
-  }: ApigwBindUsagePlanInputs) {
+  }: ApigwBindUsagePlanOutputs) {
     const usagePlan = await this.setupUsagePlan({
       usagePlan: usagePlanConfig,
     });
@@ -476,16 +524,16 @@ export default class Apigw {
         console.log('Binding secret key successed.');
       }
       // store in api list
-      (usagePlan as any).secrets = secrets;
+      usagePlan.secrets = secrets;
     }
 
-    const { ApiUsagePlanList } = await this.request({
+    const { ApiUsagePlanList } = (await this.request({
       Action: 'DescribeApiUsagePlan',
       serviceId,
       limit: 100,
-    });
+    })) as { ApiUsagePlanList: { UsagePlanId: string; ApiId: string }[] };
 
-    const oldUsagePlan = ApiUsagePlanList.find((item: { UsagePlanId: string; ApiId: string }) => {
+    const oldUsagePlan = ApiUsagePlanList.find((item) => {
       return apiId
         ? item.UsagePlanId === usagePlan.usagePlanId && item.ApiId === apiId
         : item.UsagePlanId === usagePlan.usagePlanId;
@@ -499,36 +547,38 @@ export default class Apigw {
           `Usage plan ${usagePlan.usagePlanId} already bind to enviromment ${environment}`,
         );
       }
-    } else {
-      if (apiId) {
-        console.log(`Binding usage plan ${usagePlan.usagePlanId} to api ${apiId}`);
-        await this.request({
-          Action: 'BindEnvironment',
-          serviceId,
-          environment,
-          bindType: 'API',
-          usagePlanIds: [usagePlan.usagePlanId],
-          apiIds: [apiId],
-        });
-        console.log(`Bind usage plan ${usagePlan.usagePlanId} to api ${apiId} success`);
-      } else {
-        console.log(`Binding usage plan ${usagePlan.usagePlanId} to enviromment ${environment}`);
-        await this.request({
-          Action: 'BindEnvironment',
-          serviceId,
-          environment,
-          bindType: 'SERVICE',
-          usagePlanIds: [usagePlan.usagePlanId],
-        });
-        console.log(
-          `Bind usage plan ${usagePlan.usagePlanId} to enviromment ${environment} success`,
-        );
-      }
+
+      return usagePlan;
     }
+
+    if (apiId) {
+      console.log(`Binding usage plan ${usagePlan.usagePlanId} to api ${apiId}`);
+      await this.request({
+        Action: 'BindEnvironment',
+        serviceId,
+        environment,
+        bindType: 'API',
+        usagePlanIds: [usagePlan.usagePlanId],
+        apiIds: [apiId],
+      });
+      console.log(`Bind usage plan ${usagePlan.usagePlanId} to api ${apiId} success`);
+      return usagePlan;
+    }
+
+    console.log(`Binding usage plan ${usagePlan.usagePlanId} to enviromment ${environment}`);
+    await this.request({
+      Action: 'BindEnvironment',
+      serviceId,
+      environment,
+      bindType: 'SERVICE',
+      usagePlanIds: [usagePlan.usagePlanId],
+    });
+    console.log(`Bind usage plan ${usagePlan.usagePlanId} to enviromment ${environment} success`);
 
     return usagePlan;
   }
 
+  /** 创建或更新 API 网关服务 */
   async createOrUpdateService(serviceConf: ApigwCreateOrUpdateServiceInputs) {
     const {
       environment,
@@ -539,8 +589,22 @@ export default class Apigw {
       serviceDesc = 'Created By Serverless Framework',
     } = serviceConf;
     let serviceCreated = false;
-    let detail;
     let exist = false;
+
+    interface Detail {
+      InnerSubDomain: string;
+      InternalSubDomain: string;
+      OuterSubDomain: string;
+
+      ServiceId: string;
+
+      // FIXME: 小写？
+      serviceName: string;
+      serviceDesc: string;
+      protocol: string;
+    }
+    let detail: Detail;
+
     if (serviceId) {
       detail = await this.request({
         Action: 'DescribeService',
@@ -551,54 +615,54 @@ export default class Apigw {
         exist = true;
         if (
           !(
-            serviceName === detail.serviceName &&
-            serviceDesc === detail.serviceDesc &&
-            protocols === detail.protocol
+            // FIXME: 小写？
+            (
+              serviceName === detail.serviceName &&
+              serviceDesc === detail.serviceDesc &&
+              protocols === detail.protocol
+            )
           )
         ) {
-          const apiInputs :any = {
+          const apiInputs = {
             Action: 'ModifyService' as const,
             serviceId,
             serviceDesc: serviceDesc || detail.serviceDesc,
             serviceName: serviceName || detail.serviceName,
             protocol: protocols,
+            netTypes: netTypes,
           };
-          if (netTypes) {
-            apiInputs.netTypes = netTypes;
-          }
           await this.request(apiInputs);
         }
       }
     }
+
     if (!exist) {
-      const apiInputs:any = {
+      const apiInputs = {
         Action: 'CreateService' as const,
         serviceName: serviceName || 'Serverless_Framework',
         serviceDesc: serviceDesc || 'Created By Serverless Framework',
         protocol: protocols,
+        netTypes,
       };
-
-      if (netTypes) {
-        apiInputs.netTypes = netTypes;
-      }
 
       detail = await this.request(apiInputs);
       serviceCreated = true;
     }
 
-    const outputs:any = {
+    const outputs = {
       serviceName,
-      serviceId: detail.ServiceId,
+      serviceId: detail!.ServiceId,
       subDomain:
-        detail.OuterSubDomain && detail.InnerSubDomain
-          ? [detail.OuterSubDomain, detail.InnerSubDomain]
-          : detail.OuterSubDomain || detail.InnerSubDomain,
+        detail!.OuterSubDomain && detail!.InnerSubDomain
+          ? [detail!.OuterSubDomain, detail!.InnerSubDomain]
+          : detail!.OuterSubDomain || detail!.InnerSubDomain,
       serviceCreated,
+      usagePlan: undefined as undefined | ApigwSetupUsagePlanInputs,
     };
 
     if (serviceConf.usagePlan) {
       outputs.usagePlan = await this.bindUsagePlan({
-        serviceId: detail.ServiceId,
+        serviceId: detail!.ServiceId,
         environment,
         usagePlanConfig: serviceConf.usagePlan,
         authConfig: serviceConf.auth,
@@ -608,6 +672,7 @@ export default class Apigw {
     return outputs;
   }
 
+  /** 根据路径和方法获取 API 网关接口 */
   async getApiByPathAndMethod({
     serviceId,
     path,
@@ -621,7 +686,9 @@ export default class Apigw {
       Action: 'DescribeApisStatus',
       ServiceId: serviceId,
       Filters: [{ Name: 'ApiType', Values: ['normal'] }],
-    })) as { ApiIdStatusSet: any[] };
+    })) as {
+      ApiIdStatusSet: { Method: string; Path: string; ApiId: string; InternalDomain: string }[];
+    };
 
     let apiDetail: {
       Method: string;
@@ -631,13 +698,7 @@ export default class Apigw {
     } | null = null;
 
     if (ApiIdStatusSet) {
-      ApiIdStatusSet.forEach((item: {
-        Method: string;
-        Path: string;
-        ApiId: string;
-        InternalDomain: string;
-      }
-      ) => {
+      ApiIdStatusSet.forEach((item) => {
         if (item.Path === path && item.Method.toLowerCase() === method.toLowerCase()) {
           apiDetail = item;
         }
@@ -675,9 +736,10 @@ export default class Apigw {
       authType: authType,
       businessType: businessType,
       isBase64Encoded: endpoint.isBase64Encoded === true,
+      authRelationApiId: endpoint.authRelationApiId,
     };
 
-    const apiInputs: any = {
+    const apiInputs = {
       protocol: endpoint.protocol || 'HTTP',
       serviceId: serviceId,
       apiName: endpoint.apiName || 'index',
@@ -694,15 +756,9 @@ export default class Apigw {
       responseType: endpoint.responseType || 'HTML',
       enableCORS: endpoint.enableCORS === true,
       isBase64Encoded: endpoint.isBase64Encoded === true,
+      oauthConfig: endpoint.oauthConfig,
+      authRelationApiId: endpoint.authRelationApiId
     };
-
-    if (endpoint.oauthConfig) {
-      apiInputs.oauthConfig = endpoint.oauthConfig;
-    }
-    if (endpoint.authRelationApiId) {
-      apiInputs.authRelationApiId = endpoint.authRelationApiId;
-      output.authRelationApiId = endpoint.authRelationApiId;
-    }
 
     this.marshalApiInput(endpoint, apiInputs);
 
@@ -783,6 +839,7 @@ export default class Apigw {
     return output;
   }
 
+  /** 部署 API 列表 */
   async apiDeployer({
     serviceId,
     environment,
@@ -790,7 +847,7 @@ export default class Apigw {
     oldList,
     apiConfig,
     isOauthApi,
-  }: ApiDeployerInputs):Promise<ApiDeployerOutputs> {
+  }: ApiDeployerInputs): Promise<ApiDeployerOutputs> {
     // if exist in state list, set created to be true
     const [exist] = oldList.filter(
       (item) =>
@@ -832,6 +889,7 @@ export default class Apigw {
     return curApi;
   }
 
+  /** 部署 API 网关 */
   async deploy(inputs: ApigwDeployInputs) {
     const { environment = 'release' as const, oldState = {} } = inputs;
     inputs.protocols = this.getProtocolString(inputs.protocols as ('http' | 'https')[]);
@@ -842,9 +900,9 @@ export default class Apigw {
       subDomain,
       serviceCreated,
       usagePlan,
-    } = await this.createOrUpdateService(inputs);
+    } = await this.createOrUpdateService(inputs)!;
 
-    const apiList:ApiEndpoint[] = [];
+    const apiList: ApiEndpoint[] = [];
     const stateApiList = oldState.apiList || [];
 
     const endpoints = inputs.endpoints || [];
@@ -857,7 +915,7 @@ export default class Apigw {
         businessOauthApis.push(endpoint);
         continue;
       }
-      const curApi:ApiDeployerOutputs = await this.apiDeployer({
+      const curApi: ApiDeployerOutputs = await this.apiDeployer({
         serviceId,
         environment,
         apiList,
@@ -890,7 +948,7 @@ export default class Apigw {
     });
     console.log(`Deploy service ${serviceId} success`);
 
-    const outputs:ApigwDeployOutputs = {
+    const outputs: ApigwDeployOutputs = {
       created: serviceCreated || oldState.created,
       serviceId,
       serviceName,
@@ -917,7 +975,13 @@ export default class Apigw {
     return outputs;
   }
 
-  async removeOrUnbindUsagePlan({ serviceId, environment, usagePlan, apiId }:ApigwRemoveOrUnbindUsagePlanInputs) {
+  /** 移除 API 网关的使用计划 */
+  async removeOrUnbindUsagePlan({
+    serviceId,
+    environment,
+    usagePlan,
+    apiId,
+  }: ApigwRemoveOrUnbindUsagePlanInputs) {
     // 1.1 unbind secrete ids
     const { secrets } = usagePlan;
 
@@ -1004,7 +1068,7 @@ export default class Apigw {
     }
   }
 
-  async remove(inputs:ApigwRemoveInputs) {
+  async remove(inputs: ApigwRemoveInputs) {
     const { created, environment, serviceId, apiList, customDomains, usagePlan } = inputs;
 
     // check service exist
