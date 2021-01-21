@@ -1,3 +1,10 @@
+## [1.20.10](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.20.9...v1.20.10) (2021-01-21)
+
+
+### Bug Fixes
+
+* **cynosdb:** add offline step for remove ([a6f0990](https://github.com/serverless-tencent/tencent-component-toolkit/commit/a6f0990f305fb56b3c4cd51c6679b756b4f1eb2c))
+
 ## [1.20.9](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.20.8...v1.20.9) (2021-01-21)
 
 
