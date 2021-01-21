@@ -1,6 +1,7 @@
+import { ActionType } from './apis';
 import { CapiCredentials, RegionType, ApiServiceType } from './../interface';
 import { Capi } from '@tencent-sdk/capi';
-import Apis from './apis';
+import APIS from './apis';
 
 /** CAM （访问管理）for serverless */
 export default class Cam {
@@ -22,15 +23,15 @@ export default class Cam {
     });
   }
 
-  async request({ Action, ...data }: {Action: string, [key:string]:any}) {
-    const result = await Apis[Action](this.capi, data);
+  async request({ Action, ...data }: {Action: ActionType, [key:string]:any}) {
+    const result = await APIS[Action](this.capi, data);
     return result;
   }
 
-  /**  */
+  /** 获取角色列表  */
   async DescribeRoleList(page: number, limit:number) {
     const reqParams = {
-      Action: 'DescribeRoleList',
+      Action: 'DescribeRoleList' as const,
       Page: page,
       Rp: limit,
     };
@@ -39,7 +40,7 @@ export default class Cam {
 
   async ListRolePoliciesByRoleId(roleId: string, page: number, limit: number) {
     const reqParams = {
-      Action: 'ListAttachedRolePolicies',
+      Action: 'ListAttachedRolePolicies' as const,
       Page: page,
       Rp: limit,
       RoleId: roleId,
@@ -50,7 +51,7 @@ export default class Cam {
   /** 创建角色 */
   async CreateRole(roleName: string, policiesDocument: string) {
     const reqParams = {
-      Action: 'CreateRole',
+      Action: 'CreateRole' as const,
       RoleName: roleName,
       PolicyDocument: policiesDocument,
       Description: 'Created By Serverless Framework',
@@ -74,16 +75,23 @@ export default class Cam {
     });
   }
 
-  // api limit qps 3/s
+  /**
+   * 为角色添加策略名称
+   * api limit qps 3/s
+   */
   async AttachRolePolicyByName(roleId: string, policyName:string) {
     const reqParams = {
-      Action: 'AttachRolePolicy',
+      Action: 'AttachRolePolicy' as const,
       AttachRoleId: roleId,
       PolicyName: policyName,
     };
     return this.request(reqParams);
   }
 
+  /**
+   * 角色是否存在
+   * @param roleName 角色名称
+   */
   async isRoleExist(roleName: string) {
     const { List = [] } = await this.DescribeRoleList(1, 200);
 
@@ -97,6 +105,7 @@ export default class Cam {
     return false;
   }
 
+  /** 检查角色是否有云函数权限 */
   async CheckSCFExcuteRole() {
     return this.isRoleExist('QCS_SCFExcuteRole');
   }
