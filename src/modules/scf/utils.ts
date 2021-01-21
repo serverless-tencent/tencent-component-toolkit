@@ -15,16 +15,16 @@ export const formatFunctionInputs = (region: RegionType, inputs: ScfCreateFuncti
     Handler?: string;
     Runtime?: string;
     Namespace?: string;
-    Timeout: number;
-    InitTimeout: number;
-    MemorySize: number;
-    PublicNetConfig: {
+    Timeout?: number;
+    InitTimeout?: number;
+    MemorySize?: number;
+    PublicNetConfig?: {
       PublicNetStatus: 'ENABLE' | 'DISABLE';
       EipConfig: {
         EipStatus: 'ENABLE' | 'DISABLE';
       };
     };
-    L5Enable: 'TRUE' | 'FALSE';
+    L5Enable?: 'TRUE' | 'FALSE';
     Role?: string;
     Description?: string;
     ClsLogsetId?: string;
