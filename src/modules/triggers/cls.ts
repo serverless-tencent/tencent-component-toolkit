@@ -1,6 +1,6 @@
 import { CapiCredentials, RegionType } from './../interface';
 import { Cls } from '@tencent-sdk/cls';
-import { ClsTriggerInputsParams, TriggerInputs } from './interface';
+import { ClsTriggerInputsParams, TriggerInputs, CreateTriggerReq } from './interface';
 import Scf from '../scf';
 import BaseTrigger from './base';
 import { createClsTrigger, deleteClsTrigger, getClsTrigger, updateClsTrigger } from '../cls/utils';
@@ -18,35 +18,35 @@ export default class ClsTrigger extends BaseTrigger<ClsTriggerInputsParams> {
     });
   }
 
-  getKey(triggerInputs: { ResourceId?: string; TriggerDesc: { topic_id: string } }) {
+  getKey(triggerInputs: CreateTriggerReq) {
     if (triggerInputs.ResourceId) {
       // from ListTriggers API
       const rStrArr = triggerInputs.ResourceId.split('/');
       return rStrArr[rStrArr.length - 1];
     }
 
-    return triggerInputs.TriggerDesc.topic_id;
+    return triggerInputs.TriggerDesc?.topic_id ?? '';
   }
 
 
   formatInputs({ inputs }: { inputs: TriggerInputs<ClsTriggerInputsParams> }) {
     const parameters = inputs.parameters;
-    const triggerInputs = {
+    const triggerInputs:CreateTriggerReq = {
       Type: 'cls',
-      Qualifier: parameters.qualifier ?? '$DEFAULT',
+      Qualifier: parameters?.qualifier ?? '$DEFAULT',
       TriggerName: '',
       TriggerDesc: {
-        effective: parameters.enable,
+        effective: parameters?.enable,
         // FIXME: casing
         function_name: inputs.FunctionName,
-        max_size: parameters.maxSize,
-        max_wait: parameters.maxWait,
+        max_size: parameters?.maxSize,
+        max_wait: parameters?.maxWait,
         name_space: inputs.Namespace,
         // FIXME: casing
         qualifier: inputs.Qualifier ?? '$DEFAULT',
-        topic_id: parameters.topicId,
+        topic_id: parameters?.topicId,
       },
-      Enable: parameters.enable ? 'OPEN' : 'CLOSE',
+      Enable: parameters?.enable ? 'OPEN' : 'CLOSE',
     };
 
     const triggerKey = this.getKey(triggerInputs);
@@ -57,7 +57,7 @@ export default class ClsTrigger extends BaseTrigger<ClsTriggerInputsParams> {
     } as any;
   }
 
-  async get(data: any) {
+  async get(data: {topicId?: string}) {
     const exist = await getClsTrigger(this.client, {
       topic_id: data.topicId,
     });
@@ -65,24 +65,24 @@ export default class ClsTrigger extends BaseTrigger<ClsTriggerInputsParams> {
   }
 
   async create({ inputs }: { inputs: TriggerInputs<ClsTriggerInputsParams> }) {
-    const data = inputs.parameters;
+    const parameters = inputs.parameters;
     const exist = await this.get({
-      topicId: data.topicId,
+      topicId: parameters?.topicId,
     });
     const output = {
       namespace: inputs.namespace || 'default',
       functionName: inputs.functionName,
-      ...data,
+      ...parameters,
     };
     const clsInputs = {
-      topic_id: data.topicId,
+      topic_id: parameters?.topicId,
       // FIXME: namespace or name_space?
       name_space: inputs.namespace || 'default',
       function_name: inputs.functionName,
-      qualifier: data.qualifier || '$DEFAULT',
-      max_wait: data.maxWait,
-      max_size: data.maxSize,
-      effective: data.enable,
+      qualifier: parameters?.qualifier || '$DEFAULT',
+      max_wait: parameters?.maxWait,
+      max_size: parameters?.maxSize,
+      effective: parameters?.enable,
     };
     if (exist) {
       await updateClsTrigger(this.client, clsInputs);

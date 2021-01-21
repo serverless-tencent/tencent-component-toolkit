@@ -19,10 +19,10 @@ export interface FunctionInfo {
   }
 
 export interface ScfPublishVersionInputs {
-    functionName: string;
+    functionName?: string;
     description?: string;
     namespace?: string;
-    region: RegionType;
+    region?: RegionType;
 }
 
 export interface publishVersionAndConfigTraffic {
@@ -64,15 +64,15 @@ export interface ScfCreateAlias {
 
 export interface ScfCreateFunctionInputs {
     // FIXME: 
-    Namespace: string;
+    Namespace?: string;
 
-    name: string,
-    code: {
+    name?: string,
+    code?: {
         bucket: string,
         object: string,
     },
-    handler: string,
-    runtime: string,
+    handler?: string,
+    runtime?: string,
     namespace?: string,
     timeout?: number,
     initTimeout?: number,
@@ -137,14 +137,15 @@ export interface ScfUpdateAliasTrafficInputs {
 
 export interface ScfDeployTriggersInputs {
     namespace?: string;
-    name: string;
-    events: TriggerType[];
+    name?: string;
+    events?: TriggerType[];
 }
 
 export interface ScfDeployInputs extends ScfCreateFunctionInputs {
     namespace?: string;
-    name: string;
-    enableRoleAuth: boolean;
+    name?: string;
+    enableRoleAuth?: boolean;
+    region?: string;
 
     lastVersion?:string;
     publish?: string;
@@ -153,12 +154,16 @@ export interface ScfDeployInputs extends ScfCreateFunctionInputs {
     needSetTraffic?: boolean;
     traffic?: number;
 
-    aliasName: string;
-    aliasDescription: string;
+    aliasName?: string;
+    aliasDescription?: string;
 
-    tags: Record<string, string>,
+    tags?: Record<string, string>,
 
-    events: TriggerType[],
+    events?: TriggerType[],
+}
+
+export interface ScfDeployOutputs {
+
 }
 
 export interface ScfRemoveInputs {
@@ -168,7 +173,7 @@ export interface ScfRemoveInputs {
     namespace?: string;
     Namespace?: string;
 
-    Triggers: ApigwRemoveInputs[]
+    Triggers?: ApigwRemoveInputs[]
 }
 
 export interface ScfInvokeInputs {

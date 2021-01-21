@@ -1,7 +1,7 @@
 import { CapiCredentials, RegionType } from './../interface';
-import { TriggerInputs, ChafkaTriggerInputsParams } from './interface';
+import { TriggerInputs, ChafkaTriggerInputsParams, CreateTriggerReq } from './interface';
 import Scf from '../scf';
-const { TRIGGER_STATUS_MAP } = require('./base');
+import { TRIGGER_STATUS_MAP } from './base';
 
 export default class CkafkaTrigger {
   credentials: CapiCredentials;
@@ -12,13 +12,7 @@ export default class CkafkaTrigger {
     this.region = region;
   }
   
-  getKey(triggerInputs: {
-    Enable: string;
-    Type: string;
-    TriggerName: string;
-    TriggerDesc: string;
-    Qualifier: string;
-  }) {
+  getKey(triggerInputs: CreateTriggerReq) {
     const Enable = TRIGGER_STATUS_MAP[triggerInputs.Enable!];
     return `${triggerInputs.Type}-${triggerInputs.TriggerName}-${triggerInputs.TriggerDesc}-${Enable}-${triggerInputs.Qualifier}`;
   }
@@ -31,19 +25,19 @@ export default class CkafkaTrigger {
     inputs: TriggerInputs<ChafkaTriggerInputsParams>;
   }) {
     const { parameters } = inputs;
-    const triggerInputs = {
+    const triggerInputs:CreateTriggerReq = {
       Action: 'CreateTrigger',
       FunctionName: inputs.functionName,
       Namespace: inputs.namespace,
       Type: 'chafka',
-      Qualifier: parameters.qualifier ?? '$DEFAULT',
-      TriggerName: `${parameters.name}-${parameters.topic}`,
+      Qualifier: parameters?.qualifier ?? '$DEFAULT',
+      TriggerName: `${parameters?.name}-${parameters?.topic}`,
       TriggerDesc: JSON.stringify({
-        maxMsgNum: parameters.maxMsgNum,
-        offset: parameters.offset,
-        retry: parameters.retry,
+        maxMsgNum: parameters?.maxMsgNum,
+        offset: parameters?.offset,
+        retry: parameters?.retry,
       }),
-      Enable: parameters.enable ? 'OPEN' : 'CLOSE',
+      Enable: parameters?.enable ? 'OPEN' : 'CLOSE',
     };
 
     const triggerKey = this.getKey(triggerInputs);

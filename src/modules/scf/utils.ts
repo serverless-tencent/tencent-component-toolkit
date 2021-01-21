@@ -1,20 +1,20 @@
-import { VpcConfig } from './../cynosdb/interface';
 import { RegionType } from './../interface';
 import { ScfCreateFunctionInputs } from './interface';
 const CONFIGS = require('./config').default;
 
 // get function basement configure
+// FIXME: unused variable region
 export const formatFunctionInputs = (region: RegionType, inputs: ScfCreateFunctionInputs) => {
   const functionInputs: {
-    FunctionName: string;
-    CodeSource: 'Cos';
-    Code: {
-      CosBucketName: string;
-      CosObjectName: string;
+    FunctionName?: string;
+    CodeSource?: 'Cos';
+    Code?: {
+      CosBucketName?: string;
+      CosObjectName?: string;
     };
-    Handler: string;
-    Runtime: string;
-    Namespace: string;
+    Handler?: string;
+    Runtime?: string;
+    Namespace?: string;
     Timeout: number;
     InitTimeout: number;
     MemorySize: number;
@@ -48,8 +48,8 @@ export const formatFunctionInputs = (region: RegionType, inputs: ScfCreateFuncti
     FunctionName: inputs.name,
     CodeSource: 'Cos',
     Code: {
-      CosBucketName: inputs.code.bucket,
-      CosObjectName: inputs.code.object,
+      CosBucketName: inputs.code?.bucket,
+      CosObjectName: inputs.code?.object,
     },
     Handler: inputs.handler,
     Runtime: inputs.runtime,
@@ -145,8 +145,4 @@ export const formatFunctionInputs = (region: RegionType, inputs: ScfCreateFuncti
   }
 
   return functionInputs;
-};
-
-module.exports = {
-  formatFunctionInputs,
 };

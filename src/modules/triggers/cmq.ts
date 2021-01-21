@@ -1,7 +1,7 @@
 import Scf from '../scf';
 import { CapiCredentials, RegionType } from './../interface';
 import BaseTrigger from './base';
-import { CmqTriggerInputsParams, TriggerInputs } from './interface';
+import { CmqTriggerInputsParams, TriggerInputs, CreateTriggerReq } from './interface';
 const { TRIGGER_STATUS_MAP } = require('./base');
 
 export default class CmqTrigger extends BaseTrigger<CmqTriggerInputsParams> {
@@ -14,32 +14,26 @@ export default class CmqTrigger extends BaseTrigger<CmqTriggerInputsParams> {
     this.region = region;
   }
 
-  getKey(triggerInputs: {
-    Enable: string;
-    Type: string;
-    TriggerName: string;
-    TriggerDesc: string;
-    Qualifier: string;
-  }) {
-    const Enable = TRIGGER_STATUS_MAP[triggerInputs.Enable];
+  getKey(triggerInputs: CreateTriggerReq) {
+    const Enable = TRIGGER_STATUS_MAP[triggerInputs.Enable!];
     return `${triggerInputs.Type}-${triggerInputs.TriggerName}-${triggerInputs.TriggerDesc}-${Enable}-${triggerInputs.Qualifier}`;
   }
 
   formatInputs({ inputs }: { region: RegionType; inputs: TriggerInputs<CmqTriggerInputsParams> }) {
     const { parameters } = inputs;
-    const triggerInputs = {
+    const triggerInputs:CreateTriggerReq = {
       Action: 'CreateTrigger',
       FunctionName: inputs.functionName,
       Namespace: inputs.namespace,
 
       Type: 'cmq',
-      Qualifier: parameters.qualifier || '$DEFAULT',
-      TriggerName: parameters.name,
+      Qualifier: parameters?.qualifier || '$DEFAULT',
+      TriggerName: parameters?.name,
       TriggerDesc: JSON.stringify({
         filterType: 1,
-        filterKey: parameters.filterKey,
+        filterKey: parameters?.filterKey,
       }),
-      Enable: parameters.enable ? 'OPEN' : 'CLOSE',
+      Enable: parameters?.enable ? 'OPEN' : 'CLOSE',
     };
 
     const triggerKey = this.getKey(triggerInputs);

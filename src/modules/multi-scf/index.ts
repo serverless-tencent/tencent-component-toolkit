@@ -1,12 +1,13 @@
+import { ScfRemoveInputs } from './../scf/interface';
 import { ScfDeployInputs } from './../scf/interface';
 import { CapiCredentials, RegionType } from './../interface';
 import scfUtils from '../scf/index';
-import { MultiScfDeployInputs, MultiScfRemoveInputs } from './interface';
+import { MultiScfDeployInputs, MultiScfRemoveInputs, MultiScfDeployOutputs } from './interface';
 
 export default class MultiScf {
   credentials: CapiCredentials;
   regionList: RegionType[];
-  constructor(credentials = {}, region: RegionType | RegionType[]) {
+  constructor(credentials = {}, region: RegionType | RegionType[] = 'ap-guangzhou') {
     this.regionList = typeof region == 'string' ? [region] : region;
     this.credentials = credentials;
   }
@@ -36,25 +37,25 @@ export default class MultiScf {
     return targetJson;
   }
 
-  async doDeploy(tempInputs:any, output:any) {
+  async doDeploy(tempInputs:ScfDeployInputs, output:MultiScfDeployOutputs) {
     const scfClient = new scfUtils(this.credentials, tempInputs.region);
-    output[tempInputs.region] = await scfClient.deploy(tempInputs);
+    output[tempInputs.region!] = await scfClient.deploy(tempInputs);
   }
 
-  async doDelete(tempInputs:any, region:RegionType) {
+  async doDelete(tempInputs:ScfRemoveInputs, region:RegionType) {
     const scfClient = new scfUtils(this.credentials, region);
     await scfClient.remove(tempInputs);
   }
 
-  async deploy(inputs:MultiScfDeployInputs = {} as any) {
+  async deploy(inputs:MultiScfDeployInputs = {}) {
     if (!this.regionList) {
-      this.regionList = typeof inputs.region == 'string' ? [inputs.region] : inputs.region;
+      this.regionList = typeof inputs.region == 'string' ? [inputs.region] : inputs.region ?? [];
     }
     const baseInputs:Partial<Record<RegionType, ScfDeployInputs>> = {};
-    const functions = {};
+    const functions:MultiScfDeployOutputs = {};
 
     for (const eveKey in inputs) {
-      const rk: RegionType = eveKey as any;
+      const rk: RegionType = eveKey;
       if (eveKey != 'region' && eveKey.indexOf('ap-') != 0) {
         baseInputs[rk] = inputs[rk];
       }
@@ -77,8 +78,8 @@ export default class MultiScf {
   async remove(inputs:MultiScfRemoveInputs = {}) {
     const functionHandler = [];
     for (const item in inputs) {
-      const region: RegionType = item as any;
-      functionHandler.push(this.doDelete(inputs[region], region));
+      const region: RegionType = item;
+      functionHandler.push(this.doDelete(inputs[region]!, region));
     }
     await Promise.all(functionHandler);
     return {};

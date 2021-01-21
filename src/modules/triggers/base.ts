@@ -1,10 +1,10 @@
 import { Capi } from '@tencent-sdk/capi';
 import { RegionType, CapiCredentials, ApiServiceType } from '../interface';
 import { SCF } from './apis';
-import { TriggerInputs, TriggerInputsParams } from './interface';
+import { TriggerInputs, TriggerInputsParams, CreateTriggerReq } from './interface';
 import Scf from '../scf';
 
-type Qualifier = any;
+type Qualifier = string;
 
 export default abstract class BaseTrigger<P = TriggerInputsParams> {
   region!: RegionType;
@@ -31,6 +31,8 @@ export default abstract class BaseTrigger<P = TriggerInputsParams> {
     }
   }
 
+  abstract getKey(triggerType: CreateTriggerReq):string;
+
   abstract formatInputs({
     region,
     inputs,
@@ -48,12 +50,12 @@ export default abstract class BaseTrigger<P = TriggerInputsParams> {
     namespace = 'default',
     qualifier,
   }: {
-    functionName: string;
+    functionName?: string;
     namespace: string;
     qualifier: Qualifier;
   }) {
     const listOptions: {
-      FunctionName: string;
+      FunctionName?: string;
       Namespace: string;
       Limit: number;
       Filters: { Name: string; Values: Qualifier[] }[];
@@ -97,9 +99,11 @@ export default abstract class BaseTrigger<P = TriggerInputsParams> {
   /** delete scf trigger */
   abstract delete({
     scf,
+    region: RegionType,
     inputs,
   }: {
     scf: Scf;
+    region: RegionType,
     inputs: TriggerInputs<P>;
   }): Promise<boolean | { requestId: string; success: boolean }>;
 

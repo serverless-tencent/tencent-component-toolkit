@@ -1,7 +1,7 @@
 import Scf from '../scf';
 import { CapiCredentials, RegionType } from './../interface';
 import BaseTrigger, { TRIGGER_STATUS_MAP } from './base';
-import { TimerTriggerInputsParams, TriggerInputs } from './interface';
+import { TimerTriggerInputsParams, TriggerInputs, CreateTriggerReq } from './interface';
 
 export default class TimerTrigger extends BaseTrigger<TimerTriggerInputsParams> {
 
@@ -11,17 +11,10 @@ export default class TimerTrigger extends BaseTrigger<TimerTriggerInputsParams> 
     this.region = region;
   }
 
-  getKey(triggerInputs: {
-    Enable: 'OPEN' | 'CLOSE' | 0 | 1;
-    TriggerName: string;
-    CustomArgument?: string;
-    Qualifier: string;
-    TriggerDesc?: string;
-    Type: string;
-  }) {
+  getKey(triggerInputs: CreateTriggerReq) {
     // Very strange logical for Enable, fe post Enable is 'OPEN' or 'CLOSE'
     // but get 1 or 0, parameter type cnaged......
-    const Enable = TRIGGER_STATUS_MAP[triggerInputs.Enable];
+    const Enable = TRIGGER_STATUS_MAP[triggerInputs.Enable!];
     // Very strange logical for TriggerDesc, fe post TriggerDesc is "0 */6 * * * * *"
     // but get "{"cron":"0 */6 * * * * *"}"
     const Desc =
@@ -40,17 +33,17 @@ export default class TimerTrigger extends BaseTrigger<TimerTriggerInputsParams> 
     inputs: TriggerInputs<TimerTriggerInputsParams>;
   }) {
     const { parameters, name } = inputs;
-    const triggerInputs = {
+    const triggerInputs:CreateTriggerReq = {
       Action: 'CreateTrigger',
       FunctionName: inputs.functionName,
       Namespace: inputs.namespace,
       Type: 'timer',
-      Qualifier: parameters.qualifier || '$DEFAULT',
-      TriggerName: parameters.name || name,
-      TriggerDesc: parameters.cronExpression,
-      Enable: (parameters.enable ? 'OPEN' : 'CLOSE') as 'OPEN' | 'CLOSE',
+      Qualifier: parameters?.qualifier || '$DEFAULT',
+      TriggerName: parameters?.name || name,
+      TriggerDesc: parameters?.cronExpression,
+      Enable: (parameters?.enable ? 'OPEN' : 'CLOSE') as 'OPEN' | 'CLOSE',
 
-      CustomArgument: parameters.argument ?? undefined,
+      CustomArgument: parameters?.argument ?? undefined,
     };
 
     const triggerKey = this.getKey(triggerInputs);

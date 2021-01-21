@@ -111,7 +111,7 @@ export async function updateIndex(
 export async function getClsTrigger(
   cls: Cls,
   data: {
-    topic_id: string;
+    topic_id?: string;
     namespace?: string;
     function_name?: string;
     qualifier?: string;
@@ -154,12 +154,12 @@ export async function getClsTrigger(
 export async function createClsTrigger(
   cls: Cls,
   data: {
-    topic_id: string;
+    topic_id?: string;
     namespace?: string;
-    function_name: string;
-    qualifier: string;
-    max_wait: number;
-    max_size: number;
+    function_name?: string;
+    qualifier?: string;
+    max_wait?: number;
+    max_size?: number;
   },
 ) {
   const res = await cls.request({
@@ -194,13 +194,13 @@ export async function createClsTrigger(
 export async function updateClsTrigger(
   cls: Cls,
   data: {
-    topic_id: string;
+    topic_id?: string;
     namespace?: string;
-    function_name: string;
+    function_name?: string;
     qualifier: string;
-    max_wait: number;
-    max_size: number;
-    effective: boolean;
+    max_wait?: number;
+    max_size?: number;
+    effective?: boolean;
   },
 ) {
   const res = await cls.request({

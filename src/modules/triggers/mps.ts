@@ -1,7 +1,7 @@
 import { ApiServiceType } from './../interface';
 import { FunctionInfo } from './../scf/interface';
 import Scf from '../scf';
-import { TriggerInputs, MpsTriggerInputsParams } from './interface';
+import { TriggerInputs, MpsTriggerInputsParams, CreateTriggerReq } from './interface';
 import { MPS } from './apis';
 import { pascalCaseProps } from '../../utils/index';
 import BaseTrigger from './base';
@@ -18,32 +18,32 @@ export default class MpsTrigger extends BaseTrigger<MpsTriggerInputsParams> {
     super({region, credentials, serviceType: ApiServiceType.mps});
   }
   
-  async request({ Action, ...data }: any) {
+  async request({ Action, ...data }: {Action: 'BindTrigger' | 'UnbindTrigger', [key:string]:any}) {
     const result = await MPS[Action](this.capi, pascalCaseProps(data));
     return result;
   }
 
-  getKey(triggerInputs: { ResourceId?: string; TriggerDesc: { eventType: string } }) {
+  getKey(triggerInputs: CreateTriggerReq) {
     if (triggerInputs.ResourceId) {
       // from ListTriggers API
       const rStrArr = triggerInputs.ResourceId.split('/');
       return `${rStrArr[rStrArr.length - 1]}`;
     }
 
-    return `${triggerInputs.TriggerDesc.eventType}Event`;
+    return `${triggerInputs.TriggerDesc?.eventType}Event`;
   }
 
   formatInputs({ inputs }: { region?:RegionType, inputs: TriggerInputs<MpsTriggerInputsParams> }) {
-    const data = inputs.parameters;
-    const triggerInputs = {
+    const parameters = inputs.parameters;
+    const triggerInputs:CreateTriggerReq = {
       Type: 'mps',
-      Qualifier: data.qualifier || '$DEFAULT',
+      Qualifier: parameters?.qualifier ?? '$DEFAULT',
       TriggerName: '',
       TriggerDesc: {
-        eventType: data.type,
+        eventType: parameters?.type,
       },
 
-      Enable: data.enable ? 'OPEN' : 'CLOSE',
+      Enable: parameters?.enable ? 'OPEN' : 'CLOSE',
     };
 
     const triggerKey = this.getKey(triggerInputs);
@@ -60,8 +60,8 @@ export default class MpsTrigger extends BaseTrigger<MpsTriggerInputsParams> {
     namespace,
     qualifier,
   }: {
-    eventType: string;
-    functionName: string;
+    eventType?: string;
+    functionName?: string;
     namespace: string;
     qualifier: string;
   }) {
@@ -90,20 +90,20 @@ export default class MpsTrigger extends BaseTrigger<MpsTriggerInputsParams> {
     };
     // check exist type trigger
     const existTypeTrigger = await this.getTypeTrigger({
-      eventType: parameters.type,
-      qualifier: parameters.qualifier || '$DEFAULT',
-      namespace: inputs.namespace || 'default',
+      eventType: parameters?.type,
+      qualifier: parameters?.qualifier ?? '$DEFAULT',
+      namespace: inputs.namespace ?? 'default',
       functionName: inputs.functionName,
     });
     let needBind = false;
     if (existTypeTrigger) {
-      if (parameters.enable === false) {
+      if (parameters?.enable === false) {
         await this.request({
           Action: 'UnbindTrigger',
           Type: 'mps',
-          Qualifier: parameters.qualifier || '$DEFAULT',
+          Qualifier: parameters.qualifier ?? '$DEFAULT',
           FunctionName: inputs.functionName,
-          Namespace: inputs.namespace || 'default',
+          Namespace: inputs.namespace ?? 'default',
           ResourceId: existTypeTrigger.ResourceId,
         });
       } else if (existTypeTrigger.BindStatus === 'off') {
@@ -118,10 +118,10 @@ export default class MpsTrigger extends BaseTrigger<MpsTriggerInputsParams> {
       const res = await this.request({
         Action: 'BindTrigger',
         ScfRegion: this.region,
-        EventType: parameters.type,
-        Qualifier: parameters.qualifier || '$DEFAULT',
+        EventType: parameters?.type,
+        Qualifier: parameters?.qualifier ?? '$DEFAULT',
         FunctionName: inputs.functionName,
-        Namespace: inputs.namespace || 'default',
+        Namespace: inputs.namespace ?? 'default',
       });
 
       output.resourceId = res.ResourceId;

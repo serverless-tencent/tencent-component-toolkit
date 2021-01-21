@@ -6,14 +6,14 @@ export const SCF = ApiFactory({
   // debug: true,
   serviceType: ApiServiceType.scf,
   version: '2018-04-16',
-  actions: ['CreateTrigger', 'DeleteTrigger', 'ListTriggers'],
+  actions: ['CreateTrigger', 'DeleteTrigger', 'ListTriggers'] as const,
 });
 
 export const APIGW = ApiFactory({
   // debug: true,
   serviceType: ApiServiceType.apigateway,
   version: '2018-08-08',
-  actions: ['DescribeApi'],
+  actions: ['DescribeApi'] as const,
   responseHandler(Response) {
     return Response.Result || Response;
   },
@@ -35,5 +35,5 @@ export const MPS = ApiFactory({
   isV3: false,
   serviceType: ApiServiceType.mps,
   version: '2019-06-12',
-  actions: ['BindTrigger', 'UnbindTrigger'],
+  actions: ['BindTrigger', 'UnbindTrigger'] as const,
 });

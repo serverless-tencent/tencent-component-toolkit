@@ -1,17 +1,15 @@
-import { ApigwDeployInputs } from './../apigw/interface';
 import { CapiCredentials, RegionType, ApiServiceType } from './../interface';
 import BaseTrigger from './base';
 import { APIGW, SCF } from './apis';
 import {
-  EndpointFunction,
   ApigwTriggerRemoveScfTriggerInputs,
   TriggerInputs,
   ApigwTriggerRemoveInputs,
   ApigwTriggerInputsParams,
+  CreateTriggerReq,
 } from './interface';
 import Scf from '../scf';
 import { FunctionInfo } from '../scf/interface';
-import { Capi } from '@tencent-sdk/capi';
 
 export default class ApigwTrigger extends BaseTrigger<ApigwTriggerInputsParams> {
 
@@ -117,7 +115,7 @@ export default class ApigwTrigger extends BaseTrigger<ApigwTriggerInputsParams> 
     return true;
   }
 
-  getKey(triggerInputs: ApigwTriggerInputsParams): string {
+  getKey(triggerInputs: CreateTriggerReq): string {
     if (triggerInputs.ResourceId) {
       // from ListTriggers API
       const rStrArr = triggerInputs.ResourceId.split('service/');
@@ -125,7 +123,7 @@ export default class ApigwTrigger extends BaseTrigger<ApigwTriggerInputsParams> 
       return rStrArr1[0];
     }
 
-    return (triggerInputs.TriggerDesc as any).serviceId;
+    return (triggerInputs.TriggerDesc).serviceId;
   }
 
   /** 格式化输入 */
@@ -138,29 +136,31 @@ export default class ApigwTrigger extends BaseTrigger<ApigwTriggerInputsParams> 
     inputs: TriggerInputs<ApigwTriggerInputsParams>;
   }) {
     const { parameters, name } = inputs;
-    const { oldState, protocols, environment, serviceId, serviceName, serviceDesc } = parameters;
+    const { oldState, protocols, environment, serviceId, serviceName, serviceDesc } = parameters!;
     const triggerInputs: ApigwTriggerInputsParams = {
-      oldState: parameters.oldState ?? {},
+      oldState: oldState ?? {},
       region,
       protocols,
       environment,
       serviceId,
       serviceName,
       serviceDesc,
-      endpoints: (parameters.endpoints || []).map((ep: any) => {
+      endpoints: (parameters?.endpoints ?? []).map((ep: any) => {
         ep.function = ep.function || {};
         ep.function.functionName = inputs.functionName;
         ep.function.functionNamespace = inputs.namespace;
         ep.function.functionQualifier = ep.function.functionQualifier ?? '$DEFAULT';
         return ep;
       }),
-      netTypes: parameters.netTypes,
+      netTypes: parameters?.netTypes,
       TriggerDesc: {
         serviceId,
       },
-      created: !!parameters.created,
+      created: !!(parameters?.created),
     };
-    const triggerKey = this.getKey(triggerInputs);
+    const triggerKey = this.getKey({
+      TriggerDesc: serviceId
+    });
     return {
       triggerKey,
       triggerInputs,

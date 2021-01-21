@@ -1,4 +1,3 @@
-import { Region } from 'cos-nodejs-sdk-v5';
 import { ActionType } from './apis';
 import { RegionType, ApiServiceType, CapiCredentials } from './../interface';
 import { sleep, waitResponse } from '@ygkit/request';
@@ -29,8 +28,10 @@ import {
   ScfDeleteAliasInputs,
   ScfListAliasInputs,
   ScfUpdateAliasTrafficInputs,
+  ScfDeployOutputs,
 } from './interface';
 
+/** 云函数组件 */
 export default class Scf {
   tagClient: TagsUtils;
   apigwClient: ApigwUtils;
@@ -171,8 +172,8 @@ export default class Scf {
       Action: 'UpdateFunctionCode' as const,
       Handler: functionInputs.Handler || funcInfo.Handler,
       FunctionName: functionInputs.FunctionName,
-      CosBucketName: functionInputs.Code.CosBucketName,
-      CosObjectName: functionInputs.Code.CosObjectName,
+      CosBucketName: functionInputs.Code?.CosBucketName,
+      CosObjectName: functionInputs.Code?.CosObjectName,
       Namespace: inputs.Namespace || funcInfo.Namespace,
     };
     await this.request(updateFunctionConnfigure);
@@ -182,24 +183,27 @@ export default class Scf {
   // update function configure
   async updatefunctionConfigure(inputs: ScfCreateFunctionInputs, funcInfo: FunctionInfo) {
     console.log(`Updating function ${inputs.name} configure in ${this.region}`);
-    let reqInputs:any = await formatFunctionInputs(this.region, inputs);
+    let tmpInputs = await formatFunctionInputs(this.region, inputs);
 
-    reqInputs = {
-      ...reqInputs,
-      Action: 'UpdateFunctionConfiguration' as const,
+    tmpInputs = {
+      ...tmpInputs,
       Timeout: inputs.timeout || funcInfo.Timeout,
       Namespace: inputs.namespace || funcInfo.Namespace,
       MemorySize: inputs.memorySize || funcInfo.MemorySize,
     };
-    if (!reqInputs.ClsLogsetId) {
-      reqInputs.ClsLogsetId = '';
-      reqInputs.ClsTopicId = '';
+    if (!tmpInputs.ClsLogsetId) {
+      tmpInputs.ClsLogsetId = '';
+      tmpInputs.ClsTopicId = '';
     }
+
+    const reqInputs: Partial<typeof tmpInputs> = tmpInputs;
+
     // can not update handler,code,codesource
     delete reqInputs.Handler;
     delete reqInputs.Code;
     delete reqInputs.CodeSource;
     delete reqInputs.AsyncRunEnable;
+
     // +++++++++++++++++++++++
     // Below are very strange logical for layer unbind, but backend api need me to do this.
     // handle unbind one layer
@@ -213,11 +217,11 @@ export default class Scf {
     if (!reqInputs?.Environment?.Variables || reqInputs.Environment.Variables.length === 0) {
       reqInputs.Environment = { Variables: [{ Key: '', Value: '' }] };
     }
-    await this.request(reqInputs);
+    await this.request({ Action: 'UpdateFunctionConfiguration', ...reqInputs });
     return true;
   }
 
-  async getTriggerList(functionName: string, namespace = 'default') {
+  async getTriggerList(functionName: string, namespace = 'default'): Promise<TriggerType[]> {
     const { Triggers = [], TotalCount } = await this.request({
       Action: 'ListTriggers',
       FunctionName: functionName,
@@ -225,7 +229,7 @@ export default class Scf {
       Limit: 100,
     });
     if (TotalCount > 100) {
-      const res: any = await this.getTriggerList(functionName, namespace);
+      const res = await this.getTriggerList(functionName, namespace);
       return Triggers.concat(res);
     }
 
@@ -239,8 +243,8 @@ export default class Scf {
     const updateList: (TriggerType | null)[] = [];
     events.forEach((event, index) => {
       const Type = Object.keys(event)[0];
-      const triggerClass: any = TRIGGERS[Type];
-      const triggerInstance: BaseTrigger = new triggerClass({
+      const TriggerClass = TRIGGERS[Type];
+      const triggerInstance: BaseTrigger = new TriggerClass({
         credentials: this.credentials,
         region: this.region,
       });
@@ -255,8 +259,8 @@ export default class Scf {
       for (let i = 0; i < oldList.length; i++) {
         const curOld = oldList[i];
         if (curOld.Type === Type) {
-          const oldTriggerClass: any = TRIGGERS[curOld.Type];
-          const oldTriggerInstance = new oldTriggerClass({
+          const OldTriggerClass = TRIGGERS[curOld.Type];
+          const oldTriggerInstance = new OldTriggerClass({
             credentials: this.credentials,
             region: this.region,
           });
@@ -284,23 +288,24 @@ export default class Scf {
     console.log(`Deploying triggers for function ${funcInfo.FunctionName}`);
 
     // should check function status is active, then continue
-    await this.isOperationalStatus(inputs.namespace, inputs.name);
+    await this.isOperationalStatus(inputs.namespace, inputs.name!);
 
     // get all triggers
     const triggerList = await this.getTriggerList(funcInfo.FunctionName, funcInfo.Namespace);
 
-    const { deleteList, createList } = this.filterTriggers(funcInfo, inputs.events, triggerList);
+    const { deleteList, createList } = this.filterTriggers(funcInfo, inputs.events!, triggerList);
 
     // remove all old triggers
     for (let i = 0, len = deleteList.length; i < len; i++) {
       const curTrigger = deleteList[i];
       const { Type } = curTrigger!;
-      const triggerClass: any = TRIGGERS[Type];
-      const triggerInstance = new triggerClass({
-        credentials: this.credentials,
-        region: this.region,
-      });
-      if (triggerClass) {
+      const TriggerClass = TRIGGERS[Type];
+
+      if (TriggerClass) {
+        const triggerInstance = new TriggerClass({
+          credentials: this.credentials,
+          region: this.region,
+        });
         await triggerInstance.delete({
           scf: this,
           region: this.region,
@@ -322,15 +327,15 @@ export default class Scf {
       const event = createList[i];
       // FIXME: wtf
       const Type = Object.keys(event as any)[0];
-      const triggerClass: any = TRIGGERS[Type];
-      if (!triggerClass) {
+      const TriggerClass = TRIGGERS[Type];
+      if (!TriggerClass) {
         throw new ApiTypeError('PARAMETER_SCF', `Unknow trigger type ${Type}`);
       }
-      const triggerInstance = new triggerClass({
+      const triggerInstance = new TriggerClass({
         credentials: this.credentials,
         region: this.region,
       });
-      const t: any = event ? (event as any)[Type] : {};
+      const t = event ? (event as any)[Type] : {};
       const triggerOutput = await triggerInstance.create({
         scf: this,
         region: this.region,
@@ -374,7 +379,7 @@ export default class Scf {
    * publish function version
    * @param {object} inputs publish version parameter
    */
-  async publishVersion(inputs: ScfPublishVersionInputs = {} as any) {
+  async publishVersion(inputs: ScfPublishVersionInputs = {}) {
     console.log(`Publishing function ${inputs.functionName} version`);
     const publishInputs = {
       Action: 'PublishVersion' as const,
@@ -563,12 +568,12 @@ export default class Scf {
   }
 
   // deploy SCF flow
-  async deploy(inputs: ScfDeployInputs = {} as any) {
+  async deploy(inputs: ScfDeployInputs = {}):Promise<ScfDeployOutputs> {
     const namespace = inputs.namespace ?? CONFIGS.defaultNamespace;
 
     // before deploy a scf, we should check whether
     // if is CreateFailed, try to remove it
-    await this.isOperational(namespace, inputs.name);
+    await this.isOperational(namespace, inputs.name!);
 
     // whether auto create/bind role
     if (inputs.enableRoleAuth) {
@@ -576,23 +581,23 @@ export default class Scf {
     }
     // check SCF exist
     // exist: update it, not: create it
-    let funcInfo = await this.getFunction(namespace, inputs.name);
+    let funcInfo = await this.getFunction(namespace, inputs.name!);
     if (!funcInfo) {
       await this.createFunction(inputs);
     } else {
       await this.updateFunctionCode(inputs, funcInfo);
 
       // should check function status is active, then continue
-      await this.isOperationalStatus(namespace, inputs.name);
+      await this.isOperationalStatus(namespace, inputs.name!);
 
       await this.updatefunctionConfigure(inputs, funcInfo);
     }
 
     // should check function status is active, then continue
-    await this.isOperationalStatus(namespace, inputs.name);
+    await this.isOperationalStatus(namespace, inputs.name!);
 
     // after create/update function, get latest function info
-    funcInfo = await this.getFunction(namespace, inputs.name);
+    funcInfo = await this.getFunction(namespace, inputs.name!);
 
     const outputs = funcInfo;
     if (inputs.publish) {
@@ -606,7 +611,7 @@ export default class Scf {
       outputs.LastVersion = FunctionVersion;
 
       // should check function status is active, then continue
-      await this.isOperationalStatus(namespace, inputs.name, inputs.lastVersion);
+      await this.isOperationalStatus(namespace, inputs.name!, inputs.lastVersion);
     }
 
     const needSetTraffic =
@@ -680,8 +685,10 @@ export default class Scf {
     return outputs;
   }
 
-  // 移除函数的主逻辑
-  async remove(inputs: ScfRemoveInputs = {} as any) {
+  /**
+   * 移除函数的主逻辑
+   */
+  async remove(inputs: ScfRemoveInputs = {}) {
     const functionName: string = inputs.functionName ?? inputs.FunctionName!;
     console.log(`Removing function ${functionName}`);
     const namespace = inputs.namespace ?? inputs.Namespace ?? CONFIGS.defaultNamespace;

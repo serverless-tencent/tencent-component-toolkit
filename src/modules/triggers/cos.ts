@@ -1,9 +1,7 @@
 import Scf from '../scf';
 import { CapiCredentials, RegionType } from './../interface';
-import BaseTrigger from './base';
-import { CosTriggerInputsParams, TriggerInputs } from './interface';
-const { TRIGGER_STATUS_MAP } = require('./base');
-
+import BaseTrigger, { TRIGGER_STATUS_MAP } from './base';
+import { CosTriggerInputsParams, TriggerInputs, CreateTriggerReq } from './interface';
 export default class CosTrigger extends BaseTrigger<CosTriggerInputsParams> {
   credentials: CapiCredentials;
   region: RegionType;
@@ -14,39 +12,34 @@ export default class CosTrigger extends BaseTrigger<CosTriggerInputsParams> {
     this.region = region;
   }
 
-  getKey(triggerInputs: {
-    TriggerName: string;
-    TriggerDesc: string;
-    Enable: string;
-    Qualifier: string;
-  }) {
+  getKey(triggerInputs: CreateTriggerReq) {
     const tempDest = JSON.stringify({
       bucketUrl: triggerInputs.TriggerName,
-      event: JSON.parse(triggerInputs.TriggerDesc).event,
-      filter: JSON.parse(triggerInputs.TriggerDesc).filter,
+      event: JSON.parse(triggerInputs.TriggerDesc!).event,
+      filter: JSON.parse(triggerInputs.TriggerDesc!).filter,
     });
-    const Enable = TRIGGER_STATUS_MAP[triggerInputs.Enable];
+    const Enable = TRIGGER_STATUS_MAP[triggerInputs.Enable!];
     return `cos-${triggerInputs.TriggerName}-${tempDest}-${Enable}-${triggerInputs.Qualifier}`;
   }
 
   formatInputs({ inputs }: { region: RegionType; inputs: TriggerInputs<CosTriggerInputsParams> }) {
     const { parameters } = inputs;
-    const triggerInputs = {
+    const triggerInputs: CreateTriggerReq = {
       Action: 'CreateTrigger',
       FunctionName: inputs.functionName,
       Namespace: inputs.namespace,
 
       Type: 'cos',
-      Qualifier: parameters.qualifier || '$DEFAULT',
-      TriggerName: parameters.bucket,
+      Qualifier: parameters?.qualifier || '$DEFAULT',
+      TriggerName: parameters?.bucket,
       TriggerDesc: JSON.stringify({
-        event: parameters.events,
+        event: parameters?.events,
         filter: {
-          Prefix: parameters.filter?.prefix ?? '',
-          Suffix: parameters.filter?.suffix ?? '',
+          Prefix: parameters?.filter?.prefix ?? '',
+          Suffix: parameters?.filter?.suffix ?? '',
         },
       }),
-      Enable: parameters.enable ? 'OPEN' : 'CLOSE',
+      Enable: parameters?.enable ? 'OPEN' : 'CLOSE',
     };
 
     const triggerKey = this.getKey(triggerInputs);

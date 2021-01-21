@@ -61,7 +61,7 @@ export interface ApigwBindCustomDomainInputs {
 export interface ApigwCreateOrUpdateServiceInputs {
   environment?: EnviromentType;
   protocols: ('http' | 'https')[] | string;
-  netTypes: string[];
+  netTypes?: string[];
   serviceName?: string;
   serviceDesc?: string;
   serviceId: string;

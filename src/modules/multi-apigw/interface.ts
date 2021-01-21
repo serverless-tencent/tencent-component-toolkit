@@ -1,11 +1,11 @@
-import { Region } from 'cos-nodejs-sdk-v5';
+import { ApigwRemoveInputs } from './../apigw/interface';
 import { RegionType } from './../interface';
 
 export type MultiApigwDeployInputs =  {
-    region: RegionType[] | RegionType;
-    serviceId: string;
-} & Record<RegionType, any>;
+    region?: RegionType[] | RegionType;
+    serviceId?: string;
+} & Record<RegionType, {}>;
 
-export type MultiApigwDeployOutputs = Record<RegionType, any>;
+export type MultiApigwDeployOutputs = Record<RegionType, {}>;
 
-export type MultiApigwRemoveInputs = Record<RegionType, any>;
+export type MultiApigwRemoveInputs = Record<RegionType, ApigwRemoveInputs>;

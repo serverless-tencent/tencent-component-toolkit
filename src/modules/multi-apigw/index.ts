@@ -1,17 +1,26 @@
+import { ApigwDeployInputs, ApigwRemoveInputs } from './../apigw/interface';
 import { RegionType, CapiCredentials } from './../interface';
-import apigwUtils from '../apigw';
-import { MultiApigwDeployInputs, MultiApigwRemoveInputs } from './interface';
+import Apigw from '../apigw';
+import {
+  MultiApigwDeployInputs,
+  MultiApigwRemoveInputs,
+  MultiApigwDeployOutputs,
+} from './interface';
 
+/** 多地狱 API 网关 */
 export default class MultiApigw {
   regionList: RegionType[];
-  credentials:  CapiCredentials;
+  credentials: CapiCredentials;
 
-  constructor(credentials:CapiCredentials = {}, region:RegionType) {
+  constructor(
+    credentials: CapiCredentials = {},
+    region: RegionType | RegionType[] = 'ap-guangzhou',
+  ) {
     this.regionList = typeof region == 'string' ? [region] : region;
     this.credentials = credentials;
   }
 
-  mergeJson(sourceJson:any, targetJson:any) {
+  mergeJson(sourceJson: any, targetJson: any) {
     for (const eveKey in sourceJson) {
       if (targetJson.hasOwnProperty(eveKey)) {
         if (['protocols', 'endpoints', 'customDomain'].indexOf(eveKey) != -1) {
@@ -36,29 +45,29 @@ export default class MultiApigw {
     return targetJson;
   }
 
-  async doDeploy(tempInputs:any, output:any) {
-    const scfClient = new apigwUtils(this.credentials, tempInputs.region);
-    output[tempInputs.region] = await scfClient.deploy(tempInputs);
+  async doDeploy(tempInputs: ApigwDeployInputs, output: MultiApigwDeployOutputs) {
+    // FIXME: why apigw is called scfClient?
+    // const scfClient = new apigw(this.credentials, tempInputs.region);
+    const apigw = new Apigw(this.credentials, tempInputs.region);
+    output[tempInputs.region] = await apigw.deploy(tempInputs);
   }
 
-  async doDelete(tempInputs:any, region:RegionType) {
-    const scfClient = new apigwUtils(this.credentials, region);
-    await scfClient.remove(tempInputs);
+  async doDelete(tempInputs: ApigwRemoveInputs, region: RegionType) {
+    const apigw = new Apigw(this.credentials, region);
+    await apigw.remove(tempInputs);
   }
 
-  async deploy(inputs:MultiApigwDeployInputs = {} as any) {
+  async deploy(inputs: MultiApigwDeployInputs = {}) {
     if (!this.regionList) {
-      this.regionList = typeof inputs.region === 'string' ? [inputs.region] as RegionType[] : inputs.region;
+      this.regionList = (typeof inputs.region === 'string' ? [inputs.region] : inputs.region) ?? [];
     }
 
-    const baseInputs:MultiApigwDeployInputs = {} as any;
+    const baseInputs: MultiApigwDeployInputs = {};
     for (const eveKey in inputs) {
       if (eveKey != 'region' && eveKey.indexOf('ap-') != 0) {
-        (baseInputs as any)[eveKey] = (inputs as any)[eveKey];
+        baseInputs[eveKey] = inputs[eveKey];
       }
     }
-
-    
 
     if (inputs.serviceId && this.regionList.length > 1) {
       throw new Error(
@@ -81,7 +90,7 @@ export default class MultiApigw {
     return apigwOutputs;
   }
 
-  async remove(inputs: MultiApigwRemoveInputs = {} as any) {
+  async remove(inputs: MultiApigwRemoveInputs = {}) {
     const apigwHandler = [];
     for (const item in inputs) {
       const r = item as RegionType;

@@ -6,6 +6,7 @@ import CmqTrigger from './cmq';
 import ClsTrigger from './cls';
 import MpsTrigger from './mps';
 import BaseTrigger from './base';
+import { CapiCredentials, RegionType } from '../interface';
 
 
 export {default as TimerTrigger} from './timer';
@@ -24,6 +25,6 @@ const TRIGGER = {
     cmq: CmqTrigger,
     cls: ClsTrigger,
     mps: MpsTrigger,
-} as any as Record<string, BaseTrigger>
+} as any as Record<string, BaseTrigger  & { new(options:{credentials: CapiCredentials, region:RegionType}):BaseTrigger }>
 
 export default TRIGGER;
