@@ -249,6 +249,7 @@ describe('Scf', () => {
               created: true,
               authType: 'NONE',
               businessType: 'NORMAL',
+              isBase64Encoded: false,
             },
           ],
         },
