@@ -1,5 +1,5 @@
 import { ApiFactory } from '../../utils/api';
-import { ServiceType } from '../interface';
+import { ApiServiceType } from '../interface';
 
 const ACTIONS = [
   'OpenCdnService',
@@ -19,7 +19,7 @@ type ActionType = typeof ACTIONS[number];
 const APIS = ApiFactory<typeof ACTIONS>({
   // debug: true,
   isV3: true,
-  serviceType: ServiceType.cdn,
+  serviceType: ApiServiceType.cdn,
   version: '2018-06-06',
   actions: ACTIONS,
 });

@@ -56,7 +56,7 @@ export default class Cos {
   region: RegionType;
   cosClient: COS;
 
-  constructor(credentials: CapiCredentials = {}, region: RegionType = RegionType['ap-guangzhou']) {
+  constructor(credentials: CapiCredentials = {}, region: RegionType = 'ap-guangzhou') {
     this.region = region;
     this.credentials = credentials;
     // cos临时密钥需要用XCosSecurityToken

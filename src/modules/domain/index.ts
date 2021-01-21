@@ -1,4 +1,4 @@
-import { ServiceType } from './../interface';
+import { ApiServiceType } from './../interface';
 import { Capi } from '@tencent-sdk/capi';
 import { RegionType, CapiCredentials } from '../interface';
 import Apis from './apis';
@@ -8,12 +8,12 @@ class Domain {
   credentials: CapiCredentials;
   capi: Capi;
 
-  constructor(credentials = {}, region:RegionType = RegionType['ap-guangzhou']) {
+  constructor(credentials = {}, region:RegionType = 'ap-guangzhou') {
     this.region = region || 'ap-guangzhou';
     this.credentials = credentials;
     this.capi = new Capi({
       Region: this.region,
-      ServiceType: ServiceType.domain,
+      ServiceType: ApiServiceType.domain,
       SecretId: this.credentials.SecretId!,
       SecretKey: this.credentials.SecretKey!,
       Token: this.credentials.Token,

@@ -1,5 +1,5 @@
 import { ApiFactory } from '../../utils/api';
-import { ServiceType } from '../interface';
+import { ApiServiceType } from '../interface';
 
 const ACTIONS = [
   'CreateFunction',
@@ -23,7 +23,7 @@ export type ActionType = typeof ACTIONS[number];
 
 const APIS = ApiFactory({
   // debug: true,
-  serviceType: ServiceType.scf,
+  serviceType: ApiServiceType.scf,
   version: '2018-04-16',
   actions: ACTIONS,
 });

@@ -2,7 +2,7 @@ import { TagData } from './../tag/interface';
 import { Region } from 'cos-nodejs-sdk-v5';
 import { RegionType } from './../interface';
 import { CreateCfsParams } from './utils';
-import { CapiCredentials, ServiceType } from '../interface';
+import { CapiCredentials, ApiServiceType } from '../interface';
 
 import { Capi } from '@tencent-sdk/capi';
 import utils from './utils';
@@ -15,13 +15,13 @@ export default class CFS {
   capi: Capi;
   tagClient: Tag;
 
-  constructor(credentials: CapiCredentials, region: RegionType = RegionType['ap-guangzhou']) {
+  constructor(credentials: CapiCredentials, region: RegionType = 'ap-guangzhou') {
     this.region = region;
     this.credentials = credentials;
     this.capi = new Capi({
       Region: this.region,
       // FIXME: no serviceType
-      ServiceType: ServiceType.cfs,
+      ServiceType: ApiServiceType.cfs,
       SecretId: credentials.SecretId!,
       SecretKey: credentials.SecretKey!,
       Token: credentials.Token,
@@ -108,7 +108,7 @@ export default class CFS {
       try {
         const tags = await this.tagClient.deployResourceTags({
           tags: inputs.tags.map((item) => ({ TagKey: item.key, TagValue: item.value })),
-          serviceType: ServiceType.cfs,
+          serviceType: ApiServiceType.cfs,
           resourcePrefix: 'filesystem',
           resourceId: outputs.fileSystemId!,
         });

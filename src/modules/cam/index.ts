@@ -1,5 +1,4 @@
-import { Region } from 'cos-nodejs-sdk-v5';
-import { CapiCredentials, RegionType } from './../interface';
+import { CapiCredentials, RegionType, ApiServiceType } from './../interface';
 import { Capi } from '@tencent-sdk/capi';
 import Apis from './apis';
 
@@ -10,18 +9,17 @@ export default class Cam {
   capi: Capi;
 
   
-  constructor(credentials: CapiCredentials, region: RegionType = RegionType['ap-guangzhou']) {
+  constructor(credentials: CapiCredentials, region: RegionType = 'ap-guangzhou') {
     this.region = region;
     this.credentials = credentials;
 
     this.capi = new Capi({
       Region: this.region,
-      // FIXME: No AppId in Capi?
-      AppId: this.credentials.AppId,
+      ServiceType: ApiServiceType.cam,
       SecretId: this.credentials.SecretId!,
       SecretKey: this.credentials.SecretKey!,
       Token: this.credentials.Token,
-    } as any);
+    });
   }
 
   async request({ Action, ...data }: {Action: string, [key:string]:any}) {

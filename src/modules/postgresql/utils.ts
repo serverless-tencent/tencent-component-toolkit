@@ -10,7 +10,7 @@ const TIMEOUT = 5 * 60 * 1000;
  * @param {object} capi capi instance
  * @param {*} dBInstanceName
  */
-async function getDbInstanceDetail(capi: Capi, dBInstanceName: string) {
+export async function getDbInstanceDetail(capi: Capi, dBInstanceName: string) {
   // get instance detail
   try {
     const res = await APIS.DescribeServerlessDBInstances(capi, {
@@ -37,7 +37,7 @@ async function getDbInstanceDetail(capi: Capi, dBInstanceName: string) {
  * get db public access status
  * @param {array} netInfos network infos
  */
-function getDbExtranetAccess(netInfos: { NetType: string; Status: string }[]) {
+export function getDbExtranetAccess(netInfos: { NetType: string; Status: string }[]) {
   let result = false;
   netInfos.forEach((item) => {
     if (item.NetType === 'public') {
@@ -70,7 +70,7 @@ function getDbExtranetAccess(netInfos: { NetType: string; Status: string }[]) {
  * @param {string} dBInstanceName db instance name
  * @param {boolean} extranetAccess whether open extranet accesss
  */
-async function toggleDbInstanceAccess(capi: Capi, dBInstanceName: string, extranetAccess: boolean) {
+export async function toggleDbInstanceAccess(capi: Capi, dBInstanceName: string, extranetAccess: boolean) {
   if (extranetAccess) {
     console.log(`Start open db extranet access...`);
     await APIS.OpenServerlessDBExtranetAccess(capi, {
@@ -104,7 +104,7 @@ async function toggleDbInstanceAccess(capi: Capi, dBInstanceName: string, extran
  * @param {object} capi capi client
  * @param {object} postgresInputs create db instance inputs
  */
-async function createDbInstance(capi: Capi, postgresInputs: { DBInstanceName: string }) {
+export async function createDbInstance(capi: Capi, postgresInputs: { DBInstanceName: string }) {
   console.log(`Start create DB instance ${postgresInputs.DBInstanceName}`);
   const { DBInstanceId } = await APIS.CreateServerlessDBInstance(capi, postgresInputs);
   console.log(`Creating DB instance ID: ${DBInstanceId}`);
@@ -124,7 +124,7 @@ async function createDbInstance(capi: Capi, postgresInputs: { DBInstanceName: st
  * @param {object} capi capi client
  * @param {string} db instance name
  */
-async function deleteDbInstance(capi: Capi, dBInstanceName: string) {
+export async function deleteDbInstance(capi: Capi, dBInstanceName: string) {
   console.log(`Start removing postgres instance ${dBInstanceName}`);
   await APIS.DeleteServerlessDBInstance(capi, {
     DBInstanceName: dBInstanceName,
@@ -144,7 +144,7 @@ async function deleteDbInstance(capi: Capi, dBInstanceName: string) {
  * @param {object} accountInfo account info
  * @param {string} dbName db name
  */
-function formatPgUrl(
+export function formatPgUrl(
   netInfo: { Address?: string; Ip?: string; Port: string },
   accountInfo: { DBPassword: string; DBUser: string },
   dbName: string,
@@ -160,14 +160,3 @@ function formatPgUrl(
     dbname: dbName,
   };
 }
-
-module.exports = {
-  TIMEOUT,
-  createDbInstance,
-  getDbInstanceDetail,
-  getDbExtranetAccess,
-  deleteDbInstance,
-  toggleDbInstanceAccess,
-  formatPgUrl,
-  sleep,
-};

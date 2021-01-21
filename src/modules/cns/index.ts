@@ -1,4 +1,4 @@
-import { CapiCredentials, RegionType, ServiceType } from './../interface';
+import { CapiCredentials, RegionType, ApiServiceType } from './../interface';
 import { Capi } from '@tencent-sdk/capi';
 import APIS, { ActionType } from './apis';
 import { getRealType, deepClone } from '../../utils';
@@ -9,12 +9,12 @@ export default class Cns {
   credentials: CapiCredentials;
   capi: Capi;
 
-  constructor(credentials = {}, region: RegionType = RegionType['ap-guangzhou']) {
+  constructor(credentials = {}, region: RegionType = 'ap-guangzhou') {
     this.region = region;
     this.credentials = credentials;
     this.capi = new Capi({
       Region: this.region,
-      ServiceType: ServiceType.cns,
+      ServiceType: ApiServiceType.cns,
       // FIXME: AppId: this.credentials.AppId,
       SecretId: this.credentials.SecretId!,
       SecretKey: this.credentials.SecretKey!,

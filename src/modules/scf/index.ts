@@ -1,7 +1,6 @@
+import { Region } from 'cos-nodejs-sdk-v5';
 import { ActionType } from './apis';
-import { RegionType, ServiceType } from './../interface';
-import { CapiBase } from '../CapiBase';
-
+import { RegionType, ApiServiceType, CapiCredentials } from './../interface';
 import { sleep, waitResponse } from '@ygkit/request';
 import { Capi } from '@tencent-sdk/capi';
 import { ApiTypeError, ApiError } from '../../utils/error';
@@ -32,13 +31,14 @@ import {
   ScfUpdateAliasTrafficInputs,
 } from './interface';
 
-export default class Scf extends CapiBase {
+export default class Scf {
   tagClient: TagsUtils;
   apigwClient: ApigwUtils;
   capi: Capi;
+  region: RegionType;
+  credentials: CapiCredentials;
 
-  constructor(credentials = {}, region: RegionType = RegionType['ap-guangzhou']) {
-    super();
+  constructor(credentials = {}, region: RegionType = 'ap-guangzhou') {
     this.region = region;
     this.credentials = credentials;
     this.tagClient = new TagsUtils(this.credentials, this.region);
@@ -47,7 +47,7 @@ export default class Scf extends CapiBase {
     this.credentials = credentials;
     this.capi = new Capi({
       Region: this.region,
-      ServiceType: ServiceType.scf,
+      ServiceType: ApiServiceType.scf,
       SecretId: this.credentials.SecretId!,
       SecretKey: this.credentials.SecretKey!,
       Token: this.credentials.Token,
@@ -661,7 +661,7 @@ export default class Scf extends CapiBase {
       const deployedTags = await this.tagClient.deployResourceTags({
         tags: Object.entries(inputs.tags).map(([TagKey, TagValue]) => ({ TagKey, TagValue })),
         resourceId: `${funcInfo.Namespace}/function/${funcInfo.FunctionName}`,
-        serviceType: ServiceType.scf,
+        serviceType: ApiServiceType.scf,
         resourcePrefix: 'namespace',
       });
 

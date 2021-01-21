@@ -3,7 +3,7 @@ import { Capi } from '@tencent-sdk/capi';
 import { ApigwTrigger } from '../triggers';
 import { uniqueArray, camelCaseProperty, isArray, deepClone } from '../../utils';
 import { ApiTypeError } from '../../utils/error';
-import { CapiCredentials, ServiceType } from '../interface';
+import { CapiCredentials, ApiServiceType } from '../interface';
 import APIS, { ActionType } from './apis';
 import {
   Secret,
@@ -33,12 +33,12 @@ export default class Apigw {
 
   region: RegionType;
 
-  constructor(credentials: CapiCredentials, region: RegionType = RegionType['ap-guangzhou']) {
+  constructor(credentials: CapiCredentials, region: RegionType = 'ap-guangzhou') {
     this.credentials = credentials;
     this.region = region;
     this.capi = new Capi({
       Region: this.region,
-      ServiceType: ServiceType.apigateway,
+      ServiceType: ApiServiceType.apigateway,
       SecretId: this.credentials.SecretId!,
       SecretKey: this.credentials.SecretKey!,
       Token: this.credentials.Token,

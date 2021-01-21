@@ -1,5 +1,5 @@
 import { ApigwDeployInputs } from './../apigw/interface';
-import { CapiCredentials, RegionType, ServiceType } from './../interface';
+import { CapiCredentials, RegionType, ApiServiceType } from './../interface';
 import BaseTrigger from './base';
 import { APIGW, SCF } from './apis';
 import {
@@ -17,12 +17,12 @@ export default class ApigwTrigger extends BaseTrigger<ApigwTriggerInputsParams> 
 
   constructor({
     credentials = {},
-    region = RegionType['ap-guangzhou'],
+    region = 'ap-guangzhou',
   }: {
     credentials?: CapiCredentials;
     region?: RegionType;
   }) {
-    super({region, credentials, serviceType: ServiceType.apigateway});
+    super({region, credentials, serviceType: ApiServiceType.apigateway});
   }
 
   /** remove trigger from scf(Serverless Cloud Function) */

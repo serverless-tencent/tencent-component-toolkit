@@ -1,6 +1,6 @@
 import { ApiFactory } from '../../utils/api';
 import { ApiError } from '../../utils/error';
-import { ServiceType } from '../interface';
+import { ApiServiceType } from '../interface';
 
 const ACTIONS = [
   'CreateService',
@@ -39,7 +39,7 @@ export type ActionType = typeof ACTIONS[number];
 
 const APIS = ApiFactory({
   // debug: true,
-  serviceType: ServiceType.apigateway,
+  serviceType: ApiServiceType.apigateway,
   version: '2018-08-08',
   actions: ACTIONS,
   responseHandler(Response) {

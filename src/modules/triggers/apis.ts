@@ -1,17 +1,17 @@
 import { ApiFactory } from '../../utils/api';
 import { ApiError } from '../../utils/error';
-import { ServiceType } from '../interface';
+import { ApiServiceType } from '../interface';
 
 export const SCF = ApiFactory({
   // debug: true,
-  serviceType: ServiceType.scf,
+  serviceType: ApiServiceType.scf,
   version: '2018-04-16',
   actions: ['CreateTrigger', 'DeleteTrigger', 'ListTriggers'],
 });
 
 export const APIGW = ApiFactory({
   // debug: true,
-  serviceType: ServiceType.apigateway,
+  serviceType: ApiServiceType.apigateway,
   version: '2018-08-08',
   actions: ['DescribeApi'],
   responseHandler(Response) {
@@ -33,7 +33,7 @@ export const APIGW = ApiFactory({
 export const MPS = ApiFactory({
   // debug: true,
   isV3: false,
-  serviceType: ServiceType.mps,
+  serviceType: ApiServiceType.mps,
   version: '2019-06-12',
   actions: ['BindTrigger', 'UnbindTrigger'],
 });

@@ -1,4 +1,4 @@
-import { RegionType, CapiCredentials, ServiceType } from './../interface';
+import { RegionType, CapiCredentials, ApiServiceType } from './../interface';
 import { Capi } from '@tencent-sdk/capi';
 import APIS from './apis';
 import { TagData, TagGetResourceTagsInputs, TagGetScfResourceTags, TagAttachTagsInputs, TagDetachTagsInputs, TagDeployInputs, TagDeployResourceTagsInputs } from './interface';
@@ -8,12 +8,12 @@ export default class Tag {
   credentials: CapiCredentials;
   capi: Capi;
 
-  constructor(credentials = {}, region: RegionType = RegionType['ap-guangzhou']) {
+  constructor(credentials = {}, region: RegionType = 'ap-guangzhou') {
     this.region = region;
     this.credentials = credentials;
     this.capi = new Capi({
       Region: this.region,
-      ServiceType: ServiceType.tag,
+      ServiceType: ApiServiceType.tag,
       // FIXME: AppId: this.credentials.AppId,
       SecretId: this.credentials.SecretId!,
       SecretKey: this.credentials.SecretKey!,
@@ -81,7 +81,7 @@ export default class Tag {
   async getScfResourceTags(inputs: TagGetScfResourceTags) {
     const tags = await this.getResourceTags({
       resourceId: `${inputs.namespace ?? 'default'}/function/${inputs.functionName}`,
-      serviceType: ServiceType.scf,
+      serviceType: ApiServiceType.scf,
       resourcePrefix: 'namespace',
     });
 

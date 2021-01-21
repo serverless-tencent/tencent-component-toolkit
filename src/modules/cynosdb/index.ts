@@ -1,5 +1,5 @@
 import { Capi } from '@tencent-sdk/capi';
-import { CapiCredentials, RegionType, ServiceType } from '../interface';
+import { CapiCredentials, RegionType, ApiServiceType } from '../interface';
 import { CynosdbDeployInputs, CynosdbDeployOutputs, CynosdbRemoveInputs, CynosdbResetPwdInputs } from './interface';
 import {
   createCluster,
@@ -21,12 +21,12 @@ export default class Cynosdb {
   capi: Capi;
 
 
-  constructor(credentials:CapiCredentials = {}, region:RegionType = RegionType['ap-guangzhou']) {
+  constructor(credentials:CapiCredentials = {}, region:RegionType = 'ap-guangzhou') {
     this.region = region;
     this.credentials = credentials;
     this.capi = new Capi({
       Region: this.region,
-      ServiceType: ServiceType.cynosdb,
+      ServiceType: ApiServiceType.cynosdb,
       SecretId: this.credentials.SecretId!,
       SecretKey: this.credentials.SecretKey!,
       Token: this.credentials.Token,

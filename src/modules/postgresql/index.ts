@@ -1,26 +1,27 @@
-import { RegionType, CapiCredentials, ServiceType } from './../interface';
-import { CapiBase } from "../CapiBase";
+import { RegionType, CapiCredentials, ApiServiceType } from './../interface';
 
 import { Capi } from '@tencent-sdk/capi';
 import { PostgresqlDeployInputs, PostgresqlDeployOutputs, PostgresqlRemoveInputs } from './interface';
-const {
+import {
   createDbInstance,
   getDbInstanceDetail,
   getDbExtranetAccess,
   toggleDbInstanceAccess,
   deleteDbInstance,
   formatPgUrl,
-} = require('./utils');
+} from './utils';
 
-export default class Postgresql extends CapiBase {
+export default class Postgresql {
   capi: Capi;
+  region: RegionType;
+  credentials: CapiCredentials;
+
   constructor(credentials:CapiCredentials = {}, region:RegionType) {
-    super();
     this.region = region || 'ap-guangzhou';
     this.credentials = credentials;
     this.capi = new Capi({
       Region: this.region,
-      ServiceType: ServiceType.postgres,
+      ServiceType: ApiServiceType.postgres,
       SecretId: this.credentials.SecretId!,
       SecretKey: this.credentials.SecretKey!,
       Token: this.credentials.Token,
@@ -87,10 +88,10 @@ export default class Postgresql extends CapiBase {
       DBAccountSet: [accountInfo],
       DBDatabaseList: [dbName],
     } = dbDetail;
-    let internetInfo = null;
-    let extranetInfo = null;
+    let internetInfo:{ Address?: string; Ip?: string; Port: string };
+    let extranetInfo:{ Address?: string; Ip?: string; Port: string };
 
-    DBInstanceNetInfo.forEach((item: {NetType: 'private' | 'public'}) => {
+    DBInstanceNetInfo.forEach((item: { Address?: string; Ip?: string; Port: string, NetType: 'private' | 'public' }) => {
       if (item.NetType === 'private') {
         internetInfo = item;
       }
@@ -99,9 +100,9 @@ export default class Postgresql extends CapiBase {
       }
     });
     if (vpcConfig.vpcId) {
-      outputs.private = formatPgUrl(internetInfo, accountInfo, dbName);
+      outputs.private = formatPgUrl(internetInfo!, accountInfo, dbName);
     }
-    if (extranetAccess && extranetInfo) {
+    if (extranetAccess && extranetInfo!) {
       outputs.public = formatPgUrl(extranetInfo, accountInfo, dbName);
     }
 

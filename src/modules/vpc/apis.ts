@@ -1,5 +1,5 @@
 import { ApiFactory } from '../../utils/api';
-import { ServiceType } from '../interface';
+import { ApiServiceType } from '../interface';
 
 const ACTIONS = [
   'CreateDefaultVpc',
@@ -14,7 +14,7 @@ const ACTIONS = [
 ];
 const APIS = ApiFactory({
   // debug: true,
-  serviceType: ServiceType.vpc,
+  serviceType: ApiServiceType.vpc,
   version: '2017-03-12',
   actions: ACTIONS,
 });

@@ -1,11 +1,11 @@
 import { ApiFactory } from '../../utils/api';
-import { ServiceType } from '../interface';
+import { ApiServiceType } from '../interface';
 
 const ACTIONS = ['CheckDomain'];
 
 const APIS = ApiFactory({
   // debug: true,
-  serviceType: ServiceType.domain,
+  serviceType: ApiServiceType.domain,
   version: '2018-08-08',
   actions: ACTIONS,
 });

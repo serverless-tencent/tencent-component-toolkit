@@ -1,5 +1,5 @@
 import { Capi } from '@tencent-sdk/capi';
-import { RegionType, CapiCredentials, ServiceType } from '../interface';
+import { RegionType, CapiCredentials, ApiServiceType } from '../interface';
 import { SCF } from './apis';
 import { TriggerInputs, TriggerInputsParams } from './interface';
 import Scf from '../scf';
@@ -14,10 +14,10 @@ export default abstract class BaseTrigger<P = TriggerInputsParams> {
   constructor(options?: {
     credentials?: CapiCredentials;
     region?: RegionType;
-    serviceType: ServiceType;
+    serviceType: ApiServiceType;
   }) {
     if (options) {
-      const { credentials = {}, region = RegionType['ap-guangzhou'], serviceType } = options;
+      const { credentials = {}, region = 'ap-guangzhou', serviceType } = options;
 
       this.region = region;
       this.credentials = credentials;

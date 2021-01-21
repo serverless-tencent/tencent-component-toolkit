@@ -1,4 +1,4 @@
-import { ServiceType } from './../interface';
+import { ApiServiceType } from './../interface';
 import { FunctionInfo } from './../scf/interface';
 import Scf from '../scf';
 import { TriggerInputs, MpsTriggerInputsParams } from './interface';
@@ -10,12 +10,12 @@ import { CapiCredentials, RegionType } from '../interface';
 export default class MpsTrigger extends BaseTrigger<MpsTriggerInputsParams> {
   constructor({
     credentials = {},
-    region = RegionType['ap-guangzhou'],
+    region = 'ap-guangzhou',
   }: {
     credentials?: CapiCredentials;
     region?: RegionType;
   }) {
-    super({region, credentials, serviceType: ServiceType.mps});
+    super({region, credentials, serviceType: ApiServiceType.mps});
   }
   
   async request({ Action, ...data }: any) {

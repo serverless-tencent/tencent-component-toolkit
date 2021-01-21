@@ -1,4 +1,5 @@
-const { ApiFactory } = require('../../utils/api');
+import { ApiFactory } from '../../utils/api';
+import { ApiServiceType } from '../interface';
 
 const ACTIONS = [
   'DescribeRoleList',
@@ -11,7 +12,7 @@ const ACTIONS = [
 
 const APIS = ApiFactory({
   // debug: true,
-  serviceType: 'cam',
+  serviceType: ApiServiceType.cam,
   version: '2019-01-16',
   actions: ACTIONS,
 });

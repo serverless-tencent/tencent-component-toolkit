@@ -1,5 +1,4 @@
-import { RegionType, CapiCredentials, ServiceType } from './../interface';
-import { CapiBase } from "../CapiBase";
+import { RegionType, CapiCredentials, ApiServiceType } from './../interface';
 
 import { Capi } from '@tencent-sdk/capi';
 import { waitResponse } from '@ygkit/request';
@@ -11,15 +10,17 @@ import { LayerDeployInputs } from './interface';
 // timeout 2 minutes
 const TIMEOUT = 2 * 60 * 1000;
 
-export default class Layer extends CapiBase {
+export default class Layer {
   capi: Capi;
-  constructor(credentials:CapiCredentials = {}, region:RegionType=RegionType['ap-guangzhou']) {
-    super();
+  region: RegionType;
+  credentials: CapiCredentials;
+
+  constructor(credentials:CapiCredentials = {}, region:RegionType='ap-guangzhou') {
     this.region = region;
     this.credentials = credentials;
     this.capi = new Capi({
       Region: this.region,
-      ServiceType: ServiceType.scf,
+      ServiceType: ApiServiceType.scf,
       SecretId: credentials.SecretId!,
       SecretKey: credentials.SecretKey!,
       Token: credentials.Token,

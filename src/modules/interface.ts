@@ -1,4 +1,4 @@
-export enum ServiceType {
+export enum ApiServiceType {
     /** API 网关服务 (apigateway) */
     apigateway= 'apigateway',
     /** 云函数服务 (SCF) */
@@ -21,12 +21,12 @@ export enum ServiceType {
     postgres='postgres',
     /** (VPC) */
     vpc='vpc',
+    /**  */
+    cam='cam'
 }
 
 
-export const enum RegionType {
-    'ap-guangzhou'='ap-guangzhou',
-}
+export type RegionType = string;
 
 export interface CapiCredentials {
     AppId?: string;

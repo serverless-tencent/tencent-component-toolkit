@@ -10,7 +10,7 @@ export default class Cls {
   region: RegionType;
   cls: ClsClient;
 
-  constructor(credentials: CapiCredentials, region:RegionType=RegionType['ap-guangzhou'], expire:number) {
+  constructor(credentials: CapiCredentials, region:RegionType='ap-guangzhou', expire:number) {
     this.region = region;
     this.credentials = credentials;
     this.cls = new ClsClient({

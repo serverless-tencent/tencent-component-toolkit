@@ -1,6 +1,6 @@
 import { Capi } from '@tencent-sdk/capi';
 import { deepClone } from '.';
-import { ServiceType } from '../modules/interface';
+import { ApiServiceType } from '../modules/interface';
 import { ApiError } from './error';
 
 function isEmpty(val: any) {
@@ -19,7 +19,7 @@ function cleanEmptyValue(obj : any) {
 }
 
 interface ApiFactoryOptions<ACTIONS_T> {
-  serviceType: ServiceType,
+  serviceType: ApiServiceType,
   version: string,
   actions: ACTIONS_T,
   

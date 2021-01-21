@@ -1,5 +1,5 @@
 
-import { ServiceType } from "../interface";
+import { ApiServiceType } from "../interface";
 
 export interface TagData {
     TagKey: string;
@@ -8,7 +8,7 @@ export interface TagData {
 
 export interface TagGetResourceTagsInputs {
     resourceId: string;
-    serviceType: ServiceType;
+    serviceType: ApiServiceType;
     resourcePrefix: string;
     offset?: number;
     limit?: number;
@@ -20,14 +20,14 @@ export interface TagGetScfResourceTags {
 }
 
 export interface TagAttachTagsInputs {
-    serviceType: ServiceType;
+    serviceType: ApiServiceType;
     resourcePrefix: string;
     resourceIds: string[];
     tags: TagData[]
 }
 
 export interface TagDetachTagsInputs {
-    serviceType: ServiceType;
+    serviceType: ApiServiceType;
     resourcePrefix: string;
     resourceIds: string[];
     tags: TagData[];
@@ -36,7 +36,7 @@ export interface TagDetachTagsInputs {
 export interface TagDeployInputs {
     detachTags: TagData[],
     attachTags: TagData[],
-    serviceType: ServiceType,
+    serviceType: ApiServiceType,
     resourceIds: string[],
     resourcePrefix: string
 }
@@ -45,6 +45,6 @@ export interface TagDeployInputs {
 export interface TagDeployResourceTagsInputs {
     tags: TagData[],
     resourceId: string,
-    serviceType: ServiceType,
+    serviceType: ApiServiceType,
     resourcePrefix: string;
 }

@@ -1,5 +1,5 @@
 import { Region } from 'cos-nodejs-sdk-v5';
-import { RegionType, CapiCredentials, ServiceType } from './../interface';
+import { RegionType, CapiCredentials, ApiServiceType } from './../interface';
 import { Capi } from '@tencent-sdk/capi';
 import utils from './utils';
 import { ApiTypeError } from '../../utils/error';
@@ -11,12 +11,12 @@ export default class Vpc {
   credentials: CapiCredentials;
   capi: Capi;
 
-  constructor(credentials:CapiCredentials = {}, region:RegionType=RegionType['ap-guangzhou']) {
+  constructor(credentials:CapiCredentials = {}, region:RegionType='ap-guangzhou') {
     this.region = region;
     this.credentials = credentials;
     this.capi = new Capi({
       Region: this.region,
-      ServiceType: ServiceType.vpc,
+      ServiceType: ApiServiceType.vpc,
       SecretId: credentials.SecretId!,
       SecretKey: credentials.SecretKey!,
       Token: credentials.Token,

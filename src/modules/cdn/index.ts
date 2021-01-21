@@ -1,4 +1,4 @@
-import { ServiceType } from './../interface';
+import { ApiServiceType } from './../interface';
 import { Capi } from '@tencent-sdk/capi';
 import { sleep, waitResponse } from '@ygkit/request';
 import { camelCaseProperty } from '../../utils';
@@ -25,7 +25,7 @@ export default class Cdn {
 
     this.capi = new Capi({
       Region: 'ap-guangzhou',
-      ServiceType: ServiceType.cdn,
+      ServiceType: ApiServiceType.cdn,
       SecretId: this.credentials.SecretId!,
       SecretKey: this.credentials.SecretKey!,
       Token: this.credentials.Token,
@@ -141,7 +141,7 @@ export default class Cdn {
         console.log('Updating...');
         // TODO: when update, VIP user can not set ServiceType parameter, need CDN api optimize
         if (cdnInputs.ServiceType && cdnInputs.ServiceType !== cdnInfo.ServiceType) {
-          cdnInputs.ServiceType = ServiceType;
+          cdnInputs.ServiceType = ApiServiceType;
         }
         await APIS.UpdateDomainConfig(this.capi, cdnInputs);
         outputs.resourceId = cdnInfo.ResourceId;
@@ -150,7 +150,7 @@ export default class Cdn {
         console.log(`Adding CDN domain ${pascalInputs.Domain}...`);
         try {
           // if not config ServiceType, default to web
-          cdnInputs.ServiceType = ServiceType || 'web';
+          cdnInputs.ServiceType = ApiServiceType || 'web';
           await APIS.AddCdnDomain(this.capi, cdnInputs);
         } catch (e) {
           if (e.code === 'ResourceNotFound.CdnUserNotExists') {

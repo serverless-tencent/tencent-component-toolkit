@@ -1,5 +1,5 @@
 import { ApiFactory } from '../../utils/api';
-import { ServiceType } from '../interface';
+import { ApiServiceType } from '../interface';
 
 const ACTIONS = [
   'ModifyResourceTags',
@@ -16,7 +16,7 @@ export type ActionType = typeof ACTIONS[number];
 
 const APIS = ApiFactory({
   // debug: true,
-  serviceType: ServiceType.tag,
+  serviceType: ApiServiceType.tag,
   version: '2018-08-13',
   actions: ACTIONS,
 });

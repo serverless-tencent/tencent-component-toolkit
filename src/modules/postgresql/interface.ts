@@ -8,9 +8,18 @@ export interface PostgresqlDeployInputs {
   dBInstanceName: string;
   dBVersion: string;
   dBCharset: string;
-  extranetAccess: string;
+  extranetAccess: boolean;
   vpcConfig: VpcConfig;
 }
+
+export interface PostgresqlUrl {
+  connectionString: string;
+  host?: string;
+  port: string;
+  user: string;
+  password: string;
+  dbname: string;
+};
 
 export interface PostgresqlDeployOutputs {
   region: RegionType;
@@ -18,10 +27,10 @@ export interface PostgresqlDeployOutputs {
   vpcConfig: VpcConfig;
   dBInstanceName: string;
   dBInstanceId?: string;
-  private?: string;
-  public?:string;
+  private?: PostgresqlUrl;
+  public?: PostgresqlUrl;
 }
 
 export interface PostgresqlRemoveInputs {
-    dBInstanceName: string;
+  dBInstanceName: string;
 }

@@ -1,4 +1,4 @@
-import { ServiceType } from '../interface';
+import { ApiServiceType } from '../interface';
 import { ApiFactory } from "../../utils/api";
 
 
@@ -16,7 +16,7 @@ const ACTIONS = [
 /** 文件存储服务 (CFS) APIS */
 const APIS = ApiFactory({
   // debug: true,
-  serviceType: ServiceType.cfs,
+  serviceType: ApiServiceType.cfs,
   version: '2019-07-19',
   actions: ACTIONS,
 });

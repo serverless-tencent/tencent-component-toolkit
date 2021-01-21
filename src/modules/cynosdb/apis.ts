@@ -1,5 +1,5 @@
 import { ApiFactory } from '../../utils/api';
-import { ServiceType } from '../interface';
+import { ApiServiceType } from '../interface';
 
 const ACTIONS = [
   'CreateClusters',
@@ -19,7 +19,7 @@ const ACTIONS = [
 ] as const;
 const APIS = ApiFactory({
   // debug: true,
-  serviceType: ServiceType.cynosdb,
+  serviceType: ApiServiceType.cynosdb,
   version: '2019-01-07',
   actions: ACTIONS,
 });
