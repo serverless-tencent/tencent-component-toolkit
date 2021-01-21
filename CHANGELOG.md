@@ -1,3 +1,13 @@
+## [1.20.9](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.20.8...v1.20.9) (2021-01-21)
+
+
+### Bug Fixes
+
+* **apigw:** add get api detail by apiId ([b76b768](https://github.com/serverless-tencent/tencent-component-toolkit/commit/b76b768fbba86436d7627721336116d928654f8e))
+* **cynosdb:** generate password rule ([8ce0d48](https://github.com/serverless-tencent/tencent-component-toolkit/commit/8ce0d48ab777c940747115b519507711f15858b0))
+* **apigw:** support base64 encode ([354c4c2](https://github.com/serverless-tencent/tencent-component-toolkit/commit/354c4c2944f1bb3bc07cbb976ab1c821525169f0))
+* **apigw:** support isForceHttps ([fbf847e](https://github.com/serverless-tencent/tencent-component-toolkit/commit/fbf847e82724b14cf7cab2b31a0be7295ef95dbd))
+
 ## [1.20.8](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.20.7...v1.20.8) (2021-01-07)
 
 
