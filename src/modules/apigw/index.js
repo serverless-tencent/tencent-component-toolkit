@@ -595,6 +595,7 @@ class Apigw {
       created: true,
       authType: authType,
       businessType: businessType,
+      isBase64Encoded: endpoint.isBase64Encoded === true,
     };
 
     const apiInputs = {
@@ -613,6 +614,7 @@ class Apigw {
       serviceTimeout: endpoint.serviceTimeout || 15,
       responseType: endpoint.responseType || 'HTML',
       enableCORS: endpoint.enableCORS === true,
+      isBase64Encoded: endpoint.isBase64Encoded === true,
     };
     if (endpoint.oauthConfig) {
       apiInputs.oauthConfig = endpoint.oauthConfig;
@@ -641,6 +643,11 @@ class Apigw {
       console.log(`Api method ${endpoint.method}, path ${endpoint.path} already exist`);
       endpoint.apiId = apiDetail.ApiId;
 
+      if (endpoint.isBase64Encoded && endpoint.isBase64Trigger) {
+        apiInputs.isBase64Trigger = endpoint.isBase64Trigger;
+        apiInputs.base64EncodedTriggerRules = endpoint.base64EncodedTriggerRules;
+      }
+
       await this.request({
         Action: 'ModifyApi',
         apiId: endpoint.apiId,
@@ -666,6 +673,17 @@ class Apigw {
         apiId: output.apiId,
       });
       output.internalDomain = apiDetail.InternalDomain || '';
+
+      if (endpoint.isBase64Encoded && endpoint.isBase64Trigger) {
+        apiInputs.isBase64Trigger = endpoint.isBase64Trigger;
+        apiInputs.base64EncodedTriggerRules = endpoint.base64EncodedTriggerRules;
+      }
+
+      await this.request({
+        Action: 'ModifyApi',
+        apiId: ApiId,
+        ...apiInputs,
+      });
     }
 
     output.apiName = apiInputs.apiName;
