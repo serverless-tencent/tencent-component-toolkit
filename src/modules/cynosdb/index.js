@@ -4,6 +4,7 @@ const {
   getClusterDetail,
   getClusterInstances,
   isolateCluster,
+  offlineCluster,
   generatePwd,
   formatConnectOutput,
   resetPwd,
@@ -156,6 +157,7 @@ class Cynosdb {
     if (clusterDetail && clusterDetail.ClusterId) {
       // need circle for deleting, after host status is 6, then we can delete it
       await isolateCluster(this.capi, clusterId);
+      await offlineCluster(this.capi, clusterId);
     }
     return true;
   }
