@@ -165,7 +165,19 @@ export async function getInstanceDetail(capi: Capi, instanceId: string) {
  * @param {object} capi capi client
  * @param {string} clusterId cluster id
  */
-export async function getClusterInstances(capi: Capi, clusterId: string) {
+export async function getClusterInstances(
+  capi: Capi,
+  clusterId: string,
+): Promise<
+  | {
+      InstanceId: string;
+      InstanceName: string;
+      InstanceRole: string;
+      Status: string;
+      InstanceType: string;
+    }[]
+  | undefined
+> {
   const res = await APIS.DescribeInstances(capi, {
     Filters: [{ Names: ['ClusterId'], Values: [clusterId], ExactMatch: true }],
   });
@@ -285,10 +297,10 @@ export async function offlineInstance(capi: Capi, clusterId: string, instanceId:
  * @param {object} capi capi client
  * @param {string} clusterId cluster id
  */
-async function offlineCluster(capi: Capi, clusterId: string) {
+export async function offlineCluster(capi: Capi, clusterId: string) {
   // 1. get cluster instances
   const instances = await getClusterInstances(capi, clusterId);
-  const instanceIds = instances.map((item: { InstanceId: string }) => item.InstanceId);
+  const instanceIds = (instances || []).map((item: { InstanceId: string }) => item.InstanceId);
   console.log(`Start offlining CynosDB id: ${clusterId}`);
 
   await APIS.OfflineInstance(capi, {

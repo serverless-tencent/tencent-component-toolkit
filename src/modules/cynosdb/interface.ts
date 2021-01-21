@@ -7,10 +7,10 @@ export interface VpcConfig {
 }
 
 export interface CynosdbDeployInputs {
-  clusterId: string;
-  region: RegionType;
-  zone: string;
-  vpcConfig: VpcConfig;
+  clusterId?: string;
+  region?: RegionType;
+  zone?: string;
+  vpcConfig?: VpcConfig;
   projectId?: string;
   dbVersion?: string;
   dbType?: 'MYSQL' | string;
@@ -19,7 +19,7 @@ export interface CynosdbDeployInputs {
   memory?: number;
   storageLimit?: number;
   instanceCount?: number;
-  adminPassword: string;
+  adminPassword?: string;
   payMode?: number;
   timeSpan?: number;
   timeUnit?: string;
@@ -36,10 +36,10 @@ export interface CynosdbDeployOutputs {
   clusterId?: string;
   adminPassword?: string;
 
-  dbMode: 'SERVERLESS' | 'NORMAL';
-  region: RegionType;
-  zone: string;
-  vpcConfig: VpcConfig;
+  dbMode?: 'SERVERLESS' | 'NORMAL';
+  region?: RegionType;
+  zone?: string;
+  vpcConfig?: VpcConfig;
   instanceCount: number;
 
   minCpu?: number;
@@ -66,12 +66,12 @@ export interface CynosdbDeployOutputs {
 }
 
 export interface CynosdbRemoveInputs {
-    clusterId: string;
+    clusterId?: string;
 }
 
 export interface CynosdbResetPwdInputs {
-    clusterId: string,
-    adminName: string,
-    host: string,
-    adminPassword: string,
+    clusterId?: string,
+    adminName?: string,
+    host?: string,
+    adminPassword?: string,
   }

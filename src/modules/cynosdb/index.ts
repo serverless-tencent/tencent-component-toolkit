@@ -1,6 +1,11 @@
 import { Capi } from '@tencent-sdk/capi';
 import { CapiCredentials, RegionType, ApiServiceType } from '../interface';
-import { CynosdbDeployInputs, CynosdbDeployOutputs, CynosdbRemoveInputs, CynosdbResetPwdInputs } from './interface';
+import {
+  CynosdbDeployInputs,
+  CynosdbDeployOutputs,
+  CynosdbRemoveInputs,
+  CynosdbResetPwdInputs,
+} from './interface';
 import {
   createCluster,
   getClusterDetail,
@@ -20,8 +25,7 @@ export default class Cynosdb {
   region: RegionType;
   capi: Capi;
 
-
-  constructor(credentials:CapiCredentials = {}, region:RegionType = 'ap-guangzhou') {
+  constructor(credentials: CapiCredentials = {}, region: RegionType = 'ap-guangzhou') {
     this.region = region;
     this.credentials = credentials;
     this.capi = new Capi({
@@ -33,7 +37,8 @@ export default class Cynosdb {
     });
   }
 
-  async deploy(inputs:CynosdbDeployInputs = {} as any) {
+  /** 部署 Cynosdb 实例 */
+  async deploy(inputs: CynosdbDeployInputs = {}) {
     const {
       clusterId,
       region,
@@ -60,7 +65,7 @@ export default class Cynosdb {
       enablePublicAccess,
     } = inputs;
 
-    const outputs:CynosdbDeployOutputs = {
+    const outputs: CynosdbDeployOutputs = {
       dbMode,
       region,
       zone,
@@ -88,7 +93,7 @@ export default class Cynosdb {
     }
     if (!isExisted) {
       // not exist, create
-      const dbInputs:any = {
+      const dbInputs: any = {
         Zone: zone,
         ProjectId: projectId,
         DbType: dbType,
@@ -102,8 +107,8 @@ export default class Cynosdb {
         AutoVoucher: autoVoucher,
         RollbackStrategy: 'noneRollback',
         OrderSource: 'serverless',
-        VpcId: vpcConfig.vpcId,
-        SubnetId: vpcConfig.subnetId,
+        VpcId: vpcConfig?.vpcId,
+        SubnetId: vpcConfig?.subnetId,
         AdminPassword: adminPassword ?? generatePwd(),
         DbMode: dbMode,
       };
@@ -142,7 +147,7 @@ export default class Cynosdb {
     }
 
     const clusterInstances = await getClusterInstances(this.capi, outputs.clusterId!);
-    outputs.instances = clusterInstances.map((item:any) => ({
+    outputs.instances = clusterInstances?.map((item) => ({
       id: item.InstanceId,
       name: item.InstanceName,
       role: item.InstanceRole,
@@ -153,22 +158,24 @@ export default class Cynosdb {
     return outputs;
   }
 
-  async remove(inputs:CynosdbRemoveInputs = {} as any) {
+  /** 移除 Cynosdb 实例 */
+  async remove(inputs: CynosdbRemoveInputs = {}) {
     const { clusterId } = inputs;
 
-    const clusterDetail = await getClusterDetail(this.capi, clusterId);
+    const clusterDetail = await getClusterDetail(this.capi, clusterId!);
     if (clusterDetail && clusterDetail.ClusterId) {
       // need circle for deleting, after host status is 6, then we can delete it
-      await isolateCluster(this.capi, clusterId);
-      await offlineCluster(this.capi, clusterId);
+      await isolateCluster(this.capi, clusterId!);
+      await offlineCluster(this.capi, clusterId!);
     }
     return true;
   }
 
-  async resetPwd(inputs:CynosdbResetPwdInputs = {} as any) {
+  /** 重制 Cynosdb 密码 */
+  async resetPwd(inputs: CynosdbResetPwdInputs = {}) {
     const { clusterId } = inputs;
 
-    const clusterDetail = await getClusterDetail(this.capi, clusterId);
+    const clusterDetail = await getClusterDetail(this.capi, clusterId!);
     if (clusterDetail && clusterDetail.ClusterId) {
       // need circle for deleting, after host status is 6, then we can delete it
       await resetPwd(this.capi, inputs);
@@ -181,4 +188,3 @@ export default class Cynosdb {
     return true;
   }
 }
-
