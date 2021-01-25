@@ -1,3 +1,5 @@
+# [2.0.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.20.10...v2.0.0) (2021-01-25)
+
 ## [1.20.10](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.20.9...v1.20.10) (2021-01-21)
 
 
