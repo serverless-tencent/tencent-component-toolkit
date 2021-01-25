@@ -4,7 +4,7 @@ const {
   sleep,
   generatePwd,
   isValidPwd,
-} = require('../src/modules/cynosdb/utils');
+} = require('../lib/modules/cynosdb/utils');
 
 describe('Cynosdb', () => {
   jest.setTimeout(600000);
@@ -123,7 +123,7 @@ describe('Cynosdb', () => {
       zone: inputs.zone,
       vpcConfig: inputs.vpcConfig,
       instanceCount: 1,
-      // adminPassword: expect.stringMatching(pwdReg),
+      // adminPassword: expect.any(String),
       clusterId: expect.stringContaining('cynosdbmysql-'),
       minCpu: 0.5,
       maxCpu: 2,
@@ -158,7 +158,7 @@ describe('Cynosdb', () => {
       zone: inputs.zone,
       vpcConfig: inputs.vpcConfig,
       instanceCount: 1,
-      // adminPassword: expect.stringMatching(pwdReg),
+      // adminPassword: expect.any(String),
       clusterId: expect.stringContaining('cynosdbmysql-'),
       minCpu: 0.5,
       maxCpu: 2,
