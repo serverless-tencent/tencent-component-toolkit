@@ -28,10 +28,9 @@ export default class ClsTrigger extends BaseTrigger<ClsTriggerInputsParams> {
     return triggerInputs.TriggerDesc?.topic_id ?? '';
   }
 
-
   formatInputs({ inputs }: { inputs: TriggerInputs<ClsTriggerInputsParams> }) {
     const parameters = inputs.parameters;
-    const triggerInputs:CreateTriggerReq = {
+    const triggerInputs: CreateTriggerReq = {
       Type: 'cls',
       Qualifier: parameters?.qualifier ?? '$DEFAULT',
       TriggerName: '',
@@ -57,7 +56,7 @@ export default class ClsTrigger extends BaseTrigger<ClsTriggerInputsParams> {
     } as any;
   }
 
-  async get(data: {topicId?: string}) {
+  async get(data: { topicId?: string }) {
     const exist = await getClsTrigger(this.client, {
       topic_id: data.topicId,
     });
@@ -92,7 +91,6 @@ export default class ClsTrigger extends BaseTrigger<ClsTriggerInputsParams> {
     return output;
   }
 
-  
   async deleteByTopicId({ topicId }: { topicId: string }) {
     const res = await deleteClsTrigger(this.client, {
       topic_id: topicId,

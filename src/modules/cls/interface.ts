@@ -20,7 +20,10 @@ export interface ClsDelopyIndexInputs {
   rule?: IndexRule;
 }
 
-export interface ClsDeployInputs extends ClsDeployLogsetInputs, ClsDeployTopicInputs, ClsDelopyIndexInputs {
+export interface ClsDeployInputs
+  extends ClsDeployLogsetInputs,
+    ClsDeployTopicInputs,
+    ClsDelopyIndexInputs {
   name: string;
   topic: string;
 }

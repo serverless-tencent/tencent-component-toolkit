@@ -31,7 +31,7 @@ export default abstract class BaseTrigger<P = TriggerInputsParams> {
     }
   }
 
-  abstract getKey(triggerType: CreateTriggerReq):string;
+  abstract getKey(triggerType: CreateTriggerReq): string;
 
   abstract formatInputs({
     region,
@@ -103,7 +103,7 @@ export default abstract class BaseTrigger<P = TriggerInputsParams> {
     inputs,
   }: {
     scf: Scf;
-    region: RegionType,
+    region: RegionType;
     inputs: TriggerInputs<P>;
   }): Promise<boolean | { requestId: string; success: boolean }>;
 

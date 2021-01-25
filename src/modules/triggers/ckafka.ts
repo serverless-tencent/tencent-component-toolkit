@@ -11,7 +11,7 @@ export default class CkafkaTrigger {
     this.credentials = credentials;
     this.region = region;
   }
-  
+
   getKey(triggerInputs: CreateTriggerReq) {
     const Enable = TRIGGER_STATUS_MAP[triggerInputs.Enable!];
     return `${triggerInputs.Type}-${triggerInputs.TriggerName}-${triggerInputs.TriggerDesc}-${Enable}-${triggerInputs.Qualifier}`;
@@ -25,7 +25,7 @@ export default class CkafkaTrigger {
     inputs: TriggerInputs<ChafkaTriggerInputsParams>;
   }) {
     const { parameters } = inputs;
-    const triggerInputs:CreateTriggerReq = {
+    const triggerInputs: CreateTriggerReq = {
       Action: 'CreateTrigger',
       FunctionName: inputs.functionName,
       Namespace: inputs.namespace,
@@ -80,4 +80,3 @@ export default class CkafkaTrigger {
     }
   }
 }
-

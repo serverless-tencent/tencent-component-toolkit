@@ -9,7 +9,6 @@ export default class Cam {
   credentials: CapiCredentials;
   capi: Capi;
 
-  
   constructor(credentials: CapiCredentials, region: RegionType = 'ap-guangzhou') {
     this.region = region;
     this.credentials = credentials;
@@ -23,13 +22,13 @@ export default class Cam {
     });
   }
 
-  async request({ Action, ...data }: {Action: ActionType, [key:string]:any}) {
+  async request({ Action, ...data }: { Action: ActionType; [key: string]: any }) {
     const result = await APIS[Action](this.capi, data);
     return result;
   }
 
   /** 获取角色列表  */
-  async DescribeRoleList(page: number, limit:number) {
+  async DescribeRoleList(page: number, limit: number) {
     const reqParams = {
       Action: 'DescribeRoleList' as const,
       Page: page,
@@ -79,7 +78,7 @@ export default class Cam {
    * 为角色添加策略名称
    * api limit qps 3/s
    */
-  async AttachRolePolicyByName(roleId: string, policyName:string) {
+  async AttachRolePolicyByName(roleId: string, policyName: string) {
     const reqParams = {
       Action: 'AttachRolePolicy' as const,
       AttachRoleId: roleId,

@@ -568,7 +568,7 @@ export default class Scf {
   }
 
   // deploy SCF flow
-  async deploy(inputs: ScfDeployInputs = {}):Promise<ScfDeployOutputs> {
+  async deploy(inputs: ScfDeployInputs = {}): Promise<ScfDeployOutputs> {
     const namespace = inputs.namespace ?? CONFIGS.defaultNamespace;
 
     // before deploy a scf, we should check whether

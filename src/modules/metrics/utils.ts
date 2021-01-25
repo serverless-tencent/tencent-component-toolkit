@@ -8,11 +8,11 @@ interface MetricA {
 }
 
 export interface MetricB {
-    color?: string;
-    title: string,
-    type: string,
-    x?: MetricX,
-    y?: MetricY[]
+  color?: string;
+  title: string;
+  type: string;
+  x?: MetricX;
+  y?: MetricY[];
 }
 
 export interface MetricX {
@@ -21,16 +21,19 @@ export interface MetricX {
 }
 
 export interface MetricY {
-    name: string;
-    type: string;
-    values: any;
-    total: any;
-  }
+  name: string;
+  type: string;
+  values: any;
+  total: any;
+}
 
 export function filterMetricByNameExp(
   metricName: string | RegExp,
   metrics: {
-    Response: { Error: string; Data: { AttributeName: string, Values: {Value:number, Timestamp:number}[] }[] };
+    Response: {
+      Error: string;
+      Data: { AttributeName: string; Values: { Value: number; Timestamp: number }[] }[];
+    };
   }[],
   all?: any,
 ) {
@@ -95,7 +98,10 @@ export function parsePath(m: RegExp, path: string) {
   };
 }
 
-export function makeMetric(name: string, metricData: { Values: {Value:number, Timestamp: number}[] }) {
+export function makeMetric(
+  name: string,
+  metricData: { Values: { Value: number; Timestamp: number }[] },
+) {
   const data = {
     name: name,
     type: 'duration',
@@ -106,7 +112,7 @@ export function makeMetric(name: string, metricData: { Values: {Value:number, Ti
     color: '',
   };
 
-  data.total = data.values.reduce(function(a: number, b: number) {
+  data.total = data.values.reduce(function (a: number, b: number) {
     return a + b;
   }, 0);
 

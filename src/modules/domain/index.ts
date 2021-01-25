@@ -9,7 +9,7 @@ class Domain {
   credentials: CapiCredentials;
   capi: Capi;
 
-  constructor(credentials = {}, region:RegionType = 'ap-guangzhou') {
+  constructor(credentials = {}, region: RegionType = 'ap-guangzhou') {
     this.region = region || 'ap-guangzhou';
     this.credentials = credentials;
     this.capi = new Capi({
@@ -21,7 +21,7 @@ class Domain {
     });
   }
 
-  async request({ Action, ...data }:{Action:ActionType, [key:string]:any}) {
+  async request({ Action, ...data }: { Action: ActionType; [key: string]: any }) {
     const result = await APIS[Action](this.capi, data);
     return result;
   }
@@ -44,11 +44,7 @@ class Domain {
     if (domainData) {
       return {
         domain: domainData,
-        subDomain: domainStr
-          .split(domainData)
-          .slice(0, -1)
-          .join(domainData)
-          .slice(0, -1),
+        subDomain: domainStr.split(domainData).slice(0, -1).join(domainData).slice(0, -1),
       };
     }
     return undefined;

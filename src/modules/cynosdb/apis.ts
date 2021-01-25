@@ -25,5 +25,4 @@ const APIS = ApiFactory({
   actions: ACTIONS,
 });
 
-
 export default APIS;

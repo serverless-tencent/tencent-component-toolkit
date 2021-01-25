@@ -18,7 +18,7 @@ export interface PostgresqlUrl {
   user: string;
   password: string;
   dbname: string;
-};
+}
 
 export interface PostgresqlDeployOutputs {
   region?: RegionType;

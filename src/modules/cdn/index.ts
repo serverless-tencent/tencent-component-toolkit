@@ -6,14 +6,7 @@ import { ApiTypeError } from '../../utils/error';
 import { CapiCredentials } from '../interface';
 import APIS from './apis';
 import { DeployInputs } from './interface';
-import {
-  TIMEOUT,
-  formatCertInfo,
-  formatOrigin,
-  getCdnByDomain,
-  openCdnService,
-} from './utils';
-
+import { TIMEOUT, formatCertInfo, formatOrigin, getCdnByDomain, openCdnService } from './utils';
 
 export default class Cdn {
   credentials: CapiCredentials;
@@ -67,8 +60,7 @@ export default class Cdn {
   }
 
   /** 部署 CDN */
-  async deploy(inputs : DeployInputs) {
-    
+  async deploy(inputs: DeployInputs) {
     await openCdnService(this.capi);
     const { oldState = {} } = inputs;
     delete inputs.oldState;
@@ -96,14 +88,13 @@ export default class Cdn {
       Origin: formatOrigin(pascalInputs.Origin),
     });
 
-
     const outputs = {
       https: !!pascalInputs.Https,
       domain: pascalInputs.Domain,
       origins: cdnInputs.Origin.Origins,
       cname: `${pascalInputs.Domain}.cdn.dnsv1.com`,
       inputCache: JSON.stringify(inputs),
-      resourceId: "",
+      resourceId: '',
     };
 
     if (pascalInputs.Https) {
@@ -175,7 +166,11 @@ export default class Cdn {
 
         // push cdn urls
         if (pascalInputs.PushCdn && pascalInputs.PushCdn.Urls) {
-          await this.pushCdnUrls(pascalInputs.PushCdn.Urls, pascalInputs.PushCdn.Area, pascalInputs.PushCdn.UserAgent);
+          await this.pushCdnUrls(
+            pascalInputs.PushCdn.Urls,
+            pascalInputs.PushCdn.Area,
+            pascalInputs.PushCdn.UserAgent,
+          );
         }
 
         // refresh cdn urls
@@ -199,7 +194,7 @@ export default class Cdn {
   }
 
   /** 删除 CDN */
-  async remove(inputs: {domain: string}) {
+  async remove(inputs: { domain: string }) {
     const { domain } = inputs;
     if (!domain) {
       throw new ApiTypeError(`PARAMETER_CDN`, 'domain is required');

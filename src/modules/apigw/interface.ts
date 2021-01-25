@@ -15,11 +15,10 @@ export interface ApigwSetupUsagePlanInputs {
 
   created?: boolean;
 
-  secrets?: {secretIds:string[], created:boolean};
+  secrets?: { secretIds: string[]; created: boolean };
 }
 
-export interface ApigwSetupUsagePlanOutputs extends ApigwSetupUsagePlanInputs {
-}
+export interface ApigwSetupUsagePlanOutputs extends ApigwSetupUsagePlanInputs {}
 
 export interface ApigwBindUsagePlanInputs {
   apiId?: string;
@@ -29,9 +28,7 @@ export interface ApigwBindUsagePlanInputs {
   authConfig?: ApigwSetupUsagePlanSecretInputs;
 }
 
-export interface ApigwBindUsagePlanOutputs extends ApigwBindUsagePlanInputs{
-}
-
+export interface ApigwBindUsagePlanOutputs extends ApigwBindUsagePlanInputs {}
 
 export interface ApigwSetupUsagePlanSecretInputs {
   /** 要使用的密钥 id 列表 */
@@ -55,7 +52,7 @@ export interface CustomDomain {
 }
 
 export interface ApigwBindCustomDomainInputs {
-  customDomains?: CustomDomain[]
+  customDomains?: CustomDomain[];
   protocols: ('http' | 'https')[] | string;
   oldState?: Partial<ApigwBindCustomDomainInputs>;
 }
@@ -118,7 +115,9 @@ export interface ApiDeployerInputs {
   isOauthApi?: boolean;
 }
 
-export interface ApigwDeployInputs extends ApigwCreateOrUpdateServiceInputs, ApigwBindCustomDomainInputs {
+export interface ApigwDeployInputs
+  extends ApigwCreateOrUpdateServiceInputs,
+    ApigwBindCustomDomainInputs {
   region: RegionType;
   oldState: any;
   environment?: EnviromentType;

@@ -166,7 +166,7 @@ export interface CosDeployInputs
     CosSetVersioningInputs {
   src?: string;
   keyPrefix?: string;
-  replace?: string
+  replace?: string;
 }
 
 export interface CosRemoveBucketInputs {

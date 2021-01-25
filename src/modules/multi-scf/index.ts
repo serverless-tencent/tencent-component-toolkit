@@ -12,7 +12,7 @@ export default class MultiScf {
     this.credentials = credentials;
   }
 
-  mergeJson(sourceJson:any, targetJson:any) {
+  mergeJson(sourceJson: any, targetJson: any) {
     for (const eveKey in sourceJson) {
       if (targetJson.hasOwnProperty(eveKey)) {
         if (eveKey == 'events') {
@@ -37,22 +37,22 @@ export default class MultiScf {
     return targetJson;
   }
 
-  async doDeploy(tempInputs:ScfDeployInputs, output:MultiScfDeployOutputs) {
+  async doDeploy(tempInputs: ScfDeployInputs, output: MultiScfDeployOutputs) {
     const scfClient = new scfUtils(this.credentials, tempInputs.region);
     output[tempInputs.region!] = await scfClient.deploy(tempInputs);
   }
 
-  async doDelete(tempInputs:ScfRemoveInputs, region:RegionType) {
+  async doDelete(tempInputs: ScfRemoveInputs, region: RegionType) {
     const scfClient = new scfUtils(this.credentials, region);
     await scfClient.remove(tempInputs);
   }
 
-  async deploy(inputs:MultiScfDeployInputs = {}) {
+  async deploy(inputs: MultiScfDeployInputs = {}) {
     if (!this.regionList) {
       this.regionList = typeof inputs.region == 'string' ? [inputs.region] : inputs.region ?? [];
     }
-    const baseInputs:Partial<Record<RegionType, ScfDeployInputs>> = {};
-    const functions:MultiScfDeployOutputs = {};
+    const baseInputs: Partial<Record<RegionType, ScfDeployInputs>> = {};
+    const functions: MultiScfDeployOutputs = {};
 
     for (const eveKey in inputs) {
       const rk: RegionType = eveKey;
@@ -75,7 +75,7 @@ export default class MultiScf {
     return functions;
   }
 
-  async remove(inputs:MultiScfRemoveInputs = {}) {
+  async remove(inputs: MultiScfRemoveInputs = {}) {
     const functionHandler = [];
     for (const item in inputs) {
       const region: RegionType = item;

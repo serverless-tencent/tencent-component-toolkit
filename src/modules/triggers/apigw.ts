@@ -12,7 +12,6 @@ import Scf from '../scf';
 import { FunctionInfo } from '../scf/interface';
 
 export default class ApigwTrigger extends BaseTrigger<ApigwTriggerInputsParams> {
-
   constructor({
     credentials = {},
     region = 'ap-guangzhou',
@@ -20,7 +19,7 @@ export default class ApigwTrigger extends BaseTrigger<ApigwTriggerInputsParams> 
     credentials?: CapiCredentials;
     region?: RegionType;
   }) {
-    super({region, credentials, serviceType: ApiServiceType.apigateway});
+    super({ region, credentials, serviceType: ApiServiceType.apigateway });
   }
 
   /** remove trigger from scf(Serverless Cloud Function) */
@@ -123,7 +122,7 @@ export default class ApigwTrigger extends BaseTrigger<ApigwTriggerInputsParams> 
       return rStrArr1[0];
     }
 
-    return (triggerInputs.TriggerDesc).serviceId;
+    return triggerInputs.TriggerDesc.serviceId;
   }
 
   /** 格式化输入 */
@@ -156,10 +155,10 @@ export default class ApigwTrigger extends BaseTrigger<ApigwTriggerInputsParams> 
       TriggerDesc: {
         serviceId,
       },
-      created: !!(parameters?.created),
+      created: !!parameters?.created,
     };
     const triggerKey = this.getKey(triggerInputs);
-    
+
     return {
       triggerKey,
       triggerInputs,

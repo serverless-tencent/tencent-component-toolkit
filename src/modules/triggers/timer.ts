@@ -4,7 +4,6 @@ import BaseTrigger, { TRIGGER_STATUS_MAP } from './base';
 import { TimerTriggerInputsParams, TriggerInputs, CreateTriggerReq } from './interface';
 
 export default class TimerTrigger extends BaseTrigger<TimerTriggerInputsParams> {
-
   constructor({ credentials, region }: { credentials: CapiCredentials; region: RegionType }) {
     super();
     this.credentials = credentials;
@@ -33,7 +32,7 @@ export default class TimerTrigger extends BaseTrigger<TimerTriggerInputsParams> 
     inputs: TriggerInputs<TimerTriggerInputsParams>;
   }) {
     const { parameters, name } = inputs;
-    const triggerInputs:CreateTriggerReq = {
+    const triggerInputs: CreateTriggerReq = {
       Action: 'CreateTrigger',
       FunctionName: inputs.functionName,
       Namespace: inputs.namespace,

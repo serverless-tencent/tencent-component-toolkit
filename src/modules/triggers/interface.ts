@@ -26,16 +26,15 @@ export interface TriggerInputsParams {
 }
 
 export interface ApigwTriggerInputsParams extends ApigwDeployInputs {
-    created: boolean;
+  created: boolean;
 
-    TriggerDesc:
-      | {
-          serviceId: string;
-        }
-      | string;
-    ResourceId?: string;
+  TriggerDesc:
+    | {
+        serviceId: string;
+      }
+    | string;
+  ResourceId?: string;
 }
-
 
 export type TriggerType = 'scf' | 'timer' | string;
 export interface CreateTriggerReq {
@@ -48,7 +47,7 @@ export interface CreateTriggerReq {
   TriggerName?: string;
   TriggerDesc?: any;
   Enable?: 'OPEN' | 'CLOSE';
-  CustomArgument?: any,
+  CustomArgument?: any;
 }
 
 export interface ChafkaTriggerInputsParams extends TriggerInputsParams {
@@ -94,7 +93,6 @@ export interface MpsTriggerInputsParams {
 }
 
 export interface TimerTriggerInputsParams {
-
   name?: string;
   qualifier?: string;
   cronExpression?: string;

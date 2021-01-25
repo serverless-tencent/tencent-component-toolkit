@@ -59,13 +59,7 @@ export default class Apigw {
     return result as never;
   }
 
-  async removeOrUnbindRequest({
-    Action,
-    ...data
-  }: {
-    Action: ActionType;
-    [key: string]: any;
-  }) {
+  async removeOrUnbindRequest({ Action, ...data }: { Action: ActionType; [key: string]: any }) {
     try {
       await APIS[Action](this.capi, pascalCaseProps(data));
     } catch (e) {
@@ -697,7 +691,7 @@ export default class Apigw {
     return apiDetail!;
   }
 
-  async getApiById({ serviceId, apiId }: {serviceId: string, apiId: string}) {
+  async getApiById({ serviceId, apiId }: { serviceId: string; apiId: string }) {
     const apiDetail = await this.request({
       Action: 'DescribeApi',
       serviceId: serviceId,

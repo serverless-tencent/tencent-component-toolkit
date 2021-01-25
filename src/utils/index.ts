@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import {PascalCase} from 'type-fest';
+import { PascalCase } from 'type-fest';
 
 // TODO: 将一些库换成 lodash
 
@@ -41,13 +41,13 @@ export function isObject<T>(obj: T): obj is T {
  * @param obj object or array
  * @param iterator iterator function
  */
-export function _forEach<T extends object> (
-    obj: T[],
-    iterator: (val: T, index: number, data?: T[]) => any,
+export function _forEach<T extends object>(
+  obj: T[],
+  iterator: (val: T, index: number, data?: T[]) => any,
 ): void;
-export function _forEach<T extends object> (
-    obj: T,
-    iterator: (val: any, index: string, data?: T) => any,
+export function _forEach<T extends object>(
+  obj: T,
+  iterator: (val: any, index: string, data?: T) => any,
 ): void;
 export function _forEach<T extends object>(
   obj: T | T[],
@@ -102,16 +102,16 @@ export function flatten<T extends object>(source: T | T[]) {
 
     if (isArray(obj)) {
       // it's an array
-      _forEach(obj, function(o: any, i: number | string) {
+      _forEach(obj, function (o: any, i: number | string) {
         _dump(o, prefix ? prefix + '.' + i : '' + i, checkedParents);
       });
     } else {
       // it's an object
-      _forEach(obj, function(o: any, key: string | number) {
+      _forEach(obj, function (o: any, key: string | number) {
         _dump(o, prefix ? prefix + '.' + key : '' + key, checkedParents);
       });
     }
-  };
+  }
 
   _dump(source);
   return ret;
@@ -131,7 +131,9 @@ export function pascalCase<T extends string>(str: T): PascalCase<T> {
 }
 
 export type PascalCasedProps<T> = {
-	[K in keyof T as PascalCase<K>]: T[K] extends (Array<infer U> | undefined) ? Array<U> : PascalCasedProps<T[K]>;
+  [K in keyof T as PascalCase<K>]: T[K] extends Array<infer U> | undefined
+    ? Array<U>
+    : PascalCasedProps<T[K]>;
 };
 export function pascalCaseProps<T>(obj: T): PascalCasedProps<T> {
   let res: Record<string, any> = {};
@@ -152,20 +154,24 @@ export function pascalCaseProps<T>(obj: T): PascalCasedProps<T> {
   return res as PascalCasedProps<T>;
 }
 
-export function strip(num:number, precision = 12) {
+export function strip(num: number, precision = 12) {
   return +parseFloat(num.toPrecision(precision));
 }
 
 export interface TraverseDirOptions {
-  depthLimit?: number,
-  rootDepth?: number,
-  filter?: (item:{path:string, stats:fs.Stats}) => boolean,
-  nodir?: boolean,
-  nofile?: boolean,
-  traverseAll?: boolean,
+  depthLimit?: number;
+  rootDepth?: number;
+  filter?: (item: { path: string; stats: fs.Stats }) => boolean;
+  nodir?: boolean;
+  nofile?: boolean;
+  traverseAll?: boolean;
 }
 
-export function traverseDirSync(dir:string, opts?:TraverseDirOptions, ls?:{path:string, stats:fs.Stats}[]): {path:string, stats:fs.Stats}[] {
+export function traverseDirSync(
+  dir: string,
+  opts?: TraverseDirOptions,
+  ls?: { path: string; stats: fs.Stats }[],
+): { path: string; stats: fs.Stats }[] {
   if (!ls) {
     ls = [];
     dir = path.resolve(dir);
@@ -174,7 +180,7 @@ export function traverseDirSync(dir:string, opts?:TraverseDirOptions, ls?:{path:
       opts.rootDepth = dir.split(path.sep).length + 1;
     }
   }
-  const paths:string[] = fs.readdirSync(dir).map((p:string) => dir + path.sep + p);
+  const paths: string[] = fs.readdirSync(dir).map((p: string) => dir + path.sep + p);
   for (let i = 0; i < paths.length; i++) {
     const pi = paths[i];
     const st = fs.statSync(pi);

@@ -1,6 +1,5 @@
 import { ApiServiceType } from '../interface';
-import { ApiFactory } from "../../utils/api";
-
+import { ApiFactory } from '../../utils/api';
 
 const ACTIONS = [
   'CreateCfsFileSystem',

@@ -15,10 +15,16 @@ export default class MpsTrigger extends BaseTrigger<MpsTriggerInputsParams> {
     credentials?: CapiCredentials;
     region?: RegionType;
   }) {
-    super({region, credentials, serviceType: ApiServiceType.mps});
+    super({ region, credentials, serviceType: ApiServiceType.mps });
   }
-  
-  async request({ Action, ...data }: {Action: 'BindTrigger' | 'UnbindTrigger', [key:string]:any}) {
+
+  async request({
+    Action,
+    ...data
+  }: {
+    Action: 'BindTrigger' | 'UnbindTrigger';
+    [key: string]: any;
+  }) {
     const result = await MPS[Action](this.capi, pascalCaseProps(data));
     return result;
   }
@@ -33,9 +39,9 @@ export default class MpsTrigger extends BaseTrigger<MpsTriggerInputsParams> {
     return `${triggerInputs.TriggerDesc?.eventType}Event`;
   }
 
-  formatInputs({ inputs }: { region?:RegionType, inputs: TriggerInputs<MpsTriggerInputsParams> }) {
+  formatInputs({ inputs }: { region?: RegionType; inputs: TriggerInputs<MpsTriggerInputsParams> }) {
     const parameters = inputs.parameters;
-    const triggerInputs:CreateTriggerReq = {
+    const triggerInputs: CreateTriggerReq = {
       Type: 'mps',
       Qualifier: parameters?.qualifier ?? '$DEFAULT',
       TriggerName: '',
@@ -130,7 +136,14 @@ export default class MpsTrigger extends BaseTrigger<MpsTriggerInputsParams> {
     return output;
   }
 
-  async delete({ scf, inputs }: { scf: Scf; funcInfo?: FunctionInfo, inputs: TriggerInputs<MpsTriggerInputsParams> }) {
+  async delete({
+    scf,
+    inputs,
+  }: {
+    scf: Scf;
+    funcInfo?: FunctionInfo;
+    inputs: TriggerInputs<MpsTriggerInputsParams>;
+  }) {
     console.log(`Removing ${inputs.type} trigger ${inputs.triggerName}`);
     try {
       const res = await scf.request({

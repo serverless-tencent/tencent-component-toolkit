@@ -1,16 +1,21 @@
 import { CapiCredentials, RegionType } from './../interface';
-import { Cls as ClsClient }  from '@tencent-sdk/cls';
-import { ClsDelopyIndexInputs, ClsDeployInputs, ClsDeployLogsetInputs, ClsDeployOutputs, ClsDeployTopicInputs } from './interface';
-import  { ApiError } from '../../utils/error';
+import { Cls as ClsClient } from '@tencent-sdk/cls';
+import {
+  ClsDelopyIndexInputs,
+  ClsDeployInputs,
+  ClsDeployLogsetInputs,
+  ClsDeployOutputs,
+  ClsDeployTopicInputs,
+} from './interface';
+import { ApiError } from '../../utils/error';
 import { createLogset, createTopic, updateIndex } from './utils';
-
 
 export default class Cls {
   credentials: CapiCredentials;
   region: RegionType;
   cls: ClsClient;
 
-  constructor(credentials: CapiCredentials, region:RegionType='ap-guangzhou', expire:number) {
+  constructor(credentials: CapiCredentials, region: RegionType = 'ap-guangzhou', expire: number) {
     this.region = region;
     this.credentials = credentials;
     this.cls = new ClsClient({
@@ -23,7 +28,7 @@ export default class Cls {
     });
   }
 
-  async deployLogset(inputs:ClsDeployLogsetInputs = {} as any) {
+  async deployLogset(inputs: ClsDeployLogsetInputs = {} as any) {
     const outputs = {
       region: this.region,
       name: inputs.name,
@@ -77,7 +82,7 @@ export default class Cls {
     return outputs;
   }
 
-  async deployTopic(inputs:ClsDeployTopicInputs) {
+  async deployTopic(inputs: ClsDeployTopicInputs) {
     const outputs = {
       region: this.region,
       name: inputs.topic,
@@ -141,7 +146,7 @@ export default class Cls {
   }
 
   async deploy(inputs: ClsDeployInputs = {} as any) {
-    const outputs:ClsDeployOutputs = {
+    const outputs: ClsDeployOutputs = {
       region: this.region,
       name: inputs.name,
       topic: inputs.topic,
@@ -156,7 +161,7 @@ export default class Cls {
     return outputs;
   }
 
-  async remove(inputs:{topicId:string, logsetId: string} = {} as any) {
+  async remove(inputs: { topicId: string; logsetId: string } = {} as any) {
     try {
       console.log(`Start removing cls`);
       console.log(`Removing cls topic id ${inputs.topicId}`);
@@ -188,4 +193,3 @@ export default class Cls {
     return {};
   }
 }
-

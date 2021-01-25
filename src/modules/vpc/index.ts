@@ -4,13 +4,12 @@ import utils from './utils';
 import { ApiTypeError } from '../../utils/error';
 import { VpcDeployInputs, VpcRemoveInputs } from './interface';
 
-
 export default class Vpc {
   region: RegionType;
   credentials: CapiCredentials;
   capi: Capi;
 
-  constructor(credentials:CapiCredentials = {}, region:RegionType='ap-guangzhou') {
+  constructor(credentials: CapiCredentials = {}, region: RegionType = 'ap-guangzhou') {
     this.region = region;
     this.credentials = credentials;
     this.capi = new Capi({
@@ -22,7 +21,7 @@ export default class Vpc {
     });
   }
 
-  async deploy(inputs:VpcDeployInputs) {
+  async deploy(inputs: VpcDeployInputs) {
     const {
       zone,
       vpcName,
@@ -51,7 +50,7 @@ export default class Vpc {
         EnableMulticast: enableMulticast,
         DnsServers: dnsServers,
         DomainName: domainName,
-        VpcId: undefined as string | undefined
+        VpcId: undefined as string | undefined,
       };
 
       /** 修改旧的 Vpc */
@@ -67,7 +66,10 @@ export default class Vpc {
         }
 
         console.log(`Creating vpc ${vpcName}...`);
-        const res = await utils.createVpc(this.capi, {...params, ...{CidrBlock: cidrBlock, Tags: tags}});
+        const res = await utils.createVpc(this.capi, {
+          ...params,
+          ...{ CidrBlock: cidrBlock, Tags: tags },
+        });
         console.log(`Create vpc ${vpcName} success.`);
         vId = res.VpcId;
       }
@@ -75,7 +77,7 @@ export default class Vpc {
     };
 
     // check subnetId
-    const handleSubnet = async (vId:string, sId:string) => {
+    const handleSubnet = async (vId: string, sId: string) => {
       let existSubnet = false;
       if (sId) {
         const detail = await utils.getSubnetDetail(this.capi, sId);
@@ -92,7 +94,7 @@ export default class Vpc {
         CidrBlock: undefined as string | undefined,
         Tags: undefined as string[] | undefined,
       };
-      
+
       /** 子网已存在 */
       if (existSubnet) {
         console.log(`Updating subnet ${sId}...`);

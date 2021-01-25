@@ -15,9 +15,11 @@ module.exports = {
       jsx: true,
     },
   },
-  overrides: [{
-    files: ['src/**/*.ts', '__test__'],
-  }],
+  overrides: [
+    {
+      files: ['src/**/*.ts', '__test__'],
+    },
+  ],
   globals: {
     on: true, // for the Socket file
   },

@@ -10,8 +10,8 @@ export async function getLogsetByName(cls: Cls, data: { name: string }) {
 
 /**
  * 创建 cls 日志集
- * @param cls 
- * @param data 
+ * @param cls
+ * @param data
  */
 export async function createLogset(cls: Cls, data: { name: string; period: number }) {
   console.log(`Creating cls ${data.name}`);
@@ -46,8 +46,8 @@ export async function getTopicByName(cls: Cls, data: { name: string; logsetId: s
 
 /**
  * 创建 cls 主题
- * @param cls 
- * @param data 
+ * @param cls
+ * @param data
  */
 export async function createTopic(cls: Cls, data: { name: string; logsetId: string }) {
   console.log(`Creating cls topic ${data.name}`);
@@ -226,7 +226,7 @@ export async function updateClsTrigger(
  *    "topic_id": string,       日志主题 ID
  *  }
  */
-export async function deleteClsTrigger(cls:Cls, data:{topic_id: string}) {
+export async function deleteClsTrigger(cls: Cls, data: { topic_id: string }) {
   const res = await cls.request({
     path: '/deliverfunction',
     method: 'DELETE',

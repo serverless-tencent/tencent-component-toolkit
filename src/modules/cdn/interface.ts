@@ -4,7 +4,7 @@ export interface CertInfo {
   privateKey?: string;
   remarks?: string;
   message?: string;
-};
+}
 
 export interface DeployInputs {
   oldState?: any;

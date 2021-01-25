@@ -33,7 +33,7 @@ export function generatePwd(length = 8) {
   }
   password = password
     .split('')
-    .sort(function() {
+    .sort(function () {
       return 0.5 - Math.random();
     })
     .join('');

@@ -8,7 +8,7 @@ const utils = {
    * @param {string} LayerName
    * @param {string} LayerVersion
    */
-  async getLayerDetail(capi:Capi, LayerName:string, LayerVersion:string) {
+  async getLayerDetail(capi: Capi, LayerName: string, LayerVersion: string) {
     // get instance detail
     try {
       const res = await APIS.GetLayerVersion(capi, {
@@ -26,7 +26,7 @@ const utils = {
    * @param {object} capi capi instance
    * @param {string} LayerName
    */
-  async getLayerVersions(capi:Capi, LayerName:string):Promise<{} | null> {
+  async getLayerVersions(capi: Capi, LayerName: string): Promise<{} | null> {
     // get instance detail
     const res = await APIS.ListLayerVersions(capi, {
       LayerName,
@@ -43,16 +43,19 @@ const utils = {
    * @param {object} capi capi instance
    * @param {object} params publish layer parameters
    */
-  async publishLayer(capi:Capi, params:{
-    LayerName?: string,
-    CompatibleRuntimes?: string[],
-    Content: {
-      CosBucketName?: string;
-      CosObjectName?: string;
+  async publishLayer(
+    capi: Capi,
+    params: {
+      LayerName?: string;
+      CompatibleRuntimes?: string[];
+      Content: {
+        CosBucketName?: string;
+        CosObjectName?: string;
+      };
+      Description?: string;
+      licenseInfo?: string;
     },
-    Description?: string,
-    licenseInfo?: string,
-  }) {
+  ) {
     const res = await APIS.PublishLayerVersion(capi, {
       LayerName: params.LayerName,
       CompatibleRuntimes: params.CompatibleRuntimes,
@@ -69,7 +72,7 @@ const utils = {
    * @param {*} LayerName layer name
    * @param {*} LayerVersion layer version
    */
-  async deleteLayerVersion(capi:Capi, LayerName:string, LayerVersion:string) {
+  async deleteLayerVersion(capi: Capi, LayerName: string, LayerVersion: string) {
     await APIS.DeleteLayerVersion(capi, {
       LayerName,
       LayerVersion,

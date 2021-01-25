@@ -21,7 +21,7 @@ export default class CmqTrigger extends BaseTrigger<CmqTriggerInputsParams> {
 
   formatInputs({ inputs }: { region: RegionType; inputs: TriggerInputs<CmqTriggerInputsParams> }) {
     const { parameters } = inputs;
-    const triggerInputs:CreateTriggerReq = {
+    const triggerInputs: CreateTriggerReq = {
       Action: 'CreateTrigger',
       FunctionName: inputs.functionName,
       Namespace: inputs.namespace,

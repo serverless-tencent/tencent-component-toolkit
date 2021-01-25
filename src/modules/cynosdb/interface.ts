@@ -66,12 +66,12 @@ export interface CynosdbDeployOutputs {
 }
 
 export interface CynosdbRemoveInputs {
-    clusterId?: string;
+  clusterId?: string;
 }
 
 export interface CynosdbResetPwdInputs {
-    clusterId?: string,
-    adminName?: string,
-    host?: string,
-    adminPassword?: string,
-  }
+  clusterId?: string;
+  adminName?: string;
+  host?: string;
+  adminPassword?: string;
+}
