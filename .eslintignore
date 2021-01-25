@@ -2,7 +2,6 @@ coverage
 dist
 node_modules
 example
-# ignore for no typescript checking
-src
 # ignore for dont check build result
 lib
+**/*.d.ts

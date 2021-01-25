@@ -1,13 +1,13 @@
 module.exports = {
   root: true,
   extends: ['prettier'],
-  plugins: ['import', 'prettier'],
+  plugins: ['import', 'prettier', '@typescript-eslint'],
   env: {
     es6: true,
     jest: true,
     node: true,
   },
-  parser: 'babel-eslint',
+  parser: '@typescript-eslint/parser',
   parserOptions: {
     ecmaVersion: 2018,
     sourceType: 'module',
@@ -15,6 +15,9 @@ module.exports = {
       jsx: true,
     },
   },
+  overrides: [{
+    files: ['src/**/*.ts', '__test__'],
+  }],
   globals: {
     on: true, // for the Socket file
   },
@@ -49,7 +52,7 @@ module.exports = {
     'no-empty': 'off',
     'no-shadow': 'error',
     'no-undef': 'error',
-    'no-unused-vars': 'error',
+    '@typescript-eslint/no-unused-vars': 'error',
     'no-use-before-define': 'error',
     'no-useless-constructor': 'error',
     'object-curly-newline': 'off',

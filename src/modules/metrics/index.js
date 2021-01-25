@@ -1,9 +1,10 @@
+/* eslint-disable no-undef */
 const { slsMonitor } = require('tencent-cloud-sdk');
 const assert = require('assert');
 const moment = require('moment');
 const util = require('util');
 const url = require('url');
-const { ApiTypeError, ApiError } = require('../../utils/error');
+const { ApiError } = require('../../utils/error');
 
 class Metrics {
   constructor(credentials = {}, options = {}) {

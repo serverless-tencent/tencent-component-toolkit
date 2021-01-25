@@ -7,8 +7,8 @@ function isEmpty<T>(val: T) {
   return val === undefined || val === null || (typeof val === 'number' && isNaN(val));
 }
 
-function cleanEmptyValue<T>(obj : T):T {
-  const newObj:any = {};
+function cleanEmptyValue<T>(obj: T): T {
+  const newObj: any = {};
   for (const key in obj) {
     const val = obj[key];
     if (!isEmpty(val)) {
@@ -19,17 +19,17 @@ function cleanEmptyValue<T>(obj : T):T {
 }
 
 interface ApiFactoryOptions<ACTIONS_T> {
-  serviceType: ApiServiceType,
-  version: string,
-  actions: ACTIONS_T,
-  
-  debug?: boolean,
-  isV3?: boolean,
-  host?: string,
-  path?: string,
-  customHandler?: (action:string, res:any) => any,
-  responseHandler?: (res:any) => any,
-  errorHandler?: (action:string, res:any) => any
+  serviceType: ApiServiceType;
+  version: string;
+  actions: ACTIONS_T;
+
+  debug?: boolean;
+  isV3?: boolean;
+  host?: string;
+  path?: string;
+  customHandler?: (action: string, res: any) => any;
+  responseHandler?: (res: any) => any;
+  errorHandler?: (action: string, res: any) => any;
 }
 
 export function ApiFactory<ACTIONS_T extends readonly string[]>({
@@ -41,13 +41,13 @@ export function ApiFactory<ACTIONS_T extends readonly string[]>({
   path,
   version,
   customHandler,
-  responseHandler = (res:any) => res,
+  responseHandler = (res: any) => res,
   errorHandler,
 }: ApiFactoryOptions<ACTIONS_T>) {
-  const APIS:Record<ACTIONS_T[number], (capi: Capi, inputs: any) => any> = {} as any;
-  actions.forEach((action:ACTIONS_T[number]) => {
-    APIS[action] = async (capi:Capi, inputs:any) => {
-      inputs = deepClone(inputs)
+  const APIS: Record<ACTIONS_T[number], (capi: Capi, inputs: any) => any> = {} as any;
+  actions.forEach((action: ACTIONS_T[number]) => {
+    APIS[action] = async (capi: Capi, inputs: any) => {
+      inputs = deepClone(inputs);
       const reqData = cleanEmptyValue({
         Action: action,
         Version: version,
