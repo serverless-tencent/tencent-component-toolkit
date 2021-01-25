@@ -13,6 +13,14 @@ module.exports = {
         parserOpts: {
           noteKeywords: ['BREAKING CHANGE', 'BREAKING CHANGES', 'BREAKING'],
         },
+        releaseRules: [
+          { type: 'docs', scope: 'README', release: 'patch' },
+          { type: 'fix', release: 'patch' },
+          { type: 'style', release: 'patch' },
+          { type: 'feat', release: 'minor' },
+          { type: 'refactor', release: 'patch' },
+          { type: 'breaking', release: 'major' },
+        ],
       },
     ],
     [
