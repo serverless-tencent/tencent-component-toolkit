@@ -38,6 +38,8 @@ export function generatePwd(length = 8) {
       return 0.5 - Math.random();
     })
     .join('');
+
+  return password.substr(0, length);
 }
 
 export function isValidPwd(password: string) {

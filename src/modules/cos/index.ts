@@ -183,8 +183,7 @@ export default class Cos {
     console.log(`Setting policy for bucket ${inputs.bucket}`);
     const setPolicyParams: PutBucketPolicyParams = {
       Policy: inputs.policy!,
-      Bucket: inputs.bucket!
-      ,
+      Bucket: inputs.bucket!,
       Region: this.region,
     };
 
@@ -362,7 +361,7 @@ export default class Cos {
       Bucket: inputs.bucket!,
       Region: this.region,
       VersioningConfiguration: {
-        Status: inputs.versioning,
+        Status: inputs.versioning as 'Enabled' | 'Suspended',
       },
     };
     try {
