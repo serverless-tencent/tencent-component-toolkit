@@ -54,12 +54,12 @@ export default class Apigw {
     return (tempProtocol === 'https&http' ? 'http&https' : tempProtocol) ?? 'http&https';
   }
 
-  private async request({ Action, ...data }: { Action: ActionType; [key: string]: any }) {
+  async request({ Action, ...data }: { Action: ActionType; [key: string]: any }) {
     const result = await APIS[Action](this.capi, pascalCaseProps(data));
     return result as never;
   }
 
-  private async removeOrUnbindRequest({
+  async removeOrUnbindRequest({
     Action,
     ...data
   }: {
@@ -74,7 +74,7 @@ export default class Apigw {
     return true;
   }
 
-  private marshalServiceConfig(endpoint: any, apiInputs: any) {
+  marshalServiceConfig(endpoint: any, apiInputs: any) {
     if (
       !endpoint.serviceConfig ||
       !endpoint.serviceConfig.url ||
@@ -93,7 +93,7 @@ export default class Apigw {
     };
   }
 
-  private marshalApiInput(endpoint: any, apiInputs: any) {
+  marshalApiInput(endpoint: any, apiInputs: any) {
     if (endpoint.param) {
       apiInputs.requestParameters = endpoint.param;
     }
@@ -581,9 +581,9 @@ export default class Apigw {
       ServiceId: string;
 
       // FIXME: 小写？
-      serviceName: string;
-      serviceDesc: string;
-      protocol: string;
+      ServiceName: string;
+      ServiceDesc: string;
+      Protocol: string;
     }
     let detail: Detail;
 
@@ -599,17 +599,17 @@ export default class Apigw {
           !(
             // FIXME: 小写？
             (
-              serviceName === detail.serviceName &&
-              serviceDesc === detail.serviceDesc &&
-              protocols === detail.protocol
+              serviceName === detail.ServiceName &&
+              serviceDesc === detail.ServiceDesc &&
+              protocols === detail.Protocol
             )
           )
         ) {
           const apiInputs = {
             Action: 'ModifyService' as const,
             serviceId,
-            serviceDesc: serviceDesc || detail.serviceDesc,
-            serviceName: serviceName || detail.serviceName,
+            serviceDesc: serviceDesc || detail.ServiceDesc,
+            serviceName: serviceName || detail.ServiceName,
             protocol: protocols,
             netTypes: netTypes,
           };
@@ -651,7 +651,7 @@ export default class Apigw {
       });
     }
 
-    return outputs;
+    return deepClone(outputs);
   }
 
   /** 根据路径和方法获取 API 网关接口 */

@@ -60,7 +60,7 @@ export default class Scf {
     return result;
   }
 
-  // bind SCF_QcsRole roless
+  // bind SCF_QcsRole role
   async bindScfQCSRole() {
     console.log(`Creating and binding SCF_QcsRole`);
     const camClient = new Cam(this.credentials);
