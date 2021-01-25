@@ -99,7 +99,7 @@ export default abstract class BaseTrigger<P = TriggerInputsParams> {
   /** delete scf trigger */
   abstract delete({
     scf,
-    region: RegionType,
+    region,
     inputs,
   }: {
     scf: Scf;

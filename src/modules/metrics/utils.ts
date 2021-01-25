@@ -6,15 +6,6 @@ interface MetricA {
   StartTime: string;
   EndTime: string;
 }
-
-export interface MetricB {
-  color?: string;
-  title: string;
-  type: string;
-  x?: MetricX;
-  y?: MetricY[];
-}
-
 export interface MetricX {
   type: string;
   values?: number[];
@@ -25,6 +16,14 @@ export interface MetricY {
   type: string;
   values: any;
   total: any;
+}
+
+export interface MetricB {
+  color?: string;
+  title: string;
+  type: string;
+  x?: MetricX;
+  y?: MetricY[];
 }
 
 export function filterMetricByNameExp(

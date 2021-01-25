@@ -18,6 +18,8 @@ export default class CkafkaTrigger {
   }
 
   formatInputs({
+    // FIXME: region unused
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     region,
     inputs,
   }: {

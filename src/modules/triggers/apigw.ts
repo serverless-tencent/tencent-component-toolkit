@@ -134,7 +134,7 @@ export default class ApigwTrigger extends BaseTrigger<ApigwTriggerInputsParams> 
     funcInfo?: FunctionInfo;
     inputs: TriggerInputs<ApigwTriggerInputsParams>;
   }) {
-    const { parameters, name } = inputs;
+    const { parameters } = inputs;
     const { oldState, protocols, environment, serviceId, serviceName, serviceDesc } = parameters!;
     const triggerInputs: ApigwTriggerInputsParams = {
       oldState: oldState ?? {},

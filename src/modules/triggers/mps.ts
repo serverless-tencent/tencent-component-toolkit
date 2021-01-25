@@ -40,7 +40,7 @@ export default class MpsTrigger extends BaseTrigger<MpsTriggerInputsParams> {
   }
 
   formatInputs({ inputs }: { region?: RegionType; inputs: TriggerInputs<MpsTriggerInputsParams> }) {
-    const parameters = inputs.parameters;
+    const { parameters } = inputs;
     const triggerInputs: CreateTriggerReq = {
       Type: 'mps',
       Qualifier: parameters?.qualifier ?? '$DEFAULT',
@@ -87,7 +87,7 @@ export default class MpsTrigger extends BaseTrigger<MpsTriggerInputsParams> {
   }
 
   async create({ inputs }: { inputs: TriggerInputs<MpsTriggerInputsParams> }) {
-    const parameters = inputs.parameters;
+    const { parameters } = inputs;
     const output = {
       namespace: inputs.namespace || 'default',
       functionName: inputs.functionName,

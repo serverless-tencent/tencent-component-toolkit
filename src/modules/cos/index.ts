@@ -35,22 +35,6 @@ import fs from 'fs';
 import { traverseDirSync } from '../../utils';
 import { ApiTypeError, ApiError } from '../../utils/error';
 
-function constructCosError(
-  type: string,
-  err: {
-    error: {
-      Code: string;
-      Message: string;
-      Stack: string;
-      RequestId: string;
-    };
-    stack: string;
-  },
-) {
-  const e = convertCosError(err);
-  return new ApiError({ type, ...e });
-}
-
 /** 将 Cos error 转为统一的形式 */
 function convertCosError(err: {
   error: {
@@ -68,6 +52,22 @@ function convertCosError(err: {
     reqId: err.error.RequestId,
   };
   return e;
+}
+
+function constructCosError(
+  type: string,
+  err: {
+    error: {
+      Code: string;
+      Message: string;
+      Stack: string;
+      RequestId: string;
+    };
+    stack: string;
+  },
+) {
+  const e = convertCosError(err);
+  return new ApiError({ type, ...e });
 }
 
 export default class Cos {
@@ -126,8 +126,8 @@ export default class Cos {
                 message: `Could not find bucket ${inputs.bucket}`,
               });
             }
-          } catch (err) {
-            throw constructCosError(`API_COS_headBucket`, err);
+          } catch (errAgain) {
+            throw constructCosError(`API_COS_headBucket`, errAgain);
           }
         } else {
           throw constructCosError(`API_COS_putBucket`, err);
@@ -488,7 +488,6 @@ export default class Cos {
 
       const items = traverseDirSync(inputs.dir);
 
-      let handler;
       let key;
       const promises: Promise<PutObjectResult>[] = [];
       items.forEach((item) => {

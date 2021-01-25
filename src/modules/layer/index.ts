@@ -1,9 +1,7 @@
-import { ActionType } from './../cns/apis';
 import { RegionType, CapiCredentials, ApiServiceType } from './../interface';
 
 import { Capi } from '@tencent-sdk/capi';
 import { waitResponse } from '@ygkit/request';
-import APIS from './apis';
 import utils from './utils';
 import { ApiError } from '../../utils/error';
 import { LayerDeployInputs } from './interface';

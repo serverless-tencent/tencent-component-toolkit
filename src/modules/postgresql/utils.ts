@@ -1,5 +1,5 @@
 import { Capi } from '@tencent-sdk/capi';
-import { sleep, waitResponse } from '@ygkit/request';
+import { waitResponse } from '@ygkit/request';
 import APIS from './apis';
 
 // timeout 5 minutes

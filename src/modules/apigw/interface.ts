@@ -20,6 +20,13 @@ export interface ApigwSetupUsagePlanInputs {
 
 export interface ApigwSetupUsagePlanOutputs extends ApigwSetupUsagePlanInputs {}
 
+export interface ApigwSetupUsagePlanSecretInputs {
+  /** 要使用的密钥 id 列表 */
+  secretIds: string[];
+  /** 用户自定义的密钥名 */
+  secretName: string;
+  created?: boolean;
+}
 export interface ApigwBindUsagePlanInputs {
   apiId?: string;
   serviceId?: string;
@@ -30,12 +37,32 @@ export interface ApigwBindUsagePlanInputs {
 
 export interface ApigwBindUsagePlanOutputs extends ApigwBindUsagePlanInputs {}
 
-export interface ApigwSetupUsagePlanSecretInputs {
-  /** 要使用的密钥 id 列表 */
-  secretIds: string[];
-  /** 用户自定义的密钥名 */
-  secretName: string;
-  created?: boolean;
+export interface ApiEndpoint {
+  created: boolean;
+  apiId?: string;
+  usagePlan?: ApigwSetupUsagePlanInputs;
+  auth?: ApigwSetupUsagePlanSecretInputs;
+  authType?: 'NONE' | string;
+  businessType?: 'NORMAL' | string;
+  path: string;
+  method: string;
+  apiName?: string;
+  protocol?: 'HTTP' | 'HTTPS';
+  description?: string;
+  serviceType?: 'SCF' | string;
+  serviceTimeout?: 15;
+  responseType?: 'HTML' | string;
+  enableCORS?: boolean;
+  oauthConfig?: string;
+  authRelationApiId?: string;
+  authRelationApi?: {
+    method: string;
+    path: string;
+  };
+  internalDomain?: string;
+  isBase64Encoded?: boolean;
+  isBase64Trigger?: boolean;
+  base64EncodedTriggerRules?: string[];
 }
 
 export interface CustomDomain {
@@ -76,34 +103,6 @@ export interface CreateOrUpdateApiInputs {
   endpoint: ApiEndpoint;
   environment: EnviromentType;
   created: boolean;
-}
-
-export interface ApiEndpoint {
-  created: boolean;
-  apiId?: string;
-  usagePlan?: ApigwSetupUsagePlanInputs;
-  auth?: ApigwSetupUsagePlanSecretInputs;
-  authType?: 'NONE' | string;
-  businessType?: 'NORMAL' | string;
-  path: string;
-  method: string;
-  apiName?: string;
-  protocol?: 'HTTP' | 'HTTPS';
-  description?: string;
-  serviceType?: 'SCF' | string;
-  serviceTimeout?: 15;
-  responseType?: 'HTML' | string;
-  enableCORS?: boolean;
-  oauthConfig?: string;
-  authRelationApiId?: string;
-  authRelationApi?: {
-    method: string;
-    path: string;
-  };
-  internalDomain?: string;
-  isBase64Encoded?: boolean;
-  isBase64Trigger?: boolean;
-  base64EncodedTriggerRules?: string[];
 }
 
 export interface ApiDeployerInputs {

@@ -81,6 +81,8 @@ export function isValidPwd(password: string) {
   return true;
 }
 
+// FIXME: isServerless is unused
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function isSupportZone(zone: string, isServerless = false) {
   if (SUPPORT_ZONES.indexOf(zone) === -1) {
     throw new ApiError({

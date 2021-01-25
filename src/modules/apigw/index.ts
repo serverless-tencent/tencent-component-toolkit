@@ -10,7 +10,6 @@ import {
   ApigwCreateOrUpdateServiceInputs,
   ApigwSetupUsagePlanInputs,
   ApigwSetupUsagePlanSecretInputs,
-  ApigwBindUsagePlanInputs,
   CreateOrUpdateApiInputs,
   ApiDeployerOutputs,
   ApiDeployerInputs,
@@ -400,7 +399,9 @@ export default class Apigw {
     inputs: ApigwBindCustomDomainInputs;
   }): Promise<ApigwBindCustomDomainOutputs[]> {
     const { customDomains, oldState = {} } = inputs;
-    if (!customDomains) return [];
+    if (!customDomains) {
+      return [];
+    }
 
     // 1. unbind all custom domain
     this.unbindCustomDomain(serviceId, oldState?.customDomains ?? []);

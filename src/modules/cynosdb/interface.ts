@@ -1,4 +1,3 @@
-import { Region } from 'cos-nodejs-sdk-v5';
 import { RegionType } from './../interface';
 
 export interface VpcConfig {

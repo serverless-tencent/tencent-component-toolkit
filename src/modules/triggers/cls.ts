@@ -29,7 +29,7 @@ export default class ClsTrigger extends BaseTrigger<ClsTriggerInputsParams> {
   }
 
   formatInputs({ inputs }: { inputs: TriggerInputs<ClsTriggerInputsParams> }) {
-    const parameters = inputs.parameters;
+    const { parameters } = inputs;
     const triggerInputs: CreateTriggerReq = {
       Type: 'cls',
       Qualifier: parameters?.qualifier ?? '$DEFAULT',
@@ -64,7 +64,7 @@ export default class ClsTrigger extends BaseTrigger<ClsTriggerInputsParams> {
   }
 
   async create({ inputs }: { inputs: TriggerInputs<ClsTriggerInputsParams> }) {
-    const parameters = inputs.parameters;
+    const { parameters } = inputs;
     const exist = await this.get({
       topicId: parameters?.topicId,
     });

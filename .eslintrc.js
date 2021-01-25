@@ -17,7 +17,7 @@ module.exports = {
   },
   overrides: [
     {
-      files: ['src/**/*.ts', '__test__'],
+      files: ['./src/**/*.ts', './__test__/**.*.js'],
     },
   ],
   globals: {
@@ -52,7 +52,7 @@ module.exports = {
     'no-const-assign': 'error',
     'no-else-return': 'error',
     'no-empty': 'off',
-    'no-shadow': 'error',
+    '@typescript-eslint/no-shadow': 'error',
     'no-undef': 'error',
     '@typescript-eslint/no-unused-vars': 'error',
     'no-use-before-define': 'error',

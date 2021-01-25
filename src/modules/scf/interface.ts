@@ -34,18 +34,18 @@ export interface publishVersionAndConfigTraffic {
   description?: string;
 }
 
-export interface ScfUpdateAliasInputs extends ScfGetAliasInputs {
-  traffic: number;
-  lastVersion: string;
-  description?: string;
-}
-
 export interface ScfGetAliasInputs {
   functionName: string;
   region: RegionType;
   aliasName?: string;
   namespace?: string;
   functionVersion?: string;
+}
+
+export interface ScfUpdateAliasInputs extends ScfGetAliasInputs {
+  traffic: number;
+  lastVersion: string;
+  description?: string;
 }
 
 export type ScfDeleteAliasInputs = ScfGetAliasInputs;
