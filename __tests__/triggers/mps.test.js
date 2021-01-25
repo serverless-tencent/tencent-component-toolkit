@@ -1,6 +1,7 @@
-const { Scf } = require('../../src');
-const MpsTrigger = require('../../src/modules/triggers/mps');
+const { Scf } = require('../../lib');
+const MpsTrigger = require('../../lib/modules/triggers/mps').default;
 
+// FIXME: all mps trigger bind fail
 describe('Mps', () => {
   const credentials = {
     SecretId: process.env.TENCENT_SECRET_ID,

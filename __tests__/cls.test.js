@@ -1,4 +1,5 @@
-const { Cls } = require('../src');
+const { Cls } = require('../lib');
+const { sleep } = require('@ygkit/request');
 
 describe('Cls', () => {
   const credentials = {
@@ -42,6 +43,7 @@ describe('Cls', () => {
   });
 
   test('should remove cls success', async () => {
+    await sleep(2000);
     await client.remove(outputs);
 
     const detail = await client.cls.getLogset({

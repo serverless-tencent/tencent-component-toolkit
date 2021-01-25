@@ -1,4 +1,4 @@
-const { Cns } = require('../src');
+const { Cns } = require('../lib');
 
 describe('Cns', () => {
   const credentials = {

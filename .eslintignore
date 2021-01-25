@@ -2,3 +2,6 @@ coverage
 dist
 node_modules
 example
+# ignore for dont check build result
+lib
+**/*.d.ts

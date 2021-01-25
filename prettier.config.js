@@ -5,4 +5,9 @@ module.exports = {
   singleQuote: true,
   tabWidth: 2,
   trailingComma: 'all',
+  // overrides: [
+  //   {
+  //     files: ['./src/**/*.ts', './__test__/**/*.js'],
+  //   },
+  // ],
 };

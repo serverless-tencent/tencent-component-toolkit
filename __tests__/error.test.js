@@ -1,9 +1,9 @@
-const { TypeError, ApiError } = require('../src/utils/error');
+const { ApiTypeError, ApiError } = require('../lib/utils/error');
 
 describe('Custom Error', () => {
   test('TypeError', async () => {
     try {
-      throw new TypeError(
+      throw new ApiTypeError(
         'TEST_TypeError',
         'This is a test error',
         'error stack',

@@ -1,5 +1,5 @@
 const { sleep } = require('@ygkit/request');
-const { Scf, Cfs, Layer } = require('../src');
+const { Scf, Cfs, Layer } = require('../lib');
 
 describe('Scf', () => {
   const credentials = {
@@ -141,6 +141,7 @@ describe('Scf', () => {
   });
 
   afterAll(async (done) => {
+    sleep(2000);
     await cfs.remove({
       fsName: cfsInputs.fsName,
       fileSystemId: inputs.cfs[0].cfsId,
@@ -149,6 +150,10 @@ describe('Scf', () => {
     done();
   });
 
+  /**
+   * FIXME: MPS bind always fail
+   * trigger has already binded (reqId: 62963b70-6875-47b4-ae72-9db54b9ffeba)
+   */
   test('should deploy SCF success', async () => {
     outputs = await scf.deploy(inputs);
     expect(outputs).toEqual({

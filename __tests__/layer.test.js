@@ -1,5 +1,5 @@
 const { sleep } = require('@ygkit/request');
-const { Layer } = require('../src');
+const { Layer } = require('../lib');
 
 describe('Layer', () => {
   const credentials = {
@@ -33,7 +33,7 @@ describe('Layer', () => {
   });
 
   test('should remove layer success', async () => {
-    await sleep(1000);
+    await sleep(5000);
     await layer.remove({
       name: inputs.name,
       version: inputs.version,

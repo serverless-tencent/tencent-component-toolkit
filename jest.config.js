@@ -1,11 +1,11 @@
 const { join } = require('path');
 require('dotenv').config({ path: join(__dirname, '.env.test') });
 
-const md = process.env.MODULE;
+const mod = process.env.MODULE;
 
 const config = {
   verbose: true,
-  silent: md ? false : true,
+  silent: mod ? false : true,
   testTimeout: 600000,
   testEnvironment: 'node',
   testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.(js|ts)$',
@@ -13,8 +13,8 @@ const config = {
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
 };
 
-if (md) {
-  if (md === 'triggers') {
+if (mod) {
+  if (mod === 'triggers') {
     config.testRegex = `/__tests__/triggers/.*.test.js`;
   } else {
     config.testRegex = `/__tests__/${process.env.MODULE}.test.js`;

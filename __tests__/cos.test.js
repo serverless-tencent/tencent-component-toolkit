@@ -1,4 +1,4 @@
-const { Cos } = require('../src');
+const { Cos } = require('../lib');
 const path = require('path');
 const axios = require('axios');
 const { sleep } = require('@ygkit/request');
@@ -80,7 +80,8 @@ describe('Cos', () => {
 
   test('should deploy website success', async () => {
     const res = await cos.website(websiteInputs);
-    await sleep(1000);
+
+    await sleep(2000);
     const websiteUrl = `${inputs.bucket}.cos-website.${process.env.REGION}.myqcloud.com`;
     const reqUrl = `${websiteInputs.protocol}://${websiteUrl}`;
     const { data } = await axios.get(reqUrl);
@@ -96,7 +97,9 @@ describe('Cos', () => {
 
   test('should deploy website and error code with 200', async () => {
     websiteInputs.disableErrorStatus = true;
+
     const res = await cos.website(websiteInputs);
+
     await sleep(1000);
     const websiteUrl = `${inputs.bucket}.cos-website.${process.env.REGION}.myqcloud.com`;
     const reqUrl = `${websiteInputs.protocol}://${websiteUrl}`;

@@ -1,9 +1,10 @@
+/* eslint-disable no-undef */
 const { slsMonitor } = require('tencent-cloud-sdk');
 const assert = require('assert');
 const moment = require('moment');
 const util = require('util');
 const url = require('url');
-const { TypeError, ApiError } = require('../../utils/error');
+const { ApiError } = require('../../utils/error');
 
 class Metrics {
   constructor(credentials = {}, options = {}) {
@@ -251,7 +252,7 @@ class Metrics {
         name: name,
         type: type,
         values: metric.DataPoints[0].Values,
-        total: metric.DataPoints[0].Values.reduce(function(a, b) {
+        total: metric.DataPoints[0].Values.reduce(function (a, b) {
           return a + b;
         }, 0),
       };
@@ -283,7 +284,7 @@ class Metrics {
   }
 
   buildMetrics(datas) {
-    const filterMetricByName = function(metricName, metrics) {
+    const filterMetricByName = function (metricName, metrics) {
       const len = metrics.length;
 
       for (var i = 0; i < len; i++) {
@@ -323,7 +324,7 @@ class Metrics {
       const funcInvItem = {
         name: invocations.MetricName.toLocaleLowerCase(),
         type: 'count',
-        total: invocations.DataPoints[0].Values.reduce(function(a, b) {
+        total: invocations.DataPoints[0].Values.reduce(function (a, b) {
           return a + b;
         }, 0),
         values: invocations.DataPoints[0].Values,
@@ -348,7 +349,7 @@ class Metrics {
         name: errors.MetricName.toLocaleLowerCase(),
         type: 'count',
         color: 'error',
-        total: errors.DataPoints[0].Values.reduce(function(a, b) {
+        total: errors.DataPoints[0].Values.reduce(function (a, b) {
           return a + b;
         }, 0),
         values: errors.DataPoints[0].Values,
@@ -437,7 +438,7 @@ class Metrics {
   }
 
   buildCustomMetrics(responses) {
-    const filterMetricByName = function(metricName, metrics, all) {
+    const filterMetricByName = function (metricName, metrics, all) {
       const len = metrics.length;
       const results = [];
       for (var i = 0; i < len; i++) {
@@ -458,7 +459,7 @@ class Metrics {
       return all ? results : null;
     };
 
-    const hex2path = function(hexPath) {
+    const hex2path = function (hexPath) {
       const len = hexPath.length;
       let path = '';
       for (let i = 0; i < len; ) {
@@ -472,7 +473,7 @@ class Metrics {
       return path.toLocaleLowerCase();
     };
 
-    const parseErrorPath = function(m, path) {
+    const parseErrorPath = function (m, path) {
       const ret = path.match(m);
       if (!ret) {
         return null;
@@ -491,7 +492,7 @@ class Metrics {
       };
     };
 
-    const parsePath = function(m, path) {
+    const parsePath = function (m, path) {
       const ret = path.match(m);
       if (!ret) {
         return null;
@@ -508,7 +509,7 @@ class Metrics {
       };
     };
 
-    const makeMetric = function(name, metricData) {
+    const makeMetric = function (name, metricData) {
       const data = {
         name: name,
         type: 'duration',
@@ -517,7 +518,7 @@ class Metrics {
         }),
       };
 
-      data.total = data.values.reduce(function(a, b) {
+      data.total = data.values.reduce(function (a, b) {
         return a + b;
       }, 0);
 

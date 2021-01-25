@@ -1,14 +1,15 @@
-const { Cls, Scf } = require('../../src');
-const ClsTrigger = require('../../src/modules/triggers/cls');
+const { Cls, Scf } = require('../../lib');
+const ClsTrigger = require('../../lib/modules/triggers/cls').default;
+const { sleep } = require('@ygkit/request');
 
 describe('Cls', () => {
   const credentials = {
     SecretId: process.env.TENCENT_SECRET_ID,
     SecretKey: process.env.TENCENT_SECRET_KEY,
   };
-  const client = new ClsTrigger({ credentials, region: process.env.REGION });
-  const clsClient = new Cls(credentials, process.env.REGION);
-  const scfClient = new Scf(credentials, process.env.REGION);
+  const clsTrigger = new ClsTrigger({ credentials, region: process.env.REGION });
+  const cls = new Cls(credentials, process.env.REGION);
+  const scf = new Scf(credentials, process.env.REGION);
 
   const data = {
     qualifier: '$DEFAULT',
@@ -41,22 +42,25 @@ describe('Cls', () => {
   let clsOutputs;
 
   beforeAll(async () => {
-    clsOutputs = await clsClient.deploy(clsInputs);
+    clsOutputs = await cls.deploy(clsInputs);
     data.topicId = clsOutputs.topicId;
   });
 
   afterAll(async () => {
-    await clsClient.remove(clsOutputs);
+    await sleep(2000);
+    await cls.remove(clsOutputs);
   });
 
   test('should create trigger success', async () => {
-    const res = await client.create({
+    sleep(2000);
+    const res = await clsTrigger.create({
       inputs: {
         namespace: namespace,
         functionName: functionName,
         parameters: data,
       },
     });
+
     expect(res).toEqual({
       namespace: namespace,
       functionName: functionName,
@@ -68,8 +72,9 @@ describe('Cls', () => {
   });
 
   test('should enable trigger success', async () => {
+    sleep(2000);
     data.enable = true;
-    const res = await client.create({
+    const res = await clsTrigger.create({
       inputs: {
         namespace: namespace,
         functionName: functionName,
@@ -88,8 +93,9 @@ describe('Cls', () => {
   });
 
   test('should disable trigger success', async () => {
+    await sleep(2000);
     data.enable = false;
-    const res = await client.create({
+    const res = await clsTrigger.create({
       inputs: {
         namespace: namespace,
         functionName: functionName,
@@ -108,15 +114,16 @@ describe('Cls', () => {
   });
 
   test('should delete trigger success', async () => {
-    const { Triggers = [] } = await scfClient.request({
+    await sleep(5000);
+    const { Triggers = [] } = await scf.request({
       Action: 'ListTriggers',
       Namespace: namespace,
       FunctionName: functionName,
       Limit: 100,
     });
     const [exist] = Triggers.filter((item) => item.ResourceId.indexOf(`topic_id/${data.topicId}`));
-    const res = await client.delete({
-      scf: scfClient,
+    const res = await clsTrigger.delete({
+      scf: scf,
       inputs: {
         namespace: namespace,
         functionName: functionName,
@@ -128,7 +135,7 @@ describe('Cls', () => {
     });
     expect(res).toEqual({ requestId: expect.any(String), success: true });
 
-    const detail = await client.get({
+    const detail = await clsTrigger.get({
       topicId: data.topicId,
     });
     expect(detail).toBeUndefined();
