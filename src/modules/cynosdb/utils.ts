@@ -9,7 +9,6 @@ export { sleep, waitResponse } from '@ygkit/request';
 // timeout 5 minutes
 export const TIMEOUT = 5 * 60 * 1000;
 export const SUPPORT_ZONES = ['ap-beijing-3', 'ap-guangzhou-4', 'ap-nanjing-1', 'ap-shanghai-2'];
-export const SERVERLESS_SUPPORT_ZONES = ['ap-shanghai-2', 'ap-nanjing-1'];
 export const PWD_CHARS =
   '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz~!@#$%^&*_-';
 
@@ -83,8 +82,7 @@ export function isValidPwd(password: string) {
 }
 
 export function isSupportZone(zone: string, isServerless = false) {
-  const supportZones = isServerless ? SERVERLESS_SUPPORT_ZONES : SUPPORT_ZONES;
-  if (supportZones.indexOf(zone) === -1) {
+  if (SUPPORT_ZONES.indexOf(zone) === -1) {
     throw new ApiError({
       type: 'PARAMETER_CYNOSDB',
       message: `Unsupported zone, support zones: ${SUPPORT_ZONES.join(',')}`,
