@@ -1,6 +1,6 @@
 import { LayerDeployInputs } from './../src/modules/layer/interface';
 import { sleep } from '@ygkit/request';
-import { Layer } from '../lib';
+import { Layer } from '../src';
 
 describe('Layer', () => {
   const credentials = {

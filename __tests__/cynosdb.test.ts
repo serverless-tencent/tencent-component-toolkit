@@ -1,6 +1,6 @@
 import { CynosdbDeployInputs } from './../src/modules/cynosdb/interface';
-import { Cynosdb } from '../lib';
-import { getClusterDetail, sleep, generatePwd, isValidPwd } from '../lib/modules/cynosdb/utils';
+import { Cynosdb } from '../src';
+import { getClusterDetail, sleep, generatePwd, isValidPwd } from '../src/modules/cynosdb/utils';
 
 describe('Cynosdb', () => {
   jest.setTimeout(600000);
