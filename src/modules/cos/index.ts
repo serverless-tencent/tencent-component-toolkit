@@ -296,7 +296,7 @@ export default class Cos {
           Filter: {},
         };
 
-        if (lc.filter?.prefix) {
+        if (typeof lc.filter !== 'string' && lc.filter?.prefix) {
           tempLifecycle.Filter = {
             Prefix: lc.filter?.prefix,
           };

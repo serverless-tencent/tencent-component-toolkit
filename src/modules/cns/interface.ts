@@ -5,7 +5,7 @@ export interface CnsRecordInputs {
   recordLine: string;
   recordType: 'CNAME' | 'A' | 'AAAA' | 'TXT' | string;
   recordId: string;
-  mx?: string;
+  mx?: number;
   ttl?: number;
   status?: string;
 }
@@ -15,7 +15,7 @@ export interface CnsRecordOutputs {
   name: string;
   type: string;
   id: string;
-  mx?: string;
+  mx?: number;
   ttl?: number;
   line: string;
 

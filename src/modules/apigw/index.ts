@@ -22,7 +22,6 @@ import {
   ApigwRemoveInputs,
   ApigwBindCustomDomainInputs,
   ApigwBindUsagePlanOutputs,
-  CustomDomain,
 } from './interface';
 
 export default class Apigw {
@@ -355,7 +354,7 @@ export default class Apigw {
    * 解绑 API 网关所有自定义域名
    * @param serviceId API 网关 ID
    */
-  async unbindCustomDomain(serviceId: string, customDomains: CustomDomain[]) {
+  async unbindCustomDomain(serviceId: string, customDomains: { subDomain?: string }[]) {
     const customDomainDetail = (await this.request({
       Action: 'DescribeServiceSubDomains',
       serviceId,
@@ -407,7 +406,7 @@ export default class Apigw {
     this.unbindCustomDomain(serviceId, oldState?.customDomains ?? []);
 
     // 2. bind user config domain
-    const customDomainOutput = [];
+    const customDomainOutput: ApigwBindCustomDomainOutputs[] = [];
     if (customDomains && customDomains.length > 0) {
       console.log(`Start bind custom domain for service ${serviceId}`);
       for (let i = 0; i < customDomains.length; i++) {

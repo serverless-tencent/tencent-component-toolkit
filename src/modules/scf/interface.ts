@@ -158,7 +158,15 @@ export interface ScfDeployInputs extends ScfCreateFunctionInputs {
   events?: TriggerType[];
 }
 
-export interface ScfDeployOutputs {}
+export interface ScfDeployOutputs {
+  FunctionName: string;
+  Runtime: string;
+  Namespace: string;
+  LastVersion?: string;
+  Traffic?: number;
+
+  ConfigTrafficVersion: string;
+}
 
 export interface ScfRemoveInputs {
   functionName?: string;

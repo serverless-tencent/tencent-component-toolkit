@@ -76,7 +76,7 @@ export interface CosSetLifecycleInputs {
     id: string;
     status: 'Enabled' | 'Disabled';
     filter?: {
-      prefix: string;
+      prefix?: string;
     };
     transition?: {
       days: number | string;
@@ -88,11 +88,11 @@ export interface CosSetLifecycleInputs {
       storageClass: number | string;
     };
     expiration?: {
-      days: number;
+      days: number | string;
       expiredObjectDeleteMarker: string;
     };
     abortIncompleteMultipartUpload?: {
-      daysAfterInitiation: number;
+      daysAfterInitiation: number | string;
     };
   }[];
 }
