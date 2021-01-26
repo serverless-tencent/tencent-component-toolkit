@@ -65,23 +65,27 @@ export default class Tag {
     return Tags;
   }
 
-  async getTagList(offset: number = 0, limit: number = 100): Promise<TagData[]> {
+  async getTagList(
+    tagKeys: string[] = [],
+    offset: number = 0,
+    limit: number = 100,
+  ): Promise<TagData[]> {
     const { Tags, TotalCount } = await this.request({
       Action: 'DescribeTags',
       Limit: limit,
       Offset: offset,
+      TagKeys: tagKeys,
     });
     if (TotalCount > limit) {
-      return Tags.concat(await this.getTagList(offset + limit, limit));
+      return Tags.concat(await this.getTagList(tagKeys, offset + limit, limit));
     }
 
     return Tags;
   }
 
-  async isTagExist(tag: TagData) {
-    const tagList = await this.getTagList();
+  isTagExist(tag: TagData, tagList: TagData[] = []) {
     const [exist] = tagList.filter(
-      (item) => item.TagKey === tag.TagKey && item.TagValue === tag.TagValue,
+      (item) => item.TagKey === tag.TagKey && String(item.TagValue) === String(tag.TagValue),
     );
     return !!exist;
   }
@@ -104,12 +108,15 @@ export default class Tag {
       ResourceRegion: this.region,
       ResourcePrefix: resourcePrefix,
     };
-    // if tag not exsit, create it
+    if (tags && tags.length > 0) {
+      const tagKeys = tags.map((item) => item.TagKey);
+      const tagList = await this.getTagList(tagKeys);
 
-    if (tags) {
       for (let i = 0; i < tags.length; i++) {
         const currentTag = tags[i];
-        const tagExist = await this.isTagExist(currentTag);
+        const tagExist = await this.isTagExist(currentTag, tagList);
+
+        // if tag not exsit, create it
         if (!tagExist) {
           await this.createTag(currentTag);
         }
@@ -232,7 +239,7 @@ export default class Tag {
         const [inputTag] = tags.filter((t) => t.TagKey === item.TagKey);
         const oldTagVal = item.TagValue;
 
-        if (inputTag.TagValue !== oldTagVal) {
+        if (String(inputTag.TagValue) !== String(oldTagVal)) {
           attachTags.push(inputTag);
         } else {
           leftTags.push(item);

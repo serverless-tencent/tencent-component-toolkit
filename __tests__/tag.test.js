@@ -48,10 +48,11 @@ describe('Tag', () => {
   test('delete tags', async () => {
     const res = await tag.deleteTags([tagItem]);
 
+    const tagList = await tag.getTagList();
+    const [exist] = tagList.filter(
+      (item) => item.TagKey === tagItem.TagKey && item.TagValue === tagItem.TagValue,
+    );
     expect(res).toBe(true);
-
-    const exist = await tag.isTagExist(tagItem);
-
-    expect(exist).toBe(false);
+    expect(exist).toBeUndefined();
   });
 });
