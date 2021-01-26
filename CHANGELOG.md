@@ -1,3 +1,10 @@
+## [2.0.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.0.1...v2.0.2) (2021-01-26)
+
+
+### Bug Fixes
+
+* fix some typings according to api doc and component ([09c71e9](https://github.com/serverless-tencent/tencent-component-toolkit/commit/09c71e9bb4302e0118745c927754f8c72c750602))
+
 ## [2.0.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.0.0...v2.0.1) (2021-01-26)
 
 
