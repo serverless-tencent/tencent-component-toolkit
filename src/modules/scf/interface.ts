@@ -103,7 +103,7 @@ export interface ScfCreateFunctionInputs {
 
   layers?: {
     name: string;
-    version: number;
+    version: string;
   }[];
 
   deadLetter?: {
