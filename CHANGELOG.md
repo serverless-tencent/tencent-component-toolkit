@@ -1,3 +1,10 @@
+## [2.0.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.0.0...v2.0.1) (2021-01-26)
+
+
+### Bug Fixes
+
+* **tag:** optimize deploy tag ([a354030](https://github.com/serverless-tencent/tencent-component-toolkit/commit/a35403091cf7ef125533d94ccc9a2e1dfff4a600))
+
 # [2.0.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.20.10...v2.0.0) (2021-01-25)
 
 ## [1.20.10](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v1.20.9...v1.20.10) (2021-01-21)
