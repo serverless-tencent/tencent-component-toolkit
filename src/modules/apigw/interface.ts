@@ -65,21 +65,21 @@ export interface ApiEndpoint {
   base64EncodedTriggerRules?: string[];
 }
 
-export interface CustomDomain {
-  domain: string;
-  subDomain: string;
-  protocols: ('http' | 'https')[];
-
-  certificateId: string;
-  isDefaultMapping?: boolean;
-  pathMappingSet: [];
-  netType: string;
-
-  isForcedHttps: boolean;
-}
-
 export interface ApigwBindCustomDomainInputs {
-  customDomains?: CustomDomain[];
+  customDomains?: {
+    domain: string;
+    protocols: ('http' | 'https')[];
+
+    certificateId: string;
+    isDefaultMapping?: boolean;
+    pathMappingSet: [];
+    netType: string;
+
+    isForcedHttps: boolean;
+
+    subDomain?: string;
+    created?: boolean;
+  }[];
   protocols: ('http' | 'https')[] | string;
   oldState?: Partial<ApigwBindCustomDomainInputs>;
 }
@@ -127,7 +127,7 @@ export interface ApigwDeployInputs
 export interface ApigwBindCustomDomainOutputs {
   isBinded: boolean;
   created?: boolean;
-  subDomain: any;
+  subDomain: string;
   cname: string;
   url?: string;
   message?: string;
@@ -168,11 +168,6 @@ export interface ApigwRemoveInputs {
   environment: EnviromentType;
   serviceId: string;
   apiList: ApiEndpoint[];
-  customDomains: CustomDomain[];
-  usagePlan: ApigwSetupUsagePlanInputs;
-}
-
-export interface CustomDomain {
-  subDomain: string;
-  created: boolean;
+  customDomains?: ApigwBindCustomDomainOutputs[];
+  usagePlan?: ApigwSetupUsagePlanInputs;
 }
