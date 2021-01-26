@@ -3,6 +3,7 @@
   "version": "2.0.1",
   "description": "Tencent component toolkit",
   "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "scripts": {
     "build": "tsc -p .",
     "test": "jest",
