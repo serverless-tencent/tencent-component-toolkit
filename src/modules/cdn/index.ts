@@ -5,7 +5,7 @@ import { pascalCaseProps, deepClone } from '../../utils';
 import { ApiTypeError } from '../../utils/error';
 import { CapiCredentials } from '../interface';
 import APIS from './apis';
-import { DeployInputs } from './interface';
+import { CdnDeployInputs } from './interface';
 import { TIMEOUT, formatCertInfo, formatOrigin, getCdnByDomain, openCdnService } from './utils';
 
 export default class Cdn {
@@ -60,7 +60,7 @@ export default class Cdn {
   }
 
   /** 部署 CDN */
-  async deploy(inputs: DeployInputs) {
+  async deploy(inputs: CdnDeployInputs) {
     await openCdnService(this.capi);
     const { oldState = {} } = inputs;
     delete inputs.oldState;

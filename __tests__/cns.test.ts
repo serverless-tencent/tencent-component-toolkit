@@ -1,11 +1,12 @@
-const { Cns } = require('../lib');
+import { CnsDeployInputs, CnsDeployOutputs } from './../src/modules/cns/interface';
+import { Cns } from '../src';
 
 describe('Cns', () => {
   const credentials = {
     SecretId: process.env.TENCENT_SECRET_ID,
     SecretKey: process.env.TENCENT_SECRET_KEY,
   };
-  const inputs = {
+  const inputs: CnsDeployInputs = {
     domain: process.env.DOMAIN,
     records: [
       {
@@ -30,7 +31,7 @@ describe('Cns', () => {
   };
   const cns = new Cns(credentials, process.env.REGION);
 
-  let recordList;
+  let recordList: CnsDeployOutputs;
   test('should deploy Cns success', async () => {
     recordList = await cns.deploy(inputs);
     expect(recordList).toEqual({

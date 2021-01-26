@@ -1,4 +1,4 @@
-const { Cam } = require('../lib');
+import { Cam } from '../src';
 
 describe('Cam', () => {
   const credentials = {
@@ -23,13 +23,13 @@ describe('Cam', () => {
   test('should create role success', async () => {
     await cam.CreateRole(roleName, policy);
     const { RoleInfo } = await cam.GetRole(roleName);
-    const exist = await cam.isRoleExist(roleName, {});
+    const exist = await cam.isRoleExist(roleName);
     expect(RoleInfo.RoleName).toBe(roleName);
     expect(exist).toBe(true);
   });
 
   test('should delete role success', async () => {
-    await cam.DeleteRole(roleName, {});
+    await cam.DeleteRole(roleName);
     try {
       await cam.GetRole(roleName);
     } catch (e) {

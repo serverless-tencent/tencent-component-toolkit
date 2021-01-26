@@ -1,5 +1,6 @@
-const { sleep } = require('@ygkit/request');
-const { Scf, Cfs, Layer } = require('../lib');
+import { ScfDeployInputs } from './../src/modules/scf/interface';
+import { sleep } from '@ygkit/request';
+import { Scf, Cfs, Layer } from '../src';
 
 describe('Scf', () => {
   const credentials = {
@@ -72,7 +73,7 @@ describe('Scf', () => {
     },
   };
 
-  const inputs = {
+  const inputs: ScfDeployInputs = {
     name: `serverless-test-${Date.now()}`,
     code: {
       bucket: process.env.BUCKET,

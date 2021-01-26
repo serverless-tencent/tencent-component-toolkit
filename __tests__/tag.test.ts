@@ -1,4 +1,6 @@
-const { Tag } = require('../lib');
+import { TagDeployInputs } from './../src/modules/tag/interface';
+import { Tag } from '../src';
+import { ApiServiceType } from '../src/modules/interface';
 
 describe('Tag', () => {
   const credentials = {
@@ -7,15 +9,15 @@ describe('Tag', () => {
   };
   const functionName = 'serverless-unit-test';
   const tagItem = { TagKey: 'slstest', TagValue: 'slstest' };
-  const commonInputs = {
+  const commonInputs: TagDeployInputs = {
     resourceIds: [`default/function/${functionName}`],
     resourcePrefix: 'namespace',
-    serviceType: 'scf',
+    serviceType: ApiServiceType.scf,
   };
   const tag = new Tag(credentials, process.env.REGION);
 
   test('attach tags', async () => {
-    delete commonInputs.addTags;
+    // delete commonInputs.addTags;
     commonInputs.attachTags = [tagItem];
 
     const res = await tag.deploy(commonInputs);
@@ -30,7 +32,7 @@ describe('Tag', () => {
   });
 
   test('detach tags', async () => {
-    delete commonInputs.addTags;
+    // delete commonInputs.addTags;
     delete commonInputs.attachTags;
     commonInputs.detachTags = [tagItem];
 

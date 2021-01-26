@@ -1,5 +1,6 @@
-const { Scf } = require('../../lib');
-const MpsTrigger = require('../../lib/modules/triggers/mps').default;
+import { MpsTriggerInputsParams } from './../../src/modules/triggers/interface';
+import { Scf } from '../../src';
+import MpsTrigger from '../../src/modules/triggers/mps';
 
 // FIXME: all mps trigger bind fail
 describe('Mps', () => {
@@ -10,7 +11,7 @@ describe('Mps', () => {
   const client = new MpsTrigger({ credentials, region: process.env.REGION });
   const scfClient = new Scf(credentials, process.env.REGION);
 
-  const data = {
+  const data: MpsTriggerInputsParams = {
     qualifier: '$DEFAULT',
     type: 'EditMediaTask',
   };

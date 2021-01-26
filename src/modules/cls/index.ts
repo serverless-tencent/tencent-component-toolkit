@@ -15,7 +15,7 @@ export default class Cls {
   region: RegionType;
   cls: ClsClient;
 
-  constructor(credentials: CapiCredentials, region: RegionType = 'ap-guangzhou', expire: number) {
+  constructor(credentials: CapiCredentials, region: RegionType = 'ap-guangzhou', expire?: number) {
     this.region = region;
     this.credentials = credentials;
     this.cls = new ClsClient({
@@ -53,9 +53,9 @@ export default class Cls {
         exist = true;
         console.log(`Updating cls ${logsetId}`);
         const res = await this.cls.updateLogset({
-          period: inputs.period,
+          period: inputs.period!,
           logset_id: logsetId,
-          logset_name: inputs.name,
+          logset_name: inputs.name!,
         });
         if (res.error) {
           throw new ApiError({
@@ -73,8 +73,8 @@ export default class Cls {
     // if not exist, create cls
     if (!exist) {
       const res = await createLogset(this.cls, {
-        name: inputs.name,
-        period: inputs.period,
+        name: inputs.name!,
+        period: inputs.period!,
       });
       outputs.logsetId = res.logset_id;
     }
@@ -127,8 +127,8 @@ export default class Cls {
     // if not exist, create cls
     if (!exist) {
       const res = await createTopic(this.cls, {
-        logsetId: inputs.logsetId,
-        name: inputs.topic,
+        logsetId: inputs.logsetId!,
+        name: inputs.topic!,
       });
       outputs.topicId = res.topic_id;
     }
@@ -138,14 +138,14 @@ export default class Cls {
 
   async deployIndex(inputs: ClsDelopyIndexInputs) {
     await updateIndex(this.cls, {
-      topicId: inputs.topicId,
+      topicId: inputs.topicId!,
       // FIXME: effective is always true in updateIndex
       effective: inputs.effective !== false ? true : false,
       rule: inputs.rule,
     });
   }
 
-  async deploy(inputs: ClsDeployInputs = {} as any) {
+  async deploy(inputs: ClsDeployInputs = {}) {
     const outputs: ClsDeployOutputs = {
       region: this.region,
       name: inputs.name,
@@ -161,12 +161,12 @@ export default class Cls {
     return outputs;
   }
 
-  async remove(inputs: { topicId: string; logsetId: string } = {} as any) {
+  async remove(inputs: { topicId?: string; logsetId?: string } = {}) {
     try {
       console.log(`Start removing cls`);
       console.log(`Removing cls topic id ${inputs.topicId}`);
       const res1 = await this.cls.deleteTopic({
-        topic_id: inputs.topicId,
+        topic_id: inputs.topicId!,
       });
       if (res1.error) {
         throw new ApiError({
@@ -177,7 +177,7 @@ export default class Cls {
       console.log(`Removed cls topic id ${inputs.logsetId} success`);
       console.log(`Removing cls id ${inputs.logsetId}`);
       const res2 = await this.cls.deleteLogset({
-        logset_id: inputs.logsetId,
+        logset_id: inputs.logsetId!,
       });
       if (res2.error) {
         throw new ApiError({

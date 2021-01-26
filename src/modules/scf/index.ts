@@ -29,6 +29,7 @@ import {
   ScfListAliasInputs,
   ScfUpdateAliasTrafficInputs,
   ScfDeployOutputs,
+  EventType,
 } from './interface';
 
 /** 云函数组件 */
@@ -236,11 +237,11 @@ export default class Scf {
     return Triggers;
   }
 
-  filterTriggers(funcInfo: FunctionInfo, events: TriggerType[], oldList: TriggerType[]) {
+  filterTriggers(funcInfo: FunctionInfo, events: EventType[], oldList: TriggerType[]) {
     const deleteList: (TriggerType | null)[] = deepClone(oldList);
-    const createList: (TriggerType | null)[] = deepClone(events);
+    const createList: (EventType | null)[] = deepClone(events);
     // const noKeyTypes = ['apigw'];
-    const updateList: (TriggerType | null)[] = [];
+    const updateList: (EventType | null)[] = [];
     events.forEach((event, index) => {
       const Type = Object.keys(event)[0];
       const TriggerClass = TRIGGERS[Type];

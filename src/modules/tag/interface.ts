@@ -14,7 +14,7 @@ export interface TagGetResourceTagsInputs {
 }
 
 export interface TagGetScfResourceTags {
-  namespace: string;
+  namespace?: string;
   functionName: string;
 }
 

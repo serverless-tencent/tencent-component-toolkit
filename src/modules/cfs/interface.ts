@@ -1,17 +1,17 @@
 export interface CFSDeployInputs {
   zone: string;
+  region: string;
   fsName: string;
-  pGroupId: string;
+  pGroupId?: string;
   netInterface: string;
-  protocol: string;
-  storageType: string;
-  fileSystemId: string;
-  inputs: string;
-  fsLimit: number;
+  protocol?: string;
+  storageType?: string;
+  fileSystemId?: string;
+  fsLimit?: number;
   vpc: {
     vpcId: string;
     subnetId: string;
-    mountIP: string;
+    mountIP?: string;
   };
   tags?: { key: string; value: string }[];
 }
@@ -19,7 +19,7 @@ export interface CFSDeployInputs {
 export interface CFSDeployOutputs {
   region: string;
   fsName: string;
-  pGroupId: string;
+  pGroupId?: string;
   netInterface: string;
   protocol: string;
   storageType: string;

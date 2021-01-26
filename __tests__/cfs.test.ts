@@ -1,6 +1,7 @@
-const { sleep } = require('@ygkit/request');
-const { Cfs } = require('../lib');
-const utils = require('../lib/modules/cfs/utils').default;
+import { CFSDeployInputs } from './../src/modules/cfs/interface';
+import { sleep } from '@ygkit/request';
+import { Cfs } from '../src';
+import utils from '../src/modules/cfs/utils';
 
 describe('Cfs', () => {
   const credentials = {
@@ -8,7 +9,9 @@ describe('Cfs', () => {
     SecretKey: process.env.TENCENT_SECRET_KEY,
   };
 
-  const inputs = {
+  let fsId: string;
+
+  const inputs: CFSDeployInputs = {
     fsName: 'cfs-test',
     region: 'ap-guangzhou',
     zone: 'ap-guangzhou-3',
@@ -38,12 +41,15 @@ describe('Cfs', () => {
       fileSystemId: expect.stringContaining('cfs-'),
       tags: inputs.tags,
     });
-    inputs.fileSystemId = res.fileSystemId;
+    fsId = res.fileSystemId;
   });
 
   test('should remove CFS success', async () => {
     await sleep(1000);
-    const res = await cfs.remove(inputs);
+    const res = await cfs.remove({
+      fsName: inputs.fsName,
+      fileSystemId: fsId,
+    });
     const detail = await utils.getCfs(cfs.capi, inputs.fileSystemId);
     expect(res).toEqual({});
     expect(detail).toBeUndefined();

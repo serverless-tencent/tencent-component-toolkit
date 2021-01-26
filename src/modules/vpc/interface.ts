@@ -1,4 +1,6 @@
+import { RegionType } from './../interface';
 export interface VpcDeployInputs {
+  region?: RegionType;
   zone: string;
   vpcName: string;
   subnetName: string;

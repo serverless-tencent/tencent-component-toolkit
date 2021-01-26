@@ -1,6 +1,7 @@
-const { Postgresql } = require('../lib');
-const { getDbInstanceDetail } = require('../lib/modules/postgresql/utils');
-const { sleep } = require('@ygkit/request');
+import { PostgresqlDeployInputs } from './../src/modules/postgresql/interface';
+import { Postgresql } from '../src';
+import { getDbInstanceDetail } from '../src/modules/postgresql/utils';
+import { sleep } from '@ygkit/request';
 
 describe('Postgresql', () => {
   const credentials = {
@@ -9,7 +10,7 @@ describe('Postgresql', () => {
   };
   const pg = new Postgresql(credentials, process.env.REGION);
 
-  const inputs = {
+  const inputs: PostgresqlDeployInputs = {
     region: process.env.REGION,
     zone: process.env.ZONE,
     dBInstanceName: 'serverless-test',

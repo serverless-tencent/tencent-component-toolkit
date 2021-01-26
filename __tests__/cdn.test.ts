@@ -1,5 +1,6 @@
-const { Cdn } = require('../lib');
-const { getCdnByDomain } = require('../lib/modules/cdn/utils');
+import { CdnDeployInputs } from './../src/modules/cdn/interface';
+import { Cdn } from '../src';
+import { getCdnByDomain } from '../src/modules/cdn/utils';
 
 describe('Cdn', () => {
   jest.setTimeout(600000);
@@ -7,7 +8,7 @@ describe('Cdn', () => {
     SecretId: process.env.TENCENT_SECRET_ID,
     SecretKey: process.env.TENCENT_SECRET_KEY,
   };
-  const inputs = {
+  const inputs: CdnDeployInputs = {
     async: false,
     area: 'overseas',
     domain: process.env.SUB_DOMAIN,
@@ -32,7 +33,7 @@ describe('Cdn', () => {
       redirectStatusCode: 301,
     },
   };
-  const cdn = new Cdn(credentials, process.env.REGION);
+  const cdn = new Cdn(credentials);
 
   test('should deploy CDN success with originType = cos', async () => {
     const res = await cdn.deploy(inputs);

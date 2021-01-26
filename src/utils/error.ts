@@ -1,10 +1,16 @@
 export class ApiTypeError extends Error {
   type: string;
   stack?: string;
-  reqId?: string;
+  reqId?: string | number;
   displayMsg: string;
 
-  constructor(type: string, msg: string, stack?: string, reqId?: string, displayMsg?: string) {
+  constructor(
+    type: string,
+    msg: string,
+    stack?: string,
+    reqId?: string | number,
+    displayMsg?: string,
+  ) {
     super(msg);
 
     this.type = type;
@@ -25,14 +31,14 @@ interface ApiErrorOptions {
   message: string;
   stack?: string;
   type: string;
-  reqId?: string;
+  reqId?: string | number;
   code?: string;
   displayMsg?: string;
 }
 
 export class ApiError extends Error {
   type: string;
-  reqId?: string;
+  reqId?: string | number;
   code?: string;
   displayMsg: string;
 
