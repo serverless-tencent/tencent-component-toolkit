@@ -79,20 +79,20 @@ export interface CosSetLifecycleInputs {
       prefix?: string;
     };
     transition?: {
-      days: number | string;
-      storageClass: string;
+      days?: number | string;
+      storageClass?: string;
     };
     // FIXME: 此处应为小写？
     NoncurrentVersionTransition?: {
-      noncurrentDays: number | string;
-      storageClass: number | string;
+      noncurrentDays?: number | string;
+      storageClass?: number | string;
     };
     expiration?: {
-      days: number | string;
-      expiredObjectDeleteMarker: string;
+      days?: number | string;
+      expiredObjectDeleteMarker?: string;
     };
     abortIncompleteMultipartUpload?: {
-      daysAfterInitiation: number | string;
+      daysAfterInitiation?: number | string;
     };
   }[];
 }

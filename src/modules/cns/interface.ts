@@ -1,10 +1,10 @@
 export interface CnsRecordInputs {
   value: string;
-  domain: string;
+  domain?: string;
   subDomain: string;
   recordLine: string;
   recordType: 'CNAME' | 'A' | 'AAAA' | 'TXT' | string;
-  recordId: string;
+  recordId?: string;
   mx?: number;
   ttl?: number;
   status?: string;
