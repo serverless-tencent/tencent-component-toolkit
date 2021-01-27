@@ -9,10 +9,10 @@ export interface LayerDeployInputs {
 
   region?: RegionType;
 
-  version?: string;
+  version?: number;
 }
 
 export interface LayerRemoveInputs {
   name: string;
-  version: string;
+  version: number;
 }

@@ -72,7 +72,7 @@ const utils = {
    * @param {*} LayerName layer name
    * @param {*} LayerVersion layer version
    */
-  async deleteLayerVersion(capi: Capi, LayerName: string, LayerVersion: string) {
+  async deleteLayerVersion(capi: Capi, LayerName: string, LayerVersion: number) {
     await APIS.DeleteLayerVersion(capi, {
       LayerName,
       LayerVersion,

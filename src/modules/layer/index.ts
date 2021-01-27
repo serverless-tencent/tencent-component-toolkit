@@ -44,7 +44,7 @@ export default class Layer {
       object: inputs.object,
       description: inputs.description,
       runtimes: inputs.runtimes,
-      version: '',
+      version: 0,
     };
 
     const layerInputs = {

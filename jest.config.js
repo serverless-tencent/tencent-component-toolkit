@@ -9,7 +9,12 @@ const config = {
   testTimeout: 600000,
   testEnvironment: 'node',
   testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.(js|ts)$',
-  testPathIgnorePatterns: ['/node_modules/', '/__tests__/cdn.test.js', '/__tests__/cynos.test.js'],
+  // 由于测试账号没有备案域名，所以线上 CI 忽略 CDN 测试
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    '/__tests__/cdn.test.ts',
+    '/__tests__/triggers/mps.test.ts',
+  ],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
 };
 

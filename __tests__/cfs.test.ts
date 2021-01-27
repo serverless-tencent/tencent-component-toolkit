@@ -50,7 +50,7 @@ describe('Cfs', () => {
       fsName: inputs.fsName,
       fileSystemId: fsId,
     });
-    const detail = await utils.getCfs(cfs.capi, inputs.fileSystemId);
+    const detail = await utils.getCfs(cfs.capi, fsId);
     expect(res).toEqual({});
     expect(detail).toBeUndefined();
   });
