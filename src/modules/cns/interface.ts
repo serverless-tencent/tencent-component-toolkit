@@ -1,10 +1,10 @@
 export interface CnsRecordInputs {
   value: string;
-  domain: string;
-  subDomain: string;
-  recordLine: string;
+  domain?: string;
+  subDomain: string[] | string;
+  recordLine: string[] | string;
   recordType: 'CNAME' | 'A' | 'AAAA' | 'TXT' | string;
-  recordId: string;
+  recordId?: string;
   mx?: number;
   ttl?: number;
   status?: string;
@@ -31,7 +31,7 @@ export interface CnsSubDomain {
 
 export interface CnsDeployInputs {
   domain: string;
-  item: {
+  item?: {
     name: string;
     type: string;
     id: string;

@@ -3,12 +3,14 @@ import { ApigwRemoveInputs } from './../apigw/interface';
 
 export interface TriggerType {
   Type: string;
-  TriggerDesc: string;
-  TriggerName: string;
-  Qualifier: string;
+  TriggerDesc?: string;
+  TriggerName?: string;
+  Qualifier?: string;
 }
 
-export type EventType = Record<string, any>;
+export type EventType = {
+  [name: string]: { serviceName?: string; name?: string; parameters?: any };
+};
 
 export interface FunctionInfo {
   FunctionName: string;
@@ -89,7 +91,9 @@ export interface ScfCreateFunctionInputs {
   };
 
   environment?: {
-    variables?: [key: string, value: string][];
+    variables?: {
+      [key: string]: string;
+    };
   };
 
   vpcConfig?: {
@@ -134,7 +138,7 @@ export interface ScfUpdateAliasTrafficInputs {
 export interface ScfDeployTriggersInputs {
   namespace?: string;
   name?: string;
-  events?: TriggerType[];
+  events?: EventType[];
 }
 
 export interface ScfDeployInputs extends ScfCreateFunctionInputs {
@@ -144,7 +148,7 @@ export interface ScfDeployInputs extends ScfCreateFunctionInputs {
   region?: string;
 
   lastVersion?: string;
-  publish?: string;
+  publish?: boolean;
   publishDescription?: string;
 
   needSetTraffic?: boolean;
@@ -155,7 +159,8 @@ export interface ScfDeployInputs extends ScfCreateFunctionInputs {
 
   tags?: Record<string, string>;
 
-  events?: TriggerType[];
+  // FIXME: apigw event type
+  events?: EventType[];
 }
 
 export interface ScfDeployOutputs {

@@ -1,7 +1,8 @@
-const { Cos } = require('../lib');
-const path = require('path');
-const axios = require('axios');
-const { sleep } = require('@ygkit/request');
+import { CosDeployInputs, CosWebsiteInputs } from './../src/modules/cos/interface';
+import { Cos } from '../src';
+import path from 'path';
+import axios from 'axios';
+import { sleep } from '@ygkit/request';
 
 describe('Cos', () => {
   const credentials = {
@@ -28,7 +29,7 @@ describe('Cos', () => {
     ],
     version: '2.0',
   };
-  const inputs = {
+  const inputs: CosDeployInputs = {
     bucket: bucket,
     src: staticPath,
     force: true,
@@ -52,7 +53,7 @@ describe('Cos', () => {
     ],
   };
 
-  const websiteInputs = {
+  const websiteInputs: CosWebsiteInputs = {
     code: {
       src: staticPath,
       index: 'index.html',

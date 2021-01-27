@@ -1,4 +1,4 @@
-const { Domain } = require('../lib');
+import { Domain } from '../src';
 
 describe('Domain', () => {
   const credentials = {

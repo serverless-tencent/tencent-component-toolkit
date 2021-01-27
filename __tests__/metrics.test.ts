@@ -1,4 +1,4 @@
-const { Metrics } = require('../lib');
+import { Metrics } from '../src';
 
 describe('Metrics', () => {
   const credentials = {

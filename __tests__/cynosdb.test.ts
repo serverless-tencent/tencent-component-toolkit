@@ -1,10 +1,6 @@
-const { Cynosdb } = require('../lib');
-const {
-  getClusterDetail,
-  sleep,
-  generatePwd,
-  isValidPwd,
-} = require('../lib/modules/cynosdb/utils');
+import { CynosdbDeployInputs } from './../src/modules/cynosdb/interface';
+import { Cynosdb } from '../src';
+import { getClusterDetail, sleep, generatePwd, isValidPwd } from '../src/modules/cynosdb/utils';
 
 describe('Cynosdb', () => {
   jest.setTimeout(600000);
@@ -15,7 +11,7 @@ describe('Cynosdb', () => {
   const region = 'ap-shanghai';
   const client = new Cynosdb(credentials, region);
 
-  const inputs = {
+  const inputs: CynosdbDeployInputs = {
     region,
     zone: 'ap-shanghai-2',
     vpcConfig: {

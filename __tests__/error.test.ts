@@ -1,4 +1,4 @@
-const { ApiTypeError, ApiError } = require('../lib/utils/error');
+import { ApiTypeError, ApiError } from '../src/utils/error';
 
 describe('Custom Error', () => {
   test('TypeError', async () => {

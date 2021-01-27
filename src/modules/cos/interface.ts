@@ -79,20 +79,20 @@ export interface CosSetLifecycleInputs {
       prefix?: string;
     };
     transition?: {
-      days: number | string;
-      storageClass: string;
+      days?: number | string;
+      storageClass?: string;
     };
     // FIXME: 此处应为小写？
     NoncurrentVersionTransition?: {
-      noncurrentDays: number | string;
-      storageClass: number | string;
+      noncurrentDays?: number | string;
+      storageClass?: number | string;
     };
     expiration?: {
-      days: number | string;
-      expiredObjectDeleteMarker: string;
+      days?: number | string;
+      expiredObjectDeleteMarker?: string;
     };
     abortIncompleteMultipartUpload?: {
-      daysAfterInitiation: number | string;
+      daysAfterInitiation?: number | string;
     };
   }[];
 }
@@ -112,10 +112,11 @@ export interface CosSetWebsiteInputs extends CosSetAclInputs, CosSetPolicyInputs
     src: string;
     root?: string;
     index?: string;
-    envPath: string;
+    envPath?: string;
     error?: string;
   };
-  replace?: string;
+  src?: string;
+  replace?: boolean;
   env?: Record<string, any>;
   protocol?: string;
   disableErrorStatus?: string | boolean;
@@ -145,7 +146,7 @@ export interface CosGetBucketInputs {
 
 export interface CosUploadInputs {
   bucket?: string;
-  replace?: string;
+  replace?: boolean;
   dir?: string;
   keyPrefix?: string;
   file?: string;
@@ -163,10 +164,16 @@ export interface CosDeployInputs
     CosSetCorsInputs,
     CosSetTagInputs,
     CosSetLifecycleInputs,
-    CosSetVersioningInputs {
-  src?: string;
+    CosSetVersioningInputs,
+    CosWebsiteInputs {
   keyPrefix?: string;
-  replace?: string;
+  rules?: {
+    status?: string;
+    id?: string;
+    filter?: string;
+    expiration?: { days?: string };
+    abortIncompleteMultipartUpload?: { daysAfterInitiation?: string };
+  }[];
 }
 
 export interface CosRemoveBucketInputs {

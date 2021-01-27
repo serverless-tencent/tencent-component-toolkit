@@ -61,7 +61,7 @@ export function formatOrigin(origin: {
   Origins: string[];
   OriginType: string;
   OriginPullProtocol: string;
-  ServerName: string;
+  ServerName?: string;
   BackupOrigins?: string[];
   BackupServerName?: string;
 }) {
@@ -69,7 +69,7 @@ export function formatOrigin(origin: {
     Origins: string[];
     OriginType: string;
     OriginPullProtocol: string;
-    ServerName: string;
+    ServerName?: string;
     CosPrivateAccess?: string;
     BackupOrigins?: string[];
     BackupOriginType?: string;

@@ -3,7 +3,7 @@ import { RegionType } from './../interface';
 export interface PostgresqlDeployInputs {
   region?: RegionType;
   zone?: string;
-  projectId?: string;
+  projectId?: number;
   dBInstanceName?: string;
   dBVersion?: string;
   dBCharset?: string;

@@ -1,5 +1,6 @@
-const { Cls } = require('../lib');
-const { sleep } = require('@ygkit/request');
+import { ClsDeployInputs, ClsDeployOutputs } from './../src/modules/cls/interface';
+import { Cls } from '../src';
+import { sleep } from '@ygkit/request';
 
 describe('Cls', () => {
   const credentials = {
@@ -8,9 +9,9 @@ describe('Cls', () => {
   };
   const client = new Cls(credentials, process.env.REGION);
 
-  let outputs = {};
+  let outputs: ClsDeployOutputs;
 
-  const inputs = {
+  const inputs: ClsDeployInputs = {
     region: 'ap-guangzhou',
     name: 'cls-test',
     topic: 'cls-topic-test',

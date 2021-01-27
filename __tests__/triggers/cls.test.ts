@@ -1,6 +1,7 @@
-const { Cls, Scf } = require('../../lib');
-const ClsTrigger = require('../../lib/modules/triggers/cls').default;
-const { sleep } = require('@ygkit/request');
+import { ClsTriggerInputsParams } from './../../src/modules/triggers/interface';
+import { Cls, Scf } from '../../src';
+import ClsTrigger from '../../src/modules/triggers/cls';
+import { sleep } from '@ygkit/request';
 
 describe('Cls', () => {
   const credentials = {
@@ -11,7 +12,7 @@ describe('Cls', () => {
   const cls = new Cls(credentials, process.env.REGION);
   const scf = new Scf(credentials, process.env.REGION);
 
-  const data = {
+  const data: ClsTriggerInputsParams = {
     qualifier: '$DEFAULT',
     maxWait: 60,
     maxSize: 100,

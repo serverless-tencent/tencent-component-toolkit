@@ -6,8 +6,10 @@ export interface CertInfo {
   message?: string;
 }
 
-export interface DeployInputs {
+export interface CdnDeployInputs {
   oldState?: any;
+
+  area: string;
 
   /** 是否等待 CDN 部署完毕 */
   async?: boolean;
@@ -24,7 +26,7 @@ export interface DeployInputs {
     originType: string;
     /** 回源协议 */
     originPullProtocol: string;
-    serverName: string;
+    serverName?: string;
     /** 后备源站列表 */
     backupOrigins?: string[];
     /** 后备服务器名 */

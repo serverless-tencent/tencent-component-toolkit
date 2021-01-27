@@ -1,5 +1,6 @@
-const { sleep } = require('@ygkit/request');
-const { Layer } = require('../lib');
+import { LayerDeployInputs } from './../src/modules/layer/interface';
+import { sleep } from '@ygkit/request';
+import { Layer } from '../src';
 
 describe('Layer', () => {
   const credentials = {
@@ -8,7 +9,7 @@ describe('Layer', () => {
   };
   const layer = new Layer(credentials, process.env.REGION);
 
-  const inputs = {
+  const inputs: LayerDeployInputs = {
     region: 'ap-guangzhou',
     name: 'layer-test',
     bucket: process.env.BUCKET,

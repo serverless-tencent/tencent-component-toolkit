@@ -1,12 +1,13 @@
-const { Vpc } = require('../lib');
-const vpcUtils = require('../lib/modules/vpc/utils').default;
+import { VpcDeployInputs } from './../src/modules/vpc/interface';
+import { Vpc } from '../src';
+import vpcUtils from '../src/modules/vpc/utils';
 
 describe('Vpc', () => {
   const credentials = {
     SecretId: process.env.TENCENT_SECRET_ID,
     SecretKey: process.env.TENCENT_SECRET_KEY,
   };
-  const inputs = {
+  const inputs: VpcDeployInputs = {
     region: process.env.REGION,
     zone: process.env.ZONE,
     vpcName: 'serverless-test',
@@ -38,7 +39,10 @@ describe('Vpc', () => {
 
   test('should success remove a vpc', async () => {
     if (inputs.vpcId) {
-      await vpc.remove(inputs);
+      await vpc.remove({
+        vpcId: inputs.vpcId,
+        subnetId: inputs.subnetId,
+      });
       const vpcDetail = await vpcUtils.getVpcDetail(vpc.capi, inputs.vpcId);
       const subnetDetail = await vpcUtils.getSubnetDetail(vpc.capi, inputs.subnetId);
 
