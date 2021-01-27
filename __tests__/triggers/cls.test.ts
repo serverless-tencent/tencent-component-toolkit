@@ -3,7 +3,7 @@ import { Cls, Scf } from '../../src';
 import ClsTrigger from '../../src/modules/triggers/cls';
 import { sleep } from '@ygkit/request';
 
-describe('Cls', () => {
+describe('Cls Trigger', () => {
   const credentials = {
     SecretId: process.env.TENCENT_SECRET_ID,
     SecretKey: process.env.TENCENT_SECRET_KEY,
