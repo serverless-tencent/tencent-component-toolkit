@@ -112,7 +112,7 @@ export async function createDbInstance(
   capi: Capi,
   postgresInputs: {
     Zone: string;
-    ProjectId: string;
+    ProjectId: number;
     DBInstanceName: string;
     DBVersion: string;
     DBCharset: string;
