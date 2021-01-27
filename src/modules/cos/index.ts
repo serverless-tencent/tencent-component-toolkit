@@ -88,7 +88,25 @@ export default class Cos {
     this.cosClient = new COS(this.credentials);
   }
 
+  async isBucketExist(bucket: string) {
+    try {
+      const isHave = await this.cosClient.headBucket({
+        Bucket: bucket,
+        Region: this.region,
+      });
+      return isHave.statusCode === 200;
+    } catch (e) {
+      return false;
+    }
+  }
+
   async createBucket(inputs: CosCreateBucketInputs = {}) {
+    // 在创建之前，检查是否存在
+    const exist = await this.isBucketExist(inputs.bucket!);
+    if (exist) {
+      return true;
+    }
+    // 不存在就尝试创建
     console.log(`Creating bucket ${inputs.bucket}`);
     const createParams = {
       Bucket: inputs.bucket!,
