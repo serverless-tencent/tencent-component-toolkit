@@ -76,11 +76,21 @@ export default class Tag {
       Offset: offset,
       TagKeys: tagKeys,
     });
-    if (TotalCount > limit) {
+    if (Tags.length > 0 && TotalCount > limit) {
       return Tags.concat(await this.getTagList(tagKeys, offset + limit, limit));
     }
 
     return Tags;
+  }
+
+  async getTag(tag: TagData) {
+    const { Tags } = await this.request({
+      Action: 'DescribeTags',
+      TagKey: tag.TagKey,
+      TagValue: tag.TagValue,
+    });
+
+    return Tags[0];
   }
 
   isTagExist(tag: TagData, tagList: TagData[] = []) {
@@ -109,12 +119,9 @@ export default class Tag {
       ResourcePrefix: resourcePrefix,
     };
     if (tags && tags.length > 0) {
-      const tagKeys = tags.map((item) => item.TagKey);
-      const tagList = await this.getTagList(tagKeys);
-
       for (let i = 0; i < tags.length; i++) {
         const currentTag = tags[i];
-        const tagExist = await this.isTagExist(currentTag, tagList);
+        const tagExist = await this.getTag(currentTag);
 
         // if tag not exsit, create it
         if (!tagExist) {
