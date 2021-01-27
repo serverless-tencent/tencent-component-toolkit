@@ -2,6 +2,7 @@ import { ScfDeployInputs } from './../src/modules/scf/interface';
 import { sleep } from '@ygkit/request';
 import { Scf, Cfs, Layer } from '../src';
 
+// FIXME: skip mps test
 describe('Scf', () => {
   const credentials = {
     SecretId: process.env.TENCENT_SECRET_ID,
@@ -74,8 +75,7 @@ describe('Scf', () => {
   };
 
   const inputs: ScfDeployInputs = {
-    // name: `serverless-test-${Date.now()}`,
-    name: 'serverless-test-fixedname',
+    name: `serverless-test-${Date.now()}`,
     code: {
       bucket: process.env.BUCKET,
       object: 'express_code.zip',
