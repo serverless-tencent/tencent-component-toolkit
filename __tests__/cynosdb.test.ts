@@ -3,7 +3,6 @@ import { Cynosdb } from '../src';
 import { getClusterDetail, sleep, generatePwd, isValidPwd } from '../src/modules/cynosdb/utils';
 
 describe('Cynosdb', () => {
-  jest.setTimeout(600000);
   const credentials = {
     SecretId: process.env.TENCENT_SECRET_ID,
     SecretKey: process.env.TENCENT_SECRET_KEY,
