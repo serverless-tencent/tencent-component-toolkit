@@ -1,3 +1,10 @@
+## [2.0.4](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.0.3...v2.0.4) (2021-01-27)
+
+
+### Bug Fixes
+
+* cdn inputs ([#183](https://github.com/serverless-tencent/tencent-component-toolkit/issues/183)) ([49fdaad](https://github.com/serverless-tencent/tencent-component-toolkit/commit/49fdaadcb82bd7b2c27f9336fb9edd4bbf220019))
+
 ## [2.0.3](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.0.2...v2.0.3) (2021-01-27)
 
 
