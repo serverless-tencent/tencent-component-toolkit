@@ -1,3 +1,11 @@
+## [2.0.3](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.0.2...v2.0.3) (2021-01-27)
+
+
+### Bug Fixes
+
+* **cos:** check bucket exist before creating ([394aded](https://github.com/serverless-tencent/tencent-component-toolkit/commit/394adede2639fd21685c64721228ec8bfdbbf968))
+* **tag:** deploy flow ([8facc16](https://github.com/serverless-tencent/tencent-component-toolkit/commit/8facc16ccaa1d9e61dc25793b90daee836511d50))
+
 ## [2.0.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.0.1...v2.0.2) (2021-01-26)
 
 
