@@ -2,6 +2,7 @@ import { ScfDeployInputs } from './../src/modules/scf/interface';
 import { sleep } from '@ygkit/request';
 import { Scf, Cfs, Layer } from '../src';
 
+// FIXME: skip mps test
 describe('Scf', () => {
   const credentials = {
     SecretId: process.env.TENCENT_SECRET_ID,
@@ -142,7 +143,7 @@ describe('Scf', () => {
   });
 
   afterAll(async (done) => {
-    sleep(2000);
+    sleep(5000);
     await cfs.remove({
       fsName: cfsInputs.fsName,
       fileSystemId: inputs.cfs[0].cfsId,
@@ -151,11 +152,8 @@ describe('Scf', () => {
     done();
   });
 
-  /**
-   * FIXME: MPS bind always fail
-   * trigger has already binded (reqId: 62963b70-6875-47b4-ae72-9db54b9ffeba)
-   */
   test('should deploy SCF success', async () => {
+    sleep(5000);
     outputs = await scf.deploy(inputs);
     expect(outputs).toEqual({
       Qualifier: '$LATEST',
@@ -316,6 +314,7 @@ describe('Scf', () => {
     });
   });
   test('should invoke Scf success', async () => {
+    sleep(5000);
     const res = await scf.invoke({
       functionName: inputs.name,
     });
@@ -334,11 +333,11 @@ describe('Scf', () => {
     });
   });
   test('should remove Scf success', async () => {
+    sleep(5000);
     const res = await scf.remove({
       functionName: inputs.name,
       ...outputs,
     });
-    await sleep(1000);
     expect(res).toEqual(true);
   });
 });

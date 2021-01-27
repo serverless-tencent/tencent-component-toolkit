@@ -44,7 +44,7 @@ describe('Cls', () => {
   });
 
   test('should remove cls success', async () => {
-    await sleep(2000);
+    await sleep(5000);
     await client.remove(outputs);
 
     const detail = await client.cls.getLogset({

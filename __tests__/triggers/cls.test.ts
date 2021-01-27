@@ -3,7 +3,7 @@ import { Cls, Scf } from '../../src';
 import ClsTrigger from '../../src/modules/triggers/cls';
 import { sleep } from '@ygkit/request';
 
-describe('Cls', () => {
+describe('Cls Trigger', () => {
   const credentials = {
     SecretId: process.env.TENCENT_SECRET_ID,
     SecretKey: process.env.TENCENT_SECRET_KEY,
@@ -48,12 +48,12 @@ describe('Cls', () => {
   });
 
   afterAll(async () => {
-    await sleep(2000);
+    await sleep(5000);
     await cls.remove(clsOutputs);
   });
 
   test('should create trigger success', async () => {
-    sleep(2000);
+    sleep(5000);
     const res = await clsTrigger.create({
       inputs: {
         namespace: namespace,
@@ -73,7 +73,7 @@ describe('Cls', () => {
   });
 
   test('should enable trigger success', async () => {
-    sleep(2000);
+    sleep(5000);
     data.enable = true;
     const res = await clsTrigger.create({
       inputs: {
@@ -94,7 +94,7 @@ describe('Cls', () => {
   });
 
   test('should disable trigger success', async () => {
-    await sleep(2000);
+    await sleep(5000);
     data.enable = false;
     const res = await clsTrigger.create({
       inputs: {

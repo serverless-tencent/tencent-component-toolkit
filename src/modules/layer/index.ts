@@ -26,7 +26,7 @@ export default class Layer {
     });
   }
 
-  async getLayerDetail(name: string, version: string) {
+  async getLayerDetail(name: string, version: number) {
     try {
       const detail = await utils.getLayerDetail(this.capi, name, version);
       return detail;
@@ -44,7 +44,7 @@ export default class Layer {
       object: inputs.object,
       description: inputs.description,
       runtimes: inputs.runtimes,
-      version: 0,
+      version: undefined as number | undefined,
     };
 
     const layerInputs = {

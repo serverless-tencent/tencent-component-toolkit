@@ -1,3 +1,4 @@
+import { PascalCasedProps } from './../../utils/index';
 import { ApiServiceType } from './../interface';
 import { Capi } from '@tencent-sdk/capi';
 import { sleep, waitResponse } from '@ygkit/request';
@@ -83,8 +84,60 @@ export default class Cdn {
       };
     }
 
-    const cdnInputs = deepClone({
-      ...pascalInputs,
+    const {
+      Domain,
+      Area,
+      Cache,
+      IpFilter,
+      IpFreqLimit,
+      StatusCodeCache,
+      ForceRedirect,
+      Compression,
+      BandwidthAlert,
+      RangeOriginPull,
+      FollowRedirect,
+      ErrorPage,
+      RequestHeader,
+      ResponseHeader,
+      DownstreamCapping,
+      CacheKey,
+      ResponseHeaderCache,
+      VideoSeek,
+      OriginPullOptimization,
+      Authentication,
+      Seo,
+      Referer,
+      MaxAge,
+      SpecificConfig,
+      OriginPullTimeout,
+    } = pascalInputs;
+
+    const cdnInputs: PascalCasedProps<CdnDeployInputs> = deepClone({
+      Domain,
+      Area,
+      Cache,
+      IpFilter,
+      IpFreqLimit,
+      StatusCodeCache,
+      ForceRedirect,
+      Compression,
+      BandwidthAlert,
+      RangeOriginPull,
+      FollowRedirect,
+      ErrorPage,
+      RequestHeader,
+      ResponseHeader,
+      DownstreamCapping,
+      CacheKey,
+      ResponseHeaderCache,
+      VideoSeek,
+      OriginPullOptimization,
+      Authentication,
+      Seo,
+      Referer,
+      MaxAge,
+      SpecificConfig,
+      OriginPullTimeout,
       Origin: formatOrigin(pascalInputs.Origin),
     });
 

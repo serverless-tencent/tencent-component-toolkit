@@ -69,4 +69,27 @@ export interface CdnDeployInputs {
     /** 预热时回源请求头 UserAgent */
     userAgent: string;
   };
+
+  cache?: any;
+  ipFilter?: any;
+  ipFreqLimit?: any;
+  statusCodeCache?: any;
+  compression?: any;
+  bandwidthAlert?: any;
+  rangeOriginPull?: any;
+  followRedirect?: any;
+  errorPage?: any;
+  requestHeader?: any;
+  responseHeader?: any;
+  downstreamCapping?: any;
+  cacheKey?: any;
+  responseHeaderCache?: any;
+  videoSeek?: any;
+  originPullOptimization?: any;
+  authentication?: any;
+  seo?: any;
+  referer?: any;
+  maxAge?: any;
+  specificConfig?: any;
+  originPullTimeout?: any;
 }

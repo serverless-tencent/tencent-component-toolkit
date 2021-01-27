@@ -9,8 +9,6 @@ describe('Cfs', () => {
     SecretKey: process.env.TENCENT_SECRET_KEY,
   };
 
-  let fsId: string;
-
   const inputs: CFSDeployInputs = {
     fsName: 'cfs-test',
     region: 'ap-guangzhou',
@@ -41,16 +39,16 @@ describe('Cfs', () => {
       fileSystemId: expect.stringContaining('cfs-'),
       tags: inputs.tags,
     });
-    fsId = res.fileSystemId;
+    inputs.fileSystemId = res.fileSystemId;
   });
 
   test('should remove CFS success', async () => {
-    await sleep(1000);
+    await sleep(5000);
     const res = await cfs.remove({
-      fsName: inputs.fsName,
-      fileSystemId: fsId,
+      ...inputs,
+      fileSystemId: inputs.fileSystemId,
     });
-    const detail = await utils.getCfs(cfs.capi, fsId);
+    const detail = await utils.getCfs(cfs.capi, inputs.fileSystemId);
     expect(res).toEqual({});
     expect(detail).toBeUndefined();
   });

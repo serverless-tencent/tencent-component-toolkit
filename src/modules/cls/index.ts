@@ -76,7 +76,7 @@ export default class Cls {
         name: inputs.name!,
         period: inputs.period!,
       });
-      outputs.logsetId = res.logset_id;
+      outputs.logsetId = res?.logset_id;
     }
 
     return outputs;

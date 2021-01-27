@@ -6,9 +6,9 @@ const utils = {
    * get target version layer detail
    * @param {object} capi capi instance
    * @param {string} LayerName
-   * @param {string} LayerVersion
+   * @param {number} LayerVersion
    */
-  async getLayerDetail(capi: Capi, LayerName: string, LayerVersion: string) {
+  async getLayerDetail(capi: Capi, LayerName: string, LayerVersion: number) {
     // get instance detail
     try {
       const res = await APIS.GetLayerVersion(capi, {

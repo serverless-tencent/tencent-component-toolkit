@@ -1,9 +1,9 @@
 import { CdnDeployInputs } from './../src/modules/cdn/interface';
 import { Cdn } from '../src';
 import { getCdnByDomain } from '../src/modules/cdn/utils';
+import { sleep } from '@ygkit/request';
 
 describe('Cdn', () => {
-  jest.setTimeout(600000);
   const credentials = {
     SecretId: process.env.TENCENT_SECRET_ID,
     SecretKey: process.env.TENCENT_SECRET_KEY,
@@ -36,6 +36,7 @@ describe('Cdn', () => {
   const cdn = new Cdn(credentials);
 
   test('should deploy CDN success with originType = cos', async () => {
+    await sleep(5000);
     const res = await cdn.deploy(inputs);
     expect(res).toEqual({
       https: true,
@@ -48,6 +49,7 @@ describe('Cdn', () => {
   });
 
   test('should deploy CDN success with originType = domain', async () => {
+    await sleep(5000);
     inputs.origin.originType = 'domain';
     const res = await cdn.deploy(inputs);
     expect(res).toEqual({
