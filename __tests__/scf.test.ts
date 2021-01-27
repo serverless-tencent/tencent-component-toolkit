@@ -62,15 +62,15 @@ describe('Scf', () => {
         },
       },
     },
-    mps: {
-      mps: {
-        parameters: {
-          qualifier: '$DEFAULT',
-          type: 'EditMediaTask',
-          enable: true,
-        },
-      },
-    },
+    // mps: {
+    //   mps: {
+    //     parameters: {
+    //       qualifier: '$DEFAULT',
+    //       type: 'EditMediaTask',
+    //       enable: true,
+    //     },
+    //   },
+    // },
   };
 
   const inputs: ScfDeployInputs = {
@@ -268,16 +268,16 @@ describe('Scf', () => {
           qualifier: triggers.cls.cls.parameters.qualifier,
           topicId: triggers.cls.cls.parameters.topicId,
         },
-        {
-          enable: triggers.mps.mps.parameters.enable,
-          namespace: inputs.namespace || 'default',
-          functionName: inputs.name,
-          qualifier: triggers.mps.mps.parameters.qualifier,
-          type: triggers.mps.mps.parameters.type,
-          resourceId: expect.stringContaining(
-            `TriggerType/${triggers.mps.mps.parameters.type}Event`,
-          ),
-        },
+        // {
+        //   enable: triggers.mps.mps.parameters.enable,
+        //   namespace: inputs.namespace || 'default',
+        //   functionName: inputs.name,
+        //   qualifier: triggers.mps.mps.parameters.qualifier,
+        //   type: triggers.mps.mps.parameters.type,
+        //   resourceId: expect.stringContaining(
+        //     `TriggerType/${triggers.mps.mps.parameters.type}Event`,
+        //   ),
+        // },
       ],
       ClsLogsetId: '',
       ClsTopicId: '',
