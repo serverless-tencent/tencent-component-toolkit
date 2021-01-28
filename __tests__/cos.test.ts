@@ -79,6 +79,16 @@ describe('Cos', () => {
     expect(data).toMatch(/Serverless\sFramework/gi);
   });
 
+  test('should Cos getObjectUrl success', async () => {
+    const res = await cos.getObjectUrl({
+      bucket,
+      object: 'index.html',
+      method: 'GET',
+    });
+
+    expect(res).toMatch(/http/);
+  });
+
   test('should deploy website success', async () => {
     const res = await cos.website(websiteInputs);
 
