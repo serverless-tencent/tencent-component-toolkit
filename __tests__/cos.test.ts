@@ -70,6 +70,16 @@ describe('Cos', () => {
   };
   const cos = new Cos(credentials, process.env.REGION);
 
+  test('should deploy Cos fail', async () => {
+    try {
+      const res = await cos.deploy({ ...inputs, bucket: '1234567890' });
+      expect(res).toBe(undefined);
+    } catch (err) {
+      console.log(err);
+      expect(err.code).toBe('Error');
+    }
+  });
+
   test('should deploy Cos success', async () => {
     const res = await cos.deploy(inputs);
     await sleep(1000);

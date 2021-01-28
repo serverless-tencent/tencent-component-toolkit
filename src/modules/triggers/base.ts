@@ -27,6 +27,7 @@ export default abstract class BaseTrigger<P = TriggerInputsParams> {
         ServiceType: serviceType,
         SecretId: credentials.SecretId!,
         SecretKey: credentials.SecretKey!,
+        Token: credentials.Token,
       });
     }
   }
