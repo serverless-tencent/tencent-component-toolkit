@@ -661,7 +661,9 @@ export default class Apigw {
     const { ApiIdStatusSet } = (await this.request({
       Action: 'DescribeApisStatus',
       ServiceId: serviceId,
-      Filters: [{ Name: 'ApiType', Values: ['normal'] }],
+      Offset: 0,
+      Limit: 100,
+      Filters: [{ Name: 'ApiPath', Values: [path] }],
     })) as {
       ApiIdStatusSet: { Method: string; Path: string; ApiId: string; InternalDomain: string }[];
     };
