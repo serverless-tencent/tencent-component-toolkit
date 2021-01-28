@@ -431,7 +431,7 @@ export default class Cos {
 
   async getObjectUrl(inputs: CosGetObjectUrlInputs = {}) {
     try {
-      const { Url } = await this.cosClient.getObjectUrl({
+      const res = await this.cosClient.getObjectUrl({
         Bucket: inputs.bucket!,
         Region: this.region,
         Key: inputs.object!,
@@ -442,7 +442,8 @@ export default class Cos {
         // default is sign url
         Sign: inputs.sign === false ? false : true,
       });
-      return Url;
+      // FIXME: Fuck you Cos SDK, res is not an object;
+      return (res as unknown) as string;
     } catch (err) {
       throw constructCosError(`API_COS_getObjectUrl`, err);
     }
