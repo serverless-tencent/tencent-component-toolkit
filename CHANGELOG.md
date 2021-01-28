@@ -1,3 +1,11 @@
+## [2.0.5](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.0.4...v2.0.5) (2021-01-28)
+
+
+### Bug Fixes
+
+* fix cos error and add test for it ([#185](https://github.com/serverless-tencent/tencent-component-toolkit/issues/185)) ([804aa38](https://github.com/serverless-tencent/tencent-component-toolkit/commit/804aa389c3b14e003e7e20b9932101da3530b080))
+* **apigw:** optimize get api detail ([8506dcc](https://github.com/serverless-tencent/tencent-component-toolkit/commit/8506dcc58d05f06b17ac4f76c5fa02b866a3126f))
+
 ## [2.0.4](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.0.3...v2.0.4) (2021-01-27)
 
 
