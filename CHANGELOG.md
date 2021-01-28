@@ -1,3 +1,10 @@
+## [2.0.6](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.0.5...v2.0.6) (2021-01-28)
+
+
+### Bug Fixes
+
+* make cos error convert more robust, fix trigger base ([#186](https://github.com/serverless-tencent/tencent-component-toolkit/issues/186)) ([7c5175e](https://github.com/serverless-tencent/tencent-component-toolkit/commit/7c5175e0e9197aa3e33a446253eaf5e034f4f119))
+
 ## [2.0.5](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.0.4...v2.0.5) (2021-01-28)
 
 
