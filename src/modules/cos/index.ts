@@ -35,13 +35,15 @@ import fs from 'fs';
 import { traverseDirSync } from '../../utils';
 import { ApiTypeError, ApiError } from '../../utils/error';
 
-interface CosError {
-  error?: {
-    Code?: string;
-    Message?: string;
-    Stack?: string;
-    RequestId?: string;
-  };
+export interface CosError {
+  error?:
+    | {
+        Code?: string;
+        Message?: string;
+        Stack?: string;
+        RequestId?: string;
+      }
+    | string;
   code?: string;
   message?: string;
   stack?: string;
@@ -49,14 +51,21 @@ interface CosError {
 }
 
 /** 将 Cos error 转为统一的形式 */
-function convertCosError(err: CosError) {
-  const e = {
+export function convertCosError(err: CosError) {
+  if (typeof err.error === 'string') {
+    return {
+      code: err.code!,
+      message: err.message! ?? err.error,
+      stack: err?.stack,
+      reqId: err?.requestId,
+    };
+  }
+  return {
     code: err?.error?.Code ?? err.code!,
     message: err?.error?.Message ?? err.message!,
     stack: err?.stack ?? err?.error?.Stack!,
     reqId: err?.error?.RequestId ?? err.requestId!,
   };
-  return e;
 }
 
 function constructCosError(
