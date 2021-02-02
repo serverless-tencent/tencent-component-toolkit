@@ -77,7 +77,7 @@ describe('Cos', () => {
       expect(res).toBe(undefined);
     } catch (err) {
       console.log(JSON.stringify(err));
-      expect(err.code).toBe('Error');
+      expect(err.type).toBe('API_COS_putBucket');
     }
   });
 
