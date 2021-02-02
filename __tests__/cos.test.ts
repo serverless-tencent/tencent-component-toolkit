@@ -1,3 +1,4 @@
+import { convertCosError } from './../src/modules/cos/index';
 import { CosDeployInputs, CosWebsiteInputs } from './../src/modules/cos/interface';
 import { Cos } from '../src';
 import path from 'path';
@@ -75,11 +76,43 @@ describe('Cos', () => {
       const res = await cos.deploy({ ...inputs, bucket: '1234567890' });
       expect(res).toBe(undefined);
     } catch (err) {
+      console.log(JSON.stringify(err));
       expect(err.type).toBe('API_COS_putBucket');
     }
   });
 
+  test('should convert error correct', async () => {
+    expect(
+      convertCosError({
+        message: 'message',
+      }).message,
+    ).toBe('message');
+
+    expect(
+      convertCosError({
+        error: 'message',
+      }).message,
+    ).toBe('message');
+
+    expect(
+      convertCosError({
+        error: {
+          Message: 'message',
+        },
+      }).message,
+    ).toBe('message');
+  });
+
   test('should deploy Cos success', async () => {
+    const res = await cos.deploy(inputs);
+    await sleep(1000);
+    const reqUrl = `https://${bucket}.cos.${process.env.REGION}.myqcloud.com/index.html`;
+    const { data } = await axios.get(reqUrl);
+    expect(res).toEqual(inputs);
+    expect(data).toMatch(/Serverless\sFramework/gi);
+  });
+
+  test('should deploy Cos success again (update)', async () => {
     const res = await cos.deploy(inputs);
     await sleep(1000);
     const reqUrl = `https://${bucket}.cos.${process.env.REGION}.myqcloud.com/index.html`;
