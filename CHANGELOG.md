@@ -1,3 +1,10 @@
+## [2.0.8](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.0.7...v2.0.8) (2021-02-02)
+
+
+### Bug Fixes
+
+* fix cos error convert, add test for convert ([#188](https://github.com/serverless-tencent/tencent-component-toolkit/issues/188)) ([8f8bad1](https://github.com/serverless-tencent/tencent-component-toolkit/commit/8f8bad18155287c07389d1a18fdbae221c359f4b))
+
 ## [2.0.7](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.0.6...v2.0.7) (2021-02-02)
 
 
