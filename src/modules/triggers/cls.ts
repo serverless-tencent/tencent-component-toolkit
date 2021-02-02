@@ -68,17 +68,20 @@ export default class ClsTrigger extends BaseTrigger<ClsTriggerInputsParams> {
     const exist = await this.get({
       topicId: parameters?.topicId,
     });
+    const qualifier = parameters?.qualifier || '$DEFAULT';
+    const namespace = inputs.namespace || 'default';
     const output = {
-      namespace: inputs.namespace || 'default',
+      namespace,
       functionName: inputs.functionName,
       ...parameters,
+      Qualifier: qualifier,
     };
     const clsInputs = {
       topic_id: parameters?.topicId,
       // FIXME: namespace or name_space?
-      name_space: inputs.namespace || 'default',
+      name_space: namespace,
       function_name: inputs.functionName,
-      qualifier: parameters?.qualifier || '$DEFAULT',
+      qualifier: qualifier,
       max_wait: parameters?.maxWait,
       max_size: parameters?.maxSize,
       effective: parameters?.enable,

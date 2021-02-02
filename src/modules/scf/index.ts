@@ -130,30 +130,43 @@ export default class Scf {
 
   // check function status
   // because creating/upadting function is asynchronous
-  // if not become Active in 120 * 1000 miniseconds, return request result, and throw error
+  // if not become Active in 240 * 500 miniseconds, return request result, and throw error
   async checkStatus(namespace = 'default', functionName: string, qualifier = '$LATEST') {
     let initialInfo = await this.getFunction(namespace, functionName, qualifier);
     let { Status } = initialInfo;
-    let times = 120;
+    let times = 240;
     while (CONFIGS.waitStatus.indexOf(Status) !== -1 && times > 0) {
       initialInfo = await this.getFunction(namespace, functionName, qualifier);
       if (!initialInfo) {
-        return true;
+        return {
+          isOperational: true,
+          detail: initialInfo,
+        };
       }
       ({ Status } = initialInfo);
       // if change to failed status break loop
       if (CONFIGS.failStatus.indexOf(Status) !== -1) {
         break;
       }
-      await sleep(1000);
+      await sleep(500);
       times = times - 1;
     }
     const { StatusReasons } = initialInfo;
     return Status !== 'Active'
-      ? StatusReasons && StatusReasons.length > 0
-        ? `函数状态异常, ${StatusReasons[0].ErrorMessage}`
-        : `函数状态异常, ${Status}`
-      : true;
+      ? {
+          isOperational: false,
+          detail: initialInfo,
+          error: {
+            message:
+              StatusReasons && StatusReasons.length > 0
+                ? `函数状态异常, ${StatusReasons[0].ErrorMessage}`
+                : `函数状态异常, ${Status}`,
+          },
+        }
+      : {
+          isOperational: true,
+          detail: initialInfo,
+        };
   }
 
   // create function
@@ -240,6 +253,7 @@ export default class Scf {
   filterTriggers(funcInfo: FunctionInfo, events: EventType[], oldList: TriggerType[]) {
     const deleteList: (TriggerType | null)[] = deepClone(oldList);
     const createList: (EventType | null)[] = deepClone(events);
+    const deployList: (TriggerType | null)[] = [];
     // const noKeyTypes = ['apigw'];
     const updateList: (EventType | null)[] = [];
     events.forEach((event, index) => {
@@ -257,6 +271,11 @@ export default class Scf {
           ...(event as any)[Type],
         },
       });
+      deployList[index] = {
+        NeedCreate: true,
+        Type,
+        ...event[Type],
+      };
       for (let i = 0; i < oldList.length; i++) {
         const curOld = oldList[i];
         if (curOld.Type === Type) {
@@ -272,7 +291,23 @@ export default class Scf {
             updateList.push(createList[index]);
             if (CAN_UPDATE_TRIGGER.indexOf(Type) === -1) {
               createList[index] = null;
+              deployList[index] = {
+                NeedCreate: false,
+                ...curOld,
+              };
+            } else {
+              deployList[index] = {
+                NeedCreate: true,
+                Type,
+                ...event[Type],
+              };
             }
+          } else {
+            deployList[index] = {
+              NeedCreate: true,
+              Type,
+              ...event[Type],
+            };
           }
         }
       }
@@ -281,6 +316,7 @@ export default class Scf {
       updateList,
       deleteList: deleteList.filter((item) => item),
       createList: createList.filter((item) => item),
+      deployList,
     };
   }
 
@@ -294,7 +330,7 @@ export default class Scf {
     // get all triggers
     const triggerList = await this.getTriggerList(funcInfo.FunctionName, funcInfo.Namespace);
 
-    const { deleteList, createList } = this.filterTriggers(funcInfo, inputs.events!, triggerList);
+    const { deleteList, deployList } = this.filterTriggers(funcInfo, inputs.events!, triggerList);
 
     // remove all old triggers
     for (let i = 0, len = deleteList.length; i < len; i++) {
@@ -323,33 +359,36 @@ export default class Scf {
     }
 
     // create all new triggers
-    const triggerResult = [];
-    for (let i = 0; i < createList.length; i++) {
-      const event = createList[i];
+    for (let i = 0; i < deployList.length; i++) {
+      const event = deployList[i];
       // FIXME: wtf
-      const Type = Object.keys(event as any)[0];
-      const TriggerClass = TRIGGERS[Type];
-      if (!TriggerClass) {
-        throw new ApiTypeError('PARAMETER_SCF', `Unknow trigger type ${Type}`);
-      }
-      const triggerInstance = new TriggerClass({
-        credentials: this.credentials,
-        region: this.region,
-      });
-      const t = event ? (event as any)[Type] : {};
-      const triggerOutput = await triggerInstance.create({
-        scf: this,
-        region: this.region,
-        inputs: {
-          namespace: funcInfo.Namespace,
-          functionName: funcInfo.FunctionName,
-          ...t,
-        },
-      });
+      const { Type } = event as any;
+      if (event?.NeedCreate === true) {
+        const TriggerClass = TRIGGERS[Type];
+        if (!TriggerClass) {
+          throw new ApiTypeError('PARAMETER_SCF', `Unknow trigger type ${Type}`);
+        }
+        const triggerInstance = new TriggerClass({
+          credentials: this.credentials,
+          region: this.region,
+        });
+        const triggerOutput = await triggerInstance.create({
+          scf: this,
+          region: this.region,
+          inputs: {
+            namespace: funcInfo.Namespace,
+            functionName: funcInfo.FunctionName,
+            ...event,
+          },
+        });
 
-      triggerResult.push(triggerOutput);
+        deployList[i] = {
+          NeedCreate: event?.NeedCreate,
+          ...triggerOutput,
+        };
+      }
     }
-    return triggerResult;
+    return deployList;
   }
 
   // delete function
@@ -516,11 +555,18 @@ export default class Scf {
     qualifier = '$LATEST',
   ) {
     // after create/update function, should check function status is active, then continue
-    const res = await this.checkStatus(namespace, functionName, qualifier);
-    if (res === true) {
-      return true;
+    const { isOperational, detail, error } = await this.checkStatus(
+      namespace,
+      functionName,
+      qualifier,
+    );
+    if (isOperational === true) {
+      return detail;
     }
-    throw new ApiTypeError('API_SCF_isOperationalStatus', res);
+    if (error) {
+      throw new ApiTypeError('API_SCF_isOperationalStatus', error?.message);
+    }
+    return detail;
   }
 
   async tryToDeleteFunction(namespace: string, functionName: string) {
@@ -566,6 +612,8 @@ export default class Scf {
         throw new ApiTypeError('API_SCF_isOperational', errorMsg);
       }
     }
+
+    return funcInfo;
   }
 
   // deploy SCF flow
@@ -574,15 +622,10 @@ export default class Scf {
 
     // before deploy a scf, we should check whether
     // if is CreateFailed, try to remove it
-    await this.isOperational(namespace, inputs.name!);
+    let funcInfo = await this.isOperational(namespace, inputs.name!);
 
-    // whether auto create/bind role
-    if (inputs.enableRoleAuth) {
-      await this.bindScfQCSRole();
-    }
     // check SCF exist
     // exist: update it, not: create it
-    let funcInfo = await this.getFunction(namespace, inputs.name!);
     if (!funcInfo) {
       await this.createFunction(inputs);
     } else {
@@ -595,10 +638,7 @@ export default class Scf {
     }
 
     // should check function status is active, then continue
-    await this.isOperationalStatus(namespace, inputs.name!);
-
-    // after create/update function, get latest function info
-    funcInfo = await this.getFunction(namespace, inputs.name!);
+    funcInfo = await this.isOperationalStatus(namespace, inputs.name!);
 
     const outputs = funcInfo;
     if (inputs.publish) {

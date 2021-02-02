@@ -2,10 +2,26 @@ import { RegionType } from './../interface';
 import { ApigwRemoveInputs } from './../apigw/interface';
 
 export interface TriggerType {
+  NeedCreate?: boolean;
   Type: string;
   TriggerDesc?: string;
   TriggerName?: string;
   Qualifier?: string;
+  BindStatus?: string;
+  Enable?: 'OPEN' | 'CLOSE' | 1 | 0;
+  ResourceId?: string;
+  CustomArgument?: string;
+
+  // apigw
+  Environment?: string;
+  SubDomain?: string;
+  Api?: {
+    apiId: string;
+    authType: string;
+    isIntefratedResponse: string;
+    enableCORS: string;
+    requestConfig: { method: string; path: string };
+  };
 }
 
 export type EventType = {

@@ -15,6 +15,19 @@ describe('Scf', () => {
   };
 
   const triggers = {
+    apigw: {
+      apigw: {
+        parameters: {
+          serviceName: 'serverless_test',
+          endpoints: [
+            {
+              path: '/',
+              method: 'GET',
+            },
+          ],
+        },
+      },
+    },
     timer: {
       timer: {
         name: 'timer',
@@ -36,19 +49,6 @@ describe('Scf', () => {
             prefix: 'aaaasad',
             suffix: '.zip',
           },
-        },
-      },
-    },
-    apigw: {
-      apigw: {
-        parameters: {
-          serviceName: 'serverless_test',
-          endpoints: [
-            {
-              path: '/',
-              method: 'GET',
-            },
-          ],
         },
       },
     },
@@ -75,7 +75,8 @@ describe('Scf', () => {
   };
 
   const inputs: ScfDeployInputs = {
-    name: `serverless-test-${Date.now()}`,
+    // name: `serverless-test-${Date.now()}`,
+    name: `serverless-test-fixed`,
     code: {
       bucket: process.env.BUCKET,
       object: 'express_code.zip',
@@ -143,7 +144,7 @@ describe('Scf', () => {
   });
 
   afterAll(async (done) => {
-    sleep(5000);
+    await sleep(3000);
     await cfs.remove({
       fsName: cfsInputs.fsName,
       fileSystemId: inputs.cfs[0].cfsId,
@@ -153,7 +154,7 @@ describe('Scf', () => {
   });
 
   test('should deploy SCF success', async () => {
-    sleep(5000);
+    await sleep(3000);
     outputs = await scf.deploy(inputs);
     expect(outputs).toEqual({
       Qualifier: '$LATEST',
@@ -209,74 +210,7 @@ describe('Scf', () => {
         PublicNetStatus: 'ENABLE',
         EipConfig: { EipStatus: 'ENABLE', EipAddress: expect.any(Array) },
       },
-      Triggers: [
-        {
-          AddTime: expect.any(String),
-          AvailableStatus: 'Available',
-          CustomArgument: triggers.timer.timer.parameters.argument,
-          Enable: 1,
-          ModTime: expect.any(String),
-          TriggerDesc: `{"cron":"${triggers.timer.timer.parameters.cronExpression}"}`,
-          TriggerName: triggers.timer.timer.name,
-          Type: 'timer',
-          BindStatus: '',
-          ResourceId: '',
-          TriggerAttribute: '',
-        },
-        {
-          AddTime: expect.any(String),
-          AvailableStatus: '',
-          CustomArgument: '',
-          Enable: 1,
-          ModTime: expect.any(String),
-          TriggerDesc: `{"bucketUrl":"${triggers.cos.cos.parameters.bucket}","event":"${triggers.cos.cos.parameters.events}","filter":{"Prefix":"${triggers.cos.cos.parameters.filter.prefix}","Suffix":"${triggers.cos.cos.parameters.filter.suffix}"}}`,
-          TriggerName: expect.stringContaining('cos_'),
-          Type: 'cos',
-          BindStatus: '',
-          ResourceId: '',
-          TriggerAttribute: '',
-        },
-        {
-          created: true,
-          serviceId: expect.stringContaining('service-'),
-          serviceName: 'serverless_test',
-          subDomain: expect.stringContaining('.apigw.tencentcs.com'),
-          protocols: 'http',
-          environment: 'release',
-          apiList: [
-            {
-              path: '/',
-              internalDomain: expect.any(String),
-              method: 'GET',
-              apiName: 'index',
-              apiId: expect.stringContaining('api-'),
-              created: true,
-              authType: 'NONE',
-              businessType: 'NORMAL',
-              isBase64Encoded: false,
-            },
-          ],
-        },
-        {
-          enable: triggers.cls.cls.parameters.enable,
-          namespace: inputs.namespace || 'default',
-          functionName: inputs.name,
-          maxSize: triggers.cls.cls.parameters.maxSize,
-          maxWait: triggers.cls.cls.parameters.maxWait,
-          qualifier: triggers.cls.cls.parameters.qualifier,
-          topicId: triggers.cls.cls.parameters.topicId,
-        },
-        // {
-        //   enable: triggers.mps.mps.parameters.enable,
-        //   namespace: inputs.namespace || 'default',
-        //   functionName: inputs.name,
-        //   qualifier: triggers.mps.mps.parameters.qualifier,
-        //   type: triggers.mps.mps.parameters.type,
-        //   resourceId: expect.stringContaining(
-        //     `TriggerType/${triggers.mps.mps.parameters.type}Event`,
-        //   ),
-        // },
-      ],
+      Triggers: expect.any(Array),
       ClsLogsetId: '',
       ClsTopicId: '',
       CodeInfo: '',
@@ -312,9 +246,85 @@ describe('Scf', () => {
       Traffic: inputs.traffic,
       ConfigTrafficVersion: '1',
     });
+
+    // expect triggers result
+    expect(outputs.Triggers).toEqual([
+      {
+        NeedCreate: expect.any(Boolean),
+        created: true,
+        serviceId: expect.stringContaining('service-'),
+        serviceName: 'serverless_test',
+        subDomain: expect.stringContaining('.apigw.tencentcs.com'),
+        protocols: 'http',
+        environment: 'release',
+        apiList: [
+          {
+            path: '/',
+            internalDomain: expect.any(String),
+            method: 'GET',
+            apiName: 'index',
+            apiId: expect.stringContaining('api-'),
+            created: true,
+            authType: 'NONE',
+            businessType: 'NORMAL',
+            isBase64Encoded: false,
+          },
+        ],
+      },
+      {
+        NeedCreate: expect.any(Boolean),
+        AddTime: expect.any(String),
+        AvailableStatus: expect.any(String),
+        CustomArgument: triggers.timer.timer.parameters.argument,
+        Enable: 1,
+        ModTime: expect.any(String),
+        TriggerDesc: `{"cron":"${triggers.timer.timer.parameters.cronExpression}"}`,
+        TriggerName: triggers.timer.timer.name,
+        Type: 'timer',
+        BindStatus: expect.any(String),
+        ResourceId: expect.any(String),
+        TriggerAttribute: expect.any(String),
+        Qualifier: expect.any(String),
+      },
+      {
+        NeedCreate: expect.any(Boolean),
+        AddTime: expect.any(String),
+        AvailableStatus: expect.any(String),
+        CustomArgument: expect.any(String),
+        Enable: 1,
+        ModTime: expect.any(String),
+        TriggerDesc: `{"bucketUrl":"${triggers.cos.cos.parameters.bucket}","event":"${triggers.cos.cos.parameters.events}","filter":{"Prefix":"${triggers.cos.cos.parameters.filter.prefix}","Suffix":"${triggers.cos.cos.parameters.filter.suffix}"}}`,
+        TriggerName: expect.stringContaining('cos'),
+        Type: 'cos',
+        BindStatus: expect.any(String),
+        ResourceId: expect.any(String),
+        TriggerAttribute: expect.any(String),
+        Qualifier: expect.any(String),
+      },
+      {
+        NeedCreate: expect.any(Boolean),
+        enable: triggers.cls.cls.parameters.enable,
+        namespace: inputs.namespace || 'default',
+        functionName: inputs.name,
+        maxSize: triggers.cls.cls.parameters.maxSize,
+        maxWait: triggers.cls.cls.parameters.maxWait,
+        qualifier: triggers.cls.cls.parameters.qualifier,
+        topicId: triggers.cls.cls.parameters.topicId,
+        Qualifier: expect.any(String),
+      },
+      // {
+      //   enable: triggers.mps.mps.parameters.enable,
+      //   namespace: inputs.namespace || 'default',
+      //   functionName: inputs.name,
+      //   qualifier: triggers.mps.mps.parameters.qualifier,
+      //   type: triggers.mps.mps.parameters.type,
+      //   resourceId: expect.stringContaining(
+      //     `TriggerType/${triggers.mps.mps.parameters.type}Event`,
+      //   ),
+      // },
+    ]);
   });
   test('should invoke Scf success', async () => {
-    sleep(5000);
     const res = await scf.invoke({
       functionName: inputs.name,
     });
@@ -333,7 +343,6 @@ describe('Scf', () => {
     });
   });
   test('should remove Scf success', async () => {
-    sleep(5000);
     const res = await scf.remove({
       functionName: inputs.name,
       ...outputs,

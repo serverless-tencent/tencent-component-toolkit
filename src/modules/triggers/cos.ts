@@ -62,6 +62,8 @@ export default class CosTrigger extends BaseTrigger<CosTriggerInputsParams> {
     const { triggerInputs } = this.formatInputs({ region, inputs });
     console.log(`Creating ${triggerInputs.Type} trigger ${triggerInputs.TriggerName}`);
     const { TriggerInfo } = await scf.request(triggerInputs);
+    TriggerInfo.Qualifier = TriggerInfo.Qualifier || triggerInputs.Qualifier;
+
     return TriggerInfo;
   }
 

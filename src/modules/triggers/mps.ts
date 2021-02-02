@@ -88,16 +88,19 @@ export default class MpsTrigger extends BaseTrigger<MpsTriggerInputsParams> {
 
   async create({ inputs }: { inputs: TriggerInputs<MpsTriggerInputsParams> }) {
     const { parameters } = inputs;
+    const qualifier = parameters?.qualifier ?? '$DEFAULT';
+    const namespace = inputs.namespace ?? 'default';
     const output = {
       namespace: inputs.namespace || 'default',
       functionName: inputs.functionName,
       ...parameters,
       resourceId: undefined as undefined | string,
+      Qualifier: qualifier,
     };
     // check exist type trigger
     const existTypeTrigger = await this.getTypeTrigger({
       eventType: parameters?.type,
-      qualifier: parameters?.qualifier ?? '$DEFAULT',
+      qualifier,
       namespace: inputs.namespace ?? 'default',
       functionName: inputs.functionName,
     });
@@ -107,9 +110,9 @@ export default class MpsTrigger extends BaseTrigger<MpsTriggerInputsParams> {
         await this.request({
           Action: 'UnbindTrigger',
           Type: 'mps',
-          Qualifier: parameters.qualifier ?? '$DEFAULT',
+          Qualifier: qualifier,
           FunctionName: inputs.functionName,
-          Namespace: inputs.namespace ?? 'default',
+          Namespace: namespace,
           ResourceId: existTypeTrigger.ResourceId,
         });
       } else if (existTypeTrigger.BindStatus === 'off') {
@@ -125,9 +128,9 @@ export default class MpsTrigger extends BaseTrigger<MpsTriggerInputsParams> {
         Action: 'BindTrigger',
         ScfRegion: this.region,
         EventType: parameters?.type,
-        Qualifier: parameters?.qualifier ?? '$DEFAULT',
+        Qualifier: qualifier,
         FunctionName: inputs.functionName,
-        Namespace: inputs.namespace ?? 'default',
+        Namespace: namespace,
       });
 
       output.resourceId = res.ResourceId;
