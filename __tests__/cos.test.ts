@@ -112,7 +112,7 @@ describe('Cos', () => {
     expect(data).toMatch(/Serverless\sFramework/gi);
   });
 
-  test('should deploy Cos success again update()', async () => {
+  test('should deploy Cos success again (update)', async () => {
     const res = await cos.deploy(inputs);
     await sleep(1000);
     const reqUrl = `https://${bucket}.cos.${process.env.REGION}.myqcloud.com/index.html`;
