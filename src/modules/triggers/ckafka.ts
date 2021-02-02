@@ -61,6 +61,7 @@ export default class CkafkaTrigger {
     const { triggerInputs } = this.formatInputs({ region, inputs });
     console.log(`Creating ${triggerInputs.Type} trigger ${triggerInputs.TriggerName}`);
     const { TriggerInfo } = await scf.request(triggerInputs as any);
+    TriggerInfo.Qualifier = TriggerInfo.Qualifier || triggerInputs.Qualifier;
     return TriggerInfo;
   }
   async delete({ scf, inputs }: { scf: Scf; inputs: TriggerInputs }) {

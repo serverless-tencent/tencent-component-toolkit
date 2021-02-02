@@ -714,8 +714,10 @@ export default class Apigw {
       authType: authType,
       businessType: businessType,
       isBase64Encoded: endpoint.isBase64Encoded === true,
-      authRelationApiId: endpoint.authRelationApiId,
     };
+    if (endpoint.authRelationApiId) {
+      output.authRelationApiId = endpoint.authRelationApiId;
+    }
 
     const apiInputs = {
       protocol: endpoint.protocol || 'HTTP',

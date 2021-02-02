@@ -53,7 +53,7 @@ describe('Cls Trigger', () => {
   });
 
   test('should create trigger success', async () => {
-    sleep(5000);
+    await sleep(5000);
     const res = await clsTrigger.create({
       inputs: {
         namespace: namespace,
@@ -63,6 +63,7 @@ describe('Cls Trigger', () => {
     });
 
     expect(res).toEqual({
+      Qualifier: '$DEFAULT',
       namespace: namespace,
       functionName: functionName,
       maxSize: 100,
@@ -73,7 +74,7 @@ describe('Cls Trigger', () => {
   });
 
   test('should enable trigger success', async () => {
-    sleep(5000);
+    await sleep(5000);
     data.enable = true;
     const res = await clsTrigger.create({
       inputs: {
@@ -90,6 +91,7 @@ describe('Cls Trigger', () => {
       maxWait: 60,
       qualifier: '$DEFAULT',
       topicId: clsOutputs.topicId,
+      Qualifier: '$DEFAULT',
     });
   });
 
@@ -111,6 +113,7 @@ describe('Cls Trigger', () => {
       maxWait: 60,
       qualifier: '$DEFAULT',
       topicId: clsOutputs.topicId,
+      Qualifier: '$DEFAULT',
     });
   });
 

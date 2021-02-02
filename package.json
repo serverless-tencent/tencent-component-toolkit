@@ -89,7 +89,7 @@
     "@types/lodash": "^4.14.167",
     "@types/node": "^14.14.20",
     "@ygkit/request": "^0.1.8",
-    "cos-nodejs-sdk-v5": "^2.8.6",
+    "cos-nodejs-sdk-v5": "2.8.6",
     "lodash": "^4.17.20",
     "moment": "^2.25.3",
     "tencent-cloud-sdk": "^1.0.5",

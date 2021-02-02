@@ -46,7 +46,7 @@ export interface CreateTriggerReq {
   Qualifier?: string;
   TriggerName?: string;
   TriggerDesc?: any;
-  Enable?: 'OPEN' | 'CLOSE';
+  Enable?: 'OPEN' | 'CLOSE' | 1 | 0;
   CustomArgument?: any;
 }
 
