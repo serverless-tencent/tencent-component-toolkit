@@ -38,6 +38,7 @@ export default class Postgresql {
       region,
       zone,
       projectId,
+      dBInstanceId,
       dBInstanceName,
       dBVersion,
       dBCharset,
@@ -52,21 +53,30 @@ export default class Postgresql {
       dBInstanceName: dBInstanceName,
     };
 
-    let dbDetail = await getDbInstanceDetail(this.capi, dBInstanceName!);
+    let dbDetail;
+    if (dBInstanceId) {
+      dbDetail = await getDbInstanceDetail(this.capi, dBInstanceId!);
+    }
 
-    if (dbDetail && dbDetail.DBInstanceName && dbDetail.Zone === zone) {
+    if (dbDetail && dbDetail.DBInstanceId && dbDetail.Zone === zone) {
       const publicAccess = getDbExtranetAccess(dbDetail.DBInstanceNetInfo);
       // exist and public access config different, update db instance
       if (publicAccess !== extranetAccess) {
-        console.log(`DB instance ${dBInstanceName} existed, updating`);
+        console.log(`DB instance id ${dbDetail.DBInstanceId} existed, updating`);
         // do not throw error when open public access
         try {
-          dbDetail = await toggleDbInstanceAccess(this.capi, dBInstanceName!, extranetAccess!);
+          dbDetail = await toggleDbInstanceAccess(
+            this.capi,
+            dbDetail.DBInstanceId!,
+            extranetAccess!,
+          );
         } catch (e) {
-          console.log(`Toggle DB Instane access failed, ${e.message}, ${e.reqId}`);
+          console.log(
+            `Toggle db instane ${dbDetail.DBInstanceId} access failed, ${e.message}, ${e.reqId}`,
+          );
         }
       } else {
-        console.log(`DB instance ${dBInstanceName} existed.`);
+        console.log(`DB instance id ${dbDetail.DBInstanceId} existed.`);
       }
     } else {
       // not exist, create
@@ -82,7 +92,7 @@ export default class Postgresql {
 
       dbDetail = await createDbInstance(this.capi, postgresInputs);
       if (extranetAccess) {
-        dbDetail = await toggleDbInstanceAccess(this.capi, dBInstanceName!, extranetAccess);
+        dbDetail = await toggleDbInstanceAccess(this.capi, dbDetail.DBInstanceId!, extranetAccess);
       }
     }
     outputs.dBInstanceId = dbDetail.DBInstanceId;
@@ -117,12 +127,12 @@ export default class Postgresql {
 
   /** 移除 postgresql 实例 */
   async remove(inputs: PostgresqlRemoveInputs = {}) {
-    const { dBInstanceName } = inputs;
+    const { dBInstanceId } = inputs;
 
-    const dbDetail = await getDbInstanceDetail(this.capi, dBInstanceName!);
+    const dbDetail = await getDbInstanceDetail(this.capi, dBInstanceId!);
     if (dbDetail && dbDetail.DBInstanceName) {
       // need circle for deleting, after host status is 6, then we can delete it
-      await deleteDbInstance(this.capi, dBInstanceName!);
+      await deleteDbInstance(this.capi, dBInstanceId!);
     }
     return {};
   }

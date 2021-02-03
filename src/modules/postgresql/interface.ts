@@ -5,6 +5,7 @@ export interface PostgresqlDeployInputs {
   zone?: string;
   projectId?: number;
   dBInstanceName?: string;
+  dBInstanceId?: string;
   dBVersion?: string;
   dBCharset?: string;
   extranetAccess?: boolean;
@@ -32,4 +33,35 @@ export interface PostgresqlDeployOutputs {
 
 export interface PostgresqlRemoveInputs {
   dBInstanceName?: string;
+  dBInstanceId?: string;
+}
+
+export interface PostgresqlInstanceNetInfo {
+  Address: string;
+  Ip: string;
+  NetType: string;
+  Port: number;
+  Status: string;
+}
+
+export interface PostgresqlInstanceDetail {
+  CreateTime: string;
+  DBAccountSet: {
+    DBConnLimit: number;
+    DBPassword: string;
+    DBUser: string;
+  }[];
+  DBCharset: string;
+  DBDatabaseList: string[];
+  DBInstanceId: string;
+  DBInstanceName: string;
+  DBInstanceNetInfo: PostgresqlInstanceNetInfo[];
+  DBInstanceStatus: string;
+  DBVersion: string;
+  ProjectId: number;
+  Region: string;
+  SubnetId: string;
+  TagList: any[];
+  VpcId: string;
+  Zone: string;
 }

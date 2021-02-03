@@ -41,6 +41,7 @@ describe('Postgresql', () => {
         dbname: expect.stringContaining('tencentdb_'),
       },
     });
+    inputs.dBInstanceId = res.dBInstanceId;
   });
   test('should enable public access for postgresql success', async () => {
     inputs.extranetAccess = true;
