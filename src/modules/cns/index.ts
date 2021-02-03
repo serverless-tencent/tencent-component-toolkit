@@ -148,7 +148,6 @@ export default class Cns {
         recordId: tempInputs.recordId,
         status: tempInputs.status,
       };
-      console.log(statusInputs);
       await this.request(statusInputs);
       console.log(`Modified status to ${tempInputs.status}`);
     }
