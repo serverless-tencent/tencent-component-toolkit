@@ -1,6 +1,7 @@
 import { Capi } from '@tencent-sdk/capi';
 import { waitResponse } from '@ygkit/request';
 import APIS from './apis';
+import { PostgresqlInstanceDetail, PostgresqlInstanceNetInfo } from './interface';
 
 // timeout 5 minutes
 const TIMEOUT = 5 * 60 * 1000;
@@ -10,14 +11,17 @@ const TIMEOUT = 5 * 60 * 1000;
  * @param {object} capi capi instance
  * @param {*} dBInstanceName
  */
-export async function getDbInstanceDetail(capi: Capi, dBInstanceName: string) {
+export async function getDbInstanceDetail(
+  capi: Capi,
+  dBInstanceId: string,
+): Promise<PostgresqlInstanceDetail | undefined> {
   // get instance detail
   try {
     const res = await APIS.DescribeServerlessDBInstances(capi, {
       Filter: [
         {
-          Name: 'db-instance-name',
-          Values: [dBInstanceName],
+          Name: 'db-instance-id',
+          Values: [dBInstanceId],
         },
       ],
     });
@@ -47,6 +51,17 @@ export function getDbExtranetAccess(netInfos: { NetType: string; Status: string 
   return result;
 }
 
+export function isEnablePublicAccess(detail: PostgresqlInstanceDetail) {
+  let enable = false;
+  const { DBInstanceNetInfo } = detail;
+  DBInstanceNetInfo.forEach((item: PostgresqlInstanceNetInfo) => {
+    if (item.NetType === 'public' && item.Status === 'opened') {
+      enable = true;
+    }
+  });
+  return enable;
+}
+
 /**
  INSTANCE_STATUS_APPLYING:    "applying",    申请中
  INSTANCE_STATUS_INIT:        "init",        待初始化
@@ -72,16 +87,16 @@ export function getDbExtranetAccess(netInfos: { NetType: string; Status: string 
  */
 export async function toggleDbInstanceAccess(
   capi: Capi,
-  dBInstanceName: string,
+  DBInstanceId: string,
   extranetAccess: boolean,
-) {
+): Promise<PostgresqlInstanceDetail> {
   if (extranetAccess) {
     console.log(`Start open db extranet access...`);
     await APIS.OpenServerlessDBExtranetAccess(capi, {
-      DBInstanceName: dBInstanceName,
+      DBInstanceId: DBInstanceId,
     });
     const detail = await waitResponse({
-      callback: async () => getDbInstanceDetail(capi, dBInstanceName),
+      callback: async () => getDbInstanceDetail(capi, DBInstanceId),
       targetResponse: 'running',
       targetProp: 'DBInstanceStatus',
       timeout: TIMEOUT,
@@ -91,10 +106,10 @@ export async function toggleDbInstanceAccess(
   }
   console.log(`Start close db extranet access`);
   await APIS.CloseServerlessDBExtranetAccess(capi, {
-    DBInstanceName: dBInstanceName,
+    DBInstanceId: DBInstanceId,
   });
   const detail = await waitResponse({
-    callback: async () => getDbInstanceDetail(capi, dBInstanceName),
+    callback: async () => getDbInstanceDetail(capi, DBInstanceId),
     targetResponse: 'running',
     targetProp: 'DBInstanceStatus',
     timeout: TIMEOUT,
@@ -122,15 +137,15 @@ export async function createDbInstance(
 ) {
   console.log(`Start create DB instance ${postgresInputs.DBInstanceName}`);
   const { DBInstanceId } = await APIS.CreateServerlessDBInstance(capi, postgresInputs);
-  console.log(`Creating DB instance ID: ${DBInstanceId}`);
+  console.log(`Creating db instance id: ${DBInstanceId}`);
 
   const detail = await waitResponse({
-    callback: async () => getDbInstanceDetail(capi, postgresInputs.DBInstanceName),
+    callback: async () => getDbInstanceDetail(capi, DBInstanceId),
     targetResponse: 'running',
     targetProp: 'DBInstanceStatus',
     timeout: TIMEOUT,
   });
-  console.log(`Created DB instance name ${postgresInputs.DBInstanceName} successfully`);
+  console.log(`Created db instance id ${DBInstanceId} success`);
   return detail;
 }
 
@@ -139,17 +154,17 @@ export async function createDbInstance(
  * @param {object} capi capi client
  * @param {string} db instance name
  */
-export async function deleteDbInstance(capi: Capi, dBInstanceName: string) {
-  console.log(`Start removing postgres instance ${dBInstanceName}`);
+export async function deleteDbInstance(capi: Capi, DBInstanceId: string) {
+  console.log(`Start removing postgres instance id ${DBInstanceId}`);
   await APIS.DeleteServerlessDBInstance(capi, {
-    DBInstanceName: dBInstanceName,
+    DBInstanceId,
   });
   const detail = await waitResponse({
-    callback: async () => getDbInstanceDetail(capi, dBInstanceName),
+    callback: async () => getDbInstanceDetail(capi, DBInstanceId),
     targetResponse: undefined,
     timeout: TIMEOUT,
   });
-  console.log(`Removed postgres instance ${dBInstanceName} successfully`);
+  console.log(`Removed postgres instance id ${DBInstanceId} successfully`);
   return detail;
 }
 
