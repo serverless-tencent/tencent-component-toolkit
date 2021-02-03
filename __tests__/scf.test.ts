@@ -75,8 +75,7 @@ describe('Scf', () => {
   };
 
   const inputs: ScfDeployInputs = {
-    // name: `serverless-test-${Date.now()}`,
-    name: `serverless-test-fixed`,
+    name: `serverless-test-${Date.now()}`,
     code: {
       bucket: process.env.BUCKET,
       object: 'express_code.zip',
@@ -174,7 +173,7 @@ describe('Scf', () => {
       },
       Handler: inputs.handler,
       AsyncRunEnable: 'FALSE',
-      LogType: 'normal',
+      LogType: expect.any(String),
       TraceEnable: 'FALSE',
       UseGpu: 'FALSE',
       Role: inputs.role,
@@ -211,8 +210,8 @@ describe('Scf', () => {
         EipConfig: { EipStatus: 'ENABLE', EipAddress: expect.any(Array) },
       },
       Triggers: expect.any(Array),
-      ClsLogsetId: '',
-      ClsTopicId: '',
+      ClsLogsetId: expect.any(String),
+      ClsTopicId: expect.any(String),
       CodeInfo: '',
       CodeResult: 'success',
       CodeError: '',
