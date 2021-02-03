@@ -1,3 +1,10 @@
+## [2.0.9](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.0.8...v2.0.9) (2021-02-03)
+
+
+### Bug Fixes
+
+* **postgresql:** use instance id for uniqure handle id ([#189](https://github.com/serverless-tencent/tencent-component-toolkit/issues/189)) ([5f2dd82](https://github.com/serverless-tencent/tencent-component-toolkit/commit/5f2dd82d3b72aad8357b71951d418349b68a0742))
+
 ## [2.0.8](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.0.7...v2.0.8) (2021-02-02)
 
 
