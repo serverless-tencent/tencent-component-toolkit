@@ -603,7 +603,7 @@ export default class Scf {
         case 'CreateFailed':
           console.log(`函数创建失败，${reason || Status}`);
           await this.tryToDeleteFunction(namespace, functionName);
-          break;
+          return null;
         case 'DeleteFailed':
           errorMsg = `函数删除失败，${reason || Status}`;
           break;
