@@ -1,3 +1,10 @@
+## [2.0.10](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.0.9...v2.0.10) (2021-02-05)
+
+
+### Bug Fixes
+
+* **scf:** recreate for create failed ([1a6b869](https://github.com/serverless-tencent/tencent-component-toolkit/commit/1a6b86968b743d9fd7f0e4d46d23e5df31b0fcb4))
+
 ## [2.0.9](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.0.8...v2.0.9) (2021-02-03)
 
 
