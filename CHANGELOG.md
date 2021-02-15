@@ -1,3 +1,10 @@
+## [2.0.11](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.0.10...v2.0.11) (2021-02-15)
+
+
+### Bug Fixes
+
+* **postgresql:** id not exist using name to get detail ([eefd3db](https://github.com/serverless-tencent/tencent-component-toolkit/commit/eefd3db5232097ad8cb879ca3e21d92d47cabbe2))
+
 ## [2.0.10](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.0.9...v2.0.10) (2021-02-05)
 
 
