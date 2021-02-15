@@ -9,6 +9,7 @@ import {
 import {
   createDbInstance,
   getDbInstanceDetail,
+  getDbInstanceDetailByName,
   getDbExtranetAccess,
   toggleDbInstanceAccess,
   deleteDbInstance,
@@ -56,6 +57,9 @@ export default class Postgresql {
     let dbDetail;
     if (dBInstanceId) {
       dbDetail = await getDbInstanceDetail(this.capi, dBInstanceId!);
+    }
+    if (!dbDetail) {
+      dbDetail = await getDbInstanceDetailByName(this.capi, dBInstanceName!);
     }
 
     if (dbDetail && dbDetail.DBInstanceId && dbDetail.Zone === zone) {
