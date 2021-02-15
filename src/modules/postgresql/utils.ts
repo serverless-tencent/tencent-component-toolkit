@@ -9,7 +9,7 @@ const TIMEOUT = 5 * 60 * 1000;
 /**
  *
  * @param {object} capi capi instance
- * @param {*} dBInstanceName
+ * @param {*} dBInstanceId
  */
 export async function getDbInstanceDetail(
   capi: Capi,
@@ -22,6 +22,37 @@ export async function getDbInstanceDetail(
         {
           Name: 'db-instance-id',
           Values: [dBInstanceId],
+        },
+      ],
+    });
+    if (res.DBInstanceSet) {
+      const {
+        DBInstanceSet: [dbDetail],
+      } = res;
+      return dbDetail;
+    }
+  } catch (e) {
+    console.log(e);
+  }
+  return undefined;
+}
+
+/**
+ *
+ * @param {object} capi capi instance
+ * @param {*} dBInstanceName
+ */
+export async function getDbInstanceDetailByName(
+  capi: Capi,
+  dBInstanceName: string,
+): Promise<PostgresqlInstanceDetail | undefined> {
+  // get instance detail
+  try {
+    const res = await APIS.DescribeServerlessDBInstances(capi, {
+      Filter: [
+        {
+          Name: 'db-instance-name',
+          Values: [dBInstanceName],
         },
       ],
     });
