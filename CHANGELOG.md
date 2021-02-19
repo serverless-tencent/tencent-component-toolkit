@@ -1,3 +1,16 @@
+# [2.1.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.0.11...v2.1.0) (2021-02-19)
+
+
+### Bug Fixes
+
+* fix apigw types ([d0c4d48](https://github.com/serverless-tencent/tencent-component-toolkit/commit/d0c4d489f680be9f1c27bef8cba2b5caaa1454ab))
+* fix build error ([#193](https://github.com/serverless-tencent/tencent-component-toolkit/issues/193)) ([7e84c3d](https://github.com/serverless-tencent/tencent-component-toolkit/commit/7e84c3db50ff3435c63372174261b464f6188764))
+
+
+### Features
+
+* refactor metrics to typescript, remove duplicated logic ([b0a2ab1](https://github.com/serverless-tencent/tencent-component-toolkit/commit/b0a2ab16e593364cc617e2859c38774f6a6f1e68))
+
 ## [2.0.11](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.0.10...v2.0.11) (2021-02-15)
 
 
