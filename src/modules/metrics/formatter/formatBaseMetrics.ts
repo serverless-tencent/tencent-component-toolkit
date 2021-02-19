@@ -134,6 +134,7 @@ export function formatLatencyMetrics(resList: MetricsResponseList) {
     latencyMetricItem.type = 'empty';
   }
 
+  metricGroup.metrics.push(latencyMetricItem);
   return metricGroup;
 }
 
