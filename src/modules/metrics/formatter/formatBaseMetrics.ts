@@ -11,11 +11,6 @@ export function formatInvocationAndErrorMetrics(resList: MetricsResponseList) {
   const invocationAndErrorMetricItem: MetricsItem = {
     type: 'stacked-bar',
     title: 'function invocations & errors',
-    x: {
-      type: 'timestamp',
-      values: [],
-    },
-    y: [],
   };
 
   const invocations = filterMetricByName('Invocation', resList);

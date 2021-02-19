@@ -1,12 +1,14 @@
 import { filterMetricByNameExp, makeMetric, parseErrorPath, parsePath } from '../utils';
 import { MetricsResponseList, MetricsItem, MetricsDataY, MetricsData } from './../interface';
 
-export function formatApiReqAndErr(requestDatas: MetricsData[], errorDatas: MetricsData[]) {
+export function formatApiReqAndErrMetrics(requestDatas: MetricsData[], errorDatas: MetricsData[]) {
   const apiReqAndErr: MetricsItem = {
     type: 'stacked-bar',
     title: 'api requests & errors',
   };
-  if (requestDatas) {
+
+  const requestData = requestDatas[0];
+  if (requestData) {
     apiReqAndErr.x = {
       type: 'timestamp',
     };
@@ -14,17 +16,16 @@ export function formatApiReqAndErr(requestDatas: MetricsData[], errorDatas: Metr
       apiReqAndErr.y = [];
     }
 
-    for (const requestData of requestDatas) {
-      apiReqAndErr.x.values = requestData.Values.map((item) => {
-        return item.Timestamp * 1000;
-      });
-      const ret = makeMetric('requests', requestData);
-      ret.type = 'count';
-      apiReqAndErr.y.push(ret);
-    }
+    apiReqAndErr.x.values = requestData.Values.map((item) => {
+      return item.Timestamp * 1000;
+    });
+    const ret = makeMetric('requests', requestData);
+    ret.type = 'count';
+    apiReqAndErr.y.push(ret);
   }
 
-  if (errorDatas) {
+  const errorData = errorDatas[0];
+  if (errorData) {
     apiReqAndErr.x = {
       type: 'timestamp',
     };
@@ -32,18 +33,16 @@ export function formatApiReqAndErr(requestDatas: MetricsData[], errorDatas: Metr
       apiReqAndErr.y = [];
     }
 
-    for (const errorData of errorDatas) {
-      apiReqAndErr.x.values = errorData.Values.map((item) => {
-        return item.Timestamp * 1000;
-      });
-      const errObj = makeMetric('errors', errorData);
-      errObj.color = 'error';
-      errObj.type = 'count';
-      apiReqAndErr.y.push(errObj);
-    }
+    apiReqAndErr.x.values = errorData.Values.map((item) => {
+      return item.Timestamp * 1000;
+    });
+    const errObj = makeMetric('errors', errorData);
+    errObj.color = 'error';
+    errObj.type = 'count';
+    apiReqAndErr.y.push(errObj);
   }
 
-  if (!requestDatas && !errorDatas) {
+  if (!requestData && !errorData) {
     apiReqAndErr.type = 'empty';
   }
   return apiReqAndErr;
@@ -54,7 +53,8 @@ export function formatCustomMetrics(resList: MetricsResponseList) {
 
   const requestDatas = filterMetricByNameExp(/^request$/, resList);
   const errorDatas = filterMetricByNameExp(/^error$/, resList);
-  results.push(formatApiReqAndErr(requestDatas, errorDatas));
+  const apiReqAndErrMetrics = formatApiReqAndErrMetrics(requestDatas, errorDatas);
+  results.push(apiReqAndErrMetrics);
 
   // request latency
   const latency: MetricsItem = {
@@ -72,13 +72,18 @@ export function formatCustomMetrics(resList: MetricsResponseList) {
     },
   ];
 
-  const latencyDatasList = latencyList.map(
-    (item) =>
-      filterMetricByNameExp(item.regex, resList) ?? filterMetricByNameExp(/^latency$/, resList),
-  );
+  const latencyDetailList = latencyList.map((item) => {
+    const datas =
+      filterMetricByNameExp(item.regex, resList) ?? filterMetricByNameExp(/^latency$/, resList);
+    return {
+      name: item.name,
+      regex: item.regex,
+      data: datas[0],
+    };
+  });
 
   if (requestDatas) {
-    for (const latencyDatas of latencyDatasList) {
+    for (const latencyDetail of latencyDetailList) {
       if (!latency.y) {
         latency.y = [];
       }
@@ -91,16 +96,15 @@ export function formatCustomMetrics(resList: MetricsResponseList) {
         return item.Timestamp * 1000;
       });
 
-      for (const latencyData of latencyDatas) {
-        const p95Obj = makeMetric('p95 latency', latencyData);
+      const latencyData = latencyDetail.data;
+      const metricDataY = makeMetric(`${latencyDetail.name} latency`, latencyData);
 
-        p95Obj.total = Math.max(...p95Obj.values);
-        latency.y.push(p95Obj);
-      }
+      metricDataY.total = Math.max(...metricDataY.values);
+      latency.y.push(metricDataY);
     }
   }
 
-  if (latencyDatasList.every((item) => !item)) {
+  if (latencyDetailList.every((item) => !item.data)) {
     latency.type = 'empty';
   }
 
@@ -112,24 +116,23 @@ export function formatCustomMetrics(resList: MetricsResponseList) {
   for (const errName of errList) {
     const errItem: MetricsItem = {
       type: 'stacked-bar', // the chart widget type will use this
-      title: 'api 5xx errors',
+      title: `api ${errName} errors`,
     };
-    const errDatas = filterMetricByNameExp(new RegExp(`/^${errName}$/`), resList);
-    if (errDatas) {
+    const errDatas = filterMetricByNameExp(new RegExp(`^${errName}$`), resList);
+    const errData = errDatas[0];
+    if (errData) {
       errItem.y = [];
       errItem.x = {
         type: 'timestamp',
       };
 
-      for (const errData of errDatas) {
-        errItem.x.values = errData.Values.map((item) => {
-          return item.Timestamp * 1000;
-        });
-        const errRet = makeMetric('5xx', errData);
-        errRet.color = 'error';
-        errRet.type = 'count';
-        errItem.y.push(errRet);
-      }
+      errItem.x.values = errData.Values.map((item) => {
+        return item.Timestamp * 1000;
+      });
+      const errRet = makeMetric(errName, errData);
+      errRet.color = 'error';
+      errRet.type = 'count';
+      errItem.y.push(errRet);
     } else {
       errItem.type = 'empty';
     }
@@ -204,8 +207,8 @@ export function formatCustomMetrics(resList: MetricsResponseList) {
       for (var i = 0; i < apiPathRequest?.x?.values!.length; i++) {
         const path = apiPathRequest?.x?.values![i];
 
-        codeVals.push(item[path] || 0);
-        total += item[path] || 0;
+        codeVals.push(item[path] ?? 0);
+        total += item[path] ?? 0;
       }
       errItem.values = codeVals;
       errItem.total = total;
