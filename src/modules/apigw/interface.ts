@@ -82,21 +82,23 @@ export interface ApiEndpoint {
   };
 }
 
+export interface ApigwCustomDomain {
+  domain: string;
+  protocols?: ('http' | 'https')[] | string;
+
+  certificateId?: string;
+  isDefaultMapping?: boolean;
+  pathMappingSet?: { path: string; environment: string }[];
+  netType?: string;
+
+  isForcedHttps?: boolean;
+
+  subDomain?: string;
+  created?: boolean;
+}
+
 export interface ApigwBindCustomDomainInputs {
-  customDomains?: {
-    domain: string;
-    protocols?: ('http' | 'https')[];
-
-    certificateId?: string;
-    isDefaultMapping?: boolean;
-    pathMappingSet: { path: string; environment: string }[];
-    netType?: string;
-
-    isForcedHttps: boolean;
-
-    subDomain?: string;
-    created?: boolean;
-  }[];
+  customDomains?: ApigwCustomDomain[];
   protocols: ('http' | 'https')[] | string;
   oldState?: Partial<ApigwBindCustomDomainInputs>;
 }

@@ -22,7 +22,21 @@ import {
   ApigwRemoveInputs,
   ApigwBindCustomDomainInputs,
   ApigwBindUsagePlanOutputs,
+  ApigwCustomDomain,
 } from './interface';
+import _ from 'lodash';
+
+// function formatCustomDomain(domains: ApigwCustomDomain[]) {
+//   domains.map((d) => {
+//     d.pathMappingSet?.sort((a, b) => {
+//       return a.path > b.path ? 1 : -1;
+//     });
+//   });
+
+//   domains.sort((a, b) => {
+//     return a.domain > b.domain ? 1 : -1;
+//   });
+// }
 
 export default class Apigw {
   credentials: CapiCredentials;
@@ -44,10 +58,15 @@ export default class Apigw {
     this.trigger = new ApigwTrigger({ credentials, region: this.region });
   }
 
-  getProtocolString(protocols: ('http' | 'https')[]) {
+  getProtocolString(protocols: string | ('http' | 'https')[]) {
     if (!protocols || protocols.length < 1) {
       return 'http';
     }
+
+    if (!Array.isArray(protocols)) {
+      return protocols;
+    }
+
     const tempProtocol = protocols.join('&').toLowerCase();
     return (tempProtocol === 'https&http' ? 'http&https' : tempProtocol) ?? 'http&https';
   }
@@ -350,11 +369,84 @@ export default class Apigw {
     return unboundSecretIds;
   }
 
+  // async getCustomDomains(serviceId: string) {
+  //   const res = (await this.request({
+  //     Action: 'DescribeServiceSubDomains',
+  //     serviceId,
+  //   })) as
+  //     | {
+  //         DomainSet?: {
+  //           /**
+  //            * 域名名称。
+  //            */
+  //           DomainName: string;
+  //           /**
+  //            * 域名解析状态。True 表示正常解析，False 表示解析失败。
+  //            */
+  //           Status: number;
+  //           /**
+  //            * 证书ID。
+  //            */
+  //           CertificateId: string;
+  //           /**
+  //            * 是否使用默认路径映射。
+  //            */
+  //           IsDefaultMapping: boolean;
+  //           /**
+  //            * 自定义域名协议类型。
+  //            */
+  //           Protocol: string;
+  //           /**
+  //            * 网络类型（'INNER' 或 'OUTER'）。
+  //            */
+  //           NetType: string;
+  //         }[];
+  //       }
+  //     | undefined;
+
+  //   const domains: ApigwCustomDomain[] = [];
+
+  //   for (const d of res?.DomainSet ?? []) {
+  //     const domain: ApigwCustomDomain = {
+  //       domain: d.DomainName,
+  //       protocols: d.Protocol,
+  //       certificateId: d.CertificateId,
+  //       isDefaultMapping: d.IsDefaultMapping,
+  //       netType: d.NetType,
+  //     };
+
+  //     const mappings = (await this.request({
+  //       Action: 'DescribeServiceSubDomainMappings',
+  //       ServiceId: serviceId,
+  //       SubDomain: d.DomainName,
+  //     })) as {
+  //       Result?: {
+  //         IsDefaultMapping?: boolean;
+  //         PathMappingSet?: {
+  //           Path: string;
+  //           Environment: string;
+  //         }[];
+  //       };
+  //     };
+
+  //     domain.pathMappingSet = mappings?.Result?.PathMappingSet?.map((v) => {
+  //       return {
+  //         path: v.Path,
+  //         environment: v.Environment,
+  //       };
+  //     });
+
+  //     domains.push(domain);
+  //   }
+
+  //   return domains;
+  // }
+
   /**
    * 解绑 API 网关所有自定义域名
    * @param serviceId API 网关 ID
    */
-  async unbindCustomDomain(serviceId: string, customDomains: { subDomain?: string }[]) {
+  async unbindCustomDomain(serviceId: string, oldCustomDomains: ApigwCustomDomain[]) {
     const customDomainDetail = (await this.request({
       Action: 'DescribeServiceSubDomains',
       serviceId,
@@ -366,12 +458,12 @@ export default class Apigw {
 
     if ((customDomainDetail?.DomainSet?.length ?? 0) > 0) {
       const { DomainSet = [] } = customDomainDetail!;
-      // unbind all created domain
-      const stateDomains = customDomains || [];
+      // 解绑所有创建的自定义域名
+      const stateDomains = oldCustomDomains ?? [];
       for (let i = 0; i < DomainSet.length; i++) {
         const domainItem = DomainSet[i];
         for (let j = 0; j < stateDomains.length; j++) {
-          // only list subDomain and created in state
+          // 只解绑由组件创建的域名
           if (stateDomains[j].subDomain === domainItem.DomainName) {
             console.log(`Start unbind domain ${domainItem.DomainName} for service ${serviceId}`);
             await this.request({
@@ -402,8 +494,8 @@ export default class Apigw {
       return [];
     }
 
-    // 1. unbind all custom domain
-    this.unbindCustomDomain(serviceId, oldState?.customDomains ?? []);
+    // 1. 解绑旧的自定义域名
+    await this.unbindCustomDomain(serviceId, oldState?.customDomains ?? []);
 
     // 2. bind user config domain
     const customDomainOutput: ApigwBindCustomDomainOutputs[] = [];
@@ -786,10 +878,11 @@ export default class Apigw {
       output.internalDomain = apiDetail.InternalDomain || '';
       console.log(`Api ${output.apiId} updated`);
     } else {
-      const { ApiId } = await this.request({
+      const res = await this.request({
         Action: 'CreateApi',
         ...apiInputs,
       });
+      const { ApiId } = res;
       output.apiId = ApiId;
       output.created = true;
 
@@ -949,14 +1042,16 @@ export default class Apigw {
       apiList,
     };
 
-    // bind custom domain
-    const customDomains = await this.bindCustomDomain({
-      serviceId,
-      subDomain: isArray(subDomain) ? subDomain[0] : subDomain,
-      inputs,
-    });
-    if (customDomains.length > 0) {
-      outputs.customDomains = customDomains;
+    if (!_.isEqual(oldState.customDomains, inputs.customDomains)) {
+      // bind custom domain
+      const customDomains = await this.bindCustomDomain({
+        serviceId,
+        subDomain: isArray(subDomain) ? subDomain[0] : subDomain,
+        inputs,
+      });
+      if (customDomains.length > 0) {
+        outputs.customDomains = customDomains;
+      }
     }
 
     if (usagePlan) {

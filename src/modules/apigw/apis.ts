@@ -31,6 +31,7 @@ const ACTIONS = [
   'BindEnvironment',
   'UnBindEnvironment',
   'DescribeServiceSubDomains',
+  'DescribeServiceSubDomainMappings',
   'BindSubDomain',
   'UnBindSubDomain',
 ] as const;
