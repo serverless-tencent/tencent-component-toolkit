@@ -153,7 +153,7 @@ export default class ApigwTrigger extends BaseTrigger<ApigwTriggerInputsParams> 
       }),
       netTypes: parameters?.netTypes,
       TriggerDesc: {
-        serviceId,
+        serviceId: serviceId!,
       },
       created: !!parameters?.created,
     };
