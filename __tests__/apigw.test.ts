@@ -379,41 +379,42 @@ describe('apigw', () => {
     expect(detail).toBeNull();
   });
 
-  test.only('[Apigw] Bind CustomDomain success', async () => {
-    const apigwInputs = deepClone(inputs);
-    apigwInputs.customDomains = [
-      {
-        domain: 'test-1.sls.plus',
-        // certificateId: 'cWOJJjax',
-        isDefaultMapping: false,
-        pathMappingSet: [
-          {
-            path: '/',
-            environment: 'release',
-          },
-        ],
-        protocols: ['http'],
-        isForcedHttps: true,
-      },
-      {
-        domain: 'test-2.sls.plus',
-        // certificateId: 'cWOJJjax',
-        isDefaultMapping: false,
-        pathMappingSet: [
-          {
-            path: '/',
-            environment: 'release',
-          },
-        ],
-        protocols: ['http'],
-        isForcedHttps: true,
-      },
-    ];
-    const deployOutputs = await apigw.deploy(inputs);
+  // FIXME: remove custom domain test (not complete)
+  // test.only('[Apigw] Bind CustomDomain success', async () => {
+  //   const apigwInputs = deepClone(inputs);
+  //   apigwInputs.customDomains = [
+  //     {
+  //       domain: 'test-1.sls.plus',
+  //       // certificateId: 'cWOJJjax',
+  //       isDefaultMapping: false,
+  //       pathMappingSet: [
+  //         {
+  //           path: '/',
+  //           environment: 'release',
+  //         },
+  //       ],
+  //       protocols: ['http'],
+  //       isForcedHttps: true,
+  //     },
+  //     {
+  //       domain: 'test-2.sls.plus',
+  //       // certificateId: 'cWOJJjax',
+  //       isDefaultMapping: false,
+  //       pathMappingSet: [
+  //         {
+  //           path: '/',
+  //           environment: 'release',
+  //         },
+  //       ],
+  //       protocols: ['http'],
+  //       isForcedHttps: true,
+  //     },
+  //   ];
+  //   const deployOutputs = await apigw.deploy(inputs);
 
-    const deployOutputsAgain = await apigw.deploy(inputs);
+  //   const deployOutputsAgain = await apigw.deploy(inputs);
 
-    console.log({ deployOutputs, deployOutputsAgain });
-    await apigw.remove(deployOutputs);
-  });
+  //   console.log({ deployOutputs, deployOutputsAgain });
+  //   await apigw.remove(deployOutputs);
+  // });
 });

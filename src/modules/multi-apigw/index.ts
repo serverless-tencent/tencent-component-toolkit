@@ -49,7 +49,7 @@ export default class MultiApigw {
     // FIXME: why apigw is called scfClient?
     // const scfClient = new apigw(this.credentials, tempInputs.region);
     const apigw = new Apigw(this.credentials, tempInputs.region);
-    output[tempInputs.region] = await apigw.deploy(tempInputs);
+    output[tempInputs.region!] = await apigw.deploy(tempInputs);
   }
 
   async doDelete(tempInputs: ApigwRemoveInputs, region: RegionType) {
