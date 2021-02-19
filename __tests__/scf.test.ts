@@ -74,6 +74,8 @@ describe('Scf', () => {
     // },
   };
 
+  const events = Object.entries(triggers).map(([, value]) => value);
+
   const inputs: ScfDeployInputs = {
     name: `serverless-test-${Date.now()}`,
     code: {
@@ -100,7 +102,7 @@ describe('Scf', () => {
     },
     eip: true,
     vpcConfig: vpcConfig,
-    events: Object.entries(triggers).map(([, value]) => value),
+    events,
   };
 
   const cfsInputs = {

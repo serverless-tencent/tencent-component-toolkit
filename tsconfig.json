@@ -9,12 +9,13 @@
     "outDir": "./lib",
     "skipLibCheck": true,
     "allowJs": true,
+    "types": ["./type"],
     "lib": ["es2015"],
     "sourceMap": true,
     "declaration": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["./src"],
+  "include": ["./src", "type/tencent-cloud-sdk.d.ts"],
   "exclude": ["./lib"]
 }

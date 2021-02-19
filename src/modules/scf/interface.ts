@@ -7,24 +7,9 @@ export interface TriggerType {
   TriggerDesc?: string;
   TriggerName?: string;
   Qualifier?: string;
-  BindStatus?: string;
-  Enable?: 'OPEN' | 'CLOSE' | 1 | 0;
-  ResourceId?: string;
-  CustomArgument?: string;
-
-  // apigw
-  Environment?: string;
-  SubDomain?: string;
-  Api?: {
-    apiId: string;
-    authType: string;
-    isIntefratedResponse: string;
-    enableCORS: string;
-    requestConfig: { method: string; path: string };
-  };
 }
 
-export type EventType = {
+export type OriginTriggerType = {
   [name: string]: { serviceName?: string; name?: string; parameters?: any };
 };
 
@@ -154,7 +139,7 @@ export interface ScfUpdateAliasTrafficInputs {
 export interface ScfDeployTriggersInputs {
   namespace?: string;
   name?: string;
-  events?: EventType[];
+  events?: OriginTriggerType[];
 }
 
 export interface ScfDeployInputs extends ScfCreateFunctionInputs {
@@ -176,7 +161,7 @@ export interface ScfDeployInputs extends ScfCreateFunctionInputs {
   tags?: Record<string, string>;
 
   // FIXME: apigw event type
-  events?: EventType[];
+  events?: OriginTriggerType[];
 }
 
 export interface ScfDeployOutputs {

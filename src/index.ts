@@ -10,7 +10,7 @@ export { default as Tag } from './modules/tag';
 export { default as Postgresql } from './modules/postgresql';
 export { default as Vpc } from './modules/vpc';
 export { default as Cam } from './modules/cam';
-export { default as Metrics } from './modules/metrics';
+export { default as Metrics } from './modules/metrics/index';
 export { default as Layer } from './modules/layer';
 export { default as Cfs } from './modules/cfs';
 export { default as Cynosdb } from './modules/cynosdb';

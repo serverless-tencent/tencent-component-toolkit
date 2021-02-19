@@ -1,43 +1,13 @@
+import { MetricsResponseList, MetricsData } from './interface';
 import url from 'url';
-
-interface MetricA {
-  MetricName: string;
-  DataPoints: { Values: number[]; Timestamps: number[] }[];
-  StartTime: string;
-  EndTime: string;
-}
-export interface MetricX {
-  type: string;
-  values?: number[];
-}
-
-export interface MetricY {
-  name: string;
-  type: string;
-  values: any;
-  total: any;
-}
-
-export interface MetricB {
-  color?: string;
-  title: string;
-  type: string;
-  x?: MetricX;
-  y?: MetricY[];
-}
 
 export function filterMetricByNameExp(
   metricName: string | RegExp,
-  metrics: {
-    Response: {
-      Error: string;
-      Data: { AttributeName: string; Values: { Value: number; Timestamp: number }[] }[];
-    };
-  }[],
-  all?: any,
+  metrics: MetricsResponseList,
+  allMatch: boolean = false,
 ) {
   const len = metrics.length;
-  const results = [];
+  const results: MetricsData[] = [];
   for (var i = 0; i < len; i++) {
     if (metrics[i].Response.Error) {
       continue;
@@ -46,16 +16,16 @@ export function filterMetricByNameExp(
       metrics[i].Response.Data.length > 0 &&
       metrics[i].Response.Data[0].AttributeName.match(metricName)
     ) {
-      if (all) {
+      if (allMatch) {
         results.push(metrics[i].Response.Data[0]);
       } else {
-        return metrics[i].Response.Data[0];
+        return [metrics[i].Response.Data[0]];
       }
     }
   }
-  return all ? results : null;
+  return results;
 }
-export function filterMetricByName(metricName: string, metrics: { Response: MetricA }[]) {
+export function filterMetricByName(metricName: string, metrics: MetricsResponseList) {
   const len = metrics.length;
 
   for (var i = 0; i < len; i++) {
@@ -97,10 +67,7 @@ export function parsePath(m: RegExp, path: string) {
   };
 }
 
-export function makeMetric(
-  name: string,
-  metricData: { Values: { Value: number; Timestamp: number }[] },
-) {
+export function makeMetric(name: string, metricData: MetricsData) {
   const data = {
     name: name,
     type: 'duration',

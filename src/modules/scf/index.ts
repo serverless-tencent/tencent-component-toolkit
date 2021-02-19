@@ -29,7 +29,7 @@ import {
   ScfListAliasInputs,
   ScfUpdateAliasTrafficInputs,
   ScfDeployOutputs,
-  EventType,
+  OriginTriggerType,
 } from './interface';
 
 /** 云函数组件 */
@@ -250,12 +250,13 @@ export default class Scf {
     return Triggers;
   }
 
-  filterTriggers(funcInfo: FunctionInfo, events: EventType[], oldList: TriggerType[]) {
+  filterTriggers(funcInfo: FunctionInfo, events: OriginTriggerType[], oldList: TriggerType[]) {
     const deleteList: (TriggerType | null)[] = deepClone(oldList);
-    const createList: (EventType | null)[] = deepClone(events);
+    const createList: (OriginTriggerType | null)[] = deepClone(events);
     const deployList: (TriggerType | null)[] = [];
     // const noKeyTypes = ['apigw'];
-    const updateList: (EventType | null)[] = [];
+    const updateList: (OriginTriggerType | null)[] = [];
+
     events.forEach((event, index) => {
       const Type = Object.keys(event)[0];
       const TriggerClass = TRIGGERS[Type];
@@ -268,7 +269,7 @@ export default class Scf {
         inputs: {
           namespace: funcInfo.Namespace,
           functionName: funcInfo.FunctionName,
-          ...(event as any)[Type],
+          ...event[Type],
         },
       });
       deployList[index] = {
@@ -276,39 +277,44 @@ export default class Scf {
         Type,
         ...event[Type],
       };
-      for (let i = 0; i < oldList.length; i++) {
-        const curOld = oldList[i];
-        if (curOld.Type === Type) {
-          const OldTriggerClass = TRIGGERS[curOld.Type];
-          const oldTriggerInstance = new OldTriggerClass({
-            credentials: this.credentials,
-            region: this.region,
-          });
-          const oldKey = oldTriggerInstance.getKey(curOld);
 
-          if (oldKey === triggerKey) {
-            deleteList[i] = null;
-            updateList.push(createList[index]);
-            if (CAN_UPDATE_TRIGGER.indexOf(Type) === -1) {
-              createList[index] = null;
-              deployList[index] = {
-                NeedCreate: false,
-                ...curOld,
-              };
-            } else {
-              deployList[index] = {
-                NeedCreate: true,
-                Type,
-                ...event[Type],
-              };
-            }
-          } else {
-            deployList[index] = {
-              NeedCreate: true,
-              Type,
-              ...event[Type],
-            };
-          }
+      // FIXME: 逻辑较乱
+      for (let i = 0; i < oldList.length; i++) {
+        const oldTrigger = oldList[i];
+        if (oldTrigger.Type !== Type) {
+          continue;
+        }
+        const OldTriggerClass = TRIGGERS[oldTrigger.Type];
+        const oldTriggerInstance = new OldTriggerClass({
+          credentials: this.credentials,
+          region: this.region,
+        });
+        const oldKey = oldTriggerInstance.getKey(oldTrigger);
+
+        if (oldKey !== triggerKey) {
+          deployList[index] = {
+            NeedCreate: true,
+            Type,
+            ...event[Type],
+          };
+
+          continue;
+        }
+
+        deleteList[i] = null;
+        updateList.push(createList[index]);
+        if (CAN_UPDATE_TRIGGER.indexOf(Type) === -1) {
+          createList[index] = null;
+          deployList[index] = {
+            NeedCreate: false,
+            ...oldTrigger,
+          };
+        } else {
+          deployList[index] = {
+            NeedCreate: true,
+            Type,
+            ...event[Type],
+          };
         }
       }
     });
@@ -334,8 +340,8 @@ export default class Scf {
 
     // remove all old triggers
     for (let i = 0, len = deleteList.length; i < len; i++) {
-      const curTrigger = deleteList[i];
-      const { Type } = curTrigger!;
+      const trigger = deleteList[i];
+      const { Type } = trigger!;
       const TriggerClass = TRIGGERS[Type];
 
       if (TriggerClass) {
@@ -349,10 +355,10 @@ export default class Scf {
           inputs: {
             namespace: funcInfo.Namespace,
             functionName: funcInfo.FunctionName,
-            type: curTrigger?.Type,
-            triggerDesc: curTrigger?.TriggerDesc,
-            triggerName: curTrigger?.TriggerName,
-            qualifier: curTrigger?.Qualifier,
+            type: trigger?.Type,
+            triggerDesc: trigger?.TriggerDesc,
+            triggerName: trigger?.TriggerName,
+            qualifier: trigger?.Qualifier,
           },
         });
       }
@@ -360,10 +366,9 @@ export default class Scf {
 
     // create all new triggers
     for (let i = 0; i < deployList.length; i++) {
-      const event = deployList[i];
-      // FIXME: wtf
-      const { Type } = event as any;
-      if (event?.NeedCreate === true) {
+      const trigger = deployList[i];
+      const { Type } = trigger!;
+      if (trigger?.NeedCreate === true) {
         const TriggerClass = TRIGGERS[Type];
         if (!TriggerClass) {
           throw new ApiTypeError('PARAMETER_SCF', `Unknow trigger type ${Type}`);
@@ -378,12 +383,12 @@ export default class Scf {
           inputs: {
             namespace: funcInfo.Namespace,
             functionName: funcInfo.FunctionName,
-            ...event,
+            ...trigger,
           },
         });
 
         deployList[i] = {
-          NeedCreate: event?.NeedCreate,
+          NeedCreate: trigger?.NeedCreate,
           ...triggerOutput,
         };
       }
