@@ -96,11 +96,10 @@ export function formatCustomMetrics(resList: MetricsResponseList) {
         return item.Timestamp * 1000;
       });
 
-      const latencyData = latencyDetail.data;
-      const metricDataY = makeMetric(`${latencyDetail.name} latency`, latencyData);
+      const y = makeMetric(`${latencyDetail.name} latency`, latencyDetail.data);
 
-      metricDataY.total = Math.max(...metricDataY.values);
-      latency.y.push(metricDataY);
+      y.total = Math.max(...y.values);
+      latency.y.push(y);
     }
   }
 

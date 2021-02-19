@@ -184,7 +184,7 @@ export default class Metrics {
       period = 86400; // day
     }
 
-    let response: MetricsGroup = {
+    const response: MetricsGroup = {
       rangeStart: startTime.format('YYYY-MM-DD HH:mm:ss'),
       rangeEnd: endTime.format('YYYY-MM-DD HH:mm:ss'),
       metrics: [],
@@ -192,12 +192,13 @@ export default class Metrics {
 
     if (metricsType & Metrics.Type.Base) {
       const timeFormat = 'YYYY-MM-DDTHH:mm:ss' + this.timezone;
-      const results = await this.scfMetrics(
+      const data = await this.scfMetrics(
         startTime.format(timeFormat),
         endTime.format(timeFormat),
         period,
       );
-      response = formatBaseMetrics(results);
+      const result = formatBaseMetrics(data);
+      response.metrics = response.metrics.concat(result ?? []);
     }
 
     if (metricsType & Metrics.Type.Custom) {

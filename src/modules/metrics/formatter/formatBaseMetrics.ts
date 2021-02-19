@@ -133,26 +133,14 @@ export function formatLatencyMetrics(resList: MetricsResponseList) {
 
 /** 格式化云函数统计信息 */
 export function formatBaseMetrics(datas: MetricsResponseList) {
-  const metricGroup: MetricsGroup = {
-    rangeStart: datas[0].Response.StartTime,
-    rangeEnd: datas[0].Response.EndTime,
-    metrics: [],
-  };
+  const metrics: MetricsItem[] = [];
   {
     const res = formatInvocationAndErrorMetrics(datas);
-    metricGroup.metrics.push(res.metrics[0]);
-    if (res.startTime) {
-      metricGroup.startTime = res.startTime;
-      metricGroup.endTime = res.endTime;
-    }
+    metrics.push(res.metrics[0]);
   }
   {
     const res = formatLatencyMetrics(datas);
-    metricGroup.metrics.push(res.metrics[0]);
-    if (res.startTime) {
-      metricGroup.startTime = res.startTime;
-      metricGroup.endTime = res.endTime;
-    }
+    metrics.push(res.metrics[0]);
   }
-  return metricGroup;
+  return metrics;
 }

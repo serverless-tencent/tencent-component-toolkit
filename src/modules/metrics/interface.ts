@@ -8,6 +8,7 @@ export interface MetricsDataY {
   type: string;
   values: number[];
   total: number;
+  color?: string;
 }
 
 export interface MetricsItem {
