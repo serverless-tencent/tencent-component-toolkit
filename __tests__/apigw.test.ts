@@ -1,15 +1,16 @@
+import { ApigwDeployInputs, ApigwDeployOutputs } from './../src/modules/apigw/interface';
 import { Apigw } from '../src';
 
-const deepClone = (obj) => {
+function deepClone<T>(obj: T): T {
   return JSON.parse(JSON.stringify(obj));
-};
+}
 
 describe('apigw', () => {
   const credentials = {
     SecretId: process.env.TENCENT_SECRET_ID,
     SecretKey: process.env.TENCENT_SECRET_KEY,
   };
-  const inputs = {
+  const inputs: ApigwDeployInputs = {
     protocols: ['http', 'https'],
     serviceName: 'serverless_test',
     environment: 'release',
@@ -145,7 +146,7 @@ describe('apigw', () => {
     ],
   };
   const apigw = new Apigw(credentials, process.env.REGION);
-  let outputs;
+  let outputs: ApigwDeployOutputs;
 
   test('[Environment UsagePlan] should deploy a apigw success', async () => {
     const apigwInputs = deepClone(inputs);
@@ -376,5 +377,43 @@ describe('apigw', () => {
     });
 
     expect(detail).toBeNull();
+  });
+
+  test.only('[Apigw] Bind CustomDomain success', async () => {
+    const apigwInputs = deepClone(inputs);
+    apigwInputs.customDomains = [
+      {
+        domain: 'test-1.sls.plus',
+        // certificateId: 'cWOJJjax',
+        isDefaultMapping: false,
+        pathMappingSet: [
+          {
+            path: '/',
+            environment: 'release',
+          },
+        ],
+        protocols: ['http'],
+        isForcedHttps: true,
+      },
+      {
+        domain: 'test-2.sls.plus',
+        // certificateId: 'cWOJJjax',
+        isDefaultMapping: false,
+        pathMappingSet: [
+          {
+            path: '/',
+            environment: 'release',
+          },
+        ],
+        protocols: ['http'],
+        isForcedHttps: true,
+      },
+    ];
+    const deployOutputs = await apigw.deploy(inputs);
+
+    const deployOutputsAgain = await apigw.deploy(inputs);
+
+    console.log({ deployOutputs, deployOutputsAgain });
+    await apigw.remove(deployOutputs);
   });
 });

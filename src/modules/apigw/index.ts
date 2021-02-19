@@ -485,7 +485,7 @@ export default class Apigw {
 
       const unboundSecretIds = await this.getUnboundSecretIds({
         usagePlanId: usagePlan.usagePlanId,
-        secretIds: secrets.secretIds,
+        secretIds: secrets.secretIds!,
       });
 
       if (unboundSecretIds.length > 0) {
@@ -654,7 +654,7 @@ export default class Apigw {
     path,
     method,
   }: {
-    serviceId: string;
+    serviceId?: string;
     path: string;
     method: string;
   }) {
@@ -704,42 +704,47 @@ export default class Apigw {
 
   async createOrUpdateApi({ serviceId, endpoint, environment, created }: CreateOrUpdateApiInputs) {
     // compatibility for secret auth config depends on auth & usagePlan
-    const authType = endpoint.auth ? 'SECRET' : endpoint.authType || 'NONE';
-    const businessType = endpoint.businessType || 'NORMAL';
+    const authType = endpoint?.auth ? 'SECRET' : endpoint?.authType ?? 'NONE';
+    const businessType = endpoint?.businessType ?? 'NORMAL';
     const output: ApiDeployerOutputs = {
-      path: endpoint.path,
-      method: endpoint.method,
-      apiName: endpoint.apiName || 'index',
+      path: endpoint?.path,
+      method: endpoint?.method,
+      apiName: endpoint?.apiName || 'index',
       created: true,
       authType: authType,
       businessType: businessType,
-      isBase64Encoded: endpoint.isBase64Encoded === true,
+      isBase64Encoded: endpoint?.isBase64Encoded === true,
     };
-    if (endpoint.authRelationApiId) {
+    if (endpoint?.authRelationApiId) {
       output.authRelationApiId = endpoint.authRelationApiId;
     }
 
     const apiInputs = {
-      protocol: endpoint.protocol || 'HTTP',
+      protocol: endpoint?.protocol ?? 'HTTP',
       serviceId: serviceId,
-      apiName: endpoint.apiName || 'index',
-      apiDesc: endpoint.description,
+      apiName: endpoint?.apiName ?? 'index',
+      apiDesc: endpoint?.description,
       apiType: 'NORMAL',
       authType: authType,
-      apiBusinessType: endpoint.businessType || 'NORMAL',
-      serviceType: endpoint.serviceType || 'SCF',
+      apiBusinessType: endpoint?.businessType ?? 'NORMAL',
+      serviceType: endpoint?.serviceType ?? 'SCF',
       requestConfig: {
-        path: endpoint.path,
-        method: endpoint.method,
+        path: endpoint?.path,
+        method: endpoint?.method,
       },
-      serviceTimeout: endpoint.serviceTimeout || 15,
-      responseType: endpoint.responseType || 'HTML',
-      enableCORS: endpoint.enableCORS === true,
-      isBase64Encoded: endpoint.isBase64Encoded === true,
+      serviceTimeout: endpoint?.serviceTimeout ?? 15,
+      responseType: endpoint?.responseType ?? 'HTML',
+      enableCORS: endpoint?.enableCORS === true,
+      isBase64Encoded: endpoint?.isBase64Encoded === true,
       isBase64Trigger: undefined as undefined | boolean,
-      base64EncodedTriggerRules: undefined as undefined | string[],
-      oauthConfig: endpoint.oauthConfig,
-      authRelationApiId: endpoint.authRelationApiId,
+      base64EncodedTriggerRules: undefined as
+        | undefined
+        | {
+            name: string;
+            value: string[];
+          }[],
+      oauthConfig: endpoint?.oauthConfig,
+      authRelationApiId: endpoint?.authRelationApiId,
     };
 
     this.marshalApiInput(endpoint, apiInputs);
@@ -749,20 +754,20 @@ export default class Apigw {
       InternalDomain?: string;
     };
 
-    if (endpoint.apiId) {
-      apiDetail = await this.getApiById({ serviceId, apiId: endpoint.apiId });
+    if (endpoint?.apiId) {
+      apiDetail = await this.getApiById({ serviceId: serviceId!, apiId: endpoint.apiId });
     }
 
     if (!apiDetail!) {
       apiDetail = await this.getApiByPathAndMethod({
-        serviceId,
-        path: endpoint.path,
-        method: endpoint.method,
+        serviceId: serviceId!,
+        path: endpoint?.path!,
+        method: endpoint?.method!,
       });
     }
 
-    if (apiDetail) {
-      console.log(`Api method ${endpoint.method}, path ${endpoint.path} already exist`);
+    if (apiDetail && endpoint) {
+      console.log(`Api method ${endpoint?.method}, path ${endpoint?.path} already exist`);
       endpoint.apiId = apiDetail.ApiId;
 
       if (endpoint.isBase64Encoded && endpoint.isBase64Trigger) {
@@ -796,7 +801,7 @@ export default class Apigw {
       });
       output.internalDomain = apiDetail.InternalDomain || '';
 
-      if (endpoint.isBase64Encoded && endpoint.isBase64Trigger) {
+      if (endpoint?.isBase64Encoded && endpoint.isBase64Trigger) {
         apiInputs.isBase64Trigger = endpoint.isBase64Trigger;
         apiInputs.base64EncodedTriggerRules = endpoint.base64EncodedTriggerRules;
       }
@@ -810,7 +815,7 @@ export default class Apigw {
 
     output.apiName = apiInputs.apiName;
 
-    if (endpoint.usagePlan) {
+    if (endpoint?.usagePlan) {
       const usagePlan = await this.bindUsagePlan({
         apiId: output.apiId,
         serviceId,
@@ -837,7 +842,7 @@ export default class Apigw {
     // if exist in state list, set created to be true
     const [exist] = oldList.filter(
       (item) =>
-        item.method.toLowerCase() === apiConfig.method.toLowerCase() &&
+        item?.method?.toLowerCase() === apiConfig?.method?.toLowerCase() &&
         item.path === apiConfig.path,
     );
 
@@ -855,7 +860,7 @@ export default class Apigw {
       if (authRelationApi) {
         const [relativeApi] = apiList.filter(
           (item) =>
-            item.method.toLowerCase() === authRelationApi.method.toLowerCase() &&
+            item.method?.toLowerCase() === authRelationApi.method.toLowerCase() &&
             item.path === authRelationApi.path,
         );
         if (relativeApi) {

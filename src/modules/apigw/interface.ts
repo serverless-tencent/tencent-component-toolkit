@@ -15,16 +15,16 @@ export interface ApigwSetupUsagePlanInputs {
 
   created?: boolean;
 
-  secrets?: { secretIds: string[]; created: boolean };
+  secrets?: { secretIds?: string[]; created: boolean };
 }
 
 export interface ApigwSetupUsagePlanOutputs extends ApigwSetupUsagePlanInputs {}
 
 export interface ApigwSetupUsagePlanSecretInputs {
   /** 要使用的密钥 id 列表 */
-  secretIds: string[];
+  secretIds?: string[];
   /** 用户自定义的密钥名 */
-  secretName: string;
+  secretName?: string;
   created?: boolean;
 }
 export interface ApigwBindUsagePlanInputs {
@@ -38,42 +38,59 @@ export interface ApigwBindUsagePlanInputs {
 export interface ApigwBindUsagePlanOutputs extends ApigwBindUsagePlanInputs {}
 
 export interface ApiEndpoint {
-  created: boolean;
+  created?: boolean;
   apiId?: string;
   usagePlan?: ApigwSetupUsagePlanInputs;
   auth?: ApigwSetupUsagePlanSecretInputs;
   authType?: 'NONE' | string;
   businessType?: 'NORMAL' | string;
-  path: string;
-  method: string;
+  path?: string;
+  method?: string;
   apiName?: string;
-  protocol?: 'HTTP' | 'HTTPS';
+  protocol?: 'HTTP' | 'HTTPS' | 'WEBSOCKET';
   description?: string;
   serviceType?: 'SCF' | string;
   serviceTimeout?: 15;
   responseType?: 'HTML' | string;
   enableCORS?: boolean;
-  oauthConfig?: string;
   authRelationApiId?: string;
   authRelationApi?: {
     method: string;
     path: string;
   };
+  function?: {
+    functionName?: string;
+    functionNamespace?: string;
+    functionQualifier?: string;
+    transportFunctionName?: string;
+    registerFunctionName?: string;
+  };
   internalDomain?: string;
   isBase64Encoded?: boolean;
   isBase64Trigger?: boolean;
-  base64EncodedTriggerRules?: string[];
+  base64EncodedTriggerRules?: { name: string; value: string[] }[];
+  serviceMockReturnMessage?: string;
+  serviceConfig?: {
+    url?: string;
+    path?: string;
+    method?: string;
+  };
+  oauthConfig?: {
+    loginRedirectUrl: string;
+    publicKey: string;
+    tokenLocation: string;
+  };
 }
 
 export interface ApigwBindCustomDomainInputs {
   customDomains?: {
     domain: string;
-    protocols: ('http' | 'https')[];
+    protocols?: ('http' | 'https')[];
 
-    certificateId: string;
+    certificateId?: string;
     isDefaultMapping?: boolean;
-    pathMappingSet: [];
-    netType: string;
+    pathMappingSet: { path: string; environment: string }[];
+    netType?: string;
 
     isForcedHttps: boolean;
 
@@ -90,7 +107,7 @@ export interface ApigwCreateOrUpdateServiceInputs {
   netTypes?: string[];
   serviceName?: string;
   serviceDesc?: string;
-  serviceId: string;
+  serviceId?: string;
 
   usagePlan?: ApigwSetupUsagePlanInputs;
   auth?: ApigwSetupUsagePlanSecretInputs;
@@ -99,10 +116,10 @@ export interface ApigwCreateOrUpdateServiceInputs {
 export type ApiDeployerOutputs = ApiEndpoint;
 
 export interface CreateOrUpdateApiInputs {
-  serviceId: string;
-  endpoint: ApiEndpoint;
-  environment: EnviromentType;
-  created: boolean;
+  serviceId?: string;
+  endpoint?: ApiEndpoint;
+  environment?: EnviromentType;
+  created?: boolean;
 }
 
 export interface ApiDeployerInputs {
@@ -117,11 +134,11 @@ export interface ApiDeployerInputs {
 export interface ApigwDeployInputs
   extends ApigwCreateOrUpdateServiceInputs,
     ApigwBindCustomDomainInputs {
-  region: RegionType;
-  oldState: any;
+  region?: RegionType;
+  oldState?: any;
   environment?: EnviromentType;
 
-  endpoints: ApiEndpoint[];
+  endpoints?: ApiEndpoint[];
 }
 
 export interface ApigwBindCustomDomainOutputs {
@@ -164,7 +181,7 @@ export interface ApigwApiRemoverInputs {
 }
 
 export interface ApigwRemoveInputs {
-  created: boolean;
+  created?: boolean;
   environment: EnviromentType;
   serviceId: string;
   apiList: ApiEndpoint[];
