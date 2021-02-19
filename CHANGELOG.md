@@ -1,3 +1,10 @@
+## [2.1.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.1.0...v2.1.1) (2021-02-19)
+
+
+### Bug Fixes
+
+* fix latency metrics ([21c1e9c](https://github.com/serverless-tencent/tencent-component-toolkit/commit/21c1e9c0874819697ae4fd9154c1857d34869fe3))
+
 # [2.1.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.0.11...v2.1.0) (2021-02-19)
 
 
