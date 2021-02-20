@@ -1,3 +1,10 @@
+## [2.1.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.1.1...v2.1.2) (2021-02-20)
+
+
+### Bug Fixes
+
+* **metrics:** fix more metrics logic, correct now ([#194](https://github.com/serverless-tencent/tencent-component-toolkit/issues/194)) ([2c7e777](https://github.com/serverless-tencent/tencent-component-toolkit/commit/2c7e777608ded1854cefc8a89cc41e5cdab7fafa))
+
 ## [2.1.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.1.0...v2.1.1) (2021-02-19)
 
 
