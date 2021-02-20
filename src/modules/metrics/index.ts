@@ -145,12 +145,7 @@ export default class Metrics {
     }
   }
 
-  async getDatas(
-    startTimeStr: string,
-    endTimeStr: string,
-    metricsType = 0xffffffff,
-    utcOffset?: string,
-  ) {
+  async getDatas(startTimeStr: string, endTimeStr: string, metricsType = 0xffffffff) {
     const startTime = moment(startTimeStr);
     const endTime = moment(endTimeStr);
 
@@ -193,10 +188,6 @@ export default class Metrics {
       rangeEnd: endTime.format('YYYY-MM-DD HH:mm:ss'),
       metrics: [],
     };
-    if (utcOffset) {
-      response.rangeStart = startTime.utcOffset(utcOffset).format();
-      response.rangeEnd = endTime.utcOffset(utcOffset).format();
-    }
 
     if (metricsType & Metrics.Type.Base) {
       const timeFormat = 'YYYY-MM-DDTHH:mm:ss' + this.timezone;
@@ -209,6 +200,8 @@ export default class Metrics {
       response.metrics = response.metrics.concat(result ?? []);
     }
 
+    // FIXME: no timezone
+    // 加入 timezone 会导致异常
     if (metricsType & Metrics.Type.Custom) {
       const data = await this.customMetrics(
         startTime.format('YYYY-MM-DD HH:mm:ss'),
@@ -219,6 +212,7 @@ export default class Metrics {
       response.metrics = response.metrics.concat(results ?? []);
     }
 
+    // FIXME: no timezone
     if (metricsType & Metrics.Type.Apigw) {
       const data = await this.apigwMetrics(
         startTime.format('YYYY-MM-DD HH:mm:ss'),
