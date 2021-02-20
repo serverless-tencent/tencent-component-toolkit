@@ -222,12 +222,6 @@ export default class Metrics {
 
       const results = formatApigwMetrics(data);
       response.metrics = response.metrics.concat(results.metrics);
-      if (results.startTime) {
-        response.rangeStart = results.startTime;
-      }
-      if (results.endTime) {
-        response.rangeEnd = results.endTime;
-      }
     }
     return response;
   }
