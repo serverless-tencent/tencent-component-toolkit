@@ -11,11 +11,6 @@ export function formatInvocationAndErrorMetrics(resList: MetricsResponseList) {
   const invocationAndErrorMetricItem: MetricsItem = {
     type: 'stacked-bar',
     title: 'function invocations & errors',
-    x: {
-      type: 'timestamp',
-      values: [],
-    },
-    y: [],
   };
 
   const invocations = filterMetricByName('Invocation', resList);
@@ -92,14 +87,16 @@ export function formatLatencyMetrics(resList: MetricsResponseList) {
     title: 'function latency', // constant
   };
   const latencyNameList = ['P50', 'P95'];
-  const latencyContentList = latencyNameList.map((name: string) => {
-    return (
-      filterMetricByName(`Duration-${name}`, resList) ?? filterMetricByName('Duration', resList)
-    );
+  const latencyDetailList = latencyNameList.map((name: string) => {
+    return {
+      name,
+      data:
+        filterMetricByName(`Duration-${name}`, resList) ?? filterMetricByName('Duration', resList),
+    };
   });
 
-  for (const latencyContent of latencyContentList) {
-    if (latencyContent && latencyContent.DataPoints[0].Timestamps.length > 0) {
+  for (const detail of latencyDetailList) {
+    if (detail.data && detail.data.DataPoints[0].Timestamps.length > 0) {
       latencyMetricItem.x = {
         type: 'timestamp',
       };
@@ -107,30 +104,26 @@ export function formatLatencyMetrics(resList: MetricsResponseList) {
         latencyMetricItem.y = [];
       }
 
-      metricGroup.rangeStart = latencyContent.StartTime;
-      metricGroup.rangeEnd = latencyContent.EndTime;
-      latencyMetricItem.x.values = latencyContent.DataPoints[0].Timestamps.map(
+      metricGroup.rangeStart = detail.data.StartTime;
+      metricGroup.rangeEnd = detail.data.EndTime;
+      latencyMetricItem.x.values = detail.data.DataPoints[0].Timestamps.map(
         (ts: number) => ts * 1000,
       );
 
-      const p95 = {
-        name: 'p95 latency', // constant
+      const y = {
+        name: `${detail.name} latency`, // constant
         type: 'duration', // constant
-        total: Math.max(...latencyContent.DataPoints[0].Values),
-        values: latencyContent.DataPoints[0].Values,
+        total: Math.max(...detail.data.DataPoints[0].Values),
+        values: detail.data.DataPoints[0].Values,
       };
-      if (!(~~p95.total == p95.total)) {
-        p95.total = parseFloat(p95.total.toFixed(2));
+      if (!(~~y.total == y.total)) {
+        y.total = parseFloat(y.total.toFixed(2));
       }
-      latencyMetricItem.y.push(p95);
+      latencyMetricItem.y.push(y);
     }
   }
 
-  if (
-    latencyContentList.every(
-      (latencyContent) => !latencyContent || latencyContent.DataPoints[0].Timestamps.length == 0,
-    )
-  ) {
+  if (latencyDetailList.every((d) => !d.data || d.data.DataPoints[0].Timestamps.length === 0)) {
     latencyMetricItem.type = 'empty';
   }
 
@@ -140,26 +133,14 @@ export function formatLatencyMetrics(resList: MetricsResponseList) {
 
 /** 格式化云函数统计信息 */
 export function formatBaseMetrics(datas: MetricsResponseList) {
-  const metricGroup: MetricsGroup = {
-    rangeStart: datas[0].Response.StartTime,
-    rangeEnd: datas[0].Response.EndTime,
-    metrics: [],
-  };
+  const metrics: MetricsItem[] = [];
   {
     const res = formatInvocationAndErrorMetrics(datas);
-    metricGroup.metrics.push(res.metrics[0]);
-    if (res.startTime) {
-      metricGroup.startTime = res.startTime;
-      metricGroup.endTime = res.endTime;
-    }
+    metrics.push(res.metrics[0]);
   }
   {
     const res = formatLatencyMetrics(datas);
-    metricGroup.metrics.push(res.metrics[0]);
-    if (res.startTime) {
-      metricGroup.startTime = res.startTime;
-      metricGroup.endTime = res.endTime;
-    }
+    metrics.push(res.metrics[0]);
   }
-  return metricGroup;
+  return metrics;
 }

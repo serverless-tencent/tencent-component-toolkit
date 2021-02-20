@@ -145,8 +145,7 @@ export default class Metrics {
     }
   }
 
-  // eslint-disable-next-line no-undef
-  async getDatas(startTimeStr: string, endTimeStr: string, metricsType = Metrics.Type.All) {
+  async getDatas(startTimeStr: string, endTimeStr: string, metricsType = 0xffffffff) {
     const startTime = moment(startTimeStr);
     const endTime = moment(endTimeStr);
 
@@ -184,7 +183,7 @@ export default class Metrics {
       period = 86400; // day
     }
 
-    let response: MetricsGroup = {
+    const response: MetricsGroup = {
       rangeStart: startTime.format('YYYY-MM-DD HH:mm:ss'),
       rangeEnd: endTime.format('YYYY-MM-DD HH:mm:ss'),
       metrics: [],
@@ -192,14 +191,17 @@ export default class Metrics {
 
     if (metricsType & Metrics.Type.Base) {
       const timeFormat = 'YYYY-MM-DDTHH:mm:ss' + this.timezone;
-      const results = await this.scfMetrics(
+      const data = await this.scfMetrics(
         startTime.format(timeFormat),
         endTime.format(timeFormat),
         period,
       );
-      response = formatBaseMetrics(results);
+      const result = formatBaseMetrics(data);
+      response.metrics = response.metrics.concat(result ?? []);
     }
 
+    // FIXME: no timezone
+    // 加入 timezone 会导致异常
     if (metricsType & Metrics.Type.Custom) {
       const data = await this.customMetrics(
         startTime.format('YYYY-MM-DD HH:mm:ss'),
@@ -210,6 +212,7 @@ export default class Metrics {
       response.metrics = response.metrics.concat(results ?? []);
     }
 
+    // FIXME: no timezone
     if (metricsType & Metrics.Type.Apigw) {
       const data = await this.apigwMetrics(
         startTime.format('YYYY-MM-DD HH:mm:ss'),
@@ -221,12 +224,6 @@ export default class Metrics {
 
       const results = formatApigwMetrics(data);
       response.metrics = response.metrics.concat(results.metrics);
-      if (results.startTime) {
-        response.rangeStart = results.startTime;
-      }
-      if (results.endTime) {
-        response.rangeEnd = results.endTime;
-      }
     }
     return response;
   }

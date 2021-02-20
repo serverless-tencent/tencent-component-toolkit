@@ -1,4 +1,4 @@
-import { MetricsResponseList, MetricsData } from './interface';
+import { MetricsResponseList, MetricsData, MetricsDataY } from './interface';
 import url from 'url';
 
 export function filterMetricByNameExp(
@@ -67,7 +67,7 @@ export function parsePath(m: RegExp, path: string) {
   };
 }
 
-export function makeMetric(name: string, metricData: MetricsData) {
+export function makeMetric(name: string, metricData: MetricsData): MetricsDataY {
   const data = {
     name: name,
     type: 'duration',
@@ -75,7 +75,6 @@ export function makeMetric(name: string, metricData: MetricsData) {
       return item.Value;
     }),
     total: 0,
-    color: '',
   };
 
   data.total = data.values.reduce(function (a: number, b: number) {
@@ -98,7 +97,7 @@ export function parseErrorPath(m: string | RegExp, path: string) {
   const hexPath = ret[2];
   const code = parseInt(ret[3], 10);
 
-  const pathObj = url.parse(hex2path(hexPath)!);
+  const pathObj = url.parse(hex2path(hexPath));
 
   return {
     method: method.toLocaleUpperCase(),
