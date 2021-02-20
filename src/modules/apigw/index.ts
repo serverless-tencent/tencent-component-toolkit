@@ -24,7 +24,6 @@ import {
   ApigwBindUsagePlanOutputs,
   ApigwCustomDomain,
 } from './interface';
-import _ from 'lodash';
 
 // function formatCustomDomain(domains: ApigwCustomDomain[]) {
 //   domains.map((d) => {
@@ -1042,7 +1041,7 @@ export default class Apigw {
       apiList,
     };
 
-    if (!_.isEqual(oldState.customDomains, inputs.customDomains)) {
+    if (JSON.stringify(oldState.customDomains) === JSON.stringify(inputs.customDomains)) {
       console.log('Apigw custom domain unchanged');
     } else {
       console.log('Binding custom domain...');
