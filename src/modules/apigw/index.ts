@@ -1043,6 +1043,9 @@ export default class Apigw {
     };
 
     if (!_.isEqual(oldState.customDomains, inputs.customDomains)) {
+      console.log('Apigw custom domain unchanged');
+    } else {
+      console.log('Binding custom domain...');
       // bind custom domain
       const customDomains = await this.bindCustomDomain({
         serviceId,
