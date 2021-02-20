@@ -19,5 +19,7 @@ describe('Metrics', () => {
       rangeEnd: rangeEnd,
       metrics: expect.any(Array),
     });
+
+    expect(res).toMatchSnapshot();
   });
 });
