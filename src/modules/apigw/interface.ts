@@ -82,6 +82,17 @@ export interface ApiEndpoint {
   };
 }
 
+export interface ApigwCustomDomainFormatted {
+  domain: string;
+  protocols: string;
+
+  certificateId?: string;
+  isDefaultMapping: boolean;
+  pathMappingSetDict: Record<string, string>;
+  netType: string;
+  isForcedHttps: boolean;
+}
+
 export interface ApigwCustomDomain {
   domain: string;
   protocols?: ('http' | 'https')[] | string;

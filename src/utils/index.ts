@@ -70,6 +70,36 @@ export function _forEach<T extends object>(
   }
 }
 
+export function isPrimitive(obj: any): boolean {
+  return obj !== Object(obj);
+}
+
+export function deepEqual(obj1: any, obj2: any): boolean {
+  if (obj1 === obj2) {
+    return true;
+  }
+
+  if (isPrimitive(obj1) && isPrimitive(obj2)) {
+    return obj1 === obj2;
+  }
+
+  if (Object.keys(obj1).length !== Object.keys(obj2).length) {
+    return false;
+  }
+
+  // compare objects with same number of keys
+  for (const key in obj1) {
+    if (!(key in obj2)) {
+      return false;
+    }
+    if (!deepEqual(obj1[key], obj2[key])) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 /**
  * flatter request parameter
  * @param source target object or array

@@ -1,7 +1,7 @@
 import { RegionType } from '../interface';
 import { Capi } from '@tencent-sdk/capi';
 import { ApigwTrigger } from '../triggers';
-import { uniqueArray, pascalCaseProps, isArray, deepClone } from '../../utils';
+import { uniqueArray, pascalCaseProps, isArray, deepClone, deepEqual } from '../../utils';
 import { ApiTypeError } from '../../utils/error';
 import { CapiCredentials, ApiServiceType } from '../interface';
 import APIS, { ActionType } from './apis';
@@ -23,19 +23,42 @@ import {
   ApigwBindCustomDomainInputs,
   ApigwBindUsagePlanOutputs,
   ApigwCustomDomain,
+  ApigwCustomDomainFormatted,
 } from './interface';
 
-// function formatCustomDomain(domains: ApigwCustomDomain[]) {
-//   domains.map((d) => {
-//     d.pathMappingSet?.sort((a, b) => {
-//       return a.path > b.path ? 1 : -1;
-//     });
-//   });
+function getProtocolString(protocols: string | ('http' | 'https')[]) {
+  if (!protocols || protocols.length < 1) {
+    return 'http';
+  }
 
-//   domains.sort((a, b) => {
-//     return a.domain > b.domain ? 1 : -1;
-//   });
-// }
+  if (!Array.isArray(protocols)) {
+    return protocols;
+  }
+
+  const tempProtocol = protocols.join('&').toLowerCase();
+  return (tempProtocol === 'https&http' ? 'http&https' : tempProtocol) ?? 'http&https';
+}
+
+function getCustomDomainFormattedDict(domains: ApigwCustomDomain[]) {
+  const domainDict: Record<string, ApigwCustomDomainFormatted> = {};
+  domains.forEach((d) => {
+    const pmDict: Record<string, string> = {};
+    for (const pm of d.pathMappingSet ?? []) {
+      pmDict[pm.path] = pm.environment;
+    }
+    domainDict[d.domain] = {
+      domain: d.domain,
+      certificateId: d.certificateId ?? '',
+      protocols: getProtocolString(d.protocols ?? ''),
+      isDefaultMapping: d.isDefaultMapping === false ? false : true,
+      pathMappingSetDict: pmDict,
+      netType: d.netType ?? 'OUTER',
+      isForcedHttps: d.isForcedHttps === true,
+    };
+  });
+
+  return domainDict;
+}
 
 export default class Apigw {
   credentials: CapiCredentials;
@@ -57,19 +80,6 @@ export default class Apigw {
     this.trigger = new ApigwTrigger({ credentials, region: this.region });
   }
 
-  getProtocolString(protocols: string | ('http' | 'https')[]) {
-    if (!protocols || protocols.length < 1) {
-      return 'http';
-    }
-
-    if (!Array.isArray(protocols)) {
-      return protocols;
-    }
-
-    const tempProtocol = protocols.join('&').toLowerCase();
-    return (tempProtocol === 'https&http' ? 'http&https' : tempProtocol) ?? 'http&https';
-  }
-
   async request({ Action, ...data }: { Action: ActionType; [key: string]: any }) {
     const result = await APIS[Action](this.capi, pascalCaseProps(data));
     return result as never;
@@ -79,7 +89,7 @@ export default class Apigw {
     try {
       await APIS[Action](this.capi, pascalCaseProps(data));
     } catch (e) {
-      // no op
+      console.warn(e);
     }
     return true;
   }
@@ -368,78 +378,76 @@ export default class Apigw {
     return unboundSecretIds;
   }
 
-  // async getCustomDomains(serviceId: string) {
-  //   const res = (await this.request({
-  //     Action: 'DescribeServiceSubDomains',
-  //     serviceId,
-  //   })) as
-  //     | {
-  //         DomainSet?: {
-  //           /**
-  //            * 域名名称。
-  //            */
-  //           DomainName: string;
-  //           /**
-  //            * 域名解析状态。True 表示正常解析，False 表示解析失败。
-  //            */
-  //           Status: number;
-  //           /**
-  //            * 证书ID。
-  //            */
-  //           CertificateId: string;
-  //           /**
-  //            * 是否使用默认路径映射。
-  //            */
-  //           IsDefaultMapping: boolean;
-  //           /**
-  //            * 自定义域名协议类型。
-  //            */
-  //           Protocol: string;
-  //           /**
-  //            * 网络类型（'INNER' 或 'OUTER'）。
-  //            */
-  //           NetType: string;
-  //         }[];
-  //       }
-  //     | undefined;
+  async getCurrentCustomDomainsDict(serviceId: string) {
+    const res = (await this.request({
+      Action: 'DescribeServiceSubDomains',
+      ServiceId: serviceId,
+    })) as
+      | {
+          DomainSet?: {
+            /**
+             * 域名名称。
+             */
+            DomainName: string;
+            /**
+             * 域名解析状态。True 表示正常解析，False 表示解析失败。
+             */
+            Status: number;
+            /**
+             * 证书ID。
+             */
+            CertificateId: string;
+            /**
+             * 是否使用默认路径映射。
+             */
+            IsDefaultMapping: boolean;
+            /**
+             * 自定义域名协议类型。
+             */
+            Protocol: string;
+            /**
+             * 网络类型（'INNER' 或 'OUTER'）。
+             */
+            NetType: string;
+            IsForcedHttps: boolean;
+          }[];
+        }
+      | undefined;
 
-  //   const domains: ApigwCustomDomain[] = [];
+    const domainDict: Record<string, ApigwCustomDomainFormatted> = {};
 
-  //   for (const d of res?.DomainSet ?? []) {
-  //     const domain: ApigwCustomDomain = {
-  //       domain: d.DomainName,
-  //       protocols: d.Protocol,
-  //       certificateId: d.CertificateId,
-  //       isDefaultMapping: d.IsDefaultMapping,
-  //       netType: d.NetType,
-  //     };
+    for (const d of res?.DomainSet ?? []) {
+      const domain: ApigwCustomDomainFormatted = {
+        domain: d.DomainName,
+        protocols: d.Protocol,
+        certificateId: d.CertificateId,
+        isDefaultMapping: d.IsDefaultMapping,
+        isForcedHttps: d.IsForcedHttps,
+        netType: d.NetType,
+        pathMappingSetDict: {},
+      };
 
-  //     const mappings = (await this.request({
-  //       Action: 'DescribeServiceSubDomainMappings',
-  //       ServiceId: serviceId,
-  //       SubDomain: d.DomainName,
-  //     })) as {
-  //       Result?: {
-  //         IsDefaultMapping?: boolean;
-  //         PathMappingSet?: {
-  //           Path: string;
-  //           Environment: string;
-  //         }[];
-  //       };
-  //     };
+      const mappings = (await this.request({
+        Action: 'DescribeServiceSubDomainMappings',
+        ServiceId: serviceId,
+        SubDomain: d.DomainName,
+      })) as {
+        IsDefaultMapping?: boolean;
+        PathMappingSet?: {
+          Path: string;
+          Environment: string;
+        }[];
+      };
 
-  //     domain.pathMappingSet = mappings?.Result?.PathMappingSet?.map((v) => {
-  //       return {
-  //         path: v.Path,
-  //         environment: v.Environment,
-  //       };
-  //     });
+      mappings?.PathMappingSet?.map((v) => {
+        domain.pathMappingSetDict[v.Path] = v.Environment;
+      });
 
-  //     domains.push(domain);
-  //   }
+      domainDict[domain.domain] = domain;
+    }
 
-  //   return domains;
-  // }
+    return domainDict;
+  }
 
   /**
    * 解绑 API 网关所有自定义域名
@@ -448,7 +456,7 @@ export default class Apigw {
   async unbindCustomDomain(serviceId: string, oldCustomDomains: ApigwCustomDomain[]) {
     const customDomainDetail = (await this.request({
       Action: 'DescribeServiceSubDomains',
-      serviceId,
+      ServiceId: serviceId,
     })) as
       | {
           DomainSet?: { DomainName: string }[];
@@ -494,8 +502,11 @@ export default class Apigw {
       return [];
     }
 
+    const currentDict = await this.getCurrentCustomDomainsDict(serviceId);
+    const newDict = getCustomDomainFormattedDict(inputs.customDomains ?? []);
+
     let hasChange = true;
-    if (JSON.stringify(oldState.customDomains) === JSON.stringify(inputs.customDomains)) {
+    if (deepEqual(currentDict, newDict)) {
       hasChange = false;
       console.log("Custom domain unchange, won't unbind or bind");
     }
@@ -512,7 +523,7 @@ export default class Apigw {
       for (let i = 0; i < customDomains.length; i++) {
         const domainItem = customDomains[i];
         const domainProtocol = domainItem.protocols
-          ? this.getProtocolString(domainItem.protocols)
+          ? getProtocolString(domainItem.protocols)
           : inputs.protocols;
         const domainInputs = {
           serviceId,
@@ -523,7 +534,7 @@ export default class Apigw {
           isDefaultMapping: domainItem.isDefaultMapping === false ? false : true,
           // if isDefaultMapping is false, should append pathMappingSet config
           pathMappingSet: domainItem.pathMappingSet || [],
-          netType: domainItem.netType ? domainItem.netType : 'OUTER',
+          netType: domainItem.netType ?? 'OUTER',
           protocol: domainProtocol,
           isForcedHttps: domainItem.isForcedHttps === true,
         };
@@ -534,6 +545,8 @@ export default class Apigw {
               Action: 'BindSubDomain',
               ...domainInputs,
             });
+            console.log(`Custom domain for service ${serviceId} created successfullly.`);
+            console.log(`Please add CNAME record ${subDomain} for ${domainItem.domain}.`);
           }
 
           customDomainOutput.push({
@@ -545,8 +558,6 @@ export default class Apigw {
               domainItem.domain
             }`,
           });
-          console.log(`Custom domain for service ${serviceId} created successfullly.`);
-          console.log(`Please add CNAME record ${subDomain} for ${domainItem.domain}.`);
         } catch (e) {
           // User hasn't add cname dns record
           if (e.code === 'FailedOperation.DomainResolveError') {
@@ -986,7 +997,7 @@ export default class Apigw {
   /** 部署 API 网关 */
   async deploy(inputs: ApigwDeployInputs) {
     const { environment = 'release' as const, oldState = {} } = inputs;
-    inputs.protocols = this.getProtocolString(inputs.protocols as ('http' | 'https')[]);
+    inputs.protocols = getProtocolString(inputs.protocols as ('http' | 'https')[]);
 
     const {
       serviceId,
@@ -1043,7 +1054,7 @@ export default class Apigw {
     console.log(`Deploy service ${serviceId} success`);
 
     const outputs: ApigwDeployOutputs = {
-      created: serviceCreated || oldState.created,
+      created: serviceCreated ? true : oldState.created,
       serviceId,
       serviceName,
       subDomain,

@@ -6,6 +6,7 @@ function deepClone<T>(obj: T): T {
 }
 
 describe('apigw', () => {
+  const domains = [`test-1.${Date.now()}.com`, `test-2.${Date.now()}.com`];
   const credentials = {
     SecretId: process.env.TENCENT_SECRET_ID,
     SecretKey: process.env.TENCENT_SECRET_KEY,
@@ -15,22 +16,6 @@ describe('apigw', () => {
     serviceName: 'serverless_test',
     environment: 'release',
     netTypes: ['OUTER'],
-    // customDomains: [
-    //   {
-    //     domain: 'test.yuga.chat',
-    //     // TODO: change to your certId
-    //     certificateId: 'cWOJJjax',
-    //     isDefaultMapping: false,
-    //     pathMappingSet: [
-    //       {
-    //         path: '/',
-    //         environment: 'release',
-    //       },
-    //     ],
-    //     protocols: ['http', 'https'],
-    //     isForcedHttps: true
-    //   },
-    // ],
     usagePlan: {
       usagePlanId: 'usagePlan-8bbr8pup',
       usagePlanName: 'slscmp',
@@ -375,7 +360,140 @@ describe('apigw', () => {
       Action: 'DescribeService',
       ServiceId: outputs.serviceId,
     });
+    expect(detail).toBeNull();
+  });
 
+  test('[Apigw CustomDomain] Bind CustomDomain success', async () => {
+    const apigwInputs = deepClone(inputs);
+
+    apigwInputs.usagePlan = undefined;
+    apigwInputs.customDomains = [
+      {
+        domain: domains[0],
+        // certificateId: 'cWOJJjax',
+        isDefaultMapping: false,
+        pathMappingSet: [
+          {
+            path: '/',
+            environment: 'release',
+          },
+        ],
+        protocols: ['http'],
+      },
+      {
+        domain: domains[1],
+        // certificateId: 'cWOJJjax',
+        isDefaultMapping: false,
+        pathMappingSet: [
+          {
+            path: '/',
+            environment: 'release',
+          },
+        ],
+        protocols: ['http'],
+      },
+    ];
+    outputs = await apigw.deploy(apigwInputs);
+    expect(outputs.customDomains).toEqual([
+      {
+        isBinded: true,
+        created: true,
+        subDomain: domains[0],
+        cname: expect.any(String),
+        url: `http://${domains[0]}`,
+      },
+      {
+        isBinded: true,
+        created: true,
+        subDomain: domains[1],
+        cname: expect.any(String),
+        url: `http://${domains[1]}`,
+      },
+    ]);
+  });
+
+  test('[Apigw CustomDomain] rebind customDomain success (skipped)', async () => {
+    const apigwInputs = deepClone(inputs);
+    apigwInputs.usagePlan = undefined;
+    apigwInputs.serviceId = outputs.serviceId;
+    apigwInputs.customDomains = [
+      {
+        domain: domains[0],
+        // certificateId: 'cWOJJjax',
+        isDefaultMapping: false,
+        pathMappingSet: [
+          {
+            path: '/',
+            environment: 'release',
+          },
+        ],
+        protocols: ['http'],
+      },
+      {
+        domain: domains[1],
+        // certificateId: 'cWOJJjax',
+        isDefaultMapping: false,
+        pathMappingSet: [
+          {
+            path: '/',
+            environment: 'release',
+          },
+        ],
+        protocols: ['http'],
+      },
+    ];
+
+    outputs = await apigw.deploy(apigwInputs);
+    expect(outputs.customDomains).toEqual([
+      {
+        isBinded: true,
+        created: true,
+        subDomain: domains[0],
+        cname: expect.any(String),
+        url: `http://${domains[0]}`,
+      },
+      {
+        isBinded: true,
+        created: true,
+        subDomain: domains[1],
+        cname: expect.any(String),
+        url: `http://${domains[1]}`,
+      },
+    ]);
+  });
+
+  test('[Apigw CustomDomain] unbind customDomain success', async () => {
+    const apigwInputs = deepClone(inputs);
+
+    apigwInputs.usagePlan = undefined;
+    apigwInputs.serviceId = outputs.serviceId;
+    apigwInputs.customDomains = undefined;
+
+    outputs = await apigw.deploy(apigwInputs);
+    expect(outputs.customDomains).toBeUndefined();
+  });
+
+  test('[Apigw CustomDomain] should remove apigw success', async () => {
+    // FIXME: 手动修改为 created
+    outputs.customDomains?.forEach((v) => {
+      v.created = true;
+    });
+    outputs.apiList?.forEach((v) => {
+      v.created = true;
+      if (v.usagePlan) {
+        v.usagePlan.created = true;
+      }
+    });
+    outputs.created = true;
+    if (outputs.usagePlan) {
+      outputs.usagePlan.created = true;
+    }
+    console.log(JSON.stringify(outputs, null, 4));
+    await apigw.remove(outputs);
+    const detail = await apigw.request({
+      Action: 'DescribeService',
+      ServiceId: outputs.serviceId,
+    });
     expect(detail).toBeNull();
   });
 });
