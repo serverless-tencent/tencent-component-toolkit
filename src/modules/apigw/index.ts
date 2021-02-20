@@ -488,13 +488,22 @@ export default class Apigw {
     subDomain: string;
     inputs: ApigwBindCustomDomainInputs;
   }): Promise<ApigwBindCustomDomainOutputs[]> {
+    console.log('Binding custom domain...');
     const { customDomains, oldState = {} } = inputs;
     if (!customDomains) {
       return [];
     }
 
-    // 1. 解绑旧的自定义域名
-    await this.unbindCustomDomain(serviceId, oldState?.customDomains ?? []);
+    let hasChange = true;
+    if (JSON.stringify(oldState.customDomains) === JSON.stringify(inputs.customDomains)) {
+      hasChange = false;
+      console.log("Custom domain unchange, won't unbind or bind");
+    }
+
+    if (hasChange) {
+      // 1. 解绑旧的自定义域名
+      await this.unbindCustomDomain(serviceId, oldState?.customDomains ?? []);
+    }
 
     // 2. bind user config domain
     const customDomainOutput: ApigwBindCustomDomainOutputs[] = [];
@@ -520,10 +529,12 @@ export default class Apigw {
         };
 
         try {
-          await this.request({
-            Action: 'BindSubDomain',
-            ...domainInputs,
-          });
+          if (hasChange) {
+            await this.request({
+              Action: 'BindSubDomain',
+              ...domainInputs,
+            });
+          }
 
           customDomainOutput.push({
             isBinded: true,
@@ -1041,19 +1052,14 @@ export default class Apigw {
       apiList,
     };
 
-    if (JSON.stringify(oldState.customDomains) === JSON.stringify(inputs.customDomains)) {
-      console.log('Apigw custom domain unchanged');
-    } else {
-      console.log('Binding custom domain...');
-      // bind custom domain
-      const customDomains = await this.bindCustomDomain({
-        serviceId,
-        subDomain: isArray(subDomain) ? subDomain[0] : subDomain,
-        inputs,
-      });
-      if (customDomains.length > 0) {
-        outputs.customDomains = customDomains;
-      }
+    // bind custom domain
+    const customDomains = await this.bindCustomDomain({
+      serviceId,
+      subDomain: isArray(subDomain) ? subDomain[0] : subDomain,
+      inputs,
+    });
+    if (customDomains.length > 0) {
+      outputs.customDomains = customDomains;
     }
 
     if (usagePlan) {
