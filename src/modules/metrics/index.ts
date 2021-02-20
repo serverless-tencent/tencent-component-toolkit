@@ -145,8 +145,12 @@ export default class Metrics {
     }
   }
 
-  // eslint-disable-next-line no-undef
-  async getDatas(startTimeStr: string, endTimeStr: string, metricsType = Metrics.Type.All) {
+  async getDatas(
+    startTimeStr: string,
+    endTimeStr: string,
+    metricsType = 0xffffffff,
+    utcOffset?: string,
+  ) {
     const startTime = moment(startTimeStr);
     const endTime = moment(endTimeStr);
 
@@ -189,6 +193,10 @@ export default class Metrics {
       rangeEnd: endTime.format('YYYY-MM-DD HH:mm:ss'),
       metrics: [],
     };
+    if (utcOffset) {
+      response.rangeStart = startTime.utcOffset(utcOffset).format('YYYY-MM-DD HH:mm:ss');
+      response.rangeEnd = endTime.utcOffset(utcOffset).format('YYYY-MM-DD HH:mm:ss');
+    }
 
     if (metricsType & Metrics.Type.Base) {
       const timeFormat = 'YYYY-MM-DDTHH:mm:ss' + this.timezone;
