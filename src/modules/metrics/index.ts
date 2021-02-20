@@ -194,8 +194,8 @@ export default class Metrics {
       metrics: [],
     };
     if (utcOffset) {
-      response.rangeStart = startTime.utcOffset(utcOffset).format('YYYY-MM-DD HH:mm:ss');
-      response.rangeEnd = endTime.utcOffset(utcOffset).format('YYYY-MM-DD HH:mm:ss');
+      response.rangeStart = startTime.utcOffset(utcOffset).format();
+      response.rangeEnd = endTime.utcOffset(utcOffset).format();
     }
 
     if (metricsType & Metrics.Type.Base) {

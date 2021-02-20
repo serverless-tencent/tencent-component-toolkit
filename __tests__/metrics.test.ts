@@ -29,10 +29,10 @@ describe('Metrics', () => {
   const rangeEnd = '2020-09-09T11:00:00Z';
 
   test('should get metrics data', async () => {
-    const res = await metrics.getDatas(rangeStart, rangeEnd, 0xfffffffffff, '+08:00');
+    const res = await metrics.getDatas(rangeStart, rangeEnd, 0xfffffffffff, '+00:00');
     expect(res).toEqual({
-      rangeStart: moment(rangeStart).utcOffset('+08:00').format('YYYY-MM-DD HH:mm:ss'),
-      rangeEnd: moment(rangeEnd).utcOffset('+08:00').format('YYYY-MM-DD HH:mm:ss'),
+      rangeStart: moment(rangeStart).utcOffset('+00:00').format(),
+      rangeEnd: moment(rangeEnd).utcOffset('+00:00').format(),
       metrics: expect.any(Array),
     });
 
