@@ -23,8 +23,18 @@ import {
   ApigwBindCustomDomainInputs,
   ApigwBindUsagePlanOutputs,
   ApigwCustomDomain,
-  ApigwCustomDomainFormatted,
 } from './interface';
+
+interface FormattedApigwCustomDomain {
+  domain: string;
+  protocols: string;
+
+  certificateId?: string;
+  isDefaultMapping: boolean;
+  pathMappingSetDict: Record<string, string>;
+  netType: string;
+  isForcedHttps: boolean;
+}
 
 function getProtocolString(protocols: string | ('http' | 'https')[]) {
   if (!protocols || protocols.length < 1) {
@@ -40,7 +50,7 @@ function getProtocolString(protocols: string | ('http' | 'https')[]) {
 }
 
 function getCustomDomainFormattedDict(domains: ApigwCustomDomain[]) {
-  const domainDict: Record<string, ApigwCustomDomainFormatted> = {};
+  const domainDict: Record<string, FormattedApigwCustomDomain> = {};
   domains.forEach((d) => {
     const pmDict: Record<string, string> = {};
     for (const pm of d.pathMappingSet ?? []) {
@@ -414,10 +424,10 @@ export default class Apigw {
         }
       | undefined;
 
-    const domainDict: Record<string, ApigwCustomDomainFormatted> = {};
+    const domainDict: Record<string, FormattedApigwCustomDomain> = {};
 
     for (const d of res?.DomainSet ?? []) {
-      const domain: ApigwCustomDomainFormatted = {
+      const domain: FormattedApigwCustomDomain = {
         domain: d.DomainName,
         protocols: d.Protocol,
         certificateId: d.CertificateId,
@@ -450,10 +460,15 @@ export default class Apigw {
   }
 
   /**
-   * 解绑 API 网关所有自定义域名
+   * 解绑 API 网关所有自定义域名，不解绑当前已有并且需要配置的域名
    * @param serviceId API 网关 ID
    */
-  async unbindCustomDomain(serviceId: string, oldCustomDomains: ApigwCustomDomain[]) {
+  async unbindCustomDomain(
+    serviceId: string,
+    oldCustomDomains: ApigwCustomDomain[],
+    currentDict: Record<string, FormattedApigwCustomDomain> = {},
+    newDict: Record<string, FormattedApigwCustomDomain> = {},
+  ) {
     const customDomainDetail = (await this.request({
       Action: 'DescribeServiceSubDomains',
       ServiceId: serviceId,
@@ -469,6 +484,15 @@ export default class Apigw {
       const stateDomains = oldCustomDomains ?? [];
       for (let i = 0; i < DomainSet.length; i++) {
         const domainItem = DomainSet[i];
+        const domain = domainItem.DomainName ?? '';
+        // 当前绑定状态与新的绑定状态一致，不解绑
+        if (currentDict[domain] && deepEqual(currentDict[domain], newDict[domain])) {
+          console.log(
+            `Domain ${domainItem.DomainName} for service ${serviceId} unchanged, won't unbind`,
+          );
+          continue;
+        }
+
         for (let j = 0; j < stateDomains.length; j++) {
           // 只解绑由组件创建的域名
           if (stateDomains[j].subDomain === domainItem.DomainName) {
@@ -505,16 +529,8 @@ export default class Apigw {
     const currentDict = await this.getCurrentCustomDomainsDict(serviceId);
     const newDict = getCustomDomainFormattedDict(inputs.customDomains ?? []);
 
-    let hasChange = true;
-    if (deepEqual(currentDict, newDict)) {
-      hasChange = false;
-      console.log("Custom domain unchange, won't unbind or bind");
-    }
-
-    if (hasChange) {
-      // 1. 解绑旧的自定义域名
-      await this.unbindCustomDomain(serviceId, oldState?.customDomains ?? []);
-    }
+    // 1. 解绑旧的自定义域名
+    await this.unbindCustomDomain(serviceId, oldState?.customDomains ?? [], currentDict, newDict);
 
     // 2. bind user config domain
     const customDomainOutput: ApigwBindCustomDomainOutputs[] = [];
@@ -540,12 +556,16 @@ export default class Apigw {
         };
 
         try {
-          if (hasChange) {
+          const { domain } = domainItem;
+          if (currentDict[domain] && deepEqual(currentDict[domain], newDict[domain])) {
             await this.request({
               Action: 'BindSubDomain',
               ...domainInputs,
             });
             console.log(`Custom domain for service ${serviceId} created successfullly.`);
+            console.log(`Please add CNAME record ${subDomain} for ${domainItem.domain}.`);
+          } else {
+            console.log(`Custom domain for service ${serviceId} unchanged, wont create.`);
             console.log(`Please add CNAME record ${subDomain} for ${domainItem.domain}.`);
           }
 
