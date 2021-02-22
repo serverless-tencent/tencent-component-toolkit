@@ -79,7 +79,7 @@ export function deepEqual(obj1: any, obj2: any): boolean {
     return true;
   }
 
-  if (isPrimitive(obj1) && isPrimitive(obj2)) {
+  if (isPrimitive(obj1) || isPrimitive(obj2)) {
     return obj1 === obj2;
   }
 

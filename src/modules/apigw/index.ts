@@ -469,6 +469,7 @@ export default class Apigw {
     currentDict: Record<string, FormattedApigwCustomDomain> = {},
     newDict: Record<string, FormattedApigwCustomDomain> = {},
   ) {
+    console.log({ oldCustomDomains });
     const customDomainDetail = (await this.request({
       Action: 'DescribeServiceSubDomains',
       ServiceId: serviceId,
@@ -481,11 +482,11 @@ export default class Apigw {
     if ((customDomainDetail?.DomainSet?.length ?? 0) > 0) {
       const { DomainSet = [] } = customDomainDetail!;
       // 解绑所有创建的自定义域名
-      const stateDomains = oldCustomDomains ?? [];
       for (let i = 0; i < DomainSet.length; i++) {
         const domainItem = DomainSet[i];
         const domain = domainItem.DomainName ?? '';
         // 当前绑定状态与新的绑定状态一致，不解绑
+        console.log({ domain, currentDict, newDict });
         if (currentDict[domain] && deepEqual(currentDict[domain], newDict[domain])) {
           console.log(
             `Domain ${domainItem.DomainName} for service ${serviceId} unchanged, won't unbind`,
@@ -493,9 +494,9 @@ export default class Apigw {
           continue;
         }
 
-        for (let j = 0; j < stateDomains.length; j++) {
+        for (let j = 0; j < oldCustomDomains.length; j++) {
           // 只解绑由组件创建的域名
-          if (stateDomains[j].subDomain === domainItem.DomainName) {
+          if (oldCustomDomains[j].subDomain === domainItem.DomainName) {
             console.log(`Start unbind domain ${domainItem.DomainName} for service ${serviceId}`);
             await this.request({
               Action: 'UnBindSubDomain',
@@ -521,9 +522,11 @@ export default class Apigw {
     inputs: ApigwBindCustomDomainInputs;
   }): Promise<ApigwBindCustomDomainOutputs[]> {
     console.log('Binding custom domain...');
-    const { customDomains, oldState = {} } = inputs;
+    let { customDomains } = inputs;
+    const { oldState = {} } = inputs;
     if (!customDomains) {
-      return [];
+      // FIXME: 不存在自定义域名的时候，应该解绑之前绑定的域名
+      customDomains = [];
     }
 
     const currentDict = await this.getCurrentCustomDomainsDict(serviceId);
@@ -557,15 +560,16 @@ export default class Apigw {
 
         try {
           const { domain } = domainItem;
+          // 当前状态与新的状态一致，不进行绑定
           if (currentDict[domain] && deepEqual(currentDict[domain], newDict[domain])) {
+            console.log(`Custom domain for service ${serviceId} unchanged, wont create.`);
+            console.log(`Please add CNAME record ${subDomain} for ${domainItem.domain}.`);
+          } else {
             await this.request({
               Action: 'BindSubDomain',
               ...domainInputs,
             });
             console.log(`Custom domain for service ${serviceId} created successfullly.`);
-            console.log(`Please add CNAME record ${subDomain} for ${domainItem.domain}.`);
-          } else {
-            console.log(`Custom domain for service ${serviceId} unchanged, wont create.`);
             console.log(`Please add CNAME record ${subDomain} for ${domainItem.domain}.`);
           }
 

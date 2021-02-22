@@ -1,9 +1,6 @@
 import { ApigwDeployInputs, ApigwDeployOutputs } from './../src/modules/apigw/interface';
 import { Apigw } from '../src';
-
-function deepClone<T>(obj: T): T {
-  return JSON.parse(JSON.stringify(obj));
-}
+import { deepClone } from '../src/utils';
 
 describe('apigw', () => {
   const domains = [`test-1.${Date.now()}.com`, `test-2.${Date.now()}.com`];
@@ -410,7 +407,13 @@ describe('apigw', () => {
         url: `http://${domains[1]}`,
       },
     ]);
+
+    const d = await apigw.getCurrentCustomDomainsDict(outputs.serviceId);
+    expect(d[domains[0]]).toBeDefined();
+    expect(d[domains[1]]).toBeDefined();
   });
+
+  let oldState: ApigwDeployOutputs;
 
   test('[Apigw CustomDomain] rebind customDomain success (skipped)', async () => {
     const apigwInputs = deepClone(inputs);
@@ -444,6 +447,7 @@ describe('apigw', () => {
     ];
 
     outputs = await apigw.deploy(apigwInputs);
+    oldState = outputs;
     expect(outputs.customDomains).toEqual([
       {
         isBinded: true,
@@ -460,6 +464,10 @@ describe('apigw', () => {
         url: `http://${domains[1]}`,
       },
     ]);
+
+    const d = await apigw.getCurrentCustomDomainsDict(outputs.serviceId);
+    expect(d[domains[0]]).toBeDefined();
+    expect(d[domains[1]]).toBeDefined();
   });
 
   test('[Apigw CustomDomain] unbind customDomain success', async () => {
@@ -468,9 +476,14 @@ describe('apigw', () => {
     apigwInputs.usagePlan = undefined;
     apigwInputs.serviceId = outputs.serviceId;
     apigwInputs.customDomains = undefined;
+    apigwInputs.oldState = oldState;
 
     outputs = await apigw.deploy(apigwInputs);
     expect(outputs.customDomains).toBeUndefined();
+
+    const d = await apigw.getCurrentCustomDomainsDict(outputs.serviceId);
+    expect(d[domains[0]]).toBeUndefined();
+    expect(d[domains[1]]).toBeUndefined();
   });
 
   test('[Apigw CustomDomain] should remove apigw success', async () => {
@@ -488,7 +501,7 @@ describe('apigw', () => {
     if (outputs.usagePlan) {
       outputs.usagePlan.created = true;
     }
-    console.log(JSON.stringify(outputs, null, 4));
+
     await apigw.remove(outputs);
     const detail = await apigw.request({
       Action: 'DescribeService',
