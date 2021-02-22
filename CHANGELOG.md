@@ -1,3 +1,10 @@
+# [2.2.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.1.2...v2.2.0) (2021-02-22)
+
+
+### Features
+
+* feat/apigw custom domain ([#195](https://github.com/serverless-tencent/tencent-component-toolkit/issues/195)) ([280589d](https://github.com/serverless-tencent/tencent-component-toolkit/commit/280589dad80c3133b6e6041a1fb98ecf56655e29))
+
 ## [2.1.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.1.1...v2.1.2) (2021-02-20)
 
 
