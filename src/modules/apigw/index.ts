@@ -469,7 +469,6 @@ export default class Apigw {
     currentDict: Record<string, FormattedApigwCustomDomain> = {},
     newDict: Record<string, FormattedApigwCustomDomain> = {},
   ) {
-    console.log({ oldCustomDomains });
     const customDomainDetail = (await this.request({
       Action: 'DescribeServiceSubDomains',
       ServiceId: serviceId,
@@ -486,7 +485,6 @@ export default class Apigw {
         const domainItem = DomainSet[i];
         const domain = domainItem.DomainName ?? '';
         // 当前绑定状态与新的绑定状态一致，不解绑
-        console.log({ domain, currentDict, newDict });
         if (currentDict[domain] && deepEqual(currentDict[domain], newDict[domain])) {
           console.log(
             `Domain ${domainItem.DomainName} for service ${serviceId} unchanged, won't unbind`,
