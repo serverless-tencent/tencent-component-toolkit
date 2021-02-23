@@ -1,14 +1,6 @@
 import { RegionType } from './../interface';
 import { ApigwRemoveInputs } from './../apigw/interface';
 
-export interface TriggerType {
-  NeedCreate?: boolean;
-  Type: string;
-  TriggerDesc?: string;
-  TriggerName?: string;
-  Qualifier?: string;
-}
-
 export type OriginTriggerType = {
   [name: string]: { serviceName?: string; name?: string; parameters?: any };
 };

@@ -1,11 +1,11 @@
 import { CapiCredentials, RegionType } from './../interface';
 import { Cls } from '@tencent-sdk/cls';
-import { ClsTriggerInputsParams, TriggerInputs, CreateTriggerReq } from './interface';
+import { ClsTriggerParams, TriggerInputs, TriggerData, ClsTriggerDesc } from './interface';
 import Scf from '../scf';
 import BaseTrigger from './base';
 import { createClsTrigger, deleteClsTrigger, getClsTrigger, updateClsTrigger } from '../cls/utils';
 
-export default class ClsTrigger extends BaseTrigger<ClsTriggerInputsParams> {
+export default class ClsTrigger extends BaseTrigger<ClsTriggerParams, ClsTriggerDesc> {
   client: Cls;
   constructor({ credentials, region }: { credentials: CapiCredentials; region: RegionType }) {
     super();
@@ -18,7 +18,7 @@ export default class ClsTrigger extends BaseTrigger<ClsTriggerInputsParams> {
     });
   }
 
-  getKey(triggerInputs: CreateTriggerReq) {
+  getKey(triggerInputs: TriggerData<ClsTriggerDesc>) {
     if (triggerInputs.ResourceId) {
       // from ListTriggers API
       const rStrArr = triggerInputs.ResourceId.split('/');
@@ -28,9 +28,9 @@ export default class ClsTrigger extends BaseTrigger<ClsTriggerInputsParams> {
     return triggerInputs.TriggerDesc?.topic_id ?? '';
   }
 
-  formatInputs({ inputs }: { inputs: TriggerInputs<ClsTriggerInputsParams> }) {
+  formatInputs({ inputs }: { inputs: TriggerInputs<ClsTriggerParams> }) {
     const { parameters } = inputs;
-    const triggerInputs: CreateTriggerReq = {
+    const triggerInputs: TriggerData<ClsTriggerDesc> = {
       Type: 'cls',
       Qualifier: parameters?.qualifier ?? '$DEFAULT',
       TriggerName: '',
@@ -43,7 +43,7 @@ export default class ClsTrigger extends BaseTrigger<ClsTriggerInputsParams> {
         name_space: inputs.Namespace,
         // FIXME: casing
         qualifier: inputs.Qualifier ?? '$DEFAULT',
-        topic_id: parameters?.topicId,
+        topic_id: parameters?.topicId!,
       },
       Enable: parameters?.enable ? 'OPEN' : 'CLOSE',
     };
@@ -63,7 +63,7 @@ export default class ClsTrigger extends BaseTrigger<ClsTriggerInputsParams> {
     return exist;
   }
 
-  async create({ inputs }: { inputs: TriggerInputs<ClsTriggerInputsParams> }) {
+  async create({ inputs }: { inputs: TriggerInputs<ClsTriggerParams> }) {
     const { parameters } = inputs;
     const exist = await this.get({
       topicId: parameters?.topicId,
@@ -101,7 +101,7 @@ export default class ClsTrigger extends BaseTrigger<ClsTriggerInputsParams> {
     return res;
   }
 
-  async delete({ scf, inputs }: { scf: Scf; inputs: TriggerInputs<ClsTriggerInputsParams> }) {
+  async delete({ scf, inputs }: { scf: Scf; inputs: TriggerInputs<ClsTriggerParams> }) {
     console.log(`Removing ${inputs.type} trigger ${inputs.triggerName}`);
     try {
       const res = await scf.request({

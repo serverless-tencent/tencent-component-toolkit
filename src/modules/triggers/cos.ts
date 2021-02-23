@@ -1,8 +1,8 @@
 import Scf from '../scf';
 import { CapiCredentials, RegionType } from './../interface';
 import BaseTrigger, { TRIGGER_STATUS_MAP } from './base';
-import { CosTriggerInputsParams, TriggerInputs, CreateTriggerReq } from './interface';
-export default class CosTrigger extends BaseTrigger<CosTriggerInputsParams> {
+import { CosTriggerParams, TriggerInputs, TriggerData, CosTriggerDesc } from './interface';
+export default class CosTrigger extends BaseTrigger<CosTriggerParams, CosTriggerDesc> {
   credentials: CapiCredentials;
   region: RegionType;
 
@@ -12,7 +12,7 @@ export default class CosTrigger extends BaseTrigger<CosTriggerInputsParams> {
     this.region = region;
   }
 
-  getKey(triggerInputs: CreateTriggerReq) {
+  getKey(triggerInputs: TriggerData<CosTriggerDesc>) {
     const tempDest = JSON.stringify({
       bucketUrl: triggerInputs.TriggerName,
       event: JSON.parse(triggerInputs.TriggerDesc!).event,
@@ -22,10 +22,9 @@ export default class CosTrigger extends BaseTrigger<CosTriggerInputsParams> {
     return `cos-${triggerInputs.TriggerName}-${tempDest}-${Enable}-${triggerInputs.Qualifier}`;
   }
 
-  formatInputs({ inputs }: { region: RegionType; inputs: TriggerInputs<CosTriggerInputsParams> }) {
+  formatInputs({ inputs }: { inputs: TriggerInputs<CosTriggerParams> }) {
     const { parameters } = inputs;
-    const triggerInputs: CreateTriggerReq = {
-      Action: 'CreateTrigger',
+    const triggerInputs: TriggerData<CosTriggerDesc> = {
       FunctionName: inputs.functionName,
       Namespace: inputs.namespace,
 
@@ -50,16 +49,8 @@ export default class CosTrigger extends BaseTrigger<CosTriggerInputsParams> {
     } as any;
   }
 
-  async create({
-    scf,
-    region,
-    inputs,
-  }: {
-    scf: Scf;
-    region: RegionType;
-    inputs: TriggerInputs<CosTriggerInputsParams>;
-  }) {
-    const { triggerInputs } = this.formatInputs({ region, inputs });
+  async create({ scf, inputs }: { scf: Scf; inputs: TriggerInputs<CosTriggerParams> }) {
+    const { triggerInputs } = this.formatInputs({ inputs });
     console.log(`Creating ${triggerInputs.Type} trigger ${triggerInputs.TriggerName}`);
     const { TriggerInfo } = await scf.request(triggerInputs);
     TriggerInfo.Qualifier = TriggerInfo.Qualifier || triggerInputs.Qualifier;
@@ -67,7 +58,7 @@ export default class CosTrigger extends BaseTrigger<CosTriggerInputsParams> {
     return TriggerInfo;
   }
 
-  async delete({ scf, inputs }: { scf: Scf; inputs: TriggerInputs<CosTriggerInputsParams> }) {
+  async delete({ scf, inputs }: { scf: Scf; inputs: TriggerInputs<CosTriggerParams> }) {
     console.log(`Removing ${inputs.type} trigger ${inputs.triggerName}`);
     try {
       await scf.request({

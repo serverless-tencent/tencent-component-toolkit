@@ -16,6 +16,10 @@ export { default as CmqTrigger } from './cmq';
 export { default as ClsTrigger } from './cls';
 export { default as MpsTrigger } from './mps';
 
+export type NewableBaseTrigger = BaseTrigger<any, any> & {
+  new (options: { credentials: CapiCredentials; region: RegionType }): BaseTrigger<any, any>;
+};
+
 const TRIGGER = ({
   timer: TimerTrigger,
   cos: CosTrigger,
@@ -24,9 +28,6 @@ const TRIGGER = ({
   cmq: CmqTrigger,
   cls: ClsTrigger,
   mps: MpsTrigger,
-} as any) as Record<
-  string,
-  BaseTrigger & { new (options: { credentials: CapiCredentials; region: RegionType }): BaseTrigger }
->;
+} as unknown) as Record<string, NewableBaseTrigger>;
 
 export default TRIGGER;

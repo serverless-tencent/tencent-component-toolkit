@@ -6,12 +6,14 @@ import {
   TriggerInputs,
   ApigwTriggerRemoveInputs,
   ApigwTriggerInputsParams,
+  ApigwTriggerDesc,
   CreateTriggerReq,
+  TriggerData,
 } from './interface';
 import Scf from '../scf';
 import { FunctionInfo } from '../scf/interface';
 
-export default class ApigwTrigger extends BaseTrigger<ApigwTriggerInputsParams> {
+export default class ApigwTrigger extends BaseTrigger<ApigwTriggerInputsParams, ApigwTriggerDesc> {
   constructor({
     credentials = {},
     region = 'ap-guangzhou',
@@ -135,13 +137,19 @@ export default class ApigwTrigger extends BaseTrigger<ApigwTriggerInputsParams> 
     return `${TriggerDesc.serviceId}/${TriggerDesc.path}/${TriggerDesc.method}`;
   }
 
+  formatInputs(): {
+    triggerKey: string;
+    triggerInputs: TriggerData<ApigwTriggerDesc>;
+  } {
+    return {} as any;
+  }
+
   /** 格式化输入 */
-  formatInputs({
+  formatApigwInputs({
     region,
     inputs,
   }: {
     region: RegionType;
-    funcInfo?: FunctionInfo;
     inputs: TriggerInputs<ApigwTriggerInputsParams>;
   }) {
     const { parameters } = inputs;
@@ -184,7 +192,11 @@ export default class ApigwTrigger extends BaseTrigger<ApigwTriggerInputsParams> 
       },
       created: !!parameters?.created,
     };
-    const triggerKey = this.getKey(triggerInputs);
+    const triggerKey = this.getKey({
+      TriggerDesc: {
+        serviceId: serviceId!,
+      },
+    });
 
     return {
       triggerKey,
@@ -201,7 +213,7 @@ export default class ApigwTrigger extends BaseTrigger<ApigwTriggerInputsParams> 
     inputs: TriggerInputs<ApigwTriggerInputsParams>;
     funcInfo?: FunctionInfo;
   }) {
-    const { triggerInputs } = this.formatInputs({ region, inputs });
+    const { triggerInputs } = this.formatApigwInputs({ region, inputs });
     const res = await scf.apigwClient.deploy(triggerInputs);
     return res;
   }

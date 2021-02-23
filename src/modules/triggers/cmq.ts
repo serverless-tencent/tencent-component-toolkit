@@ -1,10 +1,10 @@
 import Scf from '../scf';
 import { CapiCredentials, RegionType } from './../interface';
 import BaseTrigger from './base';
-import { CmqTriggerInputsParams, TriggerInputs, CreateTriggerReq } from './interface';
+import { CmqTriggerParams, TriggerInputs, TriggerData, CmqTriggerDesc } from './interface';
 const { TRIGGER_STATUS_MAP } = require('./base');
 
-export default class CmqTrigger extends BaseTrigger<CmqTriggerInputsParams> {
+export default class CmqTrigger extends BaseTrigger<CmqTriggerParams, CmqTriggerDesc> {
   credentials: CapiCredentials;
   region: RegionType;
 
@@ -14,15 +14,14 @@ export default class CmqTrigger extends BaseTrigger<CmqTriggerInputsParams> {
     this.region = region;
   }
 
-  getKey(triggerInputs: CreateTriggerReq) {
+  getKey(triggerInputs: TriggerData<CmqTriggerDesc>) {
     const Enable = TRIGGER_STATUS_MAP[triggerInputs.Enable!];
     return `${triggerInputs.Type}-${triggerInputs.TriggerName}-${triggerInputs.TriggerDesc}-${Enable}-${triggerInputs.Qualifier}`;
   }
 
-  formatInputs({ inputs }: { region: RegionType; inputs: TriggerInputs<CmqTriggerInputsParams> }) {
+  formatInputs({ inputs }: { inputs: TriggerInputs<CmqTriggerParams> }) {
     const { parameters } = inputs;
-    const triggerInputs: CreateTriggerReq = {
-      Action: 'CreateTrigger',
+    const triggerInputs: TriggerData<CmqTriggerDesc> = {
       FunctionName: inputs.functionName,
       Namespace: inputs.namespace,
 
@@ -41,25 +40,27 @@ export default class CmqTrigger extends BaseTrigger<CmqTriggerInputsParams> {
     return {
       triggerInputs,
       triggerKey,
-    } as any;
+    };
   }
   async create({
     scf,
-    region,
     inputs,
   }: {
     scf: Scf;
     region: RegionType;
-    inputs: TriggerInputs<CmqTriggerInputsParams>;
+    inputs: TriggerInputs<CmqTriggerParams>;
   }) {
-    const { triggerInputs } = this.formatInputs({ region, inputs });
+    const { triggerInputs } = this.formatInputs({ inputs });
     console.log(`Creating ${triggerInputs.Type} trigger ${triggerInputs.TriggerName}`);
-    const { TriggerInfo } = await scf.request(triggerInputs);
+    const { TriggerInfo } = await scf.request({
+      ...triggerInputs,
+      Action: 'CreateTrigger' as const,
+    });
     TriggerInfo.Qualifier = TriggerInfo.Qualifier || triggerInputs.Qualifier;
     return TriggerInfo;
   }
 
-  async delete({ scf, inputs }: { scf: Scf; inputs: TriggerInputs<CmqTriggerInputsParams> }) {
+  async delete({ scf, inputs }: { scf: Scf; inputs: TriggerInputs<CmqTriggerParams> }) {
     console.log(`Removing ${inputs.type} trigger ${inputs.triggerName}`);
     try {
       await scf.request({

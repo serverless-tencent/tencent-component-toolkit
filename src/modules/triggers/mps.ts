@@ -1,13 +1,13 @@
 import { ApiServiceType } from './../interface';
 import { FunctionInfo } from './../scf/interface';
 import Scf from '../scf';
-import { TriggerInputs, MpsTriggerInputsParams, CreateTriggerReq } from './interface';
+import { TriggerInputs, MpsTriggerParams, TriggerData, MpsTriggerDesc } from './interface';
 import { MPS } from './apis';
 import { pascalCaseProps } from '../../utils/index';
 import BaseTrigger from './base';
 import { CapiCredentials, RegionType } from '../interface';
 
-export default class MpsTrigger extends BaseTrigger<MpsTriggerInputsParams> {
+export default class MpsTrigger extends BaseTrigger<MpsTriggerParams, MpsTriggerDesc> {
   constructor({
     credentials = {},
     region = 'ap-guangzhou',
@@ -29,7 +29,7 @@ export default class MpsTrigger extends BaseTrigger<MpsTriggerInputsParams> {
     return result;
   }
 
-  getKey(triggerInputs: CreateTriggerReq) {
+  getKey(triggerInputs: TriggerData<MpsTriggerDesc>) {
     if (triggerInputs.ResourceId) {
       // from ListTriggers API
       const rStrArr = triggerInputs.ResourceId.split('/');
@@ -39,9 +39,9 @@ export default class MpsTrigger extends BaseTrigger<MpsTriggerInputsParams> {
     return `${triggerInputs.TriggerDesc?.eventType}Event`;
   }
 
-  formatInputs({ inputs }: { region?: RegionType; inputs: TriggerInputs<MpsTriggerInputsParams> }) {
+  formatInputs({ inputs }: { region?: RegionType; inputs: TriggerInputs<MpsTriggerParams> }) {
     const { parameters } = inputs;
-    const triggerInputs: CreateTriggerReq = {
+    const triggerInputs: TriggerData<MpsTriggerDesc> = {
       Type: 'mps',
       Qualifier: parameters?.qualifier ?? '$DEFAULT',
       TriggerName: '',
@@ -86,7 +86,7 @@ export default class MpsTrigger extends BaseTrigger<MpsTriggerInputsParams> {
     return null;
   }
 
-  async create({ inputs }: { inputs: TriggerInputs<MpsTriggerInputsParams> }) {
+  async create({ inputs }: { inputs: TriggerInputs<MpsTriggerParams> }) {
     const { parameters } = inputs;
     const qualifier = parameters?.qualifier ?? '$DEFAULT';
     const namespace = inputs.namespace ?? 'default';
@@ -145,7 +145,7 @@ export default class MpsTrigger extends BaseTrigger<MpsTriggerInputsParams> {
   }: {
     scf: Scf;
     funcInfo?: FunctionInfo;
-    inputs: TriggerInputs<MpsTriggerInputsParams>;
+    inputs: TriggerInputs<MpsTriggerParams>;
   }) {
     console.log(`Removing ${inputs.type} trigger ${inputs.triggerName}`);
     try {

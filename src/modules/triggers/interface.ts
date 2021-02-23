@@ -18,12 +18,62 @@ export interface EndpointFunction extends ApiEndpoint {
   functionQualifier: string;
 }
 
-export interface TriggerInputsParams {
-  // Type?:string;
-  // TriggerDesc?:string;
-  // TriggerName?: string;
-  // Qualifier?: string
+export type TriggerType = 'scf' | 'timer' | 'ckafka' | 'cls' | 'cmq' | 'cos' | 'mps';
+
+export interface CreateTriggerReq {
+  Action?: 'CreateTrigger';
+  ResourceId?: string;
+  FunctionName?: string;
+  Namespace?: string;
+  Type?: TriggerType;
+  Qualifier?: string;
+  TriggerName?: string;
+  TriggerDesc?: any;
+  Enable?: 'OPEN' | 'CLOSE' | 1 | 0;
+  CustomArgument?: any;
 }
+
+export interface TriggerData<D> {
+  FunctionName?: string;
+  Namespace?: string;
+  Type?: TriggerType;
+  Qualifier?: string;
+  TriggerName?: string;
+  TriggerDesc?: D;
+  Enable?: 'OPEN' | 'CLOSE';
+  CustomArgument?: any;
+
+  ResourceId?: string;
+
+  NeedCreate?: boolean;
+}
+export interface ApigwTriggerDesc {
+  serviceId: string;
+}
+
+export type CkafkaTriggerDesc = string;
+
+export interface ClsTriggerDesc {
+  effective?: boolean;
+  // FIXME: casing
+  function_name?: string;
+  max_size?: number;
+  max_wait?: number;
+  name_space?: string;
+  // FIXME: casing
+  qualifier: string;
+  topic_id: string;
+}
+
+export type CmqTriggerDesc = string;
+
+export type CosTriggerDesc = string;
+
+export type MpsTriggerDesc = {
+  eventType?: string;
+};
+
+export type TimerTriggerDesc = string;
 
 export interface ApigwTriggerInputsParams extends ApigwDeployInputs {
   created: boolean;
@@ -38,21 +88,7 @@ export interface ApigwTriggerInputsParams extends ApigwDeployInputs {
   ResourceId?: string;
 }
 
-export type TriggerType = 'scf' | 'timer' | string;
-export interface CreateTriggerReq {
-  Action?: 'CreateTrigger';
-  ResourceId?: string;
-  FunctionName?: string;
-  Namespace?: string;
-  Type?: TriggerType;
-  Qualifier?: string;
-  TriggerName?: string;
-  TriggerDesc?: any;
-  Enable?: 'OPEN' | 'CLOSE' | 1 | 0;
-  CustomArgument?: any;
-}
-
-export interface ChafkaTriggerInputsParams extends TriggerInputsParams {
+export interface CkafkaTriggerParams {
   qualifier?: string;
   name?: string;
   topic?: string;
@@ -62,14 +98,14 @@ export interface ChafkaTriggerInputsParams extends TriggerInputsParams {
   enable?: boolean;
 }
 
-export interface CmqTriggerInputsParams {
+export interface CmqTriggerParams {
   qualifier?: string;
   name?: string;
   filterKey?: string;
   enable?: boolean;
 }
 
-export interface ClsTriggerInputsParams {
+export interface ClsTriggerParams {
   qualifier?: string;
   enable?: boolean;
   maxSize?: number;
@@ -77,7 +113,7 @@ export interface ClsTriggerInputsParams {
   topicId?: string;
 }
 
-export interface CosTriggerInputsParams {
+export interface CosTriggerParams {
   qualifier?: string;
   bucket?: string;
   events?: string;
@@ -88,13 +124,13 @@ export interface CosTriggerInputsParams {
   enable?: boolean;
 }
 
-export interface MpsTriggerInputsParams {
+export interface MpsTriggerParams {
   type?: string;
   qualifier?: string;
   enable?: boolean;
 }
 
-export interface TimerTriggerInputsParams {
+export interface TimerTriggerParams {
   name?: string;
   qualifier?: string;
   cronExpression?: string;
@@ -103,7 +139,7 @@ export interface TimerTriggerInputsParams {
   argument?: string;
 }
 
-export interface TriggerInputs<P extends TriggerInputsParams = TriggerInputsParams> {
+export interface TriggerInputs<P extends {} = {}> {
   type?: string;
   triggerDesc?: string;
   triggerName?: string;
@@ -113,7 +149,7 @@ export interface TriggerInputs<P extends TriggerInputsParams = TriggerInputsPara
   functionName?: string;
   namespace?: string;
 
-  // FIXME:
+  // FIXME: cls need, spelling error?
   FunctionName?: string;
   Namespace?: string;
   Qualifier?: string;

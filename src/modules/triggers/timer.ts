@@ -1,16 +1,16 @@
 import Scf from '../scf';
 import { CapiCredentials, RegionType } from './../interface';
 import BaseTrigger, { TRIGGER_STATUS_MAP } from './base';
-import { TimerTriggerInputsParams, TriggerInputs, CreateTriggerReq } from './interface';
+import { TimerTriggerParams, TriggerInputs, TriggerData, TimerTriggerDesc } from './interface';
 
-export default class TimerTrigger extends BaseTrigger<TimerTriggerInputsParams> {
+export default class TimerTrigger extends BaseTrigger<TimerTriggerParams, TimerTriggerDesc> {
   constructor({ credentials, region }: { credentials: CapiCredentials; region: RegionType }) {
     super();
     this.credentials = credentials;
     this.region = region;
   }
 
-  getKey(triggerInputs: CreateTriggerReq) {
+  getKey(triggerInputs: TriggerData<TimerTriggerDesc>) {
     // Very strange logical for Enable, fe post Enable is 'OPEN' or 'CLOSE'
     // but get 1 or 0, parameter type cnaged......
     const Enable = TRIGGER_STATUS_MAP[triggerInputs.Enable!];
@@ -25,15 +25,9 @@ export default class TimerTrigger extends BaseTrigger<TimerTriggerInputsParams> 
     return `${triggerInputs.Type}-${triggerInputs.TriggerName}-${Desc}-${triggerInputs.CustomArgument}-${Enable}-${triggerInputs.Qualifier}`;
   }
 
-  formatInputs({
-    inputs,
-  }: {
-    region: RegionType;
-    inputs: TriggerInputs<TimerTriggerInputsParams>;
-  }) {
+  formatInputs({ inputs }: { inputs: TriggerInputs<TimerTriggerParams> }) {
     const { parameters, name } = inputs;
-    const triggerInputs: CreateTriggerReq = {
-      Action: 'CreateTrigger',
+    const triggerInputs: TriggerData<TimerTriggerDesc> = {
       FunctionName: inputs.functionName,
       Namespace: inputs.namespace,
       Type: 'timer',
@@ -52,22 +46,14 @@ export default class TimerTrigger extends BaseTrigger<TimerTriggerInputsParams> 
       triggerKey,
     } as any;
   }
-  async create({
-    scf,
-    region,
-    inputs,
-  }: {
-    scf: Scf;
-    region: RegionType;
-    inputs: TriggerInputs<TimerTriggerInputsParams>;
-  }) {
-    const { triggerInputs } = this.formatInputs({ region, inputs });
+  async create({ scf, inputs }: { scf: Scf; inputs: TriggerInputs<TimerTriggerParams> }) {
+    const { triggerInputs } = this.formatInputs({ inputs });
     console.log(`Creating ${triggerInputs.Type} trigger ${triggerInputs.TriggerName}`);
     const { TriggerInfo } = await scf.request(triggerInputs);
     TriggerInfo.Qualifier = TriggerInfo.Qualifier || triggerInputs.Qualifier;
     return TriggerInfo;
   }
-  async delete({ scf, inputs }: { scf: Scf; inputs: TriggerInputs<TimerTriggerInputsParams> }) {
+  async delete({ scf, inputs }: { scf: Scf; inputs: TriggerInputs<TimerTriggerParams> }) {
     console.log(`Removing ${inputs.type} trigger ${inputs.triggerName}`);
     try {
       await scf.request({

@@ -1,37 +1,29 @@
 import { CapiCredentials, RegionType } from './../interface';
-import { TriggerInputs, ChafkaTriggerInputsParams, CreateTriggerReq } from './interface';
+import { TriggerInputs, CkafkaTriggerParams, TriggerData, CkafkaTriggerDesc } from './interface';
 import Scf from '../scf';
-import { TRIGGER_STATUS_MAP } from './base';
+import BaseTrigger, { TRIGGER_STATUS_MAP } from './base';
 
-export default class CkafkaTrigger {
+export default class CkafkaTrigger extends BaseTrigger<CkafkaTriggerParams, CkafkaTriggerDesc> {
   credentials: CapiCredentials;
   region: RegionType;
 
   constructor({ credentials, region }: { credentials: CapiCredentials; region: RegionType }) {
+    super();
     this.credentials = credentials;
     this.region = region;
   }
 
-  getKey(triggerInputs: CreateTriggerReq) {
+  getKey(triggerInputs: TriggerData<CkafkaTriggerDesc>) {
     const Enable = TRIGGER_STATUS_MAP[triggerInputs.Enable!];
     return `${triggerInputs.Type}-${triggerInputs.TriggerName}-${triggerInputs.TriggerDesc}-${Enable}-${triggerInputs.Qualifier}`;
   }
 
-  formatInputs({
-    // FIXME: region unused
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    region,
-    inputs,
-  }: {
-    region: RegionType;
-    inputs: TriggerInputs<ChafkaTriggerInputsParams>;
-  }) {
+  formatInputs({ inputs }: { inputs: TriggerInputs<CkafkaTriggerParams> }) {
     const { parameters } = inputs;
-    const triggerInputs: CreateTriggerReq = {
-      Action: 'CreateTrigger',
+    const triggerInputs: TriggerData<CkafkaTriggerDesc> = {
       FunctionName: inputs.functionName,
       Namespace: inputs.namespace,
-      Type: 'chafka',
+      Type: 'ckafka',
       Qualifier: parameters?.qualifier ?? '$DEFAULT',
       TriggerName: `${parameters?.name}-${parameters?.topic}`,
       TriggerDesc: JSON.stringify({
@@ -49,21 +41,17 @@ export default class CkafkaTrigger {
       triggerKey,
     };
   }
-  async create({
-    scf,
-    region,
-    inputs,
-  }: {
-    scf: Scf;
-    region: RegionType;
-    inputs: TriggerInputs<ChafkaTriggerInputsParams>;
-  }) {
-    const { triggerInputs } = this.formatInputs({ region, inputs });
+  async create({ scf, inputs }: { scf: Scf; inputs: TriggerInputs<CkafkaTriggerParams> }) {
+    const { triggerInputs } = this.formatInputs({ inputs });
     console.log(`Creating ${triggerInputs.Type} trigger ${triggerInputs.TriggerName}`);
-    const { TriggerInfo } = await scf.request(triggerInputs as any);
+    const { TriggerInfo } = await scf.request({
+      ...triggerInputs,
+      Action: 'CreateTrigger',
+    });
     TriggerInfo.Qualifier = TriggerInfo.Qualifier || triggerInputs.Qualifier;
     return TriggerInfo;
   }
+
   async delete({ scf, inputs }: { scf: Scf; inputs: TriggerInputs }) {
     console.log(`Removing ${inputs.type} trigger ${inputs.triggerName}`);
     try {

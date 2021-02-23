@@ -1,3 +1,4 @@
+import { TriggerData, TriggerType } from './../triggers/interface';
 import { ActionType } from './apis';
 import { RegionType, ApiServiceType, CapiCredentials } from './../interface';
 import { sleep, waitResponse } from '@ygkit/request';
@@ -15,7 +16,6 @@ import BaseTrigger, { CAN_UPDATE_TRIGGER } from '../triggers/base';
 import {
   ScfCreateFunctionInputs,
   FunctionInfo,
-  TriggerType,
   ScfDeployInputs,
   ScfRemoveInputs,
   ScfInvokeInputs,
@@ -235,7 +235,7 @@ export default class Scf {
     return true;
   }
 
-  async getTriggerList(functionName: string, namespace = 'default'): Promise<TriggerType[]> {
+  async getTriggerList(functionName: string, namespace = 'default'): Promise<TriggerData<any>[]> {
     const { Triggers = [], TotalCount } = await this.request({
       Action: 'ListTriggers',
       FunctionName: functionName,
@@ -250,17 +250,17 @@ export default class Scf {
     return Triggers;
   }
 
-  filterTriggers(funcInfo: FunctionInfo, events: OriginTriggerType[], oldList: TriggerType[]) {
-    const deleteList: (TriggerType | null)[] = deepClone(oldList);
+  filterTriggers(funcInfo: FunctionInfo, events: OriginTriggerType[], oldList: TriggerData<any>[]) {
+    const deleteList: (TriggerData<any> | null)[] = deepClone(oldList);
     const createList: (OriginTriggerType | null)[] = deepClone(events);
-    const deployList: (TriggerType | null)[] = [];
+    const deployList: (TriggerData<any> | null)[] = [];
     // const noKeyTypes = ['apigw'];
     const updateList: (OriginTriggerType | null)[] = [];
 
     events.forEach((event, index) => {
-      const Type = Object.keys(event)[0];
+      const Type = Object.keys(event)[0] as TriggerType;
       const TriggerClass = TRIGGERS[Type];
-      const triggerInstance: BaseTrigger = new TriggerClass({
+      const triggerInstance: BaseTrigger<any, any> = new TriggerClass({
         credentials: this.credentials,
         region: this.region,
       });
@@ -306,14 +306,15 @@ export default class Scf {
         if (CAN_UPDATE_TRIGGER.indexOf(Type) === -1) {
           createList[index] = null;
           deployList[index] = {
-            NeedCreate: false,
             ...oldTrigger,
+
+            NeedCreate: false,
           };
         } else {
           deployList[index] = {
-            NeedCreate: true,
             Type,
             ...event[Type],
+            NeedCreate: true,
           };
         }
       }
@@ -342,7 +343,7 @@ export default class Scf {
     for (let i = 0, len = deleteList.length; i < len; i++) {
       const trigger = deleteList[i];
       const { Type } = trigger!;
-      const TriggerClass = TRIGGERS[Type];
+      const TriggerClass = TRIGGERS[Type as TriggerType];
 
       if (TriggerClass) {
         const triggerInstance = new TriggerClass({
@@ -369,7 +370,7 @@ export default class Scf {
       const trigger = deployList[i];
       const { Type } = trigger!;
       if (trigger?.NeedCreate === true) {
-        const TriggerClass = TRIGGERS[Type];
+        const TriggerClass = TRIGGERS[Type as TriggerType];
         if (!TriggerClass) {
           throw new ApiTypeError('PARAMETER_SCF', `Unknow trigger type ${Type}`);
         }

@@ -1,12 +1,12 @@
 import { Capi } from '@tencent-sdk/capi';
 import { RegionType, CapiCredentials, ApiServiceType } from '../interface';
 import { SCF } from './apis';
-import { TriggerInputs, TriggerInputsParams, CreateTriggerReq } from './interface';
+import { TriggerInputs, TriggerData, CreateTriggerReq } from './interface';
 import Scf from '../scf';
 
 type Qualifier = string;
 
-export default abstract class BaseTrigger<P = TriggerInputsParams> {
+export default abstract class BaseTrigger<P, D> {
   region!: RegionType;
   credentials: CapiCredentials = {};
   capi!: Capi;
@@ -42,7 +42,7 @@ export default abstract class BaseTrigger<P = TriggerInputsParams> {
     inputs: TriggerInputs<P>;
   }): {
     triggerKey: string;
-    triggerInputs: P;
+    triggerInputs: TriggerData<D>;
   };
 
   /** Get Trigger List */
@@ -78,7 +78,7 @@ export default abstract class BaseTrigger<P = TriggerInputsParams> {
     /** 获取 Api 的触发器列表 */
     const { Triggers, TotalCount } = await SCF.ListTriggers(this.capi, listOptions);
 
-    // FIXME: 触发器最多只获取 100 个，理论上不会运行这部分逻辑
+    // FIXME: 触发器最多只获取 100 个，虽然理论上不会运行这部分逻辑，如果超过 100 个会导致死循环
     if (TotalCount > 100) {
       const res: any[] = await this.getTriggerList({ functionName, namespace, qualifier });
       return Triggers.concat(res);
