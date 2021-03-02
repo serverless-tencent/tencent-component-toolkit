@@ -1,6 +1,5 @@
 export interface CosCreateBucketInputs {
   bucket?: string;
-  accelerate?: boolean;
   force?: boolean;
 }
 
@@ -147,7 +146,6 @@ export interface CosGetBucketInputs {
 
 export interface CosUploadInputs {
   bucket?: string;
-  accelerate?: boolean;
   replace?: boolean;
   dir?: string;
   keyPrefix?: string;
@@ -157,7 +155,6 @@ export interface CosUploadInputs {
 
 export interface CosWebsiteInputs extends CosSetWebsiteInputs {
   bucket?: string;
-  accelerate?: boolean;
   force?: boolean;
 }
 

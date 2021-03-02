@@ -166,21 +166,6 @@ export default class Cos {
         }
       }
     }
-
-    const res = await this.cosClient.getBucketAccelerate({
-      Bucket: inputs.bucket!,
-      Region: this.region,
-    });
-    if (res.InventoryConfiguration.Status === 'Enabled' ? true : false !== inputs.accelerate) {
-      await this.cosClient.putBucketAccelerate({
-        Bucket: inputs.bucket!,
-        Region: this.region,
-        AccelerateConfiguration: {
-          Status: inputs.accelerate ? 'Enabled' : 'Suspended',
-          Type: 'COS',
-        },
-      });
-    }
   }
 
   async setAcl(inputs: CosSetAclInputs = {}) {
@@ -555,7 +540,7 @@ export default class Cos {
 
         const itemParams: COS.PutObjectParams = {
           Bucket: bucket,
-          Region: inputs.accelerate ? 'accelerate' : region,
+          Region: region,
           Key: key,
           Body: fs.createReadStream(item.path),
         };
@@ -625,7 +610,6 @@ export default class Cos {
     const uploadInputs: CosUploadInputs = {
       bucket: inputs.bucket,
       replace: inputs.replace!,
-      accelerate: inputs.accelerate,
     };
     if (fs.lstatSync(dirToUploadPath!).isDirectory()) {
       uploadInputs.dir = dirToUploadPath;
@@ -670,7 +654,6 @@ export default class Cos {
         bucket: inputs.bucket!,
         keyPrefix: inputs.keyPrefix || '/',
         replace: inputs.replace,
-        accelerate: inputs.accelerate,
       };
 
       if (fs.lstatSync(dirToUploadPath).isDirectory()) {
