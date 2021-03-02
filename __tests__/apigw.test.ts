@@ -129,6 +129,7 @@ describe('apigw', () => {
   };
   const apigw = new Apigw(credentials, process.env.REGION);
   let outputs: ApigwDeployOutputs;
+  let outputsWithId: ApigwDeployOutputs;
 
   test('[Environment UsagePlan] should deploy a apigw success', async () => {
     const apigwInputs = deepClone(inputs);
@@ -360,7 +361,7 @@ describe('apigw', () => {
     expect(detail).toBeNull();
   });
 
-  test('[Apigw CustomDomain] Bind CustomDomain success', async () => {
+  test('[Apigw CustomDomain] bind CustomDomain success', async () => {
     const apigwInputs = deepClone(inputs);
 
     apigwInputs.usagePlan = undefined;
@@ -391,6 +392,7 @@ describe('apigw', () => {
       },
     ];
     outputs = await apigw.deploy(apigwInputs);
+
     expect(outputs.customDomains).toEqual([
       {
         isBinded: true,
@@ -408,15 +410,15 @@ describe('apigw', () => {
       },
     ]);
 
-    const d = await apigw.getCurrentCustomDomainsDict(outputs.serviceId);
+    const d = await apigw.customDomain.getCurrentDict(outputs.serviceId);
     expect(d[domains[0]]).toBeDefined();
     expect(d[domains[1]]).toBeDefined();
   });
 
-  let oldState: ApigwDeployOutputs;
-
   test('[Apigw CustomDomain] rebind customDomain success (skipped)', async () => {
     const apigwInputs = deepClone(inputs);
+    apigwInputs.oldState = outputs;
+
     apigwInputs.usagePlan = undefined;
     apigwInputs.serviceId = outputs.serviceId;
     apigwInputs.customDomains = [
@@ -447,7 +449,7 @@ describe('apigw', () => {
     ];
 
     outputs = await apigw.deploy(apigwInputs);
-    oldState = outputs;
+
     expect(outputs.customDomains).toEqual([
       {
         isBinded: true,
@@ -465,23 +467,25 @@ describe('apigw', () => {
       },
     ]);
 
-    const d = await apigw.getCurrentCustomDomainsDict(outputs.serviceId);
+    const d = await apigw.customDomain.getCurrentDict(outputs.serviceId);
     expect(d[domains[0]]).toBeDefined();
     expect(d[domains[1]]).toBeDefined();
   });
 
   test('[Apigw CustomDomain] unbind customDomain success', async () => {
     const apigwInputs = deepClone(inputs);
+    apigwInputs.oldState = outputs;
 
-    apigwInputs.usagePlan = undefined;
     apigwInputs.serviceId = outputs.serviceId;
+    apigwInputs.usagePlan = undefined;
     apigwInputs.customDomains = undefined;
-    apigwInputs.oldState = oldState;
 
     outputs = await apigw.deploy(apigwInputs);
+
     expect(outputs.customDomains).toBeUndefined();
 
-    const d = await apigw.getCurrentCustomDomainsDict(outputs.serviceId);
+    const d = await apigw.customDomain.getCurrentDict(outputs.serviceId);
+
     expect(d[domains[0]]).toBeUndefined();
     expect(d[domains[1]]).toBeUndefined();
   });
@@ -508,5 +512,115 @@ describe('apigw', () => {
       ServiceId: outputs.serviceId,
     });
     expect(detail).toBeNull();
+  });
+
+  test('[isInputServiceId] should deploy a apigw success', async () => {
+    const apigwInputs = deepClone(inputs);
+    apigwInputs.serviceId = 'service-mh4w4xnm';
+    apigwInputs.isInputServiceId = true;
+    delete apigwInputs.usagePlan;
+    delete apigwInputs.auth;
+
+    outputsWithId = await apigw.deploy(apigwInputs);
+    expect(outputsWithId).toEqual({
+      created: false,
+      serviceId: expect.stringContaining('service-'),
+      serviceName: 'serverless_unit_test',
+      subDomain: expect.stringContaining('.apigw.tencentcs.com'),
+      protocols: 'http&https',
+      environment: 'release',
+      apiList: [
+        {
+          path: '/',
+          internalDomain: expect.any(String),
+          method: 'GET',
+          apiName: 'index',
+          apiId: expect.stringContaining('api-'),
+          created: true,
+          authType: 'NONE',
+          businessType: 'NORMAL',
+          isBase64Encoded: true,
+        },
+        {
+          path: '/mo',
+          method: 'GET',
+          apiName: 'mo',
+          internalDomain: expect.any(String),
+          apiId: expect.stringContaining('api-'),
+          created: true,
+          authType: 'NONE',
+          businessType: 'NORMAL',
+          isBase64Encoded: false,
+        },
+        {
+          path: '/auto',
+          method: 'GET',
+          apiName: 'auto-http',
+          internalDomain: expect.any(String),
+          apiId: expect.stringContaining('api-'),
+          created: true,
+          authType: 'NONE',
+          businessType: 'NORMAL',
+          isBase64Encoded: false,
+        },
+        {
+          path: '/ws',
+          method: 'GET',
+          apiName: 'ws-test',
+          internalDomain: expect.any(String),
+          apiId: expect.stringContaining('api-'),
+          authType: 'NONE',
+          businessType: 'NORMAL',
+          created: true,
+          isBase64Encoded: false,
+        },
+        {
+          path: '/wsf',
+          method: 'GET',
+          apiName: 'ws-scf',
+          internalDomain: expect.stringContaining(
+            'http://set-websocket.cb-common.apigateway.tencentyun.com',
+          ),
+          apiId: expect.stringContaining('api-'),
+          authType: 'NONE',
+          businessType: 'NORMAL',
+          created: true,
+          isBase64Encoded: false,
+        },
+        {
+          path: '/oauth',
+          method: 'GET',
+          apiName: 'oauthapi',
+          apiId: expect.stringContaining('api-'),
+          created: true,
+          authType: 'OAUTH',
+          businessType: 'OAUTH',
+          internalDomain: expect.any(String),
+          isBase64Encoded: false,
+        },
+        {
+          path: '/oauthwork',
+          method: 'GET',
+          apiName: 'business',
+          apiId: expect.stringContaining('api-'),
+          created: true,
+          authType: 'OAUTH',
+          businessType: 'NORMAL',
+          authRelationApiId: expect.stringContaining('api-'),
+          internalDomain: expect.any(String),
+          isBase64Encoded: false,
+        },
+      ],
+    });
+  });
+
+  test('[isInputServiceId] should remove apigw success', async () => {
+    await apigw.remove(outputsWithId);
+    const detail = await apigw.service.getById(outputsWithId.serviceId);
+    expect(detail).toBeDefined();
+    expect(detail.serviceName).toBe('serverless_unit_test');
+    expect(detail.serviceDesc).toBe('Created By Serverless');
+    const apiList = await apigw.api.getList(outputsWithId.serviceId);
+    expect(apiList.length).toBe(0);
   });
 });

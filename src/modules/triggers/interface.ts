@@ -31,6 +31,8 @@ export interface ApigwTriggerInputsParams extends ApigwDeployInputs {
   TriggerDesc:
     | {
         serviceId: string;
+        path: string;
+        method: string;
       }
     | string;
   ResourceId?: string;
