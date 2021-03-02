@@ -361,10 +361,6 @@ export default class ApiEntity {
     if (exist) {
       apiConfig.apiId = exist.apiId;
       apiConfig.created = exist.created;
-
-      if (isOauthApi) {
-        apiConfig.authRelationApiId = exist.authRelationApiId;
-      }
     }
     if (isOauthApi && !apiConfig.authRelationApiId) {
       // find reletive oauth api
