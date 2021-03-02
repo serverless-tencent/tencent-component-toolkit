@@ -1,3 +1,10 @@
+# [2.3.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.2.0...v2.3.0) (2021-03-02)
+
+
+### Features
+
+* **apigw:** update deploy flow ([03ba49b](https://github.com/serverless-tencent/tencent-component-toolkit/commit/03ba49b03c677a3604ad1c5a0b1b30d7ba25c8b0))
+
 # [2.2.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.1.2...v2.2.0) (2021-02-22)
 
 
