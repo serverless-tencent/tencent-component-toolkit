@@ -122,7 +122,7 @@ export default class Cos {
     }
     // 不存在就尝试创建
     console.log(`Creating bucket ${inputs.bucket}`);
-    const createParams = {
+    const createParams: COS.PutBucketParams = {
       Bucket: inputs.bucket!,
       Region: this.region,
     };
@@ -165,6 +165,21 @@ export default class Cos {
           throw constructCosError(`API_COS_putBucket`, err);
         }
       }
+    }
+
+    const res = await this.cosClient.getBucketAccelerate({
+      Bucket: inputs.bucket!,
+      Region: this.region,
+    });
+    if (res.InventoryConfiguration.Status === 'Enabled' ? true : false !== inputs.accelerate) {
+      await this.cosClient.putBucketAccelerate({
+        Bucket: inputs.bucket!,
+        Region: this.region,
+        AccelerateConfiguration: {
+          Status: inputs.accelerate ? 'Enabled' : 'Suspended',
+          Type: 'COS',
+        },
+      });
     }
   }
 
@@ -538,9 +553,9 @@ export default class Cos {
           key = key.replace(/\\/g, '/');
         }
 
-        const itemParams = {
+        const itemParams: COS.PutObjectParams = {
           Bucket: bucket,
-          Region: region,
+          Region: inputs.accelerate ? 'accelerate' : region,
           Key: key,
           Body: fs.createReadStream(item.path),
         };
@@ -607,16 +622,17 @@ export default class Cos {
 
     // upload
     const dirToUploadPath: string | undefined = inputs.code?.src ?? inputs.code?.root;
-    const uploadDict: CosUploadInputs = {
+    const uploadInputs: CosUploadInputs = {
       bucket: inputs.bucket,
       replace: inputs.replace!,
+      accelerate: inputs.accelerate,
     };
     if (fs.lstatSync(dirToUploadPath!).isDirectory()) {
-      uploadDict.dir = dirToUploadPath;
+      uploadInputs.dir = dirToUploadPath;
     } else {
-      uploadDict.file = dirToUploadPath;
+      uploadInputs.file = dirToUploadPath;
     }
-    await this.upload(uploadDict);
+    await this.upload(uploadInputs);
 
     return `${inputs.bucket}.cos-website.${this.region}.myqcloud.com`;
   }
@@ -650,18 +666,19 @@ export default class Cos {
     if (inputs.src) {
       // upload
       const dirToUploadPath = inputs.src;
-      const uploadDict: CosUploadInputs = {
+      const uploadInputs: CosUploadInputs = {
         bucket: inputs.bucket!,
         keyPrefix: inputs.keyPrefix || '/',
         replace: inputs.replace,
+        accelerate: inputs.accelerate,
       };
 
       if (fs.lstatSync(dirToUploadPath).isDirectory()) {
-        uploadDict.dir = dirToUploadPath;
+        uploadInputs.dir = dirToUploadPath;
       } else {
-        uploadDict.file = dirToUploadPath;
+        uploadInputs.file = dirToUploadPath;
       }
-      await this.upload(uploadDict);
+      await this.upload(uploadInputs);
     }
     return inputs;
   }

@@ -52,7 +52,10 @@ export default class CosTrigger extends BaseTrigger<CosTriggerParams, CosTrigger
   async create({ scf, inputs }: { scf: Scf; inputs: TriggerInputs<CosTriggerParams> }) {
     const { triggerInputs } = this.formatInputs({ inputs });
     console.log(`Creating ${triggerInputs.Type} trigger ${triggerInputs.TriggerName}`);
-    const { TriggerInfo } = await scf.request(triggerInputs);
+    const { TriggerInfo } = await scf.request({
+      Action: 'CreateTrigger',
+      ...triggerInputs,
+    });
     TriggerInfo.Qualifier = TriggerInfo.Qualifier || triggerInputs.Qualifier;
 
     return TriggerInfo;

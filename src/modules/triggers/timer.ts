@@ -44,12 +44,15 @@ export default class TimerTrigger extends BaseTrigger<TimerTriggerParams, TimerT
     return {
       triggerInputs,
       triggerKey,
-    } as any;
+    };
   }
   async create({ scf, inputs }: { scf: Scf; inputs: TriggerInputs<TimerTriggerParams> }) {
     const { triggerInputs } = this.formatInputs({ inputs });
     console.log(`Creating ${triggerInputs.Type} trigger ${triggerInputs.TriggerName}`);
-    const { TriggerInfo } = await scf.request(triggerInputs);
+    const { TriggerInfo } = await scf.request({
+      Action: 'CreateTrigger',
+      ...triggerInputs,
+    });
     TriggerInfo.Qualifier = TriggerInfo.Qualifier || triggerInputs.Qualifier;
     return TriggerInfo;
   }
