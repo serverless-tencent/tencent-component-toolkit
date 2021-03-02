@@ -68,6 +68,7 @@ export default class ApigwTrigger extends BaseTrigger<ApigwTriggerInputsParams> 
       ServiceId: serviceId,
       ApiId: apiId,
     });
+
     if (!apiDetail) {
       return true;
     }
@@ -114,15 +115,24 @@ export default class ApigwTrigger extends BaseTrigger<ApigwTriggerInputsParams> 
     return true;
   }
 
+  // apigw trigger key format: `<serviceId>/<apiPath>/<apiMethod>`
   getKey(triggerInputs: CreateTriggerReq): string {
-    if (triggerInputs.ResourceId) {
+    const { TriggerDesc, ResourceId } = triggerInputs;
+    if (ResourceId) {
       // from ListTriggers API
-      const rStrArr = triggerInputs.ResourceId.split('service/');
+      const rStrArr = ResourceId.split('service/');
       const rStrArr1 = rStrArr[1].split('/API');
-      return rStrArr1[0];
+      const serviceId = rStrArr1[0];
+      try {
+        const { api } = JSON.parse(TriggerDesc);
+        const { path, method } = api.requestConfig;
+        return `${serviceId}/${path}/${method}`;
+      } catch (e) {
+        return '';
+      }
     }
 
-    return triggerInputs.TriggerDesc.serviceId;
+    return `${TriggerDesc.serviceId}/${TriggerDesc.path}/${TriggerDesc.method}`;
   }
 
   /** 格式化输入 */
@@ -136,6 +146,7 @@ export default class ApigwTrigger extends BaseTrigger<ApigwTriggerInputsParams> 
   }) {
     const { parameters } = inputs;
     const { oldState, protocols, environment, serviceId, serviceName, serviceDesc } = parameters!;
+    const endpoints = parameters?.endpoints ?? [{ path: '/', method: 'ANY' }];
     const triggerInputs: ApigwTriggerInputsParams = {
       oldState: oldState ?? {},
       region,
@@ -144,7 +155,8 @@ export default class ApigwTrigger extends BaseTrigger<ApigwTriggerInputsParams> 
       serviceId,
       serviceName,
       serviceDesc,
-      endpoints: (parameters?.endpoints ?? []).map((ep: any) => {
+      isInputServiceId: !!serviceId,
+      endpoints: endpoints.map((ep: any) => {
         ep.function = ep.function || {};
         ep.function.functionName = inputs.functionName;
         ep.function.functionNamespace = inputs.namespace;
@@ -154,6 +166,8 @@ export default class ApigwTrigger extends BaseTrigger<ApigwTriggerInputsParams> 
       netTypes: parameters?.netTypes,
       TriggerDesc: {
         serviceId: serviceId!,
+        path: endpoints[0].path ?? '/',
+        method: endpoints[0].method ?? 'ANY',
       },
       created: !!parameters?.created,
     };

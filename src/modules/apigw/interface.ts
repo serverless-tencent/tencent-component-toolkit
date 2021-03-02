@@ -103,7 +103,7 @@ export interface ApigwBindCustomDomainInputs {
   oldState?: Partial<ApigwBindCustomDomainInputs>;
 }
 
-export interface ApigwCreateOrUpdateServiceInputs {
+export interface ApigwCreateServiceInputs {
   environment?: EnviromentType;
   protocols: ('http' | 'https')[] | string;
   netTypes?: string[];
@@ -114,8 +114,26 @@ export interface ApigwCreateOrUpdateServiceInputs {
   usagePlan?: ApigwSetupUsagePlanInputs;
   auth?: ApigwSetupUsagePlanSecretInputs;
 }
+export interface ApigwUpdateServiceInputs {
+  environment?: EnviromentType;
+  protocols: ('http' | 'https')[] | string;
+  netTypes?: string[];
+  serviceName?: string;
+  serviceDesc?: string;
+  serviceId: string;
 
-export type ApiDeployerOutputs = ApiEndpoint;
+  usagePlan?: ApigwSetupUsagePlanInputs;
+  auth?: ApigwSetupUsagePlanSecretInputs;
+}
+export interface ApigwCreateOrUpdateServiceOutputs {
+  serviceName: string;
+  serviceId: string;
+  subDomain: string | string[];
+  serviceCreated: boolean;
+  usagePlan?: undefined | ApigwSetupUsagePlanInputs;
+}
+
+export type ApiDeployOutputs = ApiEndpoint;
 
 export interface CreateOrUpdateApiInputs {
   serviceId?: string;
@@ -124,7 +142,7 @@ export interface CreateOrUpdateApiInputs {
   created?: boolean;
 }
 
-export interface ApiDeployerInputs {
+export interface ApiDeployInputs {
   serviceId: string;
   environment: EnviromentType;
   apiList: ApiEndpoint[];
@@ -133,14 +151,21 @@ export interface ApiDeployerInputs {
   isOauthApi?: boolean;
 }
 
-export interface ApigwDeployInputs
-  extends ApigwCreateOrUpdateServiceInputs,
-    ApigwBindCustomDomainInputs {
+export interface ApigwDeployInputs extends ApigwCreateServiceInputs, ApigwBindCustomDomainInputs {
   region?: RegionType;
   oldState?: any;
   environment?: EnviromentType;
 
   endpoints?: ApiEndpoint[];
+  isInputServiceId?: boolean;
+}
+
+export type ApigwDeployWithServiceIdInputs = ApigwDeployInputs & { serviceId: string };
+export interface ApiBulkDeployInputs {
+  serviceId: string;
+  environment: EnviromentType;
+  stateList: any;
+  apiList: ApiEndpoint[];
 }
 
 export interface ApigwBindCustomDomainOutputs {
@@ -176,8 +201,26 @@ export interface ApigwRemoveOrUnbindUsagePlanInputs {
   apiId?: string;
 }
 
+export interface ApigwRemoveUsagePlanInputs {
+  serviceId: string;
+  environment: EnviromentType;
+  usagePlan: ApigwSetupUsagePlanInputs;
+  apiId?: string;
+}
+
 export interface ApigwApiRemoverInputs {
   apiConfig: ApiEndpoint;
+  serviceId: string;
+  environment: EnviromentType;
+}
+
+export interface ApiRemoveInputs {
+  apiConfig: ApiEndpoint;
+  serviceId: string;
+  environment: EnviromentType;
+}
+export interface ApiBulkRemoveInputs {
+  apiList: ApiEndpoint[];
   serviceId: string;
   environment: EnviromentType;
 }
@@ -189,4 +232,5 @@ export interface ApigwRemoveInputs {
   apiList: ApiEndpoint[];
   customDomains?: ApigwBindCustomDomainOutputs[];
   usagePlan?: ApigwSetupUsagePlanInputs;
+  isInputServiceId?: boolean;
 }

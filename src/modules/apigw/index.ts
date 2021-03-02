@@ -1,81 +1,35 @@
 import { RegionType } from '../interface';
 import { Capi } from '@tencent-sdk/capi';
 import { ApigwTrigger } from '../triggers';
-import { uniqueArray, pascalCaseProps, isArray, deepClone, deepEqual } from '../../utils';
-import { ApiTypeError } from '../../utils/error';
+import { pascalCaseProps, isArray } from '../../utils';
 import { CapiCredentials, ApiServiceType } from '../interface';
 import APIS, { ActionType } from './apis';
 import {
-  Secret,
-  ApigwCreateOrUpdateServiceInputs,
-  ApigwSetupUsagePlanInputs,
-  ApigwSetupUsagePlanSecretInputs,
-  CreateOrUpdateApiInputs,
-  ApiDeployerOutputs,
-  ApiDeployerInputs,
   ApigwDeployInputs,
   ApiEndpoint,
   ApigwDeployOutputs,
-  ApigwBindCustomDomainOutputs,
-  ApigwRemoveOrUnbindUsagePlanInputs,
-  ApigwApiRemoverInputs,
   ApigwRemoveInputs,
-  ApigwBindCustomDomainInputs,
-  ApigwBindUsagePlanOutputs,
-  ApigwCustomDomain,
+  ApigwCreateOrUpdateServiceOutputs,
+  ApigwUpdateServiceInputs,
+  ApigwDeployWithServiceIdInputs,
 } from './interface';
+import { getProtocolString } from './utils';
 
-interface FormattedApigwCustomDomain {
-  domain: string;
-  protocols: string;
-
-  certificateId?: string;
-  isDefaultMapping: boolean;
-  pathMappingSetDict: Record<string, string>;
-  netType: string;
-  isForcedHttps: boolean;
-}
-
-function getProtocolString(protocols: string | ('http' | 'https')[]) {
-  if (!protocols || protocols.length < 1) {
-    return 'http';
-  }
-
-  if (!Array.isArray(protocols)) {
-    return protocols;
-  }
-
-  const tempProtocol = protocols.join('&').toLowerCase();
-  return (tempProtocol === 'https&http' ? 'http&https' : tempProtocol) ?? 'http&https';
-}
-
-function getCustomDomainFormattedDict(domains: ApigwCustomDomain[]) {
-  const domainDict: Record<string, FormattedApigwCustomDomain> = {};
-  domains.forEach((d) => {
-    const pmDict: Record<string, string> = {};
-    for (const pm of d.pathMappingSet ?? []) {
-      pmDict[pm.path] = pm.environment;
-    }
-    domainDict[d.domain] = {
-      domain: d.domain,
-      certificateId: d.certificateId ?? '',
-      protocols: getProtocolString(d.protocols ?? ''),
-      isDefaultMapping: d.isDefaultMapping === false ? false : true,
-      pathMappingSetDict: pmDict,
-      netType: d.netType ?? 'OUTER',
-      isForcedHttps: d.isForcedHttps === true,
-    };
-  });
-
-  return domainDict;
-}
+// sub service entities
+import ServiceEntity from './entities/service';
+import ApiEntity from './entities/api';
+import UsagePlanEntity from './entities/usage-plan';
+import CustomDomainEntity from './entities/custom-domain';
 
 export default class Apigw {
   credentials: CapiCredentials;
   capi: Capi;
   trigger: ApigwTrigger;
-
   region: RegionType;
+  service: ServiceEntity;
+  api: ApiEntity;
+  customDomain: CustomDomainEntity;
+  usagePlan: UsagePlanEntity;
 
   constructor(credentials: CapiCredentials, region: RegionType = 'ap-guangzhou') {
     this.credentials = credentials;
@@ -88,6 +42,11 @@ export default class Apigw {
       Token: this.credentials.Token,
     });
     this.trigger = new ApigwTrigger({ credentials, region: this.region });
+
+    this.service = new ServiceEntity(this.capi);
+    this.api = new ApiEntity(this.capi, this.trigger);
+    this.usagePlan = new UsagePlanEntity(this.capi);
+    this.customDomain = new CustomDomainEntity(this.capi);
   }
 
   async request({ Action, ...data }: { Action: ActionType; [key: string]: any }) {
@@ -95,7 +54,7 @@ export default class Apigw {
     return result as never;
   }
 
-  async removeOrUnbindRequest({ Action, ...data }: { Action: ActionType; [key: string]: any }) {
+  async removeRequest({ Action, ...data }: { Action: ActionType; [key: string]: any }) {
     try {
       await APIS[Action](this.capi, pascalCaseProps(data));
     } catch (e) {
@@ -104,975 +63,35 @@ export default class Apigw {
     return true;
   }
 
-  marshalServiceConfig(endpoint: any, apiInputs: any) {
-    if (
-      !endpoint.serviceConfig ||
-      !endpoint.serviceConfig.url ||
-      !endpoint.serviceConfig.path ||
-      !endpoint.serviceConfig.method
-    ) {
-      throw new ApiTypeError(
-        `PARAMETER_APIGW`,
-        '"endpoints.serviceConfig.url&path&method" is required',
-      );
-    }
-    apiInputs.serviceConfig = {
-      url: endpoint.serviceConfig.url,
-      path: endpoint.serviceConfig.path,
-      method: endpoint.serviceConfig.method.toUpperCase(),
-    };
-  }
-
-  marshalApiInput(endpoint: any, apiInputs: any) {
-    if (endpoint.param) {
-      apiInputs.requestParameters = endpoint.param;
-    }
-
-    const { serviceType } = apiInputs;
-    // handle front-end API type of WEBSOCKET/HTTP
-    if (endpoint.protocol === 'WEBSOCKET') {
-      // handle WEBSOCKET API service type of WEBSOCKET/SCF
-      if (serviceType === 'WEBSOCKET') {
-        this.marshalServiceConfig(endpoint, apiInputs);
-      } else {
-        const funcNamespace = endpoint.function.functionNamespace || 'default';
-        const funcQualifier = endpoint.function.functionQualifier
-          ? endpoint.function.functionQualifier
-          : '$LATEST';
-        if (!endpoint.function.transportFunctionName) {
-          throw new ApiTypeError(
-            `PARAMETER_APIGW`,
-            '"endpoints.function.transportFunctionName" is required',
-          );
-        }
-        apiInputs.serviceWebsocketTransportFunctionName = endpoint.function.transportFunctionName;
-        apiInputs.serviceWebsocketTransportFunctionQualifier = funcQualifier;
-        apiInputs.serviceWebsocketTransportFunctionNamespace = funcNamespace;
-
-        apiInputs.serviceWebsocketRegisterFunctionName = endpoint.function.registerFunctionName;
-        apiInputs.serviceWebsocketRegisterFunctionQualifier = funcQualifier;
-        apiInputs.serviceWebsocketRegisterFunctionNamespace = funcNamespace;
-
-        apiInputs.serviceWebsocketCleanupFunctionName = endpoint.function.cleanupFunctionName;
-        apiInputs.serviceWebsocketCleanupFunctionQualifier = funcQualifier;
-        apiInputs.serviceWebsocketCleanupFunctionNamespace = funcNamespace;
-      }
-    } else {
-      // hande HTTP API service type of SCF/HTTP/MOCK
-      switch (serviceType) {
-        case 'SCF':
-          endpoint.function = endpoint.function || {};
-          if (!endpoint.function.functionName) {
-            throw new ApiTypeError(
-              `PARAMETER_APIGW`,
-              '"endpoints.function.functionName" is required',
-            );
-          }
-          apiInputs.serviceScfFunctionName = endpoint.function.functionName;
-          apiInputs.serviceScfFunctionNamespace = endpoint.function.functionNamespace || 'default';
-          apiInputs.serviceScfIsIntegratedResponse = endpoint.function.isIntegratedResponse
-            ? true
-            : false;
-          apiInputs.serviceScfFunctionQualifier = endpoint.function.functionQualifier
-            ? endpoint.function.functionQualifier
-            : '$LATEST';
-          break;
-        case 'HTTP':
-          this.marshalServiceConfig(endpoint, apiInputs);
-          if (endpoint.serviceParameters && endpoint.serviceParameters.length > 0) {
-            apiInputs.serviceParameters = [];
-            for (let i = 0; i < endpoint.serviceParameters.length; i++) {
-              const inputParam = endpoint.serviceParameters[i];
-              const targetParam = {
-                name: inputParam.name,
-                position: inputParam.position,
-                relevantRequestParameterPosition: inputParam.relevantRequestParameterPosition,
-                relevantRequestParameterName: inputParam.relevantRequestParameterName,
-                defaultValue: inputParam.defaultValue,
-                relevantRequestParameterDesc: inputParam.relevantRequestParameterDesc,
-                relevantRequestParameterType: inputParam.relevantRequestParameterType,
-              };
-              apiInputs.serviceParameters.push(targetParam);
-            }
-          }
-          if (endpoint.serviceConfig.uniqVpcId) {
-            apiInputs.serviceConfig.uniqVpcId = endpoint.serviceConfig.uniqVpcId;
-            apiInputs.serviceConfig.product = 'clb';
-          }
-          break;
-        case 'MOCK':
-          if (!endpoint.serviceMockReturnMessage) {
-            throw new ApiTypeError(
-              `PARAMETER_APIGW`,
-              '"endpoints.serviceMockReturnMessage" is required',
-            );
-          }
-          apiInputs.serviceMockReturnMessage = endpoint.serviceMockReturnMessage;
-      }
-    }
-  }
-
-  /** 设置 API 网关密钥 */
-  async setupUsagePlanSecret({ secretName, secretIds, created }: ApigwSetupUsagePlanSecretInputs) {
-    const secretIdsOutput = {
-      created: !!created,
-      secretIds,
-    };
-
-    // user not setup secret ids, just auto generate one
-    if (!secretIds || secretIds.length === 0) {
-      console.log(`Creating a new Secret key.`);
-      const { AccessKeyId, AccessKeySecret } = await this.request({
-        Action: 'CreateApiKey',
-        SecretName: secretName,
-        AccessKeyType: 'auto',
-      });
-      console.log(`Secret id ${AccessKeyId} and key ${AccessKeySecret} created`);
-      secretIdsOutput.secretIds = [AccessKeyId];
-      secretIdsOutput.created = true;
-    } else {
-      // use setup secret ids
-      // 1. unique it
-      // 2. make sure all bind secret ids exist in user's list
-      const uniqSecretIds = uniqueArray(secretIds);
-
-      // get all secretId, check local secretId exists
-      const { ApiKeySet } = (await this.request({
-        Action: 'DescribeApiKeysStatus',
-        Limit: uniqSecretIds.length,
-        Filters: [
-          {
-            Name: 'AccessKeyId',
-            Values: uniqSecretIds,
-          },
-        ],
-      })) as {
-        ApiKeySet: { AccessKeyId: string; Status: string }[];
-      };
-
-      const existKeysLen = ApiKeySet.length;
-
-      // Filter invalid and non-existent keys
-      const ids: string[] = [];
-      uniqSecretIds.forEach((secretId: string) => {
-        let found = false;
-        let disable = false;
-        for (let n = 0; n < existKeysLen; n++) {
-          if (ApiKeySet[n] && secretId === ApiKeySet[n].AccessKeyId) {
-            if (Number(ApiKeySet[n].Status) === 1) {
-              found = true;
-            } else {
-              disable = true;
-              console.log(`There is a disabled secret id ${secretId}, cannot be bound`);
-            }
-            break;
-          }
-        }
-        if (!found) {
-          if (!disable) {
-            console.log(`Secret id ${secretId} doesn't exist`);
-          }
-        } else {
-          ids.push(secretId);
-        }
-      });
-      secretIdsOutput.secretIds = ids;
-    }
-
-    return secretIdsOutput;
-  }
-
-  /** 设置 API 网关的使用计划 */
-  async setupUsagePlan({
-    usagePlan,
-  }: {
-    usagePlan: ApigwSetupUsagePlanInputs;
-  }): Promise<ApigwSetupUsagePlanInputs> {
-    const usageInputs = {
-      usagePlanName: usagePlan.usagePlanName ?? '',
-      usagePlanDesc: usagePlan.usagePlanDesc ?? '',
-      maxRequestNumPreSec: usagePlan.maxRequestNumPreSec ?? -1,
-      maxRequestNum: usagePlan.maxRequestNum ?? -1,
-    };
-
-    const usagePlanOutput = {
-      created: usagePlan.created || false,
-      usagePlanId: usagePlan.usagePlanId,
-    };
-
-    let exist = false;
-    if (usagePlan.usagePlanId) {
-      try {
-        const detail = (await this.request({
-          Action: 'DescribeUsagePlan',
-          UsagePlanId: usagePlan.usagePlanId,
-        })) as {
-          UsagePlanId: string;
-        };
-        if (detail && detail.UsagePlanId) {
-          exist = true;
-        }
-      } catch (e) {
-        // no op
-      }
-    }
-
-    if (exist) {
-      console.log(`Updating usage plan ${usagePlan.usagePlanId}.`);
-      await this.request({
-        Action: 'ModifyUsagePlan',
-        usagePlanId: usagePlanOutput.usagePlanId,
-        ...usageInputs,
-      });
-    } else {
-      const { UsagePlanId } = await this.request({
-        Action: 'CreateUsagePlan',
-        ...usageInputs,
-      });
-
-      usagePlanOutput.usagePlanId = UsagePlanId;
-      usagePlanOutput.created = true;
-      console.log(`Usage plan ${usagePlanOutput.usagePlanId} created.`);
-    }
-
-    return usagePlanOutput;
-  }
-
-  /** 获取 secrets 列表 */
-  async getAllBoundSecrets(
-    usagePlanId: string,
-    res: Secret[] = [],
-    { limit, offset = 0 }: { limit: number; offset?: number },
-  ): Promise<Secret[]> {
-    const { AccessKeyList } = (await this.request({
-      Action: 'DescribeUsagePlanSecretIds',
-      usagePlanId,
-      limit,
-      offset,
-    })) as {
-      AccessKeyList: Secret[];
-    };
-
-    if (AccessKeyList.length < limit) {
-      return AccessKeyList;
-    }
-    const more = await this.getAllBoundSecrets(usagePlanId, AccessKeyList, {
-      limit,
-      offset: offset + AccessKeyList.length,
-    });
-    // FIXME: more is same type with res, why concat?
-    // return res.concat(more.AccessKeyList);
-    return res.concat(more);
-  }
-
-  /**
-   * 找到所有不存在的 secretIds
-   */
-  async getUnboundSecretIds({
-    usagePlanId,
-    secretIds,
-  }: {
-    usagePlanId: string;
-    secretIds: string[];
-  }) {
-    const allBoundSecretObjs = await this.getAllBoundSecrets(usagePlanId, [], { limit: 100 });
-    const allBoundSecretIds = allBoundSecretObjs.map((item) => item.AccessKeyId);
-
-    const unboundSecretIds = secretIds.filter((item) => {
-      if (allBoundSecretIds.indexOf(item) === -1) {
-        return true;
-      }
-      console.log(`Usage plan ${usagePlanId} secret id ${item} already bound`);
-      return false;
-    });
-    return unboundSecretIds;
-  }
-
-  async getCurrentCustomDomainsDict(serviceId: string) {
-    const res = (await this.request({
-      Action: 'DescribeServiceSubDomains',
-      ServiceId: serviceId,
-    })) as
-      | {
-          DomainSet?: {
-            /**
-             * 域名名称。
-             */
-            DomainName: string;
-            /**
-             * 域名解析状态。True 表示正常解析，False 表示解析失败。
-             */
-            Status: number;
-            /**
-             * 证书ID。
-             */
-            CertificateId: string;
-            /**
-             * 是否使用默认路径映射。
-             */
-            IsDefaultMapping: boolean;
-            /**
-             * 自定义域名协议类型。
-             */
-            Protocol: string;
-            /**
-             * 网络类型（'INNER' 或 'OUTER'）。
-             */
-            NetType: string;
-            IsForcedHttps: boolean;
-          }[];
-        }
-      | undefined;
-
-    const domainDict: Record<string, FormattedApigwCustomDomain> = {};
-
-    for (const d of res?.DomainSet ?? []) {
-      const domain: FormattedApigwCustomDomain = {
-        domain: d.DomainName,
-        protocols: d.Protocol,
-        certificateId: d.CertificateId,
-        isDefaultMapping: d.IsDefaultMapping,
-        isForcedHttps: d.IsForcedHttps,
-        netType: d.NetType,
-        pathMappingSetDict: {},
-      };
-
-      const mappings = (await this.request({
-        Action: 'DescribeServiceSubDomainMappings',
-        ServiceId: serviceId,
-        SubDomain: d.DomainName,
-      })) as {
-        IsDefaultMapping?: boolean;
-        PathMappingSet?: {
-          Path: string;
-          Environment: string;
-        }[];
-      };
-
-      mappings?.PathMappingSet?.map((v) => {
-        domain.pathMappingSetDict[v.Path] = v.Environment;
-      });
-
-      domainDict[domain.domain] = domain;
-    }
-
-    return domainDict;
-  }
-
-  /**
-   * 解绑 API 网关所有自定义域名，不解绑当前已有并且需要配置的域名
-   * @param serviceId API 网关 ID
-   */
-  async unbindCustomDomain(
-    serviceId: string,
-    oldCustomDomains: ApigwCustomDomain[],
-    currentDict: Record<string, FormattedApigwCustomDomain> = {},
-    newDict: Record<string, FormattedApigwCustomDomain> = {},
-  ) {
-    const customDomainDetail = (await this.request({
-      Action: 'DescribeServiceSubDomains',
-      ServiceId: serviceId,
-    })) as
-      | {
-          DomainSet?: { DomainName: string }[];
-        }
-      | undefined;
-
-    if ((customDomainDetail?.DomainSet?.length ?? 0) > 0) {
-      const { DomainSet = [] } = customDomainDetail!;
-      // 解绑所有创建的自定义域名
-      for (let i = 0; i < DomainSet.length; i++) {
-        const domainItem = DomainSet[i];
-        const domain = domainItem.DomainName ?? '';
-        // 当前绑定状态与新的绑定状态一致，不解绑
-        if (currentDict[domain] && deepEqual(currentDict[domain], newDict[domain])) {
-          console.log(
-            `Domain ${domainItem.DomainName} for service ${serviceId} unchanged, won't unbind`,
-          );
-          continue;
-        }
-
-        for (let j = 0; j < oldCustomDomains.length; j++) {
-          // 只解绑由组件创建的域名
-          if (oldCustomDomains[j].subDomain === domainItem.DomainName) {
-            console.log(`Start unbind domain ${domainItem.DomainName} for service ${serviceId}`);
-            await this.request({
-              Action: 'UnBindSubDomain',
-              serviceId,
-              subDomain: domainItem.DomainName,
-            });
-          }
-        }
-      }
-    }
-  }
-
-  /**
-   * 为 API 网关服务绑定自定义域名
-   */
-  async bindCustomDomain({
-    serviceId,
-    subDomain,
-    inputs,
-  }: {
-    serviceId: string;
-    subDomain: string;
-    inputs: ApigwBindCustomDomainInputs;
-  }): Promise<ApigwBindCustomDomainOutputs[]> {
-    console.log('Binding custom domain...');
-    let { customDomains } = inputs;
-    const { oldState = {} } = inputs;
-    if (!customDomains) {
-      // FIXME: 不存在自定义域名的时候，应该解绑之前绑定的域名
-      customDomains = [];
-    }
-
-    const currentDict = await this.getCurrentCustomDomainsDict(serviceId);
-    const newDict = getCustomDomainFormattedDict(inputs.customDomains ?? []);
-
-    // 1. 解绑旧的自定义域名
-    await this.unbindCustomDomain(serviceId, oldState?.customDomains ?? [], currentDict, newDict);
-
-    // 2. bind user config domain
-    const customDomainOutput: ApigwBindCustomDomainOutputs[] = [];
-    if (customDomains && customDomains.length > 0) {
-      console.log(`Start bind custom domain for service ${serviceId}`);
-      for (let i = 0; i < customDomains.length; i++) {
-        const domainItem = customDomains[i];
-        const domainProtocol = domainItem.protocols
-          ? getProtocolString(domainItem.protocols)
-          : inputs.protocols;
-        const domainInputs = {
-          serviceId,
-          subDomain: domainItem.domain,
-          netSubDomain: subDomain,
-          certificateId: domainItem.certificateId,
-          // default isDefaultMapping is true
-          isDefaultMapping: domainItem.isDefaultMapping === false ? false : true,
-          // if isDefaultMapping is false, should append pathMappingSet config
-          pathMappingSet: domainItem.pathMappingSet || [],
-          netType: domainItem.netType ?? 'OUTER',
-          protocol: domainProtocol,
-          isForcedHttps: domainItem.isForcedHttps === true,
-        };
-
-        try {
-          const { domain } = domainItem;
-          // 当前状态与新的状态一致，不进行绑定
-          if (currentDict[domain] && deepEqual(currentDict[domain], newDict[domain])) {
-            console.log(`Custom domain for service ${serviceId} unchanged, wont create.`);
-            console.log(`Please add CNAME record ${subDomain} for ${domainItem.domain}.`);
-          } else {
-            await this.request({
-              Action: 'BindSubDomain',
-              ...domainInputs,
-            });
-            console.log(`Custom domain for service ${serviceId} created successfullly.`);
-            console.log(`Please add CNAME record ${subDomain} for ${domainItem.domain}.`);
-          }
-
-          customDomainOutput.push({
-            isBinded: true,
-            created: true,
-            subDomain: domainItem.domain,
-            cname: subDomain,
-            url: `${domainProtocol.indexOf('https') !== -1 ? 'https' : 'http'}://${
-              domainItem.domain
-            }`,
-          });
-        } catch (e) {
-          // User hasn't add cname dns record
-          if (e.code === 'FailedOperation.DomainResolveError') {
-            customDomainOutput.push({
-              isBinded: false,
-              subDomain: domainItem.domain,
-              cname: subDomain,
-              message: `您的自定义域名还未生效，请给域名 ${domainItem.domain} 添加 CNAME 记录 ${subDomain}，等待解析生效后，再次运行 'sls deploy' 完成自定义域名的配置`,
-            });
-          } else {
-            throw e;
-          }
-        }
-      }
-    }
-
-    return customDomainOutput;
-  }
-
-  /** API 网关绑定用量计划 */
-  async bindUsagePlan({
-    apiId,
-    serviceId,
-    environment,
-    usagePlanConfig,
-    authConfig,
-  }: ApigwBindUsagePlanOutputs) {
-    const usagePlan = await this.setupUsagePlan({
-      usagePlan: usagePlanConfig,
-    });
-
-    if (authConfig) {
-      const { secretIds = [] } = authConfig;
-      const secrets = await this.setupUsagePlanSecret({
-        secretName: authConfig.secretName,
-        secretIds,
-      });
-
-      const unboundSecretIds = await this.getUnboundSecretIds({
-        usagePlanId: usagePlan.usagePlanId,
-        secretIds: secrets.secretIds!,
-      });
-
-      if (unboundSecretIds.length > 0) {
-        console.log(
-          `Binding secret key ${unboundSecretIds} to usage plan ${usagePlan.usagePlanId}.`,
-        );
-        await this.request({
-          Action: 'BindSecretIds',
-          usagePlanId: usagePlan.usagePlanId,
-          accessKeyIds: unboundSecretIds,
-        });
-        console.log('Binding secret key successed.');
-      }
-      // store in api list
-      usagePlan.secrets = secrets;
-    }
-
-    const { ApiUsagePlanList } = (await this.request({
-      Action: 'DescribeApiUsagePlan',
-      serviceId,
-      limit: 100,
-    })) as { ApiUsagePlanList: { UsagePlanId: string; ApiId: string }[] };
-
-    const oldUsagePlan = ApiUsagePlanList.find((item) => {
-      return apiId
-        ? item.UsagePlanId === usagePlan.usagePlanId && item.ApiId === apiId
-        : item.UsagePlanId === usagePlan.usagePlanId;
-    });
-
-    if (oldUsagePlan) {
-      if (apiId) {
-        console.log(`Usage plan ${usagePlan.usagePlanId} already bind to api ${apiId}`);
-      } else {
-        console.log(
-          `Usage plan ${usagePlan.usagePlanId} already bind to enviromment ${environment}`,
-        );
-      }
-
-      return usagePlan;
-    }
-
-    if (apiId) {
-      console.log(`Binding usage plan ${usagePlan.usagePlanId} to api ${apiId}`);
-      await this.request({
-        Action: 'BindEnvironment',
-        serviceId,
-        environment,
-        bindType: 'API',
-        usagePlanIds: [usagePlan.usagePlanId],
-        apiIds: [apiId],
-      });
-      console.log(`Bind usage plan ${usagePlan.usagePlanId} to api ${apiId} success`);
-      return usagePlan;
-    }
-
-    console.log(`Binding usage plan ${usagePlan.usagePlanId} to enviromment ${environment}`);
-    await this.request({
-      Action: 'BindEnvironment',
-      serviceId,
-      environment,
-      bindType: 'SERVICE',
-      usagePlanIds: [usagePlan.usagePlanId],
-    });
-    console.log(`Bind usage plan ${usagePlan.usagePlanId} to enviromment ${environment} success`);
-
-    return usagePlan;
-  }
-
-  /** 创建或更新 API 网关服务 */
-  async createOrUpdateService(serviceConf: ApigwCreateOrUpdateServiceInputs) {
-    const {
-      environment,
-      serviceId,
-      protocols,
-      netTypes,
-      serviceName = 'Serverless_Framework',
-      serviceDesc = 'Created By Serverless Framework',
-    } = serviceConf;
-    let serviceCreated = false;
-    let exist = false;
-
-    interface Detail {
-      InnerSubDomain: string;
-      InternalSubDomain: string;
-      OuterSubDomain: string;
-
-      ServiceId: string;
-
-      // FIXME: 小写？
-      ServiceName: string;
-      ServiceDesc: string;
-      Protocol: string;
-    }
-    let detail: Detail;
-
-    if (serviceId) {
-      detail = await this.request({
-        Action: 'DescribeService',
-        ServiceId: serviceId,
-      });
-      if (detail) {
-        detail.InnerSubDomain = detail.InternalSubDomain;
-        exist = true;
-        if (
-          !(
-            // FIXME: 小写？
-            (
-              serviceName === detail.ServiceName &&
-              serviceDesc === detail.ServiceDesc &&
-              protocols === detail.Protocol
-            )
-          )
-        ) {
-          const apiInputs = {
-            Action: 'ModifyService' as const,
-            serviceId,
-            serviceDesc: serviceDesc || detail.ServiceDesc,
-            serviceName: serviceName || detail.ServiceName,
-            protocol: protocols,
-            netTypes: netTypes,
-          };
-          await this.request(apiInputs);
-        }
-      }
-    }
-
-    if (!exist) {
-      const apiInputs = {
-        Action: 'CreateService' as const,
-        serviceName: serviceName || 'Serverless_Framework',
-        serviceDesc: serviceDesc || 'Created By Serverless Framework',
-        protocol: protocols,
-        netTypes,
-      };
-
-      detail = await this.request(apiInputs);
-      serviceCreated = true;
-    }
-
-    const outputs = {
-      serviceName,
-      serviceId: detail!.ServiceId,
-      subDomain:
-        detail!.OuterSubDomain && detail!.InnerSubDomain
-          ? [detail!.OuterSubDomain, detail!.InnerSubDomain]
-          : detail!.OuterSubDomain || detail!.InnerSubDomain,
-      serviceCreated,
-      usagePlan: undefined as undefined | ApigwSetupUsagePlanInputs,
-    };
-
-    if (serviceConf.usagePlan) {
-      outputs.usagePlan = await this.bindUsagePlan({
-        serviceId: detail!.ServiceId,
-        environment,
-        usagePlanConfig: serviceConf.usagePlan,
-        authConfig: serviceConf.auth,
-      });
-    }
-
-    return deepClone(outputs);
-  }
-
-  /** 根据路径和方法获取 API 网关接口 */
-  async getApiByPathAndMethod({
-    serviceId,
-    path,
-    method,
-  }: {
-    serviceId?: string;
-    path: string;
-    method: string;
-  }) {
-    const { ApiIdStatusSet } = (await this.request({
-      Action: 'DescribeApisStatus',
-      ServiceId: serviceId,
-      Offset: 0,
-      Limit: 100,
-      Filters: [{ Name: 'ApiPath', Values: [path] }],
-    })) as {
-      ApiIdStatusSet: { Method: string; Path: string; ApiId: string; InternalDomain: string }[];
-    };
-
-    let apiDetail: {
-      Method: string;
-      Path: string;
-      ApiId: string;
-      InternalDomain: string;
-    } | null = null;
-
-    if (ApiIdStatusSet) {
-      ApiIdStatusSet.forEach((item) => {
-        if (item.Path === path && item.Method.toLowerCase() === method.toLowerCase()) {
-          apiDetail = item;
-        }
-      });
-    }
-
-    if (apiDetail!) {
-      apiDetail = await this.request({
-        Action: 'DescribeApi',
-        serviceId: serviceId,
-        apiId: apiDetail!.ApiId,
-      });
-    }
-    return apiDetail!;
-  }
-
-  async getApiById({ serviceId, apiId }: { serviceId: string; apiId: string }) {
-    const apiDetail = await this.request({
-      Action: 'DescribeApi',
-      serviceId: serviceId,
-      apiId: apiId,
-    });
-    return apiDetail;
-  }
-
-  async createOrUpdateApi({ serviceId, endpoint, environment, created }: CreateOrUpdateApiInputs) {
-    // compatibility for secret auth config depends on auth & usagePlan
-    const authType = endpoint?.auth ? 'SECRET' : endpoint?.authType ?? 'NONE';
-    const businessType = endpoint?.businessType ?? 'NORMAL';
-    const output: ApiDeployerOutputs = {
-      path: endpoint?.path,
-      method: endpoint?.method,
-      apiName: endpoint?.apiName || 'index',
-      created: true,
-      authType: authType,
-      businessType: businessType,
-      isBase64Encoded: endpoint?.isBase64Encoded === true,
-    };
-    if (endpoint?.authRelationApiId) {
-      output.authRelationApiId = endpoint.authRelationApiId;
-    }
-
-    const apiInputs = {
-      protocol: endpoint?.protocol ?? 'HTTP',
-      serviceId: serviceId,
-      apiName: endpoint?.apiName ?? 'index',
-      apiDesc: endpoint?.description,
-      apiType: 'NORMAL',
-      authType: authType,
-      apiBusinessType: endpoint?.businessType ?? 'NORMAL',
-      serviceType: endpoint?.serviceType ?? 'SCF',
-      requestConfig: {
-        path: endpoint?.path,
-        method: endpoint?.method,
-      },
-      serviceTimeout: endpoint?.serviceTimeout ?? 15,
-      responseType: endpoint?.responseType ?? 'HTML',
-      enableCORS: endpoint?.enableCORS === true,
-      isBase64Encoded: endpoint?.isBase64Encoded === true,
-      isBase64Trigger: undefined as undefined | boolean,
-      base64EncodedTriggerRules: undefined as
-        | undefined
-        | {
-            name: string;
-            value: string[];
-          }[],
-      oauthConfig: endpoint?.oauthConfig,
-      authRelationApiId: endpoint?.authRelationApiId,
-    };
-
-    this.marshalApiInput(endpoint, apiInputs);
-
-    let apiDetail: {
-      ApiId?: string;
-      InternalDomain?: string;
-    };
-
-    if (endpoint?.apiId) {
-      apiDetail = await this.getApiById({ serviceId: serviceId!, apiId: endpoint.apiId });
-    }
-
-    if (!apiDetail!) {
-      apiDetail = await this.getApiByPathAndMethod({
-        serviceId: serviceId!,
-        path: endpoint?.path!,
-        method: endpoint?.method!,
-      });
-    }
-
-    if (apiDetail && endpoint) {
-      console.log(`Api method ${endpoint?.method}, path ${endpoint?.path} already exist`);
-      endpoint.apiId = apiDetail.ApiId;
-
-      if (endpoint.isBase64Encoded && endpoint.isBase64Trigger) {
-        apiInputs.isBase64Trigger = endpoint.isBase64Trigger;
-        apiInputs.base64EncodedTriggerRules = endpoint.base64EncodedTriggerRules;
-      }
-
-      await this.request({
-        Action: 'ModifyApi',
-        apiId: endpoint.apiId,
-        ...apiInputs,
-      });
-
-      output.apiId = endpoint.apiId;
-      output.created = !!created;
-      output.internalDomain = apiDetail.InternalDomain || '';
-      console.log(`Api ${output.apiId} updated`);
-    } else {
-      const res = await this.request({
-        Action: 'CreateApi',
-        ...apiInputs,
-      });
-      const { ApiId } = res;
-      output.apiId = ApiId;
-      output.created = true;
-
-      console.log(`API ${ApiId} created.`);
-      apiDetail = await this.request({
-        Action: 'DescribeApi',
-        serviceId: serviceId,
-        apiId: output.apiId,
-      });
-      output.internalDomain = apiDetail.InternalDomain || '';
-
-      if (endpoint?.isBase64Encoded && endpoint.isBase64Trigger) {
-        apiInputs.isBase64Trigger = endpoint.isBase64Trigger;
-        apiInputs.base64EncodedTriggerRules = endpoint.base64EncodedTriggerRules;
-      }
-
-      await this.request({
-        Action: 'ModifyApi',
-        apiId: ApiId,
-        ...apiInputs,
-      });
-    }
-
-    output.apiName = apiInputs.apiName;
-
-    if (endpoint?.usagePlan) {
-      const usagePlan = await this.bindUsagePlan({
-        apiId: output.apiId,
-        serviceId,
-        environment,
-        usagePlanConfig: endpoint.usagePlan,
-        authConfig: endpoint.auth,
-      });
-
-      output.usagePlan = usagePlan;
-    }
-
-    return output;
-  }
-
-  /** 部署 API 列表 */
-  async apiDeployer({
-    serviceId,
-    environment,
-    apiList = [],
-    oldList,
-    apiConfig,
-    isOauthApi,
-  }: ApiDeployerInputs): Promise<ApiDeployerOutputs> {
-    // if exist in state list, set created to be true
-    const [exist] = oldList.filter(
-      (item) =>
-        item?.method?.toLowerCase() === apiConfig?.method?.toLowerCase() &&
-        item.path === apiConfig.path,
-    );
-
-    if (exist) {
-      apiConfig.apiId = exist.apiId;
-      apiConfig.created = exist.created;
-
-      if (isOauthApi) {
-        apiConfig.authRelationApiId = exist.authRelationApiId;
-      }
-    }
-    if (isOauthApi && !apiConfig.authRelationApiId) {
-      // find reletive oauth api
-      const { authRelationApi } = apiConfig;
-      if (authRelationApi) {
-        const [relativeApi] = apiList.filter(
-          (item) =>
-            item.method?.toLowerCase() === authRelationApi.method.toLowerCase() &&
-            item.path === authRelationApi.path,
-        );
-        if (relativeApi) {
-          apiConfig.authRelationApiId = relativeApi.apiId;
-        }
-      }
-    }
-
-    const curApi = await this.createOrUpdateApi({
-      serviceId,
-      environment,
-      endpoint: apiConfig,
-      created: exist && exist.created,
-    });
-
-    console.log(`Deploy api ${curApi.apiName} success`);
-    return curApi;
-  }
-
   /** 部署 API 网关 */
   async deploy(inputs: ApigwDeployInputs) {
-    const { environment = 'release' as const, oldState = {} } = inputs;
+    const { environment = 'release' as const, oldState = {}, isInputServiceId = false } = inputs;
+    if (isInputServiceId) {
+      return this.deployWIthInputServiceId(inputs as ApigwDeployWithServiceIdInputs);
+    }
     inputs.protocols = getProtocolString(inputs.protocols as ('http' | 'https')[]);
 
-    const {
-      serviceId,
-      serviceName,
-      subDomain,
-      serviceCreated,
-      usagePlan,
-    } = await this.createOrUpdateService(inputs)!;
+    let serviceOutputs: ApigwCreateOrUpdateServiceOutputs;
+    if (inputs.serviceId) {
+      serviceOutputs = await this.service.update(inputs as ApigwUpdateServiceInputs);
+    } else {
+      serviceOutputs = await this.service.create(inputs);
+    }
 
-    const apiList: ApiEndpoint[] = [];
-    const stateApiList = oldState.apiList || [];
+    const { serviceId, serviceName, subDomain, serviceCreated, usagePlan } = serviceOutputs;
 
     const endpoints = inputs.endpoints || [];
+    const stateApiList = oldState.apiList || [];
 
-    const businessOauthApis = [];
-    // deploy normal api
-    for (let i = 0, len = endpoints.length; i < len; i++) {
-      const endpoint = endpoints[i];
-      if (endpoint.authType === 'OAUTH' && endpoint.businessType === 'NORMAL') {
-        businessOauthApis.push(endpoint);
-        continue;
-      }
-      const curApi: ApiDeployerOutputs = await this.apiDeployer({
-        serviceId,
-        environment,
-        apiList,
-        oldList: stateApiList,
-        apiConfig: endpoint,
-      });
-      apiList.push(curApi);
-    }
-
-    // deploy oauth bisiness apis
-    for (let i = 0, len = businessOauthApis.length; i < len; i++) {
-      const endpoint = businessOauthApis[i];
-      const curApi = await this.apiDeployer({
-        serviceId,
-        environment,
-        apiList,
-        oldList: stateApiList,
-        apiConfig: endpoint,
-        isOauthApi: true,
-      });
-      apiList.push(curApi);
-    }
-
-    console.log(`Releaseing service ${serviceId}, environment ${environment}`);
-    await this.request({
-      Action: 'ReleaseService',
-      serviceId: serviceId,
-      environmentName: environment,
-      releaseDesc: 'Released by Serverless Component',
+    const apiList: ApiEndpoint[] = await this.api.bulkDeploy({
+      apiList: endpoints,
+      stateList: stateApiList,
+      serviceId,
+      environment,
     });
+
+    await this.service.release({ serviceId, environment });
+
     console.log(`Deploy service ${serviceId} success`);
 
     const outputs: ApigwDeployOutputs = {
@@ -1086,7 +105,7 @@ export default class Apigw {
     };
 
     // bind custom domain
-    const customDomains = await this.bindCustomDomain({
+    const customDomains = await this.customDomain.bind({
       serviceId,
       subDomain: isArray(subDomain) ? subDomain[0] : subDomain,
       inputs,
@@ -1102,101 +121,120 @@ export default class Apigw {
     return outputs;
   }
 
-  /** 移除 API 网关的使用计划 */
-  async removeOrUnbindUsagePlan({
-    serviceId,
-    environment,
-    usagePlan,
-    apiId,
-  }: ApigwRemoveOrUnbindUsagePlanInputs) {
-    // 1.1 unbind secrete ids
-    const { secrets } = usagePlan;
+  async remove(inputs: ApigwRemoveInputs) {
+    const {
+      created,
+      environment,
+      serviceId,
+      apiList,
+      customDomains,
+      usagePlan,
+      isInputServiceId = false,
+    } = inputs;
 
-    if (secrets && secrets.secretIds) {
-      await this.removeOrUnbindRequest({
-        Action: 'UnBindSecretIds' as const,
-        accessKeyIds: secrets.secretIds,
-        usagePlanId: usagePlan.usagePlanId,
+    // 如果用户 yaml 的 inputs 配置了 serviceId，走特殊流程
+    if (isInputServiceId) {
+      await this.removeWithInputServiceId(inputs);
+      return;
+    }
+
+    // check service exist
+    const detail = await this.request({
+      Action: 'DescribeService',
+      ServiceId: serviceId,
+    });
+    if (!detail) {
+      console.log(`Service ${serviceId} not exist`);
+      return;
+    }
+
+    // remove usage plan
+    if (usagePlan) {
+      await this.usagePlan.remove({
+        serviceId,
+        environment,
+        usagePlan,
       });
-      console.log(`Unbinding secret key from usage plan ${usagePlan.usagePlanId}.`);
+    }
 
-      // delelet all created api key
-      if (usagePlan.secrets?.created === true) {
-        for (let sIdx = 0; sIdx < secrets.secretIds.length; sIdx++) {
-          const secretId = secrets.secretIds[sIdx];
-          console.log(`Removing secret key ${secretId}`);
-          await this.removeOrUnbindRequest({
-            Action: 'DisableApiKey',
-            accessKeyId: secretId,
-          });
-          await this.removeOrUnbindRequest({
-            Action: 'DeleteApiKey',
-            accessKeyId: secretId,
+    // 1. remove all apis
+    await this.api.bulkRemove({
+      apiList,
+      serviceId,
+      environment,
+    });
+
+    // 2. unbind all custom domains
+    if (customDomains) {
+      for (let i = 0; i < customDomains.length; i++) {
+        const curDomain = customDomains[i];
+        if (curDomain.subDomain && curDomain.created === true) {
+          console.log(`Unbinding custom domain ${curDomain.subDomain}`);
+          await this.removeRequest({
+            Action: 'UnBindSubDomain',
+            serviceId,
+            subDomain: curDomain.subDomain,
           });
         }
       }
     }
 
-    // 1.2 unbind environment
-    if (apiId) {
-      await this.removeOrUnbindRequest({
-        Action: 'UnBindEnvironment',
+    if (created === true) {
+      // unrelease service
+      console.log(`Unreleasing service: ${serviceId}, environment ${environment}`);
+      await this.removeRequest({
+        Action: 'UnReleaseService',
         serviceId,
-        usagePlanIds: [usagePlan.usagePlanId],
-        environment,
-        bindType: 'API',
-        apiIds: [apiId],
+        environmentName: environment,
       });
-    } else {
-      await this.removeOrUnbindRequest({
-        Action: 'UnBindEnvironment',
+      console.log(`Unrelease service ${serviceId}, environment ${environment} success`);
+
+      // delete service
+      console.log(`Removing service ${serviceId}`);
+      await this.removeRequest({
+        Action: 'DeleteService',
         serviceId,
-        usagePlanIds: [usagePlan.usagePlanId],
-        environment,
-        bindType: 'SERVICE',
       });
-    }
-
-    console.log(`Unbinding usage plan ${usagePlan.usagePlanId} from service ${serviceId}.`);
-
-    // 1.3 delete created usage plan
-    if (usagePlan.created === true) {
-      console.log(`Removing usage plan ${usagePlan.usagePlanId}`);
-      await this.removeOrUnbindRequest({
-        Action: 'DeleteUsagePlan',
-        usagePlanId: usagePlan.usagePlanId,
-      });
+      console.log(`Remove service ${serviceId} success`);
     }
   }
 
-  async apiRemover({ apiConfig, serviceId, environment }: ApigwApiRemoverInputs) {
-    // 1. remove usage plan
-    if (apiConfig.usagePlan) {
-      await this.removeOrUnbindUsagePlan({
-        serviceId,
-        environment,
-        apiId: apiConfig.apiId,
-        usagePlan: apiConfig.usagePlan,
-      });
-    }
+  async deployWIthInputServiceId(inputs: ApigwDeployWithServiceIdInputs) {
+    const { environment = 'release' as const, oldState = {}, serviceId } = inputs;
+    inputs.protocols = getProtocolString(inputs.protocols as ('http' | 'https')[]);
 
-    // 2. delete only apis created by serverless framework
-    if (apiConfig.apiId && apiConfig.created === true) {
-      console.log(`Removing api ${apiConfig.apiId}`);
-      await this.trigger.remove({
-        serviceId,
-        apiId: apiConfig.apiId,
-      });
-      await this.removeOrUnbindRequest({
-        Action: 'DeleteApi',
-        apiId: apiConfig.apiId,
-        serviceId,
-      });
-    }
+    const endpoints = inputs.endpoints || [];
+    const stateApiList = oldState.apiList || [];
+
+    const serviceDetail = await this.service.getById(serviceId);
+
+    const apiList: ApiEndpoint[] = await this.api.bulkDeploy({
+      apiList: endpoints,
+      stateList: stateApiList,
+      serviceId,
+      environment,
+    });
+
+    await this.service.release({ serviceId, environment });
+
+    console.log(`Deploy service ${serviceId} success`);
+
+    const outputs: ApigwDeployOutputs = {
+      created: false,
+      serviceId,
+      serviceName: serviceDetail.serviceName,
+      subDomain: serviceDetail.subDomain,
+      protocols: inputs.protocols,
+      environment: environment,
+      apiList,
+    };
+
+    return outputs;
   }
 
-  async remove(inputs: ApigwRemoveInputs) {
-    const { created, environment, serviceId, apiList, customDomains, usagePlan } = inputs;
+  // 定制化需求：如果用户在yaml中配置了 serviceId，则只执行删除 api 逻辑
+  async removeWithInputServiceId(inputs: ApigwRemoveInputs) {
+    const { environment, serviceId, apiList } = inputs;
 
     // check service exist
     const detail = await this.request({
@@ -1209,72 +247,12 @@ export default class Apigw {
       return;
     }
 
-    // remove usage plan
-    if (usagePlan) {
-      await this.removeOrUnbindUsagePlan({
-        serviceId,
-        environment,
-        usagePlan,
-      });
-    }
-
     // 1. remove all apis
-    const oauthApis = [];
-    for (let i = 0; i < apiList.length; i++) {
-      const curApi = apiList[i];
-      if (curApi.authType === 'OAUTH' && curApi.businessType === 'OAUTH') {
-        oauthApis.push(curApi);
-        continue;
-      }
-
-      await this.apiRemover({
-        apiConfig: curApi,
-        serviceId,
-        environment,
-      });
-    }
-    for (let i = 0; i < oauthApis.length; i++) {
-      const curApi = oauthApis[i];
-      await this.apiRemover({
-        apiConfig: curApi,
-        serviceId,
-        environment,
-      });
-    }
-
-    // 2. unbind all custom domains
-    if (customDomains) {
-      for (let i = 0; i < customDomains.length; i++) {
-        const curDomain = customDomains[i];
-        if (curDomain.subDomain && curDomain.created === true) {
-          console.log(`Unbinding custom domain ${curDomain.subDomain}`);
-          await this.removeOrUnbindRequest({
-            Action: 'UnBindSubDomain',
-            serviceId,
-            subDomain: curDomain.subDomain,
-          });
-        }
-      }
-    }
-
-    if (created === true) {
-      // unrelease service
-      console.log(`Unreleasing service: ${serviceId}, environment ${environment}`);
-      await this.removeOrUnbindRequest({
-        Action: 'UnReleaseService',
-        serviceId,
-        environmentName: environment,
-      });
-      console.log(`Unrelease service ${serviceId}, environment ${environment} success`);
-
-      // delete service
-      console.log(`Removing service ${serviceId}`);
-      await this.removeOrUnbindRequest({
-        Action: 'DeleteService',
-        serviceId,
-      });
-      console.log(`Remove service ${serviceId} success`);
-    }
+    await this.api.bulkRemove({
+      apiList,
+      serviceId,
+      environment,
+    });
   }
 }
 
