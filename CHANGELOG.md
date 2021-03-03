@@ -1,3 +1,11 @@
+## [2.3.3](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.3.2...v2.3.3) (2021-03-03)
+
+
+### Bug Fixes
+
+* **scf:** add namespace test ([e1d8367](https://github.com/serverless-tencent/tencent-component-toolkit/commit/e1d8367642a6d05ad3d7b6fed965b6085329ad80))
+* **scf:** update function code missing namespace ([f56b19a](https://github.com/serverless-tencent/tencent-component-toolkit/commit/f56b19aaec5fed6d62d5b670c3c9b700c3a6995a))
+
 ## [2.3.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.3.1...v2.3.2) (2021-03-03)
 
 
