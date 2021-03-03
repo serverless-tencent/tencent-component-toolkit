@@ -188,7 +188,7 @@ export default class Scf {
       FunctionName: functionInputs.FunctionName,
       CosBucketName: functionInputs.Code?.CosBucketName,
       CosObjectName: functionInputs.Code?.CosObjectName,
-      Namespace: inputs.Namespace || funcInfo.Namespace,
+      Namespace: inputs.namespace || funcInfo.Namespace,
     };
     await this.request(updateFunctionConnfigure);
     return true;
@@ -589,7 +589,7 @@ export default class Scf {
       const { Status, StatusReasons } = funcInfo;
       const reason = StatusReasons && StatusReasons.length > 0 ? StatusReasons[0].ErrorMessage : '';
       if (Status === 'Active') {
-        return true;
+        return funcInfo;
       }
       let errorMsg = '';
       switch (Status) {
