@@ -172,7 +172,6 @@ export default class CustomDomainEntity {
     subDomain: string;
     inputs: ApigwBindCustomDomainInputs;
   }): Promise<ApigwBindCustomDomainOutputs[]> {
-    console.log(`Binding custom domain for service ${serviceId}`);
     const { customDomains = [] } = inputs;
     const { oldState = {} } = inputs;
 
