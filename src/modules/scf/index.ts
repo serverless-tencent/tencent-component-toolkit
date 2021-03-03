@@ -762,6 +762,7 @@ export default class Scf {
           try {
             // delete apigw trigger
             const curTrigger = inputs.Triggers[i];
+            curTrigger.isRemoveTrigger = true;
             await this.apigwClient.remove(curTrigger);
           } catch (e) {
             console.log(e);

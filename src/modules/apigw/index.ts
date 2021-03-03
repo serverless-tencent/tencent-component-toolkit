@@ -129,14 +129,8 @@ export default class Apigw {
       apiList,
       customDomains,
       usagePlan,
-      isInputServiceId = false,
+      isRemoveTrigger = false,
     } = inputs;
-
-    // 如果用户 yaml 的 inputs 配置了 serviceId，走特殊流程
-    if (isInputServiceId) {
-      await this.removeWithInputServiceId(inputs);
-      return;
-    }
 
     // check service exist
     const detail = await this.request({
@@ -148,6 +142,20 @@ export default class Apigw {
       return;
     }
 
+    // 1. remove all apis
+    await this.api.bulkRemove({
+      apiList,
+      serviceId,
+      environment,
+    });
+
+    // 定制化需求：如果用户在yaml中配置了 serviceId，则只执行删除 api 逻辑
+    // 删除后需要重新发布
+    if (isRemoveTrigger) {
+      await this.service.release({ serviceId, environment });
+      return;
+    }
+
     // remove usage plan
     if (usagePlan) {
       await this.usagePlan.remove({
@@ -156,13 +164,6 @@ export default class Apigw {
         usagePlan,
       });
     }
-
-    // 1. remove all apis
-    await this.api.bulkRemove({
-      apiList,
-      serviceId,
-      environment,
-    });
 
     // 2. unbind all custom domains
     if (customDomains) {
@@ -230,29 +231,6 @@ export default class Apigw {
     };
 
     return outputs;
-  }
-
-  // 定制化需求：如果用户在yaml中配置了 serviceId，则只执行删除 api 逻辑
-  async removeWithInputServiceId(inputs: ApigwRemoveInputs) {
-    const { environment, serviceId, apiList } = inputs;
-
-    // check service exist
-    const detail = await this.request({
-      Action: 'DescribeService',
-      ServiceId: serviceId,
-    });
-
-    if (!detail) {
-      console.log(`Service ${serviceId} not exist`);
-      return;
-    }
-
-    // 1. remove all apis
-    await this.api.bulkRemove({
-      apiList,
-      serviceId,
-      environment,
-    });
   }
 }
 

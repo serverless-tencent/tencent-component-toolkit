@@ -145,7 +145,15 @@ export default class ApigwTrigger extends BaseTrigger<ApigwTriggerInputsParams> 
     inputs: TriggerInputs<ApigwTriggerInputsParams>;
   }) {
     const { parameters } = inputs;
-    const { oldState, protocols, environment, serviceId, serviceName, serviceDesc } = parameters!;
+    const {
+      oldState,
+      protocols,
+      environment,
+      serviceId,
+      serviceName,
+      serviceDesc,
+      isInputServiceId = false,
+    } = parameters!;
     const endpoints = parameters?.endpoints ?? [{ path: '/', method: 'ANY' }];
     const triggerInputs: ApigwTriggerInputsParams = {
       oldState: oldState ?? {},
@@ -155,7 +163,12 @@ export default class ApigwTrigger extends BaseTrigger<ApigwTriggerInputsParams> 
       serviceId,
       serviceName,
       serviceDesc,
-      isInputServiceId: !!serviceId,
+
+      // 定制化需求：是否在 yaml 文件中配置了 apigw 触发器的 serviceId
+      isInputServiceId,
+
+      // 定制化需求：是否是删除云函数的api网关触发器，跟api网关组件区分开
+      isRemoveTrigger: true,
       endpoints: endpoints.map((ep: any) => {
         ep.function = ep.function || {};
         ep.function.functionName = inputs.functionName;

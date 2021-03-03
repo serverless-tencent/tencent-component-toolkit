@@ -25,7 +25,7 @@ describe('Metrics', () => {
     SecretKey: process.env.TENCENT_SECRET_KEY,
   };
   const metrics = new Metrics(credentials, {
-    funcName: 'serverless-test',
+    funcName: 'serverless-unit-test',
   });
 
   const rangeStart = '2020-09-09 10:00:00';
