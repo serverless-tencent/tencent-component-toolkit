@@ -1,3 +1,10 @@
+## [2.3.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.3.0...v2.3.1) (2021-03-03)
+
+
+### Bug Fixes
+
+* **apigw:** add remove by trigger for only remove api ([#198](https://github.com/serverless-tencent/tencent-component-toolkit/issues/198)) ([0bee4df](https://github.com/serverless-tencent/tencent-component-toolkit/commit/0bee4dfeeca8320cf9e5451c17086830926a0ac4))
+
 # [2.3.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.2.0...v2.3.0) (2021-03-02)
 
 
