@@ -664,6 +664,7 @@ export default class Scf {
       inputs.traffic != null && inputs.lastVersion && inputs.lastVersion !== '$LATEST';
     if (needSetTraffic) {
       await this.updateAliasTraffic({
+        namespace,
         functionName: funcInfo.FunctionName,
         region: this.region,
         traffic: inputs.traffic!,
