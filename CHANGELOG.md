@@ -1,3 +1,10 @@
+## [2.3.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.3.1...v2.3.2) (2021-03-03)
+
+
+### Bug Fixes
+
+* **apigw:** update service subDomain undefined ([ac005dd](https://github.com/serverless-tencent/tencent-component-toolkit/commit/ac005ddf8eb97791d3e378cc581270bd4f2be8c3))
+
 ## [2.3.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.3.0...v2.3.1) (2021-03-03)
 
 
