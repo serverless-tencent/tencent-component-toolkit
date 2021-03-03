@@ -110,18 +110,6 @@ export default class ServiceEntity {
       serviceDesc = 'Created By Serverless Framework',
     } = serviceConf;
 
-    interface Detail {
-      InnerSubDomain: string;
-      InternalSubDomain: string;
-      OuterSubDomain: string;
-
-      ServiceId: string;
-
-      // FIXME: 小写？
-      ServiceName: string;
-      ServiceDesc: string;
-      Protocol: string;
-    }
     let detail: Detail;
 
     let outputs: ApigwCreateOrUpdateServiceOutputs = {
@@ -142,14 +130,26 @@ export default class ServiceEntity {
       if (detail) {
         detail.InnerSubDomain = detail.InternalSubDomain;
         exist = true;
+        outputs.serviceId = detail!.ServiceId;
+        outputs.subDomain =
+          detail!.OuterSubDomain && detail!.InnerSubDomain
+            ? [detail!.OuterSubDomain, detail!.InnerSubDomain]
+            : detail!.OuterSubDomain || detail!.InnerSubDomain;
+
+        if (serviceConf.usagePlan) {
+          outputs.usagePlan = await this.usagePlan.bind({
+            serviceId: detail!.ServiceId,
+            environment,
+            usagePlanConfig: serviceConf.usagePlan,
+            authConfig: serviceConf.auth,
+          });
+        }
+        // 如果 serviceName，serviceDesc，protocols任意字段更新了，则更新服务
         if (
           !(
-            // FIXME: 小写？
-            (
-              serviceName === detail.ServiceName &&
-              serviceDesc === detail.ServiceDesc &&
-              protocols === detail.Protocol
-            )
+            serviceName === detail.ServiceName &&
+            serviceDesc === detail.ServiceDesc &&
+            protocols === detail.Protocol
           )
         ) {
           const apiInputs = {
@@ -161,21 +161,6 @@ export default class ServiceEntity {
             netTypes: netTypes,
           };
           await this.request(apiInputs);
-
-          outputs.serviceId = detail!.ServiceId;
-          outputs.subDomain =
-            detail!.OuterSubDomain && detail!.InnerSubDomain
-              ? [detail!.OuterSubDomain, detail!.InnerSubDomain]
-              : detail!.OuterSubDomain || detail!.InnerSubDomain;
-
-          if (serviceConf.usagePlan) {
-            outputs.usagePlan = await this.usagePlan.bind({
-              serviceId: detail!.ServiceId,
-              environment,
-              usagePlanConfig: serviceConf.usagePlan,
-              authConfig: serviceConf.auth,
-            });
-          }
         }
       }
     }
