@@ -5,7 +5,7 @@ const mod = process.env.MODULE;
 
 const config = {
   verbose: true,
-  silent: false,
+  silent: process.env.CI && !mod,
   testTimeout: 600000,
   testEnvironment: 'node',
   testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.(js|ts)$',
