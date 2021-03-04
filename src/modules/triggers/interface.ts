@@ -52,7 +52,7 @@ export interface CreateTriggerReq {
   CustomArgument?: any;
 }
 
-export interface ChafkaTriggerInputsParams extends TriggerInputsParams {
+export interface CkafkaTriggerInputsParams extends TriggerInputsParams {
   qualifier?: string;
   name?: string;
   topic?: string;

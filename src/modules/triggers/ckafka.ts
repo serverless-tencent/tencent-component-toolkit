@@ -1,5 +1,5 @@
 import { CapiCredentials, RegionType } from './../interface';
-import { TriggerInputs, ChafkaTriggerInputsParams, CreateTriggerReq } from './interface';
+import { TriggerInputs, CkafkaTriggerInputsParams, CreateTriggerReq } from './interface';
 import Scf from '../scf';
 import { TRIGGER_STATUS_MAP } from './base';
 
@@ -24,14 +24,14 @@ export default class CkafkaTrigger {
     inputs,
   }: {
     region: RegionType;
-    inputs: TriggerInputs<ChafkaTriggerInputsParams>;
+    inputs: TriggerInputs<CkafkaTriggerInputsParams>;
   }) {
     const { parameters } = inputs;
     const triggerInputs: CreateTriggerReq = {
       Action: 'CreateTrigger',
       FunctionName: inputs.functionName,
       Namespace: inputs.namespace,
-      Type: 'chafka',
+      Type: 'ckafka',
       Qualifier: parameters?.qualifier ?? '$DEFAULT',
       TriggerName: `${parameters?.name}-${parameters?.topic}`,
       TriggerDesc: JSON.stringify({
@@ -56,7 +56,7 @@ export default class CkafkaTrigger {
   }: {
     scf: Scf;
     region: RegionType;
-    inputs: TriggerInputs<ChafkaTriggerInputsParams>;
+    inputs: TriggerInputs<CkafkaTriggerInputsParams>;
   }) {
     const { triggerInputs } = this.formatInputs({ region, inputs });
     console.log(`Creating ${triggerInputs.Type} trigger ${triggerInputs.TriggerName}`);
