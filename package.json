@@ -1,6 +1,6 @@
 {
   "name": "tencent-component-toolkit",
-  "version": "2.3.3",
+  "version": "2.3.4",
   "description": "Tencent component toolkit",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",

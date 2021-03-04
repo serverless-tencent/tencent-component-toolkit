@@ -1,3 +1,10 @@
+## [2.3.4](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.3.3...v2.3.4) (2021-03-04)
+
+
+### Bug Fixes
+
+* **triggers:** typo ([#201](https://github.com/serverless-tencent/tencent-component-toolkit/issues/201)) ([95ca593](https://github.com/serverless-tencent/tencent-component-toolkit/commit/95ca5930cbf0a29a668ac0c3845ea75ee140707d))
+
 ## [2.3.3](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.3.2...v2.3.3) (2021-03-03)
 
 
