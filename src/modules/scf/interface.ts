@@ -7,6 +7,7 @@ export interface TriggerType {
   TriggerDesc?: string;
   TriggerName?: string;
   Qualifier?: string;
+  compared?: boolean;
 }
 
 export type OriginTriggerType = {

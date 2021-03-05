@@ -142,6 +142,13 @@ export interface CreateOrUpdateApiInputs {
   created?: boolean;
 }
 
+export interface UpdateApiInputs {
+  serviceId: string;
+  endpoint: ApiEndpoint;
+  environment: EnviromentType;
+  created?: boolean;
+}
+
 export interface ApiDeployInputs {
   serviceId: string;
   environment: EnviromentType;
@@ -235,4 +242,9 @@ export interface ApigwRemoveInputs {
   usagePlan?: ApigwSetupUsagePlanInputs;
   isInputServiceId?: boolean;
   isRemoveTrigger?: boolean;
+}
+
+export interface ApiDetail {
+  ApiId: string;
+  InternalDomain: string;
 }
