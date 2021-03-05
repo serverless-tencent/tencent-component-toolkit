@@ -1,3 +1,10 @@
+## [2.3.5](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.3.4...v2.3.5) (2021-03-05)
+
+
+### Bug Fixes
+
+* **scf:** trigger key compare ([#202](https://github.com/serverless-tencent/tencent-component-toolkit/issues/202)) ([338d665](https://github.com/serverless-tencent/tencent-component-toolkit/commit/338d66557500dde1764d7fc8386a4e98daff7195))
+
 ## [2.3.4](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.3.3...v2.3.4) (2021-03-04)
 
 
