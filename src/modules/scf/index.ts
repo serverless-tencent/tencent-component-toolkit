@@ -315,7 +315,10 @@ export default class Scf {
       updateList,
       deleteList: deleteList.filter((item) => item) as TriggerType[],
       createList: createList.filter((item) => item) as OriginTriggerType[],
-      deployList: deployList as TriggerType[],
+      deployList: deployList.map((item) => {
+        delete item?.compared;
+        return item as TriggerType;
+      }),
     };
   }
 
