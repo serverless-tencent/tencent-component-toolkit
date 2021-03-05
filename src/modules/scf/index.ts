@@ -278,10 +278,10 @@ export default class Scf {
         ...event[Type],
       };
 
-      // FIXME: 逻辑较乱
       for (let i = 0; i < oldList.length; i++) {
         const oldTrigger = oldList[i];
-        if (oldTrigger.Type !== Type) {
+        // 如果类型不一致或者已经比较过（key值一致），则继续下一次循环
+        if (oldTrigger.Type !== Type || oldTrigger.compared === true) {
           continue;
         }
         const OldTriggerClass = TRIGGERS[oldTrigger.Type];
@@ -291,15 +291,12 @@ export default class Scf {
         });
         const oldKey = oldTriggerInstance.getKey(oldTrigger);
 
+        // 如果 key 不一致则继续下一次循环
         if (oldKey !== triggerKey) {
-          deployList[index] = {
-            NeedCreate: true,
-            Type,
-            ...event[Type],
-          };
-
           continue;
         }
+
+        oldList[i].compared = true;
 
         deleteList[i] = null;
         updateList.push(createList[index]);
@@ -309,20 +306,19 @@ export default class Scf {
             NeedCreate: false,
             ...oldTrigger,
           };
-        } else {
-          deployList[index] = {
-            NeedCreate: true,
-            Type,
-            ...event[Type],
-          };
         }
+        // 如果找到 key 值一样的，直接跳出循环
+        break;
       }
     });
     return {
       updateList,
-      deleteList: deleteList.filter((item) => item),
-      createList: createList.filter((item) => item),
-      deployList,
+      deleteList: deleteList.filter((item) => item) as TriggerType[],
+      createList: createList.filter((item) => item) as OriginTriggerType[],
+      deployList: deployList.map((item) => {
+        delete item?.compared;
+        return item as TriggerType;
+      }),
     };
   }
 
@@ -341,7 +337,7 @@ export default class Scf {
     // remove all old triggers
     for (let i = 0, len = deleteList.length; i < len; i++) {
       const trigger = deleteList[i];
-      const { Type } = trigger!;
+      const { Type } = trigger;
       const TriggerClass = TRIGGERS[Type];
 
       if (TriggerClass) {
@@ -367,7 +363,7 @@ export default class Scf {
     // create all new triggers
     for (let i = 0; i < deployList.length; i++) {
       const trigger = deployList[i];
-      const { Type } = trigger!;
+      const { Type } = trigger;
       if (trigger?.NeedCreate === true) {
         const TriggerClass = TRIGGERS[Type];
         if (!TriggerClass) {

@@ -1,11 +1,13 @@
 import { Capi } from '@tencent-sdk/capi';
 import {
+  UpdateApiInputs,
   ApiDeployInputs,
   ApiDeployOutputs,
   CreateOrUpdateApiInputs,
   ApiRemoveInputs,
   ApiBulkRemoveInputs,
   ApiBulkDeployInputs,
+  ApiDetail,
 } from '../interface';
 import { pascalCaseProps } from '../../../utils';
 import { ApiTypeError } from '../../../utils/error';
@@ -39,7 +41,7 @@ export default class ApiEntity {
     return true;
   }
 
-  async create({ serviceId, endpoint, environment, created }: CreateOrUpdateApiInputs) {
+  async create({ serviceId, endpoint, environment }: CreateOrUpdateApiInputs) {
     // compatibility for secret auth config depends on auth & usagePlan
     const authType = endpoint?.auth ? 'SECRET' : endpoint?.authType ?? 'NONE';
     const businessType = endpoint?.businessType ?? 'NORMAL';
@@ -90,70 +92,31 @@ export default class ApiEntity {
 
     this.formatInput(endpoint, apiInputs);
 
-    let apiDetail: {
-      ApiId?: string;
-      InternalDomain?: string;
-    };
+    const res = await this.request({
+      Action: 'CreateApi',
+      ...apiInputs,
+    });
+    const { ApiId } = res;
+    output.apiId = ApiId;
 
-    if (endpoint?.apiId) {
-      apiDetail = await this.getById({ serviceId: serviceId!, apiId: endpoint.apiId });
+    console.log(`API ${ApiId} created`);
+    const apiDetail: ApiDetail = await this.request({
+      Action: 'DescribeApi',
+      serviceId: serviceId,
+      apiId: output.apiId,
+    });
+    output.internalDomain = apiDetail.InternalDomain || '';
+
+    if (endpoint?.isBase64Encoded && endpoint.isBase64Trigger) {
+      apiInputs.isBase64Trigger = endpoint.isBase64Trigger;
+      apiInputs.base64EncodedTriggerRules = endpoint.base64EncodedTriggerRules;
     }
 
-    if (!apiDetail!) {
-      apiDetail = await this.getByPathAndMethod({
-        serviceId: serviceId!,
-        path: endpoint?.path!,
-        method: endpoint?.method!,
-      });
-    }
-
-    if (apiDetail && endpoint) {
-      console.log(`Api method ${endpoint?.method}, path ${endpoint?.path} already exist`);
-      endpoint.apiId = apiDetail.ApiId;
-
-      if (endpoint.isBase64Encoded && endpoint.isBase64Trigger) {
-        apiInputs.isBase64Trigger = endpoint.isBase64Trigger;
-        apiInputs.base64EncodedTriggerRules = endpoint.base64EncodedTriggerRules;
-      }
-
-      await this.request({
-        Action: 'ModifyApi',
-        apiId: endpoint.apiId,
-        ...apiInputs,
-      });
-
-      output.apiId = endpoint.apiId;
-      output.created = !!created;
-      output.internalDomain = apiDetail.InternalDomain || '';
-      console.log(`Api ${output.apiId} updated`);
-    } else {
-      const res = await this.request({
-        Action: 'CreateApi',
-        ...apiInputs,
-      });
-      const { ApiId } = res;
-      output.apiId = ApiId;
-      output.created = true;
-
-      console.log(`API ${ApiId} created`);
-      apiDetail = await this.request({
-        Action: 'DescribeApi',
-        serviceId: serviceId,
-        apiId: output.apiId,
-      });
-      output.internalDomain = apiDetail.InternalDomain || '';
-
-      if (endpoint?.isBase64Encoded && endpoint.isBase64Trigger) {
-        apiInputs.isBase64Trigger = endpoint.isBase64Trigger;
-        apiInputs.base64EncodedTriggerRules = endpoint.base64EncodedTriggerRules;
-      }
-
-      await this.request({
-        Action: 'ModifyApi',
-        apiId: ApiId,
-        ...apiInputs,
-      });
-    }
+    await this.request({
+      Action: 'ModifyApi',
+      apiId: ApiId,
+      ...apiInputs,
+    });
 
     output.apiName = apiInputs.apiName;
 
@@ -172,7 +135,10 @@ export default class ApiEntity {
     return output;
   }
 
-  async update({ serviceId, endpoint, environment, created }: CreateOrUpdateApiInputs) {
+  async update(
+    { serviceId, endpoint, environment, created }: UpdateApiInputs,
+    apiDetail: ApiDetail,
+  ) {
     // compatibility for secret auth config depends on auth & usagePlan
     const authType = endpoint?.auth ? 'SECRET' : endpoint?.authType ?? 'NONE';
     const businessType = endpoint?.businessType ?? 'NORMAL';
@@ -180,7 +146,7 @@ export default class ApiEntity {
       path: endpoint?.path,
       method: endpoint?.method,
       apiName: endpoint?.apiName || 'index',
-      created: true,
+      created: false,
       authType: authType,
       businessType: businessType,
       isBase64Encoded: endpoint?.isBase64Encoded === true,
@@ -223,70 +189,24 @@ export default class ApiEntity {
 
     this.formatInput(endpoint, apiInputs);
 
-    let apiDetail: {
-      ApiId?: string;
-      InternalDomain?: string;
-    };
+    console.log(`Api method ${endpoint?.method}, path ${endpoint?.path} already exist`);
+    endpoint.apiId = apiDetail.ApiId;
 
-    if (endpoint?.apiId) {
-      apiDetail = await this.getById({ serviceId: serviceId!, apiId: endpoint.apiId });
+    if (endpoint.isBase64Encoded && endpoint.isBase64Trigger) {
+      apiInputs.isBase64Trigger = endpoint.isBase64Trigger;
+      apiInputs.base64EncodedTriggerRules = endpoint.base64EncodedTriggerRules;
     }
 
-    if (!apiDetail!) {
-      apiDetail = await this.getByPathAndMethod({
-        serviceId: serviceId!,
-        path: endpoint?.path!,
-        method: endpoint?.method!,
-      });
-    }
+    await this.request({
+      Action: 'ModifyApi',
+      apiId: endpoint.apiId,
+      ...apiInputs,
+    });
 
-    if (apiDetail && endpoint) {
-      console.log(`Api method ${endpoint?.method}, path ${endpoint?.path} already exist`);
-      endpoint.apiId = apiDetail.ApiId;
-
-      if (endpoint.isBase64Encoded && endpoint.isBase64Trigger) {
-        apiInputs.isBase64Trigger = endpoint.isBase64Trigger;
-        apiInputs.base64EncodedTriggerRules = endpoint.base64EncodedTriggerRules;
-      }
-
-      await this.request({
-        Action: 'ModifyApi',
-        apiId: endpoint.apiId,
-        ...apiInputs,
-      });
-
-      output.apiId = endpoint.apiId;
-      output.created = !!created;
-      output.internalDomain = apiDetail.InternalDomain || '';
-      console.log(`Api ${output.apiId} updated`);
-    } else {
-      const res = await this.request({
-        Action: 'CreateApi',
-        ...apiInputs,
-      });
-      const { ApiId } = res;
-      output.apiId = ApiId;
-      output.created = true;
-
-      console.log(`API ${ApiId} created`);
-      apiDetail = await this.request({
-        Action: 'DescribeApi',
-        serviceId: serviceId,
-        apiId: output.apiId,
-      });
-      output.internalDomain = apiDetail.InternalDomain || '';
-
-      if (endpoint?.isBase64Encoded && endpoint.isBase64Trigger) {
-        apiInputs.isBase64Trigger = endpoint.isBase64Trigger;
-        apiInputs.base64EncodedTriggerRules = endpoint.base64EncodedTriggerRules;
-      }
-
-      await this.request({
-        Action: 'ModifyApi',
-        apiId: ApiId,
-        ...apiInputs,
-      });
-    }
+    output.apiId = endpoint.apiId;
+    output.created = !!created;
+    output.internalDomain = apiDetail.InternalDomain || '';
+    console.log(`Api ${output.apiId} updated`);
 
     output.apiName = apiInputs.apiName;
 
@@ -387,13 +307,35 @@ export default class ApiEntity {
     }
 
     let curApi;
+    let apiDetail: ApiDetail | null = null;
+    let apiExist = false;
     if (apiConfig.apiId) {
-      curApi = await this.update({
-        serviceId,
-        environment,
-        endpoint: apiConfig,
-        created: exist && exist.created,
+      apiDetail = await this.getById({ serviceId: serviceId!, apiId: apiConfig.apiId });
+    }
+
+    if (!apiDetail) {
+      apiDetail = await this.getByPathAndMethod({
+        serviceId: serviceId!,
+        path: apiConfig?.path!,
+        method: apiConfig?.method!,
       });
+    }
+
+    if (apiDetail) {
+      apiExist = true;
+    }
+
+    // api 存在就更新，不存在就创建
+    if (apiExist) {
+      curApi = await this.update(
+        {
+          serviceId,
+          environment,
+          endpoint: apiConfig,
+          created: exist && exist.created,
+        },
+        apiDetail,
+      );
     } else {
       curApi = await this.create({
         serviceId,
