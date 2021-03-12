@@ -23,6 +23,8 @@ export enum ApiServiceType {
   vpc = 'vpc',
   /**  */
   cam = 'cam',
+
+  clb = 'clb',
 }
 
 export type RegionType = string;

@@ -32,7 +32,7 @@ export default abstract class BaseTrigger<P = TriggerInputsParams> {
     }
   }
 
-  abstract getKey(triggerType: CreateTriggerReq): string;
+  abstract getKey(triggerType: CreateTriggerReq): Promise<string> | string;
 
   abstract formatInputs({
     region,
@@ -40,10 +40,15 @@ export default abstract class BaseTrigger<P = TriggerInputsParams> {
   }: {
     region: RegionType;
     inputs: TriggerInputs<P>;
-  }): {
-    triggerKey: string;
-    triggerInputs: P;
-  };
+  }):
+    | {
+        triggerKey: string;
+        triggerInputs: P;
+      }
+    | Promise<{
+        triggerKey: string;
+        triggerInputs: P;
+      }>;
 
   /** Get Trigger List */
   async getTriggerList({
@@ -136,4 +141,4 @@ export const TRIGGER_STATUS_MAP = {
   0: 'CLOSE',
 };
 
-export const CAN_UPDATE_TRIGGER = ['apigw', 'cls', 'mps'];
+export const CAN_UPDATE_TRIGGER = ['apigw', 'cls', 'mps', 'clb'];
