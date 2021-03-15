@@ -250,21 +250,26 @@ export default class Scf {
     return Triggers;
   }
 
-  filterTriggers(funcInfo: FunctionInfo, events: OriginTriggerType[], oldList: TriggerType[]) {
+  async filterTriggers(
+    funcInfo: FunctionInfo,
+    events: OriginTriggerType[],
+    oldList: TriggerType[],
+  ) {
     const deleteList: (TriggerType | null)[] = deepClone(oldList);
     const createList: (OriginTriggerType | null)[] = deepClone(events);
     const deployList: (TriggerType | null)[] = [];
     // const noKeyTypes = ['apigw'];
     const updateList: (OriginTriggerType | null)[] = [];
 
-    events.forEach((event, index) => {
+    for (let index = 0; index < events.length; index++) {
+      const event = events[index];
       const Type = Object.keys(event)[0];
       const TriggerClass = TRIGGERS[Type];
       const triggerInstance: BaseTrigger = new TriggerClass({
         credentials: this.credentials,
         region: this.region,
       });
-      const { triggerKey } = triggerInstance.formatInputs({
+      const { triggerKey } = await triggerInstance.formatInputs({
         region: this.region,
         inputs: {
           namespace: funcInfo.Namespace,
@@ -289,7 +294,7 @@ export default class Scf {
           credentials: this.credentials,
           region: this.region,
         });
-        const oldKey = oldTriggerInstance.getKey(oldTrigger);
+        const oldKey = await oldTriggerInstance.getKey(oldTrigger);
 
         // 如果 key 不一致则继续下一次循环
         if (oldKey !== triggerKey) {
@@ -310,7 +315,7 @@ export default class Scf {
         // 如果找到 key 值一样的，直接跳出循环
         break;
       }
-    });
+    }
     return {
       updateList,
       deleteList: deleteList.filter((item) => item) as TriggerType[],
@@ -332,7 +337,11 @@ export default class Scf {
     // get all triggers
     const triggerList = await this.getTriggerList(funcInfo.FunctionName, funcInfo.Namespace);
 
-    const { deleteList, deployList } = this.filterTriggers(funcInfo, inputs.events!, triggerList);
+    const { deleteList, deployList } = await this.filterTriggers(
+      funcInfo,
+      inputs.events!,
+      triggerList,
+    );
 
     // remove all old triggers
     for (let i = 0, len = deleteList.length; i < len; i++) {

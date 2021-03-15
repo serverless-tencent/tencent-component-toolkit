@@ -8,7 +8,7 @@ const config = {
   silent: process.env.CI && !mod,
   testTimeout: 600000,
   testEnvironment: 'node',
-  testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.(js|ts)$',
+  testRegex: '/__tests__/.*\\.(test|spec)\\.(js|ts)$',
   // 由于测试账号没有备案域名，所以线上 CI 忽略 CDN 测试
   testPathIgnorePatterns: [
     '/node_modules/',

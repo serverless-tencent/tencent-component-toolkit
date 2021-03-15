@@ -1,4 +1,5 @@
-import { ApigwDeployInputs, ApiEndpoint } from './../apigw/interface';
+import { ApigwDeployInputs, ApiEndpoint } from '../../apigw/interface';
+
 export interface ApigwTriggerRemoveScfTriggerInputs {
   serviceId: string;
   apiId: string;
@@ -93,7 +94,6 @@ export interface MpsTriggerInputsParams {
   qualifier?: string;
   enable?: boolean;
 }
-
 export interface TimerTriggerInputsParams {
   name?: string;
   qualifier?: string;
@@ -104,13 +104,13 @@ export interface TimerTriggerInputsParams {
 }
 
 export interface TriggerInputs<P extends TriggerInputsParams = TriggerInputsParams> {
+  functionName: string;
   type?: string;
   triggerDesc?: string;
   triggerName?: string;
   qualifier?: string;
   parameters?: P;
   name?: string;
-  functionName?: string;
   namespace?: string;
 
   // FIXME:
@@ -118,3 +118,5 @@ export interface TriggerInputs<P extends TriggerInputsParams = TriggerInputsPara
   Namespace?: string;
   Qualifier?: string;
 }
+
+export * from './clb';

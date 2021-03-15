@@ -63,6 +63,19 @@ describe('Scf', () => {
         },
       },
     },
+    clb: {
+      clb: {
+        parameters: {
+          qualifier: '$DEFAULT',
+          loadBalanceId: 'lb-l6golr1k',
+          protocol: 'HTTP',
+          domain: '81.71.86.84',
+          port: 80,
+          url: '/',
+          weight: 20,
+        },
+      },
+    },
     // mps: {
     //   mps: {
     //     parameters: {
@@ -324,6 +337,20 @@ describe('Scf', () => {
       //     `TriggerType/${triggers.mps.mps.parameters.type}Event`,
       //   ),
       // },
+      {
+        NeedCreate: expect.any(Boolean),
+        namespace: inputs.namespace || 'default',
+        functionName: inputs.name,
+        qualifier: expect.any(String),
+        loadBalanceId: triggers.clb.clb.parameters.loadBalanceId,
+        listenerId: expect.stringContaining('lbl-'),
+        locationId: expect.stringContaining('loc-'),
+        domain: triggers.clb.clb.parameters.domain,
+        protocol: triggers.clb.clb.parameters.protocol,
+        port: triggers.clb.clb.parameters.port,
+        url: triggers.clb.clb.parameters.url,
+        weight: triggers.clb.clb.parameters.weight,
+      },
     ]);
   });
   test('should update SCF success', async () => {
@@ -495,6 +522,20 @@ describe('Scf', () => {
       //     `TriggerType/${triggers.mps.mps.parameters.type}Event`,
       //   ),
       // },
+      {
+        NeedCreate: expect.any(Boolean),
+        namespace: inputs.namespace || 'default',
+        functionName: inputs.name,
+        qualifier: expect.any(String),
+        loadBalanceId: triggers.clb.clb.parameters.loadBalanceId,
+        listenerId: expect.stringContaining('lbl-'),
+        locationId: expect.stringContaining('loc-'),
+        domain: triggers.clb.clb.parameters.domain,
+        protocol: triggers.clb.clb.parameters.protocol,
+        port: triggers.clb.clb.parameters.port,
+        url: triggers.clb.clb.parameters.url,
+        weight: triggers.clb.clb.parameters.weight,
+      },
     ]);
   });
   test('should invoke Scf success', async () => {

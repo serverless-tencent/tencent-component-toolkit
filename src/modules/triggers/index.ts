@@ -5,6 +5,7 @@ import CkafkaTrigger from './ckafka';
 import CmqTrigger from './cmq';
 import ClsTrigger from './cls';
 import MpsTrigger from './mps';
+import ClbTrigger from './clb';
 import BaseTrigger from './base';
 import { CapiCredentials, RegionType } from '../interface';
 
@@ -24,6 +25,7 @@ const TRIGGER = ({
   cmq: CmqTrigger,
   cls: ClsTrigger,
   mps: MpsTrigger,
+  clb: ClbTrigger,
 } as any) as Record<
   string,
   BaseTrigger & { new (options: { credentials: CapiCredentials; region: RegionType }): BaseTrigger }
