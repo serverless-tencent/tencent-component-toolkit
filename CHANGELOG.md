@@ -1,3 +1,10 @@
+# [2.4.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.3.5...v2.4.0) (2021-03-15)
+
+
+### Features
+
+* **scf:** support clb trigger ([#203](https://github.com/serverless-tencent/tencent-component-toolkit/issues/203)) ([4f52532](https://github.com/serverless-tencent/tencent-component-toolkit/commit/4f52532bbc98baae6c664f530cf67377808d3e9d))
+
 ## [2.3.5](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.3.4...v2.3.5) (2021-03-05)
 
 
