@@ -1,3 +1,10 @@
+# [2.5.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.4.0...v2.5.0) (2021-03-15)
+
+
+### Features
+
+* **scf:** optimize deploy flow ([#204](https://github.com/serverless-tencent/tencent-component-toolkit/issues/204)) ([81f6393](https://github.com/serverless-tencent/tencent-component-toolkit/commit/81f6393612b5d732cdf881d67357c2455dfeb092))
+
 # [2.4.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.3.5...v2.4.0) (2021-03-15)
 
 
