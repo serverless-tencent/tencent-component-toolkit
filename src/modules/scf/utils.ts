@@ -4,9 +4,9 @@ const CONFIGS = require('./config').default;
 
 // get function basement configure
 // FIXME: unused variable region
-export const formatFunctionInputs = (region: RegionType, inputs: ScfCreateFunctionInputs) => {
+export const formatInputs = (region: RegionType, inputs: ScfCreateFunctionInputs) => {
   const functionInputs: {
-    FunctionName?: string;
+    FunctionName: string;
     CodeSource?: 'Cos';
     Code?: {
       CosBucketName?: string;

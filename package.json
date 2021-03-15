@@ -7,7 +7,6 @@
   "scripts": {
     "build": "tsc -p .",
     "test": "jest",
-    "test:update": "jest --updateSnapshot",
     "test:local": "DEBUG=true jest",
     "test:cdn": "MODULE=cdn jest",
     "test:cls": "MODULE=cls jest",

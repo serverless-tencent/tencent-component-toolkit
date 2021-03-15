@@ -14,12 +14,24 @@ export type OriginTriggerType = {
   [name: string]: { serviceName?: string; name?: string; parameters?: any };
 };
 
+export interface Tag {
+  Key: string;
+  Value: string;
+}
+
 export interface FunctionInfo {
   FunctionName: string;
   Namespace: string;
   Timeout: number;
   MemorySize: number;
   Handler: string;
+  Runtime: string;
+  Status: string;
+  LastVersion: string;
+  StatusReasons: { ErrorMessage: string }[];
+  Traffic?: number;
+  ConfigTrafficVersion?: string;
+  Tags: Tag[];
 }
 
 export interface ScfPublishVersionInputs {
@@ -29,7 +41,7 @@ export interface ScfPublishVersionInputs {
   region?: RegionType;
 }
 
-export interface publishVersionAndConfigTraffic {
+export interface PublishVersionAndConfigTraffic {
   traffic: number;
   functionName: string;
   functionVersion: string;
@@ -69,7 +81,7 @@ export interface ScfCreateFunctionInputs {
   // FIXME:
   Namespace?: string;
 
-  name?: string;
+  name: string;
   code?: {
     bucket: string;
     object: string;
@@ -145,7 +157,7 @@ export interface ScfDeployTriggersInputs {
 
 export interface ScfDeployInputs extends ScfCreateFunctionInputs {
   namespace?: string;
-  name?: string;
+  name: string;
   enableRoleAuth?: boolean;
   region?: string;
 
@@ -171,8 +183,10 @@ export interface ScfDeployOutputs {
   Namespace: string;
   LastVersion?: string;
   Traffic?: number;
+  Tags?: Tag[];
+  Triggers?: any[];
 
-  ConfigTrafficVersion: string;
+  ConfigTrafficVersion?: string;
 }
 
 export interface ScfRemoveInputs {
