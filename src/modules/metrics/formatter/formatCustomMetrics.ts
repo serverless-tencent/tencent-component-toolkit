@@ -82,7 +82,7 @@ export function formatCustomMetrics(resList: MetricsResponseList) {
     };
   });
 
-  if (requestDatas) {
+  if (requestDatas && requestDatas.length > 0) {
     for (const latencyDetail of latencyDetailList) {
       if (!latency.y) {
         latency.y = [];
