@@ -1,3 +1,10 @@
+## [2.5.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.5.1...v2.5.2) (2021-03-17)
+
+
+### Bug Fixes
+
+* **apigw:** deploy outputs type ([22680fa](https://github.com/serverless-tencent/tencent-component-toolkit/commit/22680fa67b2e43a340ea992d586f29e0ada273c5))
+
 ## [2.5.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.5.0...v2.5.1) (2021-03-17)
 
 
