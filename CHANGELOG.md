@@ -1,3 +1,10 @@
+## [2.5.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.5.0...v2.5.1) (2021-03-17)
+
+
+### Bug Fixes
+
+* **apigw:** optimize remove apigw ([#205](https://github.com/serverless-tencent/tencent-component-toolkit/issues/205)) ([5f211e0](https://github.com/serverless-tencent/tencent-component-toolkit/commit/5f211e0564387ce26c51154849907da12d0f0b2d))
+
 # [2.5.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.4.0...v2.5.0) (2021-03-15)
 
 
