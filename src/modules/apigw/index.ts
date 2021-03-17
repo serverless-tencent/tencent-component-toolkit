@@ -20,6 +20,7 @@ import ServiceEntity from './entities/service';
 import ApiEntity from './entities/api';
 import UsagePlanEntity from './entities/usage-plan';
 import CustomDomainEntity from './entities/custom-domain';
+import { ApiError } from '../../utils/error';
 
 export default class Apigw {
   credentials: CapiCredentials;
@@ -234,6 +235,10 @@ export default class Apigw {
 
       return outputs;
     }
+    throw new ApiError({
+      type: 'API_APIGW_DescribeService',
+      message: `Service ${serviceId} not exist`,
+    });
   }
 }
 
