@@ -618,8 +618,8 @@ describe('apigw', () => {
     await apigw.remove(outputsWithId);
     const detail = await apigw.service.getById(outputsWithId.serviceId);
     expect(detail).toBeDefined();
-    expect(detail.serviceName).toBe('serverless_unit_test');
-    expect(detail.serviceDesc).toBe('Created By Serverless');
+    expect(detail.ServiceName).toBe('serverless_unit_test');
+    expect(detail.ServiceDesc).toBe('Created By Serverless');
     const apiList = await apigw.api.getList(outputsWithId.serviceId);
     expect(apiList.length).toBe(0);
   });

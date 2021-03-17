@@ -230,3 +230,20 @@ export function traverseDirSync(
   }
   return ls;
 }
+
+export function getToday(date?: Date) {
+  if (!date) {
+    date = new Date();
+  }
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+
+  return `${year}-${month < 10 ? '0' : ''}${month}-${day}`;
+}
+
+export function getYestoday() {
+  const timestamp = Date.now() - 24 * 60 * 60 * 1000;
+  const yestoday = getToday(new Date(timestamp));
+  return yestoday;
+}

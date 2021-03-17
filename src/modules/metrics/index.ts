@@ -157,6 +157,8 @@ export default class Metrics {
       throw new ApiTypeError(`PARAMETER_METRICS`, 'The rangeStart provided is after the rangeEnd');
     }
 
+    console.log(`Getting metrics data from ${startTimeStr} to ${endTimeStr}`);
+
     // custom metrics maximum 8 day
     if (startTime.diff(endTime, 'days') >= 8) {
       throw new ApiTypeError(

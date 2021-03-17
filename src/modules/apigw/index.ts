@@ -133,10 +133,7 @@ export default class Apigw {
     } = inputs;
 
     // check service exist
-    const detail = await this.request({
-      Action: 'DescribeService',
-      ServiceId: serviceId,
-    });
+    const detail = await this.service.getById(serviceId);
     if (!detail) {
       console.log(`Service ${serviceId} not exist`);
       return;
@@ -207,30 +204,36 @@ export default class Apigw {
     const endpoints = inputs.endpoints || [];
     const stateApiList = oldState.apiList || [];
 
-    const serviceDetail = await this.service.getById(serviceId);
+    const detail = await this.service.getById(serviceId);
+    if (detail) {
+      const apiList: ApiEndpoint[] = await this.api.bulkDeploy({
+        apiList: endpoints,
+        stateList: stateApiList,
+        serviceId,
+        environment,
+      });
 
-    const apiList: ApiEndpoint[] = await this.api.bulkDeploy({
-      apiList: endpoints,
-      stateList: stateApiList,
-      serviceId,
-      environment,
-    });
+      await this.service.release({ serviceId, environment });
 
-    await this.service.release({ serviceId, environment });
+      console.log(`Deploy service ${serviceId} success`);
 
-    console.log(`Deploy service ${serviceId} success`);
+      const subDomain =
+        detail!.OuterSubDomain && detail!.InnerSubDomain
+          ? [detail!.OuterSubDomain, detail!.InnerSubDomain]
+          : detail!.OuterSubDomain || detail!.InnerSubDomain;
 
-    const outputs: ApigwDeployOutputs = {
-      created: false,
-      serviceId,
-      serviceName: serviceDetail.serviceName,
-      subDomain: serviceDetail.subDomain,
-      protocols: inputs.protocols,
-      environment: environment,
-      apiList,
-    };
+      const outputs: ApigwDeployOutputs = {
+        created: false,
+        serviceId,
+        serviceName: detail.ServiceName,
+        subDomain: subDomain,
+        protocols: inputs.protocols,
+        environment: environment,
+        apiList,
+      };
 
-    return outputs;
+      return outputs;
+    }
   }
 }
 

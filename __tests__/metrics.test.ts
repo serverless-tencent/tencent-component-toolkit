@@ -1,5 +1,6 @@
 import moment from 'moment';
 import { Metrics } from '../src';
+import { getYestoday } from '../src/utils';
 
 describe('Metrics', () => {
   const credentials = {
@@ -10,8 +11,9 @@ describe('Metrics', () => {
     funcName: 'serverless-unit-test',
   });
 
-  const rangeStart = '2020-09-09 10:00:00';
-  const rangeEnd = '2020-09-09 11:00:00';
+  const yestoday = getYestoday();
+  const rangeStart = `${yestoday} 10:00:00`;
+  const rangeEnd = `${yestoday} 11:00:00`;
 
   test('should get metrics data', async () => {
     const res = await metrics.getDatas(rangeStart, rangeEnd, 0xfffffffffff);

@@ -38,22 +38,16 @@ export default class ServiceEntity {
   }
 
   async getById(serviceId: string) {
-    const detail: Detail = await this.request({
-      Action: 'DescribeService',
-      ServiceId: serviceId,
-    });
+    try {
+      const detail: Detail = await this.request({
+        Action: 'DescribeService',
+        ServiceId: serviceId,
+      });
 
-    const outputs = {
-      serviceId: detail.ServiceId,
-      serviceName: detail.ServiceName,
-      subDomain:
-        detail!.OuterSubDomain && detail!.InnerSubDomain
-          ? [detail!.OuterSubDomain, detail!.InnerSubDomain]
-          : detail!.OuterSubDomain || detail!.InnerSubDomain,
-      serviceDesc: detail.ServiceDesc,
-    };
-
-    return outputs;
+      return detail;
+    } catch (e) {
+      return null;
+    }
   }
 
   /** 创建 API 网关服务 */
@@ -110,7 +104,7 @@ export default class ServiceEntity {
       serviceDesc = 'Created By Serverless Framework',
     } = serviceConf;
 
-    let detail: Detail;
+    let detail: Detail | null;
 
     let outputs: ApigwCreateOrUpdateServiceOutputs = {
       serviceId: serviceId,
@@ -123,10 +117,7 @@ export default class ServiceEntity {
     let exist = false;
 
     if (serviceId) {
-      detail = await this.request({
-        Action: 'DescribeService',
-        ServiceId: serviceId,
-      });
+      detail = await this.getById(serviceId);
       if (detail) {
         detail.InnerSubDomain = detail.InternalSubDomain;
         exist = true;
