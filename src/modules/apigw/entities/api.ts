@@ -275,7 +275,7 @@ export default class ApiEntity {
     const [exist] = oldList.filter(
       (item) =>
         item?.method?.toLowerCase() === apiConfig?.method?.toLowerCase() &&
-        item.path === apiConfig.path,
+        item.path?.toLowerCase() === apiConfig.path?.toLowerCase(),
     );
 
     if (exist) {
@@ -289,7 +289,7 @@ export default class ApiEntity {
         const [relativeApi] = apiList.filter(
           (item) =>
             item.method?.toLowerCase() === authRelationApi.method.toLowerCase() &&
-            item.path === authRelationApi.path,
+            item.path?.toLowerCase() === authRelationApi.path.toLowerCase(),
         );
         if (relativeApi) {
           apiConfig.authRelationApiId = relativeApi.apiId;
@@ -551,7 +551,11 @@ export default class ApiEntity {
 
     if (ApiIdStatusSet) {
       ApiIdStatusSet.forEach((item) => {
-        if (item.Path === path && item.Method.toLowerCase() === method.toLowerCase()) {
+        // 比对 path+method 忽略大小写
+        if (
+          item.Path.toLowerCase() === path.toLowerCase() &&
+          item.Method.toLowerCase() === method.toLowerCase()
+        ) {
           apiDetail = item;
         }
       });
