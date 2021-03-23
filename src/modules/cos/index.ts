@@ -463,41 +463,45 @@ export default class Cos {
     }
   }
 
-  async flushBucketFiles(bucket: string) {
-    console.log(`Start to clear all files in bucket ${bucket}`);
-    let detail;
+  async getBucketObjects(bucket: string) {
     try {
-      detail = await this.getBucket({
+      const detail = await this.getBucket({
         bucket,
       });
+      const contents = detail.Contents && detail.Contents.length > 0 ? detail.Contents : [];
+      const objectKeyList = contents.map((item) => {
+        return {
+          Key: item.Key,
+        };
+      });
+      return objectKeyList;
     } catch (err) {
       const e = convertCosError(err);
       if (e.code === 'NoSuchBucket') {
         console.log(`Bucket ${bucket} not exist`);
-        return;
+        return [];
       }
+      throw err;
     }
+  }
 
-    if (detail) {
-      if (detail.Contents && detail.Contents.length > 0) {
-        // delete files
-        const objectList = (detail.Contents || []).map((item) => {
-          return {
-            Key: item.Key,
-          };
+  async flushBucketFiles(bucket: string) {
+    try {
+      console.log(`Start to clear all files in bucket ${bucket}`);
+      let objects = await this.getBucketObjects(bucket);
+      // 由于 cos 服务一次只能获取 1000 个 object，所以需要循环每次删除 1000 个 object
+      while (objects.length > 0) {
+        await this.cosClient.deleteMultipleObject({
+          Region: this.region,
+          Bucket: bucket,
+          Objects: objects,
         });
 
-        try {
-          await this.cosClient.deleteMultipleObject({
-            Region: this.region,
-            Bucket: bucket,
-            Objects: objectList,
-          });
-          console.log(`Clear all files in bucket ${bucket} success`);
-        } catch (err) {
-          console.log(err);
-        }
+        objects = await this.getBucketObjects(bucket);
       }
+      console.log(`Clear all files in bucket ${bucket} success`);
+    } catch (e) {
+      console.log(`Flush bucket files error: ${e.message}`);
     }
   }
 
