@@ -1,3 +1,10 @@
+## [2.5.4](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.5.3...v2.5.4) (2021-03-24)
+
+
+### Bug Fixes
+
+* **apigw:** trigger key ignore case ([38cf421](https://github.com/serverless-tencent/tencent-component-toolkit/commit/38cf42162840a89fa2cce741619c97e272656a48))
+
 ## [2.5.3](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.5.2...v2.5.3) (2021-03-24)
 
 
