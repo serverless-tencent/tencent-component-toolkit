@@ -39,12 +39,12 @@ export default class UsagePlanEntiry {
     // user not setup secret ids, just auto generate one
     if (!secretIds || secretIds.length === 0) {
       console.log(`Creating a new Secret key.`);
-      const { AccessKeyId, AccessKeySecret } = await this.request({
+      const { AccessKeyId } = await this.request({
         Action: 'CreateApiKey',
         SecretName: secretName,
         AccessKeyType: 'auto',
       });
-      console.log(`Secret id ${AccessKeyId} and key ${AccessKeySecret} created`);
+      console.log(`Secret id ${AccessKeyId} and key created`);
       secretIdsOutput.secretIds = [AccessKeyId];
       secretIdsOutput.created = true;
     } else {
