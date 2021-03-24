@@ -1,3 +1,11 @@
+## [2.5.3](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.5.2...v2.5.3) (2021-03-24)
+
+
+### Bug Fixes
+
+* **cos:** flush more than 1000 files bucket ([df0c2a1](https://github.com/serverless-tencent/tencent-component-toolkit/commit/df0c2a1815b57dcda68866c37915f257c5cd29c9))
+* **apigw:** ignore case for api path ([df2dcaa](https://github.com/serverless-tencent/tencent-component-toolkit/commit/df2dcaa0f354b8a2c45e4160f37f24f2c2f65862))
+
 ## [2.5.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.5.1...v2.5.2) (2021-03-17)
 
 
