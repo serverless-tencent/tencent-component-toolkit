@@ -106,6 +106,25 @@ export interface CosSetVersioningInputs {
   versioning?: string;
 }
 
+export interface WebsiteRedirectRule {
+  /** 重定向规则的条件配置 */
+  Condition: {
+    /** 指定重定向规则的错误码匹配条件，只支持配置4XX返回码，例如403或404，HttpErrorCodeReturnedEquals 与 KeyPrefixEquals 必选其一 */
+    HttpErrorCodeReturnedEquals?: string | number;
+    /** 指定重定向规则的对象键前缀匹配条件，HttpErrorCodeReturnedEquals 与 KeyPrefixEquals 必选其一 */
+    KeyPrefixEquals?: 'Enabled' | 'Disabled';
+  };
+  /** 重定向规则的具体重定向目标配置 */
+  Redirect: {
+    /** 指定重定向规则的目标协议，只能设置为 https */
+    Protocol?: 'https' | string;
+    /** 指定重定向规则的具体重定向目标的对象键，替换方式为替换整个原始请求的对象键，ReplaceKeyWith 与 ReplaceKeyPrefixWith 必选其一 */
+    ReplaceKeyWith?: string;
+    /** 指定重定向规则的具体重定向目标的对象键，替换方式为替换原始请求中所匹配到的前缀部分，仅可在 Condition 为 KeyPrefixEquals 时设置，ReplaceKeyWith 与 ReplaceKeyPrefixWith 必选其一 */
+    ReplaceKeyPrefixWith?: string;
+  };
+}
+
 export interface CosSetWebsiteInputs extends CosSetAclInputs, CosSetPolicyInputs, CosSetCorsInputs {
   bucket?: string;
   code?: {
@@ -120,6 +139,8 @@ export interface CosSetWebsiteInputs extends CosSetAclInputs, CosSetPolicyInputs
   env?: Record<string, any>;
   protocol?: string;
   disableErrorStatus?: string | boolean;
+  ignoreHtmlExt?: boolean;
+  redirectRules?: WebsiteRedirectRule[];
 }
 
 export interface CosGetObjectUrlInputs {
