@@ -10,6 +10,7 @@ import COS, {
   PutBucketVersioningParams,
   PutBucketWebsiteParams,
   PutObjectResult,
+  WebsiteConfiguration,
 } from 'cos-nodejs-sdk-v5';
 import path from 'path';
 import {
@@ -406,22 +407,33 @@ export default class Cos {
   async setWebsite(inputs: CosSetWebsiteInputs = {}) {
     console.log(`Setting Website for bucket ${inputs.bucket}`);
 
+    const websiteConfig: WebsiteConfiguration = {
+      IndexDocument: {
+        Suffix: inputs.code?.index ?? 'index.html',
+      },
+      ErrorDocument: {
+        Key: inputs.code?.error ?? 'error.html',
+        // FIXME: cors "Enabled" type error
+        OriginalHttpStatus: inputs.disableErrorStatus === true ? 'Disabled' : ('Enabled' as any),
+      },
+      RedirectAllRequestsTo: {
+        Protocol: inputs.protocol ?? 'http',
+      },
+      AutoAddressing: {
+        Status: inputs.ignoreHtmlExt ? 'Enabled' : 'Disabled',
+      },
+    };
+
+    // 支持重定向规则配置
+    // 参考：https://cloud.tencent.com/document/product/436/31930
+    if (inputs.redirectRules) {
+      websiteConfig.RoutingRules = inputs.redirectRules;
+    }
+
     const staticHostParams: PutBucketWebsiteParams = {
       Bucket: inputs.bucket!,
       Region: this.region,
-      WebsiteConfiguration: {
-        IndexDocument: {
-          Suffix: inputs.code?.index ?? 'index.html',
-        },
-        ErrorDocument: {
-          Key: inputs.code?.error ?? 'error.html',
-          // FIXME: cors "Enabled" type error
-          OriginalHttpStatus: inputs.disableErrorStatus === true ? 'Disabled' : ('Enabled' as any),
-        },
-        RedirectAllRequestsTo: {
-          Protocol: inputs.protocol ?? 'htÍtp',
-        },
-      },
+      WebsiteConfiguration: websiteConfig,
     };
 
     try {
@@ -586,11 +598,11 @@ export default class Cos {
       await this.setPolicy(inputs);
     }
 
-    await this.setWebsite(inputs);
-
     if (inputs.cors) {
       await this.setCors(inputs);
     }
+
+    await this.setWebsite(inputs);
 
     // Build environment variables
     const envPath = inputs.code?.envPath || inputs.code?.root;
