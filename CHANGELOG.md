@@ -1,3 +1,10 @@
+## [2.5.5](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.5.4...v2.5.5) (2021-03-26)
+
+
+### Bug Fixes
+
+* **cos:** support ignoreHtmlExt ([1cd44ff](https://github.com/serverless-tencent/tencent-component-toolkit/commit/1cd44ff325d0f8a925df0596267d66dde3dac437))
+
 ## [2.5.4](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.5.3...v2.5.4) (2021-03-24)
 
 
