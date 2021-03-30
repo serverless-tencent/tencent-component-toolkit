@@ -617,6 +617,7 @@ export default class Cos {
     const dirToUploadPath: string | undefined = inputs.code?.src ?? inputs.code?.root;
     const uploadDict: CosUploadInputs = {
       bucket: inputs.bucket,
+      keyPrefix: inputs.keyPrefix || '/',
       replace: inputs.replace!,
     };
     if (fs.lstatSync(dirToUploadPath!).isDirectory()) {
