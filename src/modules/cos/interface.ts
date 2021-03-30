@@ -177,6 +177,7 @@ export interface CosUploadInputs {
 export interface CosWebsiteInputs extends CosSetWebsiteInputs {
   bucket?: string;
   force?: boolean;
+  keyPrefix?: string;
 }
 
 export interface CosDeployInputs
