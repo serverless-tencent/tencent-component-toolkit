@@ -1,3 +1,11 @@
+## [2.5.6](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.5.5...v2.5.6) (2021-03-30)
+
+
+### Bug Fixes
+
+* **cos:** optimize createBucket method ([3581b91](https://github.com/serverless-tencent/tencent-component-toolkit/commit/3581b919da3aa98584d13c6d7b830f4b0cf29c62))
+* **cos:** optimize error message ([6b37ad5](https://github.com/serverless-tencent/tencent-component-toolkit/commit/6b37ad522dd0a00871827a373d75ac091a01b25d))
+
 ## [2.5.5](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.5.4...v2.5.5) (2021-03-26)
 
 
