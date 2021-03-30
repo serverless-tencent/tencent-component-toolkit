@@ -91,6 +91,8 @@ export default class Cos {
   credentials: CapiCredentials;
   region: RegionType;
   cosClient: COS;
+  retryTimes: number;
+  maxRetryTimes: number;
 
   constructor(credentials: CapiCredentials = {}, region: RegionType = 'ap-guangzhou') {
     this.region = region;
@@ -103,6 +105,10 @@ export default class Cos {
       this.credentials.XCosSecurityToken = credentials.Token;
     }
     this.cosClient = new COS(this.credentials);
+
+    // 支持 CreateBucket 重试一次
+    this.retryTimes = 0;
+    this.maxRetryTimes = 1;
   }
 
   async isBucketExist(bucket: string) {
@@ -118,13 +124,14 @@ export default class Cos {
   }
 
   async createBucket(inputs: CosCreateBucketInputs = {}) {
-    // 在创建之前，检查是否存在
-    const exist = await this.isBucketExist(inputs.bucket!);
-    if (exist) {
-      return true;
+    // TODO: HeadBucket 请求如果 404 COS 会缓存，暂时不能使用，只能直接调用 CreateBucket
+    // const exist = await this.isBucketExist(inputs.bucket!);
+    // if (exist) {
+    //   return true;
+    // }
+    if (this.retryTimes === 0) {
+      console.log(`Creating bucket ${inputs.bucket}`);
     }
-    // 不存在就尝试创建
-    console.log(`Creating bucket ${inputs.bucket}`);
     const createParams = {
       Bucket: inputs.bucket!,
       Region: this.region,
@@ -132,6 +139,7 @@ export default class Cos {
 
     try {
       await this.cosClient.putBucket(createParams);
+      this.retryTimes = 0;
     } catch (err) {
       const e = convertCosError(err);
       if (e.code === 'BucketAlreadyExists' || e.code === 'BucketAlreadyOwnedByYou') {
@@ -141,30 +149,12 @@ export default class Cos {
           console.log(`Bucket ${inputs.bucket} already exist.`);
         }
       } else {
-        // TODO: cos在云函数中可能出现ECONNRESET错误，没办法具体定位，初步猜测是客户端问题，是函数启动网络还没准备好，这个还不确定，所以在这里做兼容
-        if (e?.message?.includes('ECONNRESET')) {
-          // 检查bucket是否存在
-          try {
-            const isHave = await this.cosClient.headBucket(createParams);
-            if (isHave.statusCode === 200) {
-              if (!inputs.force) {
-                throw new ApiError({
-                  type: `API_COS_headBucket`,
-                  message: `Bucket ${inputs.bucket} already exist`,
-                });
-              } else {
-                console.log(`Bucket ${inputs.bucket} already exist`);
-              }
-            } else {
-              throw new ApiError({
-                type: `API_COS_headBucket`,
-                message: `Could not find bucket ${inputs.bucket}`,
-              });
-            }
-          } catch (errAgain) {
-            throw constructCosError(`API_COS_headBucket`, errAgain);
-          }
+        // 失败重试 1 次，如果再次出错，正常处理
+        if (this.retryTimes < this.maxRetryTimes) {
+          this.retryTimes++;
+          await this.createBucket(inputs);
         } else {
+          this.retryTimes = 0;
           throw constructCosError(`API_COS_putBucket`, err);
         }
       }
@@ -531,7 +521,7 @@ export default class Cos {
       await this.flushBucketFiles(bucket);
     }
 
-    console.log(`Uploding files to bucket ${bucket}`);
+    console.log(`Uploading files to bucket ${bucket}`);
 
     /** 上传文件夹 */
     if (inputs.dir && fs.existsSync(inputs.dir)) {

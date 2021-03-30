@@ -77,8 +77,8 @@ describe('Cos', () => {
       const res = await cos.deploy({ ...inputs, bucket: '1234567890' });
       expect(res).toBe(undefined);
     } catch (err) {
-      console.log(JSON.stringify(err));
       expect(err.type).toBe('API_COS_putBucket');
+      expect(err.displayMsg).toBe('Bucket should format as "test-1250000000".');
     }
   });
 
