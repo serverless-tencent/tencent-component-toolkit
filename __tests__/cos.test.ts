@@ -86,8 +86,9 @@ describe('Cos', () => {
     expect(
       convertCosError({
         message: 'message',
+        requestId: '123',
       }).message,
-    ).toBe('message');
+    ).toBe('message (reqId: 123)');
 
     expect(
       convertCosError({
@@ -99,9 +100,10 @@ describe('Cos', () => {
       convertCosError({
         error: {
           Message: 'message',
+          RequestId: '123',
         },
       }).message,
-    ).toBe('message');
+    ).toBe('message (reqId: 123)');
   });
 
   test('[cos] should deploy cos', async () => {
