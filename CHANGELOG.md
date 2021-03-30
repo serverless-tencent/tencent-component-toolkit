@@ -1,3 +1,10 @@
+## [2.5.7](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.5.6...v2.5.7) (2021-03-30)
+
+
+### Bug Fixes
+
+* **cos:** website method using keyPrefix ([40130df](https://github.com/serverless-tencent/tencent-component-toolkit/commit/40130dff5ff1358a6d1f44329b148f76f375c44a))
+
 ## [2.5.6](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.5.5...v2.5.6) (2021-03-30)
 
 
