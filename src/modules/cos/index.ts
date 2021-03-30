@@ -63,7 +63,9 @@ export function convertCosError(err: CosError) {
   }
   return {
     code: err?.error?.Code ?? err.code!,
-    message: err?.error?.Message ?? err.message!,
+    message: err?.error?.Message
+      ? `${err?.error?.Message} (reqId: ${err.error.RequestId})`
+      : `${err.message!} (reqId: ${err.requestId!})`,
     stack: err?.stack ?? err?.error?.Stack!,
     reqId: err?.error?.RequestId ?? err.requestId!,
   };
