@@ -1,3 +1,10 @@
+## [2.5.8](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.5.7...v2.5.8) (2021-03-31)
+
+
+### Bug Fixes
+
+* **cos:** remove bucket exist error ([b54af0c](https://github.com/serverless-tencent/tencent-component-toolkit/commit/b54af0c46efbecb3cff8498288714bc0123f9337))
+
 ## [2.5.7](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.5.6...v2.5.7) (2021-03-30)
 
 
