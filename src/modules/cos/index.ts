@@ -143,11 +143,7 @@ export default class Cos {
     } catch (err) {
       const e = convertCosError(err);
       if (e.code === 'BucketAlreadyExists' || e.code === 'BucketAlreadyOwnedByYou') {
-        if (!inputs.force) {
-          throw constructCosError(`API_COS_putBucket`, err);
-        } else {
-          console.log(`Bucket ${inputs.bucket} already exist.`);
-        }
+        console.log(`Bucket ${inputs.bucket} already exist.`);
       } else {
         // 失败重试 1 次，如果再次出错，正常处理
         if (this.retryTimes < this.maxRetryTimes) {
