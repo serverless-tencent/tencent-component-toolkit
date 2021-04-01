@@ -1,3 +1,10 @@
+## [2.5.10](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.5.9...v2.5.10) (2021-04-01)
+
+
+### Bug Fixes
+
+* **scf:** remove parameter TraceEnable for update ([342d8bd](https://github.com/serverless-tencent/tencent-component-toolkit/commit/342d8bd3f8363a81be18e1f300afeace5f5b03a1))
+
 ## [2.5.9](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.5.8...v2.5.9) (2021-04-01)
 
 
