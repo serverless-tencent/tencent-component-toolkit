@@ -144,11 +144,9 @@ export const formatInputs = (region: RegionType, inputs: ScfCreateFunctionInputs
   if (inputs.asyncRunEnable !== undefined) {
     functionInputs.AsyncRunEnable = inputs.asyncRunEnable === true ? 'TRUE' : 'FALSE';
   }
-  // 只有配置 asyncRunEnable 为 true 时，才能配置 traceEnable 为 true
-  if (inputs.traceEnable === true && functionInputs.AsyncRunEnable === 'TRUE') {
-    functionInputs.TraceEnable = 'TRUE';
-  } else {
-    functionInputs.TraceEnable = 'FALSE';
+
+  if (inputs.traceEnable !== undefined) {
+    functionInputs.TraceEnable = inputs.traceEnable === true ? 'TRUE' : 'FALSE';
   }
 
   return functionInputs;

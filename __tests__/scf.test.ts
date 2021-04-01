@@ -89,8 +89,7 @@ describe('Scf', () => {
   const events = Object.entries(triggers).map(([, value]) => value);
 
   const inputs: ScfDeployInputs = {
-    // name: `serverless-test-${Date.now()}`,
-    name: `serverless-test-fixed`,
+    name: `serverless-test-${Date.now()}`,
     code: {
       bucket: process.env.BUCKET,
       object: 'express_code.zip',
@@ -572,6 +571,15 @@ describe('Scf', () => {
 
     expect(outputs.AsyncRunEnable).toBe('TRUE');
     expect(outputs.TraceEnable).toBe('TRUE');
+  });
+  test('[asyncRunEnable and traceEnable] update', async () => {
+    await sleep(3000);
+    inputs.asyncRunEnable = true;
+    inputs.traceEnable = false;
+    outputs = await scf.deploy(inputs);
+
+    expect(outputs.AsyncRunEnable).toBe('TRUE');
+    expect(outputs.TraceEnable).toBe('FALSE');
   });
   test('[asyncRunEnable and traceEnable] remove', async () => {
     const res = await scf.remove({
