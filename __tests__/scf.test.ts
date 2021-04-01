@@ -2,7 +2,6 @@ import { ScfDeployInputs } from './../src/modules/scf/interface';
 import { sleep } from '@ygkit/request';
 import { Scf, Cfs, Layer } from '../src';
 
-// FIXME: skip mps test
 describe('Scf', () => {
   const credentials = {
     SecretId: process.env.TENCENT_SECRET_ID,
@@ -90,7 +89,8 @@ describe('Scf', () => {
   const events = Object.entries(triggers).map(([, value]) => value);
 
   const inputs: ScfDeployInputs = {
-    name: `serverless-test-${Date.now()}`,
+    // name: `serverless-test-${Date.now()}`,
+    name: `serverless-test-fixed`,
     code: {
       bucket: process.env.BUCKET,
       object: 'express_code.zip',
@@ -168,7 +168,7 @@ describe('Scf', () => {
     done();
   });
 
-  test('should deploy SCF success', async () => {
+  test('deploy', async () => {
     await sleep(3000);
     outputs = await scf.deploy(inputs);
     expect(outputs).toEqual({
@@ -353,7 +353,7 @@ describe('Scf', () => {
       },
     ]);
   });
-  test('should update SCF success', async () => {
+  test('update', async () => {
     await sleep(3000);
     outputs = await scf.deploy(inputs);
     expect(outputs).toEqual({
@@ -538,7 +538,7 @@ describe('Scf', () => {
       },
     ]);
   });
-  test('should invoke Scf success', async () => {
+  test('invoke', async () => {
     const res = await scf.invoke({
       namespace: inputs.namespace,
       functionName: inputs.name,
@@ -557,7 +557,23 @@ describe('Scf', () => {
       RequestId: expect.any(String),
     });
   });
-  test('should remove Scf success', async () => {
+  test('remove', async () => {
+    const res = await scf.remove({
+      functionName: inputs.name,
+      ...outputs,
+    });
+    expect(res).toEqual(true);
+  });
+  test('[asyncRunEnable and traceEnable] create', async () => {
+    await sleep(3000);
+    inputs.asyncRunEnable = true;
+    inputs.traceEnable = true;
+    outputs = await scf.deploy(inputs);
+
+    expect(outputs.AsyncRunEnable).toBe('TRUE');
+    expect(outputs.TraceEnable).toBe('TRUE');
+  });
+  test('[asyncRunEnable and traceEnable] remove', async () => {
     const res = await scf.remove({
       functionName: inputs.name,
       ...outputs,

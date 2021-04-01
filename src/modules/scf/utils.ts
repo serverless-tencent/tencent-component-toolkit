@@ -44,6 +44,7 @@ export const formatInputs = (region: RegionType, inputs: ScfCreateFunctionInputs
       }[];
     };
     AsyncRunEnable?: 'TRUE' | 'FALSE';
+    TraceEnable?: 'TRUE' | 'FALSE';
   } = {
     FunctionName: inputs.name,
     CodeSource: 'Cos',
@@ -142,6 +143,12 @@ export const formatInputs = (region: RegionType, inputs: ScfCreateFunctionInputs
 
   if (inputs.asyncRunEnable !== undefined) {
     functionInputs.AsyncRunEnable = inputs.asyncRunEnable === true ? 'TRUE' : 'FALSE';
+  }
+  // 只有配置 asyncRunEnable 为 true 时，才能配置 traceEnable 为 true
+  if (inputs.traceEnable === true && functionInputs.AsyncRunEnable === 'TRUE') {
+    functionInputs.TraceEnable = 'TRUE';
+  } else {
+    functionInputs.TraceEnable = 'FALSE';
   }
 
   return functionInputs;
