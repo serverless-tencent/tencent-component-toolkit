@@ -1,3 +1,10 @@
+## [2.5.9](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.5.8...v2.5.9) (2021-04-01)
+
+
+### Bug Fixes
+
+* **scf:** supoort traceEnable ([6a58dde](https://github.com/serverless-tencent/tencent-component-toolkit/commit/6a58ddef37a9c2bc9e1094f3a2d664e6d6190074))
+
 ## [2.5.8](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.5.7...v2.5.8) (2021-03-31)
 
 
