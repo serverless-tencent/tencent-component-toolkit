@@ -135,7 +135,8 @@ export interface ScfCreateFunctionInputs {
     userId?: string;
   }[];
 
-  asyncRunEnable?: {};
+  asyncRunEnable?: undefined | boolean;
+  traceEnable?: undefined | boolean;
 }
 
 export interface ScfUpdateAliasTrafficInputs {
