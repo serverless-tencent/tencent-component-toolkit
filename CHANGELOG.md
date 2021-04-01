@@ -1,3 +1,10 @@
+## [2.5.11](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.5.10...v2.5.11) (2021-04-01)
+
+
+### Bug Fixes
+
+* **scf:** support update to disable traceEnable ([f090c79](https://github.com/serverless-tencent/tencent-component-toolkit/commit/f090c792210ab3b1558c28fec50b3a1b716ce08e))
+
 ## [2.5.10](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.5.9...v2.5.10) (2021-04-01)
 
 
