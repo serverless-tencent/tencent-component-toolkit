@@ -1,25 +1,45 @@
 import { CynosdbDeployInputs } from './../src/modules/cynosdb/interface';
 import { Cynosdb } from '../src';
-import { getClusterDetail, sleep, generatePwd, isValidPwd } from '../src/modules/cynosdb/utils';
+import {
+  getClusterDetail,
+  sleep,
+  generatePwd,
+  isValidPwd,
+  isSupportServerlessZone,
+} from '../src/modules/cynosdb/utils';
 
 describe('Cynosdb', () => {
   const credentials = {
     SecretId: process.env.TENCENT_SECRET_ID,
     SecretKey: process.env.TENCENT_SECRET_KEY,
   };
-  const region = 'ap-shanghai';
+  const region = 'ap-guangzhou';
   const client = new Cynosdb(credentials, region);
 
   const inputs: CynosdbDeployInputs = {
     region,
-    zone: 'ap-shanghai-2',
+    zone: 'ap-guangzhou-4',
     vpcConfig: {
-      vpcId: 'vpc-mshegdk6',
-      subnetId: 'subnet-3la82w45',
+      vpcId: 'vpc-p2dlmlbj',
+      subnetId: 'subnet-a1v3k07o',
     },
   };
 
   let clusterId;
+
+  test('[isSupportServerlessZone] is support serverless zone', async () => {
+    const res = await isSupportServerlessZone(client.capi, inputs.zone);
+
+    expect(res).toEqual({
+      IsSupportNormal: 1,
+      IsSupportServerless: 1,
+      ZoneId: expect.any(Number),
+      Zone: inputs.zone,
+      ZoneZh: '广州四区',
+      Region: region,
+      DbType: 'MYSQL',
+    });
+  });
 
   test('[generatePwd] should get random password with default length 8', () => {
     const res = generatePwd();

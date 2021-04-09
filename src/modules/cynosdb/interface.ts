@@ -74,3 +74,20 @@ export interface CynosdbResetPwdInputs {
   host?: string;
   adminPassword?: string;
 }
+
+export interface ZoneSetInterface {
+  IsSupportNormal: number;
+  IsSupportServerless: number;
+  ZoneId: number;
+  Zone: string;
+  ZoneZh: string;
+  Region?: string;
+  DbType?: string;
+}
+export interface RegionSetInterface {
+  DbType: string;
+  Region: string;
+  RegionZh: string;
+  RegionId: number;
+  ZoneSet: ZoneSetInterface[];
+}
