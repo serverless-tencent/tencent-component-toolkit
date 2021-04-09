@@ -16,6 +16,7 @@ const ACTIONS = [
   'OpenWan',
   'CloseWan',
   'DescribeClusterInstanceGrps',
+  'DescribeZones',
 ] as const;
 
 const APIS = ApiFactory({

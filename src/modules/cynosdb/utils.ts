@@ -1,4 +1,4 @@
-import { CynosdbResetPwdInputs } from './interface';
+import { CynosdbResetPwdInputs, RegionSetInterface, ZoneSetInterface } from './interface';
 import { Capi } from '@tencent-sdk/capi';
 import { waitResponse } from '@ygkit/request';
 import APIS from './apis';
@@ -379,4 +379,47 @@ export async function closePublicAccess(capi: Capi, clusterId: string) {
   });
   console.log(`Close public access to cluster ${clusterId} success`);
   return res;
+}
+
+export async function getSupportZones(capi: Capi) {
+  try {
+    const res = await APIS.DescribeZones(capi, {});
+
+    const list = res.RegionSet || [];
+    const zones: ZoneSetInterface[] = [];
+    list.forEach((item: RegionSetInterface) => {
+      const { DbType, Region, ZoneSet } = item;
+      ZoneSet.forEach((zone: ZoneSetInterface) => {
+        zones.push({
+          ...zone,
+          Region,
+          DbType,
+        });
+      });
+    });
+    return zones;
+  } catch (e) {
+    return [];
+  }
+}
+
+/**
+ * Get serverless support zones
+ * @param capi Capi instance
+ * @param type db type, default is MYSQL
+ */
+export async function getServerlessSupportZones(capi: Capi, type: string = 'MYSQL') {
+  const zones = await getSupportZones(capi);
+  const supportZones = zones.filter((item) => {
+    return item.DbType === type && item.IsSupportServerless === 1;
+  });
+
+  return supportZones;
+}
+
+export async function isSupportServerlessZone(capi: Capi, zone: string) {
+  const zones = await getServerlessSupportZones(capi);
+  const [exist] = zones.filter((item) => item.Zone === zone);
+
+  return exist;
 }
