@@ -13,6 +13,7 @@ const config = {
   testPathIgnorePatterns: [
     '/node_modules/',
     '/__tests__/cdn.test.ts',
+    '/__tests__/apigw.custom-domains.test.ts',
     '/__tests__/scf.sp.test.ts', // 专门用来验证测试小地域功能发布测试
     '/__tests__/triggers/mps.test.ts',
   ],
@@ -22,6 +23,8 @@ const config = {
 if (mod) {
   if (mod === 'triggers') {
     config.testRegex = `/__tests__/triggers/.*.test.(js|ts)`;
+  } else if (mod === 'custom-domains') {
+    config.testRegex = `/__tests__/triggers/apigw.custom-domains.test.(js|ts)`;
   } else {
     config.testRegex = `/__tests__/${process.env.MODULE}.test.(js|ts)`;
     config.testPathIgnorePatterns = ['/node_modules/'];

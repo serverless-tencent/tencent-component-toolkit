@@ -14,13 +14,12 @@ describe('Vpc', () => {
     subnetName: 'serverless-test',
     cidrBlock: '10.0.0.0/16',
   };
-  // const vpc = new Vpc(credentials, process.env.REGION);
-  const vpc = new Vpc(credentials, 'ap-shanghai');
+  const vpc = new Vpc(credentials, process.env.REGION);
 
   let defaultVpcDetail: DefaultVpcItem = null;
 
   test('createDefaultVpc', async () => {
-    const res = await vpcUtils.createDefaultVpc(vpc.capi, 'ap-shanghai-2');
+    const res = await vpcUtils.createDefaultVpc(vpc.capi, process.env.ZONE);
     defaultVpcDetail = res;
 
     expect(res).toEqual({
