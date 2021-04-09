@@ -1,3 +1,10 @@
+## [2.5.12](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.5.11...v2.5.12) (2021-04-09)
+
+
+### Bug Fixes
+
+* **vpc:** support get and create default vpc ([#213](https://github.com/serverless-tencent/tencent-component-toolkit/issues/213)) ([39dc5ae](https://github.com/serverless-tencent/tencent-component-toolkit/commit/39dc5aed5624dba677455aef917c71763efab52e))
+
 ## [2.5.11](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.5.10...v2.5.11) (2021-04-01)
 
 
