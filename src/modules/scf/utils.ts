@@ -75,10 +75,10 @@ export const formatInputs = (region: RegionType, inputs: ScfCreateFunctionInputs
     functionInputs.Description = inputs.description;
   }
   if (inputs.cls) {
-    if (inputs.cls.logsetId) {
+    if (inputs.cls.logsetId !== undefined) {
       functionInputs.ClsLogsetId = inputs.cls.logsetId;
     }
-    if (inputs.cls.topicId) {
+    if (inputs.cls.topicId !== undefined) {
       functionInputs.ClsTopicId = inputs.cls.topicId;
     }
   }

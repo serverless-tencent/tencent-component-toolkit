@@ -537,6 +537,17 @@ describe('Scf', () => {
       },
     ]);
   });
+  test('[remove cls] update', async () => {
+    await sleep(3000);
+    inputs.cls = {
+      logsetId: '',
+      topicId: '',
+    };
+    outputs = await scf.deploy(inputs);
+
+    expect(outputs.ClsLogsetId).toBe('');
+    expect(outputs.ClsTopicId).toBe('');
+  });
   test('invoke', async () => {
     const res = await scf.invoke({
       namespace: inputs.namespace,
@@ -565,6 +576,7 @@ describe('Scf', () => {
   });
   test('[asyncRunEnable and traceEnable] create', async () => {
     await sleep(3000);
+    delete inputs.cls;
     inputs.asyncRunEnable = true;
     inputs.traceEnable = true;
     outputs = await scf.deploy(inputs);
