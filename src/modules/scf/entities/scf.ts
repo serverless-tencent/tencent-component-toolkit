@@ -155,10 +155,11 @@ export default class ScfEntity extends BaseEntity {
       Namespace: inputs.namespace || funcInfo.Namespace,
       MemorySize: inputs.memorySize || funcInfo.MemorySize,
     };
-    if (!reqParams.ClsLogsetId) {
-      reqParams.ClsLogsetId = '';
-      reqParams.ClsTopicId = '';
-    }
+    // 由于业务变动，后端会默认创建cls来记录日志，如果需要删除 CLS 配置，用户需要手动配置为 ’‘
+    // if (!reqParams.ClsLogsetId) {
+    //   reqParams.ClsLogsetId = '';
+    //   reqParams.ClsTopicId = '';
+    // }
 
     const reqInputs: Partial<typeof reqParams> = reqParams;
 
