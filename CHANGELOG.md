@@ -1,3 +1,10 @@
+## [2.5.13](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.5.12...v2.5.13) (2021-04-19)
+
+
+### Bug Fixes
+
+* **scf:** update cls logical ([8a41db8](https://github.com/serverless-tencent/tencent-component-toolkit/commit/8a41db892d7d91ed5c791ec0ffd5dea0724d62de))
+
 ## [2.5.12](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.5.11...v2.5.12) (2021-04-09)
 
 
