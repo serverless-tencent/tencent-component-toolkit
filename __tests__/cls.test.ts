@@ -1,4 +1,5 @@
 import { ClsDeployInputs, ClsDeployOutputs } from './../src/modules/cls/interface';
+import { Scf } from '../src';
 import { Cls } from '../src';
 import { sleep } from '@ygkit/request';
 
@@ -7,6 +8,7 @@ describe('Cls', () => {
     SecretId: process.env.TENCENT_SECRET_ID,
     SecretKey: process.env.TENCENT_SECRET_KEY,
   };
+  const scf = new Scf(credentials, process.env.REGION);
   const client = new Cls(credentials, process.env.REGION);
 
   let outputs: ClsDeployOutputs;
@@ -43,16 +45,37 @@ describe('Cls', () => {
     outputs = res;
   });
 
-  test('should remove cls success', async () => {
+  test('remove cls', async () => {
     await sleep(5000);
     await client.remove(outputs);
 
-    const detail = await client.cls.getLogset({
-      logset_id: outputs.logsetId,
+    const detail = await client.cls.getTopic({
+      topic_id: outputs.topicId,
     });
-    expect(detail.logset_id).toBeUndefined();
+
+    expect(detail.topicId).toBeUndefined();
     expect(detail.error).toEqual({
       message: expect.any(String),
     });
+  });
+
+  test('search log', async () => {
+    await scf.invoke({
+      namespace: 'default',
+      functionName: 'serverless-unit-test',
+    });
+
+    await sleep(5000);
+
+    const res = await client.getLogList({
+      functionName: 'serverless-unit-test',
+      namespace: 'default',
+      qualifier: '$LATEST',
+      logsetId: '125d5cd7-caee-49ab-af9b-da29aa09d6ab',
+      topicId: 'e9e38c86-c7ba-475b-a852-6305880d2212',
+      interval: 3600,
+    });
+    console.log('logs', res);
+    expect(res).toBeInstanceOf(Array);
   });
 });
