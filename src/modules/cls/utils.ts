@@ -1,6 +1,7 @@
 import { Cls } from '@tencent-sdk/cls';
 import { IndexRule } from '@tencent-sdk/cls/dist/typings';
 import { ApiError } from '../../utils/error';
+import { StatusSqlMapEnum, GetSearchSqlOptions } from './interface';
 
 export async function getLogsetByName(cls: Cls, data: { name: string }) {
   const { logsets = [] } = await cls.getLogsetList();
@@ -239,4 +240,43 @@ export async function deleteClsTrigger(cls: Cls, data: { topic_id: string }) {
     });
   }
   return res;
+}
+
+const StatusSqlMap: StatusSqlMapEnum = {
+  success: 'SCF_StatusCode=200',
+  fail: 'SCF_StatusCode != 200 AND SCF_StatusCode != 202 AND SCF_StatusCode != 499',
+  retry: 'SCF_RetryNum > 0',
+  interrupt: 'SCF_StatusCode = 499',
+  timeout: 'SCF_StatusCode = 433',
+  exceed: 'SCF_StatusCode = 434',
+  codeError: 'SCF_StatusCode = 500',
+};
+
+export function formatWhere({
+  functionName,
+  namespace = 'default',
+  qualifier = '$LATEST',
+  status,
+  startTime,
+  endTime,
+}: Partial<GetSearchSqlOptions>) {
+  let where = `SCF_Namespace='${namespace}' AND SCF_Qualifier='${qualifier}'`;
+  if (startTime && endTime) {
+    where += ` AND (SCF_StartTime between ${startTime} AND ${endTime})`;
+  }
+  if (functionName) {
+    where += ` AND SCF_FunctionName='${functionName}'`;
+  }
+  if (status) {
+    where += ` AND ${StatusSqlMap[status]}'`;
+  }
+
+  return where;
+}
+
+export function getSearchSql(options: GetSearchSqlOptions) {
+  const where = formatWhere(options);
+  const sql = `* | SELECT SCF_RequestId as requestId, SCF_RetryNum as retryNum, MAX(SCF_StartTime) as startTime WHERE ${where} GROUP BY SCF_RequestId, SCF_RetryNum ORDER BY startTime desc`;
+
+  return sql;
 }

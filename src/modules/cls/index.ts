@@ -1,14 +1,20 @@
-import { CapiCredentials, RegionType } from './../interface';
 import { Cls as ClsClient } from '@tencent-sdk/cls';
+import dayjs, { Dayjs } from 'dayjs';
 import {
   ClsDelopyIndexInputs,
   ClsDeployInputs,
   ClsDeployLogsetInputs,
   ClsDeployOutputs,
   ClsDeployTopicInputs,
+  GetLogOptions,
+  GetLogDetailOptions,
+  LogContent,
 } from './interface';
+import { CapiCredentials, RegionType } from './../interface';
 import { ApiError } from '../../utils/error';
-import { createLogset, createTopic, updateIndex } from './utils';
+import { createLogset, createTopic, updateIndex, getSearchSql } from './utils';
+
+const TimeFormat = 'YYYY-MM-DD HH:mm:ss';
 
 export default class Cls {
   credentials: CapiCredentials;
@@ -191,5 +197,97 @@ export default class Cls {
     }
 
     return {};
+  }
+
+  async getLogList(data: GetLogOptions) {
+    const clsClient = new ClsClient({
+      region: this.region,
+      secretId: this.credentials.SecretId!,
+      secretKey: this.credentials.SecretKey!,
+      token: this.credentials.Token,
+      debug: false,
+    });
+
+    const { endTime, interval = 3600 } = data;
+    let startDate: Dayjs;
+    let endDate: Dayjs;
+
+    // 默认获取从当前到一个小时前时间段的日志
+    if (!endTime) {
+      endDate = dayjs();
+      startDate = endDate.add(-1, 'hour');
+    } else {
+      endDate = dayjs(endTime);
+      startDate = dayjs(endDate.valueOf() - Number(interval) * 1000);
+    }
+
+    const sql = getSearchSql({
+      ...data,
+      startTime: startDate.valueOf(),
+      endTime: endDate.valueOf(),
+    });
+    const searchParameters = {
+      logset_id: data.logsetId,
+      topic_ids: data.topicId,
+      start_time: startDate.format(TimeFormat),
+      end_time: endDate.format(TimeFormat),
+      // query_string 必须用 cam 特有的 url 编码方式
+      query_string: sql,
+      limit: data.limit || 10,
+      sort: 'desc',
+    };
+    const { results = [] } = await clsClient.searchLog(searchParameters);
+    const logs = [];
+    for (let i = 0, len = results.length; i < len; i++) {
+      const curReq = results[i];
+      const detailLog = await this.getLogDetail({
+        logsetId: data.logsetId,
+        topicId: data.topicId,
+        reqId: curReq.requestId,
+        startTime: startDate.format(TimeFormat),
+        endTime: endDate.format(TimeFormat),
+      });
+      curReq.message = (detailLog || [])
+        .map(({ content }: { content: string }) => {
+          try {
+            const info = JSON.parse(content) as LogContent;
+            if (info.SCF_Type === 'Custom') {
+              curReq.memoryUsage = info.SCF_MemUsage;
+              curReq.duration = info.SCF_Duration;
+            }
+            return info.SCF_Message;
+          } catch (e) {
+            return '';
+          }
+        })
+        .join('');
+      logs.push(curReq);
+    }
+    return logs;
+  }
+  async getLogDetail(data: GetLogDetailOptions) {
+    const clsClient = new ClsClient({
+      region: this.region,
+      secretId: this.credentials.SecretId!,
+      secretKey: this.credentials.SecretKey!,
+      token: this.credentials.Token,
+      debug: false,
+    });
+
+    data.startTime = data.startTime || dayjs(data.endTime).add(-1, 'hour').format(TimeFormat);
+
+    const sql = `SCF_RequestId:${data.reqId} AND SCF_RetryNum:0`;
+    const searchParameters = {
+      logset_id: data.logsetId,
+      topic_ids: data.topicId,
+      start_time: data.startTime as string,
+      end_time: data.endTime,
+      // query_string 必须用 cam 特有的 url 编码方式
+      query_string: sql,
+      limit: 100,
+      sort: 'asc',
+    };
+    const { results = [] } = await clsClient.searchLog(searchParameters);
+    return results;
   }
 }

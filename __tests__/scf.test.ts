@@ -537,17 +537,6 @@ describe('Scf', () => {
       },
     ]);
   });
-  test('[remove cls] update', async () => {
-    await sleep(3000);
-    inputs.cls = {
-      logsetId: '',
-      topicId: '',
-    };
-    outputs = await scf.deploy(inputs);
-
-    expect(outputs.ClsLogsetId).toBe('');
-    expect(outputs.ClsTopicId).toBe('');
-  });
   test('invoke', async () => {
     const res = await scf.invoke({
       namespace: inputs.namespace,
@@ -567,6 +556,26 @@ describe('Scf', () => {
       RequestId: expect.any(String),
     });
   });
+  test('get function logs', async () => {
+    const logs = await scf.logs({
+      functionName: inputs.name,
+      namespace: inputs.namespace,
+    });
+
+    expect(logs).toBeInstanceOf(Array);
+  });
+  test('[remove cls] update', async () => {
+    await sleep(3000);
+    inputs.cls = {
+      logsetId: '',
+      topicId: '',
+    };
+    outputs = await scf.deploy(inputs);
+
+    expect(outputs.ClsLogsetId).toBe('');
+    expect(outputs.ClsTopicId).toBe('');
+  });
+
   test('remove', async () => {
     const res = await scf.remove({
       functionName: inputs.name,

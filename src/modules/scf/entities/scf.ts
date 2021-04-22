@@ -1,20 +1,34 @@
 import { Capi } from '@tencent-sdk/capi';
 import { waitResponse } from '@ygkit/request';
+import dayjs from 'dayjs';
 import { ApiTypeError, ApiError } from '../../../utils/error';
+import { formatDate } from '../../../utils';
 import CONFIGS from '../config';
+import Cls from '../../cls';
 import { formatInputs } from '../utils';
 
 import BaseEntity from './base';
 
-import { ScfCreateFunctionInputs, FunctionInfo } from '../interface';
+import { ScfCreateFunctionInputs, FunctionInfo, FaasBaseConfig, GetLogOptions } from '../interface';
 
 export default class ScfEntity extends BaseEntity {
   region: string;
+  cls: Cls;
 
   constructor(capi: Capi, region: string) {
     super(capi);
     this.capi = capi;
     this.region = region;
+
+    const { options } = capi;
+    this.cls = new Cls(
+      {
+        SecretId: options.SecretId,
+        SecretKey: options.SecretKey,
+        Token: options.Token,
+      },
+      this.region,
+    );
   }
 
   // 获取函数详情
@@ -25,14 +39,11 @@ export default class ScfEntity extends BaseEntity {
     showCode = false,
     showTriggers = false,
   }: {
-    functionName: string;
-    namespace?: string;
-    qualifier?: string;
     // 是否需要获取函数代码，默认设置为 false，提高查询效率
     showCode?: boolean;
     // 是否需要获取函数触发器，默认设置为 false，提高查询效率
     showTriggers?: boolean;
-  }): Promise<FunctionInfo | null> {
+  } & FaasBaseConfig): Promise<FunctionInfo | null> {
     try {
       const Response = await this.request({
         Action: 'GetFunction',
@@ -289,5 +300,82 @@ export default class ScfEntity extends BaseEntity {
     }
 
     return funcInfo;
+  }
+
+  async getClsConfig({
+    functionName,
+    namespace = 'default',
+    qualifier = '$LATEST',
+  }: FaasBaseConfig) {
+    const detail = await this.get({
+      functionName,
+      namespace,
+      qualifier,
+    });
+
+    if (detail) {
+      return {
+        logsetId: detail.ClsLogsetId,
+        topicId: detail.ClsTopicId,
+      };
+    }
+
+    return {
+      logsetId: '',
+      topicId: '',
+    };
+  }
+
+  // 默认获取从当前到一个小时前时间段的日志
+  async getLogs(data: GetLogOptions) {
+    const { functionName, namespace = 'default', qualifier = '$LATEST' } = data;
+    const clsConfig = await this.getClsConfig({
+      functionName,
+      namespace,
+      qualifier,
+    });
+
+    if (!clsConfig.logsetId || !clsConfig.topicId) {
+      throw new ApiTypeError('API_SCF_getClsConfig', `[SCF] 无法获取到函数的 CLS 配置`);
+    }
+    data.endTime = data.endTime || Date.now();
+
+    console.log(
+      `[SCF] 获取函数日志(名称：${functionName}，命名空间：${namespace}，版本：${qualifier})`,
+    );
+    const res = await this.cls.getLogList({
+      ...data,
+      ...clsConfig,
+    });
+
+    return res;
+  }
+
+  async getLogByReqId(data: GetLogOptions) {
+    const clsConfig = await this.getClsConfig({
+      functionName: data.functionName,
+      namespace: data.namespace,
+      qualifier: data.qualifier,
+    });
+
+    if (!clsConfig.logsetId || !clsConfig.topicId) {
+      throw new ApiTypeError('API_SCF_getLogByReqId', `[SCF] 无法获取到函数的 CLS 配置`);
+    }
+
+    if (!data.reqId) {
+      throw new ApiTypeError('API_SCF_getLogByReqId', `[SCF] 参数 reqId(请求 ID) 不合法`);
+    }
+    const endDate = dayjs(data.endTime || Date.now());
+
+    console.log(`[SCF] 正在通过请求ID (${data.reqId}) 获取日志`);
+
+    const res = await this.cls.getLogDetail({
+      ...data,
+      ...clsConfig,
+      reqId: data.reqId!,
+      endTime: formatDate(endDate),
+    });
+
+    return res;
   }
 }

@@ -18,6 +18,7 @@ import {
   ScfDeployTriggersInputs,
   ScfDeployOutputs,
   OriginTriggerType,
+  GetLogOptions,
 } from './interface';
 import ScfEntity from './entities/scf';
 import AliasEntity from './entities/alias';
@@ -391,5 +392,10 @@ export default class Scf {
       InvocationType: inputs.invocationType || 'RequestResponse',
     });
     return Response;
+  }
+
+  async logs(inputs: GetLogOptions = {} as GetLogOptions) {
+    const logs = await this.scf.getLogs(inputs);
+    return logs;
   }
 }

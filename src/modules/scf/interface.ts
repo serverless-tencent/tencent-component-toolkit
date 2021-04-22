@@ -32,6 +32,8 @@ export interface FunctionInfo {
   Traffic?: number;
   ConfigTrafficVersion?: string;
   Tags: Tag[];
+  ClsLogsetId: string;
+  ClsTopicId: string;
 }
 
 export interface ScfPublishVersionInputs {
@@ -207,3 +209,41 @@ export interface ScfInvokeInputs {
   clientContext?: any;
   invocationType?: string;
 }
+
+export interface FaasBaseConfig {
+  functionName: string;
+  namespace?: string;
+  qualifier?: string;
+}
+
+export interface StatusSqlMapEnum {
+  success: string;
+  fail: string;
+  retry: string;
+  interrupt: string;
+  timeout: string;
+  exceed: string;
+  codeError: string;
+}
+
+export interface GetSearchSqlOptions {
+  // 函数名称
+  functionName: string;
+  // 命名空间
+  namespace?: string;
+  // 函数版本
+  qualifier?: string;
+  // 开始时间
+  startTime?: number | string;
+  // 结束时间
+  endTime?: number | string;
+  // 请求 ID
+  reqId?: string;
+  // 日志状态
+  status?: keyof StatusSqlMapEnum;
+}
+
+export type GetLogOptions = Omit<GetSearchSqlOptions, 'startTime'> & {
+  // 时间间隔，单位秒，默认为 3600s
+  interval?: string;
+};
