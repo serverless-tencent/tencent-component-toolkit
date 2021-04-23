@@ -1,3 +1,10 @@
+## [2.6.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.6.1...v2.6.2) (2021-04-23)
+
+
+### Bug Fixes
+
+* **trigger:** ckafka parameter typo ([62db15a](https://github.com/serverless-tencent/tencent-component-toolkit/commit/62db15aa6730fe1a480cdee8761e428124a6bc70))
+
 ## [2.6.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.6.0...v2.6.1) (2021-04-23)
 
 
