@@ -14,7 +14,18 @@ export default class CkafkaTrigger {
 
   getKey(triggerInputs: CreateTriggerReq) {
     const Enable = TRIGGER_STATUS_MAP[triggerInputs.Enable!];
-    return `${triggerInputs.Type}-${triggerInputs.TriggerName}-${triggerInputs.TriggerDesc}-${Enable}-${triggerInputs.Qualifier}`;
+
+    let desc = triggerInputs.TriggerDesc;
+    if (triggerInputs.ResourceId) {
+      const detailDesc = JSON.parse(triggerInputs.TriggerDesc);
+      desc = JSON.stringify({
+        maxMsgNum: detailDesc.maxMsgNum,
+        offset: detailDesc.offset,
+        retry: detailDesc.retry,
+        timeOut: detailDesc.timeOut,
+      });
+    }
+    return `${triggerInputs.Type}-${triggerInputs.TriggerName}-${desc}-${Enable}-${triggerInputs.Qualifier}`;
   }
 
   formatInputs({
@@ -35,9 +46,10 @@ export default class CkafkaTrigger {
       Qualifier: parameters?.qualifier ?? '$DEFAULT',
       TriggerName: `${parameters?.name}-${parameters?.topic}`,
       TriggerDesc: JSON.stringify({
-        maxMsgNum: parameters?.maxMsgNum,
-        offset: parameters?.offset,
-        retry: parameters?.retry,
+        maxMsgNum: parameters?.maxMsgNum ?? 100,
+        offset: parameters?.offset ?? 'latest',
+        retry: parameters?.retry ?? 10000,
+        timeOut: parameters?.timeOut ?? 60,
       }),
       Enable: parameters?.enable ? 'OPEN' : 'CLOSE',
     };
