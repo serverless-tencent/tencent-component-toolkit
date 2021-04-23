@@ -1,3 +1,11 @@
+## [2.6.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.6.0...v2.6.1) (2021-04-23)
+
+
+### Bug Fixes
+
+* **triggers:** ckafka calculate key ([3c034a2](https://github.com/serverless-tencent/tencent-component-toolkit/commit/3c034a2c2c1093a703ebe4da2c9b334edcfb96a9))
+* **cls:** timezone to Asia/Shanghai ([ec72643](https://github.com/serverless-tencent/tencent-component-toolkit/commit/ec72643d3996f3d21b65e368c0c7938a1f5cd293))
+
 # [2.6.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.5.13...v2.6.0) (2021-04-23)
 
 
