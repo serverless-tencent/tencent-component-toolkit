@@ -1,11 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import { PascalCase } from 'type-fest';
-import dayjs, { Dayjs } from 'dayjs';
 
 // TODO: 将一些库换成 lodash
-
-export const TIME_FORMAT = 'YYYY-MM-DD HH:mm:ss';
 
 /**
  * simple deep clone object
@@ -249,8 +246,4 @@ export function getYestoday() {
   const timestamp = Date.now() - 24 * 60 * 60 * 1000;
   const yestoday = getToday(new Date(timestamp));
   return yestoday;
-}
-
-export function formatDate(str: string | number | Dayjs): string {
-  return dayjs(str).format(TIME_FORMAT);
 }

@@ -1,5 +1,4 @@
 import { Cls as ClsClient } from '@tencent-sdk/cls';
-import dayjs, { Dayjs } from 'dayjs';
 import {
   ClsDelopyIndexInputs,
   ClsDeployInputs,
@@ -12,9 +11,8 @@ import {
 } from './interface';
 import { CapiCredentials, RegionType } from './../interface';
 import { ApiError } from '../../utils/error';
+import { dtz, TIME_FORMAT, Dayjs } from '../../utils/dayjs';
 import { createLogset, createTopic, updateIndex, getSearchSql } from './utils';
-
-const TimeFormat = 'YYYY-MM-DD HH:mm:ss';
 
 export default class Cls {
   credentials: CapiCredentials;
@@ -214,11 +212,11 @@ export default class Cls {
 
     // 默认获取从当前到一个小时前时间段的日志
     if (!endTime) {
-      endDate = dayjs();
+      endDate = dtz();
       startDate = endDate.add(-1, 'hour');
     } else {
-      endDate = dayjs(endTime);
-      startDate = dayjs(endDate.valueOf() - Number(interval) * 1000);
+      endDate = dtz(endTime);
+      startDate = dtz(endDate.valueOf() - Number(interval) * 1000);
     }
 
     const sql = getSearchSql({
@@ -229,8 +227,8 @@ export default class Cls {
     const searchParameters = {
       logset_id: data.logsetId,
       topic_ids: data.topicId,
-      start_time: startDate.format(TimeFormat),
-      end_time: endDate.format(TimeFormat),
+      start_time: startDate.format(TIME_FORMAT),
+      end_time: endDate.format(TIME_FORMAT),
       // query_string 必须用 cam 特有的 url 编码方式
       query_string: sql,
       limit: data.limit || 10,
@@ -244,8 +242,8 @@ export default class Cls {
         logsetId: data.logsetId,
         topicId: data.topicId,
         reqId: curReq.requestId,
-        startTime: startDate.format(TimeFormat),
-        endTime: endDate.format(TimeFormat),
+        startTime: startDate.format(TIME_FORMAT),
+        endTime: endDate.format(TIME_FORMAT),
       });
       curReq.message = (detailLog || [])
         .map(({ content }: { content: string }) => {
@@ -274,7 +272,7 @@ export default class Cls {
       debug: false,
     });
 
-    data.startTime = data.startTime || dayjs(data.endTime).add(-1, 'hour').format(TimeFormat);
+    data.startTime = data.startTime || dtz(data.endTime).add(-1, 'hour').format(TIME_FORMAT);
 
     const sql = `SCF_RequestId:${data.reqId} AND SCF_RetryNum:0`;
     const searchParameters = {

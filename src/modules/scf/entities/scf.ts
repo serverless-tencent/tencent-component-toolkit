@@ -2,7 +2,7 @@ import { Capi } from '@tencent-sdk/capi';
 import { waitResponse } from '@ygkit/request';
 import dayjs from 'dayjs';
 import { ApiTypeError, ApiError } from '../../../utils/error';
-import { formatDate } from '../../../utils';
+import { formatDate } from '../../../utils/dayjs';
 import CONFIGS from '../config';
 import Cls from '../../cls';
 import { formatInputs } from '../utils';
