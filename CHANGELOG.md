@@ -1,3 +1,10 @@
+# [2.6.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.5.13...v2.6.0) (2021-04-23)
+
+
+### Features
+
+* support get scf logs by cls ([8ba6614](https://github.com/serverless-tencent/tencent-component-toolkit/commit/8ba66145d85603f4f84a0c7dc2fa541a4eacb029))
+
 ## [2.5.13](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.5.12...v2.5.13) (2021-04-19)
 
 
