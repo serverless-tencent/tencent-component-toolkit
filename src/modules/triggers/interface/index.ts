@@ -60,6 +60,7 @@ export interface CkafkaTriggerInputsParams extends TriggerInputsParams {
   maxMsgNum?: number;
   offset?: number;
   retry?: number;
+  timeOut?: number;
   enable?: boolean;
 }
 
