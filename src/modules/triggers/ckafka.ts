@@ -49,7 +49,7 @@ export default class CkafkaTrigger {
         maxMsgNum: parameters?.maxMsgNum ?? 100,
         offset: parameters?.offset ?? 'latest',
         retry: parameters?.retry ?? 10000,
-        timeOut: parameters?.timeOut ?? 60,
+        timeOut: parameters?.timeout ?? 60,
       }),
       Enable: parameters?.enable ? 'OPEN' : 'CLOSE',
     };
