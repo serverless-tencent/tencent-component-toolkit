@@ -590,6 +590,10 @@ export default class Cos {
       await this.setCors(inputs);
     }
 
+    if (inputs.tags) {
+      await this.setTags(inputs);
+    }
+
     await this.setWebsite(inputs);
 
     // Build environment variables
@@ -636,18 +640,12 @@ export default class Cos {
     }
     if (inputs.cors) {
       await this.setCors(inputs);
-    } else {
-      await this.deleteCors(inputs);
     }
     if (inputs.tags) {
       await this.setTags(inputs);
-    } else {
-      await this.deleteTags(inputs);
     }
     if (inputs.lifecycle) {
       await this.setLifecycle(inputs);
-    } else {
-      await this.deleteLifecycle(inputs);
     }
     if (inputs.versioning) {
       await this.setVersioning(inputs);

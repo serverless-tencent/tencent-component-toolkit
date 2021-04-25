@@ -125,7 +125,11 @@ export interface WebsiteRedirectRule {
   };
 }
 
-export interface CosSetWebsiteInputs extends CosSetAclInputs, CosSetPolicyInputs, CosSetCorsInputs {
+export interface CosSetWebsiteInputs
+  extends CosSetAclInputs,
+    CosSetPolicyInputs,
+    CosSetCorsInputs,
+    CosSetTagInputs {
   bucket?: string;
   code?: {
     src: string;
