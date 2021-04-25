@@ -14,3 +14,4 @@ export { default as Cfs } from './modules/cfs';
 export { default as Cynosdb } from './modules/cynosdb';
 export { default as Cls } from './modules/cls';
 export { default as Clb } from './modules/clb';
+export { default as Monitor } from './modules/monitor';
