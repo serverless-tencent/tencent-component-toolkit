@@ -12,9 +12,10 @@ const dtz = (date: ConfigType = Date.now()) => {
 };
 
 const TIME_FORMAT = 'YYYY-MM-DD HH:mm:ss';
+const TIME_FORMAT_TIMEZONE = 'YYYY-MM-DDTHH:mm:ssZ';
 
-function formatDate(date: ConfigType): string {
-  return dtz(date).format(TIME_FORMAT);
+function formatDate(date: ConfigType, withTimeout = false): string {
+  return dtz(date).format(withTimeout ? TIME_FORMAT_TIMEZONE : TIME_FORMAT);
 }
 
 export { dayjs, dtz, Dayjs, TIME_FORMAT, formatDate };

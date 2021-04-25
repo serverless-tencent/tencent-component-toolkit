@@ -19,12 +19,16 @@ export enum ApiServiceType {
   cynosdb = 'cynosdb',
   /** Postgres 数据库 (Postgres) */
   postgres = 'postgres',
-  /** (VPC) */
+  /** 私有网络 (VPC) */
   vpc = 'vpc',
-  /**  */
+  /* 访问管理 （CAM）  */
   cam = 'cam',
 
+  // 负载均衡 （CLB）*/
   clb = 'clb',
+
+  // 监控 */
+  monitor = 'monitor',
 }
 
 export type RegionType = string;
