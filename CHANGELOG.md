@@ -1,3 +1,15 @@
+# [2.7.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.6.2...v2.7.0) (2021-04-25)
+
+
+### Bug Fixes
+
+* **cos:** website setup tag ([e4caefe](https://github.com/serverless-tencent/tencent-component-toolkit/commit/e4caefe14a17291c2ad0c6c62c52bd9a3162ca24))
+
+
+### Features
+
+* support monitor ([fa4a78e](https://github.com/serverless-tencent/tencent-component-toolkit/commit/fa4a78e52ea107657f9115beae45721c869b7fa9))
+
 ## [2.6.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.6.1...v2.6.2) (2021-04-23)
 
 
