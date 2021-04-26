@@ -1,3 +1,4 @@
+import { TagInput } from './../../interface';
 import { Capi } from '@tencent-sdk/capi';
 import {
   ApigwCreateServiceInputs,
@@ -20,6 +21,7 @@ interface Detail {
   ServiceName: string;
   ServiceDesc: string;
   Protocol: string;
+  Tags: TagInput[];
 }
 
 export default class ServiceEntity {

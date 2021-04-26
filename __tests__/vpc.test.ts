@@ -7,12 +7,19 @@ describe('Vpc', () => {
     SecretId: process.env.TENCENT_SECRET_ID,
     SecretKey: process.env.TENCENT_SECRET_KEY,
   };
+  const tags = [
+    {
+      key: 'slstest',
+      value: 'slstest',
+    },
+  ];
   const inputs: VpcDeployInputs = {
     region: process.env.REGION,
     zone: process.env.ZONE,
     vpcName: 'serverless-test',
     subnetName: 'serverless-test',
     cidrBlock: '10.0.0.0/16',
+    tags,
   };
   const vpc = new Vpc(credentials, process.env.REGION);
 
@@ -67,19 +74,19 @@ describe('Vpc', () => {
     }
   });
 
-  test('remove vpc', async () => {
-    if (inputs.vpcId) {
-      await vpc.remove({
-        vpcId: inputs.vpcId,
-        subnetId: inputs.subnetId,
-      });
-      const vpcDetail = await vpcUtils.getVpcDetail(vpc.capi, inputs.vpcId);
-      const subnetDetail = await vpcUtils.getSubnetDetail(vpc.capi, inputs.subnetId);
+  // test('remove vpc', async () => {
+  //   if (inputs.vpcId) {
+  //     await vpc.remove({
+  //       vpcId: inputs.vpcId,
+  //       subnetId: inputs.subnetId,
+  //     });
+  //     const vpcDetail = await vpcUtils.getVpcDetail(vpc.capi, inputs.vpcId);
+  //     const subnetDetail = await vpcUtils.getSubnetDetail(vpc.capi, inputs.subnetId);
 
-      expect(vpcDetail).not.toBeTruthy();
-      expect(subnetDetail).not.toBeTruthy();
-    } else {
-      expect(true).toBe(true);
-    }
-  });
+  //     expect(vpcDetail).not.toBeTruthy();
+  //     expect(subnetDetail).not.toBeTruthy();
+  //   } else {
+  //     expect(true).toBe(true);
+  //   }
+  // });
 });

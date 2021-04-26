@@ -1,4 +1,4 @@
-import { RegionType } from '../interface';
+import { RegionType, TagInput } from '../interface';
 
 export interface Secret {
   AccessKeyId: string;
@@ -113,6 +113,8 @@ export interface ApigwCreateServiceInputs {
 
   usagePlan?: ApigwSetupUsagePlanInputs;
   auth?: ApigwSetupUsagePlanSecretInputs;
+
+  tags?: TagInput[];
 }
 export interface ApigwUpdateServiceInputs {
   environment?: EnviromentType;
@@ -200,6 +202,8 @@ export interface ApigwDeployOutputs {
   apiList: ApiEndpoint[];
   customDomains?: ApigwBindCustomDomainOutputs[];
   usagePlan?: ApigwUsagePlanOutputs;
+
+  tags?: TagInput[];
 }
 
 export interface ApigwRemoveOrUnbindUsagePlanInputs {

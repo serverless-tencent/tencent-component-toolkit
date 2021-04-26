@@ -16,6 +16,13 @@ describe('Cynosdb', () => {
   const region = 'ap-guangzhou';
   const client = new Cynosdb(credentials, region);
 
+  const tags = [
+    {
+      key: 'slstest',
+      value: 'slstest',
+    },
+  ];
+
   const inputs: CynosdbDeployInputs = {
     region,
     zone: 'ap-guangzhou-4',
@@ -23,6 +30,7 @@ describe('Cynosdb', () => {
       vpcId: 'vpc-p2dlmlbj',
       subnetId: 'subnet-a1v3k07o',
     },
+    tags,
   };
 
   let clusterId;
@@ -121,6 +129,7 @@ describe('Cynosdb', () => {
           status: 'running',
         },
       ],
+      tags,
     });
 
     expect(isValidPwd(res.adminPassword)).toBe(true);
@@ -160,6 +169,7 @@ describe('Cynosdb', () => {
           status: 'running',
         },
       ],
+      tags,
     });
   });
 
@@ -190,6 +200,7 @@ describe('Cynosdb', () => {
           status: 'running',
         },
       ],
+      tags,
     });
     inputs.clusterId = undefined;
   });

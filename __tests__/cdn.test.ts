@@ -8,6 +8,12 @@ describe('Cdn', () => {
     SecretId: process.env.TENCENT_SECRET_ID,
     SecretKey: process.env.TENCENT_SECRET_KEY,
   };
+  const tags = [
+    {
+      key: 'slstest',
+      value: 'slstest',
+    },
+  ];
   const inputs: CdnDeployInputs = {
     async: false,
     area: 'overseas',
@@ -32,6 +38,7 @@ describe('Cdn', () => {
       redirectType: 'https',
       redirectStatusCode: 301,
     },
+    tags,
   };
   const cdn = new Cdn(credentials);
 
@@ -45,6 +52,7 @@ describe('Cdn', () => {
       cname: `${inputs.domain}.cdn.dnsv1.com`,
       inputCache: JSON.stringify(inputs),
       resourceId: expect.stringContaining('cdn-'),
+      tags,
     });
   });
 
@@ -59,6 +67,7 @@ describe('Cdn', () => {
       cname: `${inputs.domain}.cdn.dnsv1.com`,
       inputCache: JSON.stringify(inputs),
       resourceId: expect.stringContaining('cdn-'),
+      tags,
     });
   });
 

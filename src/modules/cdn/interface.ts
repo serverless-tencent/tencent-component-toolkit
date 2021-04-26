@@ -1,3 +1,4 @@
+import { TagInput } from './../interface';
 export interface CertInfo {
   certId?: string;
   certificate?: string;
@@ -92,4 +93,17 @@ export interface CdnDeployInputs {
   maxAge?: any;
   specificConfig?: any;
   originPullTimeout?: any;
+
+  tags?: TagInput[];
+}
+
+export interface CdnOutputs {
+  https: boolean;
+  domain: string;
+  origins: string[];
+  cname: string;
+  inputCache: string;
+  resourceId?: string;
+
+  tags?: TagInput[];
 }

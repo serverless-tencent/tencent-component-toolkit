@@ -6,12 +6,14 @@ import { pascalCaseProps, deepClone } from '../../utils';
 import { ApiTypeError } from '../../utils/error';
 import { CapiCredentials } from '../interface';
 import APIS from './apis';
-import { CdnDeployInputs } from './interface';
+import { CdnDeployInputs, CdnOutputs } from './interface';
 import { TIMEOUT, formatCertInfo, formatOrigin, getCdnByDomain, openCdnService } from './utils';
+import TagClient from '../tag';
 
 export default class Cdn {
   credentials: CapiCredentials;
   capi: Capi;
+  tagClient: TagClient;
 
   constructor(credentials: CapiCredentials = {} as any) {
     this.credentials = credentials;
@@ -23,6 +25,8 @@ export default class Cdn {
       SecretKey: this.credentials.SecretKey!,
       Token: this.credentials.Token,
     });
+
+    this.tagClient = new TagClient(this.credentials);
   }
 
   async purgeCdnUrls(urls: string[], flushType = 'flush') {
@@ -63,7 +67,7 @@ export default class Cdn {
   /** 部署 CDN */
   async deploy(inputs: CdnDeployInputs) {
     await openCdnService(this.capi);
-    const { oldState = {} } = inputs;
+    const { oldState = {}, tags = [] } = inputs;
     delete inputs.oldState;
     const pascalInputs = pascalCaseProps(inputs);
 
@@ -141,13 +145,12 @@ export default class Cdn {
       Origin: formatOrigin(pascalInputs.Origin),
     });
 
-    const outputs = {
+    const outputs: CdnOutputs = {
       https: !!pascalInputs.Https,
       domain: pascalInputs.Domain,
       origins: cdnInputs.Origin.Origins,
       cname: `${pascalInputs.Domain}.cdn.dnsv1.com`,
       inputCache: JSON.stringify(inputs),
-      resourceId: '',
     };
 
     if (pascalInputs.Https) {
@@ -230,6 +233,20 @@ export default class Cdn {
         if (pascalInputs.RefreshCdn && pascalInputs.RefreshCdn.Urls) {
           await this.purgeCdnUrls(pascalInputs.RefreshCdn.Urls);
         }
+      }
+
+      if (tags.length > 0) {
+        const deployedTags = await this.tagClient.deployResourceTags({
+          tags: tags.map(({ key, value }) => ({ TagKey: key, TagValue: value })),
+          resourceId: Domain,
+          serviceType: ApiServiceType.cdn,
+          resourcePrefix: 'domain',
+        });
+
+        outputs.tags = deployedTags.map((item) => ({
+          key: item.TagKey,
+          value: item.TagValue!,
+        }));
       }
       console.log(`CDN deploy success to domain: ${pascalInputs.Domain}`);
     };
