@@ -1,3 +1,10 @@
+# [2.8.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.7.0...v2.8.0) (2021-04-27)
+
+
+### Features
+
+* support tags for all resources ([#218](https://github.com/serverless-tencent/tencent-component-toolkit/issues/218)) ([1969e63](https://github.com/serverless-tencent/tencent-component-toolkit/commit/1969e639c7114bdbe48655d35abff371983f46b7))
+
 # [2.7.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.6.2...v2.7.0) (2021-04-25)
 
 
