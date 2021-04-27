@@ -15,7 +15,7 @@ export const PWD_CHARS =
 export function generatePwd(length = 8) {
   const ALPHABET = 'abcdefghijklmnopqrstuvwxyz';
   const NUMBER = '0123456789';
-  const SPECIAL = '~!@#$%^&*_-';
+  const SPECIAL = '~!#$%^&*_-';
 
   let password = '';
   let character = '';
@@ -52,7 +52,7 @@ export function isValidPwd(password: string) {
   const numStr = '0123456789';
   const lowerCaseLetter = 'abcdefghijklmnopqrstuvwxyz';
   const upperCaseLetter = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  const specStr = "~!@#$%^&*_-+=`|\\(){}[]:;'<>,.?/";
+  const specStr = "~!#$%^&*_-+=`|\\(){}[]:;'<>,.?/";
 
   let numFlag = 0;
   let lowerCaseFlag = 0;
