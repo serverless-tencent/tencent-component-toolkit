@@ -49,7 +49,6 @@ export default class Postgresql {
       dBCharset,
       extranetAccess,
       vpcConfig,
-      tags = [],
     } = inputs;
 
     const outputs: PostgresqlDeployOutputs = {
@@ -131,18 +130,20 @@ export default class Postgresql {
       outputs.public = formatPgUrl(extranetInfo, accountInfo, dbName);
     }
 
-    if (tags.length > 0) {
-      const deployedTags = await this.tagClient.deployResourceTags({
+    try {
+      const { tags = [] } = inputs;
+      await this.tagClient.deployResourceTags({
         tags: tags.map(({ key, value }) => ({ TagKey: key, TagValue: value })),
         resourceId: dbDetail.DBInstanceId,
         serviceType: ApiServiceType.postgres,
         resourcePrefix: 'DBInstanceId',
       });
 
-      outputs.tags = deployedTags.map((item) => ({
-        key: item.TagKey,
-        value: item.TagValue!,
-      }));
+      if (tags.length > 0) {
+        outputs.tags = tags;
+      }
+    } catch (e) {
+      console.log(`[TAG] ${e.message}`);
     }
 
     return outputs;

@@ -1,4 +1,3 @@
-import { TagData } from './../tag/interface';
 import { RegionType } from './../interface';
 import { CreateCfsParams } from './utils';
 import { CapiCredentials, ApiServiceType } from '../interface';
@@ -102,22 +101,20 @@ export default class CFS {
       outputs.fileSystemId = FileSystemId;
     }
 
-    if (inputs.tags) {
-      try {
-        const tags = await this.tagClient.deployResourceTags({
-          tags: inputs.tags.map((item) => ({ TagKey: item.key, TagValue: item.value })),
-          serviceType: ApiServiceType.cfs,
-          resourcePrefix: 'filesystem',
-          resourceId: outputs.fileSystemId!,
-        });
+    try {
+      const { tags = [] } = inputs;
+      await this.tagClient.deployResourceTags({
+        tags: tags.map((item) => ({ TagKey: item.key, TagValue: item.value })),
+        serviceType: ApiServiceType.cfs,
+        resourcePrefix: 'filesystem',
+        resourceId: outputs.fileSystemId!,
+      });
 
-        outputs.tags = tags.map((item: TagData) => ({
-          key: item.TagKey,
-          value: item.TagValue,
-        }));
-      } catch (e) {
-        console.log(`Deploy cfs tags error: ${e.message}`);
+      if (tags.length > 0) {
+        outputs.tags = tags;
       }
+    } catch (e) {
+      console.log(`[TAG] ${e.message}`);
     }
 
     return outputs;

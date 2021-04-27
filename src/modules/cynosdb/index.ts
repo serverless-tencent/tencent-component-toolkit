@@ -67,7 +67,6 @@ export default class Cynosdb {
       autoPause = 'yes',
       autoPauseDelay = 3600, // default 1h
       enablePublicAccess,
-      tags = [],
     } = inputs;
 
     const outputs: CynosdbDeployOutputs = {
@@ -160,19 +159,20 @@ export default class Cynosdb {
       status: item.Status,
     }));
 
-    // create/update tags
-    if (tags.length > 0) {
-      const deployedTags = await this.tagClient.deployResourceTags({
+    try {
+      const { tags = [] } = inputs;
+      await this.tagClient.deployResourceTags({
         tags: tags.map(({ key, value }) => ({ TagKey: key, TagValue: value })),
         resourceId: outputs.clusterId!,
         serviceType: ApiServiceType.cynosdb,
         resourcePrefix: 'instance',
       });
 
-      outputs.tags = deployedTags.map((item) => ({
-        key: item.TagKey,
-        value: item.TagValue!,
-      }));
+      if (tags.length > 0) {
+        outputs.tags = tags;
+      }
+    } catch (e) {
+      console.log(`[TAG] ${e.message}`);
     }
 
     return outputs;
