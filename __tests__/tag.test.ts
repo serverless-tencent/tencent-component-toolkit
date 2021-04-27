@@ -8,7 +8,7 @@ describe('Tag', () => {
     SecretKey: process.env.TENCENT_SECRET_KEY,
   };
   const functionName = 'serverless-unit-test';
-  const tagItem = { TagKey: 'slstest1', TagValue: 'slstest1' };
+  const tagItem = { TagKey: 'serverless-test', TagValue: 'serverless-test' };
   const commonInputs: TagDeployInputs = {
     resourceIds: [`default/function/${functionName}`],
     resourcePrefix: 'namespace',

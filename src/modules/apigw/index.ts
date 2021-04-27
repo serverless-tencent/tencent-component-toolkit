@@ -123,19 +123,19 @@ export default class Apigw {
       outputs.usagePlan = usagePlan;
     }
 
-    const { tags = [] } = inputs;
-    if (tags.length > 0) {
-      const deployedTags = await this.tagClient.deployResourceTags({
+    try {
+      const { tags = [] } = inputs;
+      await this.tagClient.deployResourceTags({
         tags: tags.map(({ key, value }) => ({ TagKey: key, TagValue: value })),
         resourceId: serviceId,
         serviceType: ApiServiceType.apigw,
         resourcePrefix: 'service',
       });
-
-      outputs.tags = deployedTags.map((item) => ({
-        key: item.TagKey,
-        value: item.TagValue!,
-      }));
+      if (tags.length > 0) {
+        outputs.tags = tags;
+      }
+    } catch (e) {
+      console.log(`[TAG] ${e.message}`);
     }
 
     return outputs;

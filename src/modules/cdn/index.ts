@@ -67,7 +67,7 @@ export default class Cdn {
   /** 部署 CDN */
   async deploy(inputs: CdnDeployInputs) {
     await openCdnService(this.capi);
-    const { oldState = {}, tags = [] } = inputs;
+    const { oldState = {} } = inputs;
     delete inputs.oldState;
     const pascalInputs = pascalCaseProps(inputs);
 
@@ -235,19 +235,21 @@ export default class Cdn {
         }
       }
 
-      if (tags.length > 0) {
-        const deployedTags = await this.tagClient.deployResourceTags({
+      try {
+        const { tags = [] } = inputs;
+        await this.tagClient.deployResourceTags({
           tags: tags.map(({ key, value }) => ({ TagKey: key, TagValue: value })),
           resourceId: Domain,
           serviceType: ApiServiceType.cdn,
           resourcePrefix: 'domain',
         });
-
-        outputs.tags = deployedTags.map((item) => ({
-          key: item.TagKey,
-          value: item.TagValue!,
-        }));
+        if (tags.length > 0) {
+          outputs.tags = tags;
+        }
+      } catch (e) {
+        console.log(`[TAG] ${e.message}`);
       }
+
       console.log(`CDN deploy success to domain: ${pascalInputs.Domain}`);
     };
 
