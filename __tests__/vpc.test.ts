@@ -63,6 +63,7 @@ describe('Vpc', () => {
         vpcName: 'serverless-test',
         subnetId: expect.stringContaining('subnet-'),
         subnetName: 'serverless-test',
+        tags,
       });
 
       inputs.vpcId = res.vpcId;
@@ -74,19 +75,19 @@ describe('Vpc', () => {
     }
   });
 
-  // test('remove vpc', async () => {
-  //   if (inputs.vpcId) {
-  //     await vpc.remove({
-  //       vpcId: inputs.vpcId,
-  //       subnetId: inputs.subnetId,
-  //     });
-  //     const vpcDetail = await vpcUtils.getVpcDetail(vpc.capi, inputs.vpcId);
-  //     const subnetDetail = await vpcUtils.getSubnetDetail(vpc.capi, inputs.subnetId);
+  test('remove vpc', async () => {
+    if (inputs.vpcId) {
+      await vpc.remove({
+        vpcId: inputs.vpcId,
+        subnetId: inputs.subnetId,
+      });
+      const vpcDetail = await vpcUtils.getVpcDetail(vpc.capi, inputs.vpcId);
+      const subnetDetail = await vpcUtils.getSubnetDetail(vpc.capi, inputs.subnetId);
 
-  //     expect(vpcDetail).not.toBeTruthy();
-  //     expect(subnetDetail).not.toBeTruthy();
-  //   } else {
-  //     expect(true).toBe(true);
-  //   }
-  // });
+      expect(vpcDetail).not.toBeTruthy();
+      expect(subnetDetail).not.toBeTruthy();
+    } else {
+      expect(true).toBe(true);
+    }
+  });
 });
