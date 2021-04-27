@@ -1,3 +1,10 @@
+## [2.8.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.8.0...v2.8.1) (2021-04-27)
+
+
+### Bug Fixes
+
+* remove resource tag bug ([#219](https://github.com/serverless-tencent/tencent-component-toolkit/issues/219)) ([be0d033](https://github.com/serverless-tencent/tencent-component-toolkit/commit/be0d0331dd8f986abe5cbda0ef6aa99000cd383c))
+
 # [2.8.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.7.0...v2.8.0) (2021-04-27)
 
 
