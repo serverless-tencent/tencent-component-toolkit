@@ -1,5 +1,5 @@
 import { VpcConfig } from './../cynosdb/interface';
-import { RegionType } from './../interface';
+import { RegionType, TagInput } from './../interface';
 export interface PostgresqlDeployInputs {
   region?: RegionType;
   zone?: string;
@@ -10,6 +10,7 @@ export interface PostgresqlDeployInputs {
   dBCharset?: string;
   extranetAccess?: boolean;
   vpcConfig?: VpcConfig;
+  tags?: TagInput[];
 }
 
 export interface PostgresqlUrl {
@@ -29,6 +30,7 @@ export interface PostgresqlDeployOutputs {
   dBInstanceId?: string;
   private?: PostgresqlUrl;
   public?: PostgresqlUrl;
+  tags?: TagInput[];
 }
 
 export interface PostgresqlRemoveInputs {

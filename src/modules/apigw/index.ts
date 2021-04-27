@@ -21,6 +21,7 @@ import ApiEntity from './entities/api';
 import UsagePlanEntity from './entities/usage-plan';
 import CustomDomainEntity from './entities/custom-domain';
 import { ApiError } from '../../utils/error';
+import TagClient from '../tag';
 
 export default class Apigw {
   credentials: CapiCredentials;
@@ -31,6 +32,7 @@ export default class Apigw {
   api: ApiEntity;
   customDomain: CustomDomainEntity;
   usagePlan: UsagePlanEntity;
+  tagClient: TagClient;
 
   constructor(credentials: CapiCredentials, region: RegionType = 'ap-guangzhou') {
     this.credentials = credentials;
@@ -48,6 +50,8 @@ export default class Apigw {
     this.api = new ApiEntity(this.capi, this.trigger);
     this.usagePlan = new UsagePlanEntity(this.capi);
     this.customDomain = new CustomDomainEntity(this.capi);
+
+    this.tagClient = new TagClient(this.credentials, this.region);
   }
 
   async request({ Action, ...data }: { Action: ActionType; [key: string]: any }) {
@@ -119,6 +123,21 @@ export default class Apigw {
       outputs.usagePlan = usagePlan;
     }
 
+    const { tags = [] } = inputs;
+    if (tags.length > 0) {
+      const deployedTags = await this.tagClient.deployResourceTags({
+        tags: tags.map(({ key, value }) => ({ TagKey: key, TagValue: value })),
+        resourceId: serviceId,
+        serviceType: ApiServiceType.apigw,
+        resourcePrefix: 'service',
+      });
+
+      outputs.tags = deployedTags.map((item) => ({
+        key: item.TagKey,
+        value: item.TagValue!,
+      }));
+    }
+
     return outputs;
   }
 
@@ -188,6 +207,16 @@ export default class Apigw {
       });
       console.log(`Unrelease service ${serviceId}, environment ${environment} success`);
 
+      // 在删除之前，如果关联了标签，需要先删除标签关联
+      if (detail.Tags && detail.Tags.length > 0) {
+        await this.tagClient.deployResourceTags({
+          tags: [],
+          resourceId: serviceId,
+          serviceType: ApiServiceType.apigw,
+          resourcePrefix: 'service',
+        });
+      }
+
       // delete service
       console.log(`Removing service ${serviceId}`);
       await this.removeRequest({
@@ -232,6 +261,21 @@ export default class Apigw {
         environment: environment,
         apiList,
       };
+
+      const { tags = [] } = inputs;
+      if (tags.length > 0) {
+        const deployedTags = await this.tagClient.deployResourceTags({
+          tags: tags.map(({ key, value }) => ({ TagKey: key, TagValue: value })),
+          resourceId: serviceId,
+          serviceType: ApiServiceType.apigw,
+          resourcePrefix: 'service',
+        });
+
+        outputs.tags = deployedTags.map((item) => ({
+          key: item.TagKey,
+          value: item.TagValue!,
+        }));
+      }
 
       return outputs;
     }

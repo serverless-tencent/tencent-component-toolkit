@@ -1,4 +1,4 @@
-import { RegionType } from './../interface';
+import { RegionType, TagInput } from './../interface';
 export interface VpcDeployInputs {
   region?: RegionType;
   zone: string;
@@ -9,8 +9,8 @@ export interface VpcDeployInputs {
   enableMulticast?: boolean;
   dnsServers?: string[];
   domainName?: string;
-  tags?: string[];
-  subnetTags?: string[];
+  tags?: TagInput[];
+  subnetTags?: TagInput[];
   enableSubnetBroadcast?: boolean;
 
   vpcId?: string;
@@ -68,4 +68,15 @@ export interface SubnetItem {
   SubnetId: string;
   CidrBlock: string;
   IsDefault: boolean;
+}
+
+export interface VpcOutputs {
+  region: string;
+  zone: string;
+  vpcId: string;
+  vpcName: string;
+  subnetId: string;
+  subnetName: string;
+
+  tags?: TagInput[];
 }

@@ -1,4 +1,4 @@
-import { RegionType } from './../interface';
+import { RegionType, TagInput } from './../interface';
 
 export interface VpcConfig {
   vpcId: string;
@@ -29,6 +29,7 @@ export interface CynosdbDeployInputs {
   autoPause?: string;
   autoPauseDelay?: 3600;
   enablePublicAccess?: boolean;
+  tags?: TagInput[];
 }
 
 export interface CynosdbDeployOutputs {
@@ -62,6 +63,8 @@ export interface CynosdbDeployOutputs {
     type: string;
     status: string;
   }[];
+
+  tags?: TagInput[];
 }
 
 export interface CynosdbRemoveInputs {

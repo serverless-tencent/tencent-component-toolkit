@@ -15,11 +15,13 @@ import {
   deleteDbInstance,
   formatPgUrl,
 } from './utils';
+import TagClient from '../tag';
 
 export default class Postgresql {
   capi: Capi;
   region: RegionType;
   credentials: CapiCredentials;
+  tagClient: TagClient;
 
   constructor(credentials: CapiCredentials = {}, region: RegionType) {
     this.region = region || 'ap-guangzhou';
@@ -31,6 +33,8 @@ export default class Postgresql {
       SecretKey: this.credentials.SecretKey!,
       Token: this.credentials.Token,
     });
+
+    this.tagClient = new TagClient(this.credentials, this.region);
   }
 
   /** 部署 postgresql 实例 */
@@ -45,6 +49,7 @@ export default class Postgresql {
       dBCharset,
       extranetAccess,
       vpcConfig,
+      tags = [],
     } = inputs;
 
     const outputs: PostgresqlDeployOutputs = {
@@ -124,6 +129,20 @@ export default class Postgresql {
     }
     if (extranetAccess && extranetInfo!) {
       outputs.public = formatPgUrl(extranetInfo, accountInfo, dbName);
+    }
+
+    if (tags.length > 0) {
+      const deployedTags = await this.tagClient.deployResourceTags({
+        tags: tags.map(({ key, value }) => ({ TagKey: key, TagValue: value })),
+        resourceId: dbDetail.DBInstanceId,
+        serviceType: ApiServiceType.postgres,
+        resourcePrefix: 'DBInstanceId',
+      });
+
+      outputs.tags = deployedTags.map((item) => ({
+        key: item.TagKey,
+        value: item.TagValue!,
+      }));
     }
 
     return outputs;

@@ -7,12 +7,19 @@ describe('Vpc', () => {
     SecretId: process.env.TENCENT_SECRET_ID,
     SecretKey: process.env.TENCENT_SECRET_KEY,
   };
+  const tags = [
+    {
+      key: 'slstest',
+      value: 'slstest',
+    },
+  ];
   const inputs: VpcDeployInputs = {
     region: process.env.REGION,
     zone: process.env.ZONE,
     vpcName: 'serverless-test',
     subnetName: 'serverless-test',
     cidrBlock: '10.0.0.0/16',
+    tags,
   };
   const vpc = new Vpc(credentials, process.env.REGION);
 
@@ -56,6 +63,7 @@ describe('Vpc', () => {
         vpcName: 'serverless-test',
         subnetId: expect.stringContaining('subnet-'),
         subnetName: 'serverless-test',
+        tags,
       });
 
       inputs.vpcId = res.vpcId;

@@ -2,12 +2,14 @@ import { RegionType, CapiCredentials, ApiServiceType } from './../interface';
 import { Capi } from '@tencent-sdk/capi';
 import utils from './utils';
 import { ApiTypeError } from '../../utils/error';
-import { VpcDeployInputs, VpcRemoveInputs } from './interface';
+import { VpcDeployInputs, VpcRemoveInputs, VpcOutputs } from './interface';
+import TagClient from '../tag';
 
 export default class Vpc {
   region: RegionType;
   credentials: CapiCredentials;
   capi: Capi;
+  tagClient: TagClient;
 
   constructor(credentials: CapiCredentials = {}, region: RegionType = 'ap-guangzhou') {
     this.region = region;
@@ -19,6 +21,8 @@ export default class Vpc {
       SecretKey: credentials.SecretKey!,
       Token: credentials.Token,
     });
+
+    this.tagClient = new TagClient(this.credentials, this.region);
   }
 
   async deploy(inputs: VpcDeployInputs) {
@@ -30,8 +34,8 @@ export default class Vpc {
       enableMulticast,
       dnsServers,
       domainName,
-      tags,
-      subnetTags,
+      tags = [],
+      subnetTags = [],
       enableSubnetBroadcast,
     } = inputs;
 
@@ -68,10 +72,19 @@ export default class Vpc {
         console.log(`Creating vpc ${vpcName}...`);
         const res = await utils.createVpc(this.capi, {
           ...params,
-          ...{ CidrBlock: cidrBlock, Tags: tags },
+          ...{ CidrBlock: cidrBlock },
         });
         console.log(`Create vpc ${vpcName} success.`);
         vId = res.VpcId;
+      }
+
+      if (tags.length > 0) {
+        await this.tagClient.deployResourceTags({
+          tags: tags.map(({ key, value }) => ({ TagKey: key, TagValue: value })),
+          resourceId: vId,
+          serviceType: ApiServiceType.vpc,
+          resourcePrefix: 'vpc',
+        });
       }
       return vId;
     };
@@ -92,7 +105,6 @@ export default class Vpc {
         Zone: undefined as string | undefined,
         VpcId: undefined as string | undefined,
         CidrBlock: undefined as string | undefined,
-        Tags: undefined as string[] | undefined,
       };
 
       /** 子网已存在 */
@@ -110,9 +122,6 @@ export default class Vpc {
           params.Zone = zone;
           params.VpcId = vId;
           params.CidrBlock = cidrBlock;
-          if (subnetTags) {
-            params.Tags = subnetTags;
-          }
 
           const res = await utils.createSubnet(this.capi, params);
           sId = res.SubnetId;
@@ -126,6 +135,16 @@ export default class Vpc {
           console.log(`Create subnet ${subnetName} success.`);
         }
       }
+
+      const subnetTagList = subnetTags.length > 0 ? subnetTags : tags;
+      if (subnetTagList.length > 0) {
+        await this.tagClient.deployResourceTags({
+          tags: subnetTagList.map(({ key, value }) => ({ TagKey: key, TagValue: value })),
+          resourceId: sId,
+          serviceType: ApiServiceType.vpc,
+          resourcePrefix: 'subnet',
+        });
+      }
       return sId;
     };
 
@@ -137,14 +156,20 @@ export default class Vpc {
       subnetId = await handleSubnet(vpcId!, subnetId!);
     }
 
-    return {
+    const outputs: VpcOutputs = {
       region: this.region,
       zone,
-      vpcId,
+      vpcId: vpcId!,
       vpcName,
-      subnetId,
+      subnetId: subnetId!,
       subnetName,
     };
+
+    if (tags.length > 0) {
+      outputs.tags = tags;
+    }
+
+    return outputs;
   }
 
   async remove(inputs: VpcRemoveInputs) {

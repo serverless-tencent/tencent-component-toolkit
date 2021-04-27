@@ -1,6 +1,7 @@
 export enum ApiServiceType {
   /** API 网关服务 (apigateway) */
   apigateway = 'apigateway',
+  apigw = 'apigw',
   /** 云函数服务 (SCF) */
   scf = 'scf',
   /** 视频处理服务 (MPS) */
@@ -41,4 +42,13 @@ export interface CapiCredentials {
 
   token?: string;
   XCosSecurityToken?: string;
+}
+
+export interface Tag {
+  Key: string;
+  Value: string;
+}
+export interface TagInput {
+  key: string;
+  value: string;
 }

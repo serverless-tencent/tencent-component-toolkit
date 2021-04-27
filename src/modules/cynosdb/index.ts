@@ -19,11 +19,13 @@ import {
   closePublicAccess,
 } from './utils';
 import { ApiError } from '../../utils/error';
+import TagClient from '../tag';
 
 export default class Cynosdb {
   credentials: CapiCredentials;
   region: RegionType;
   capi: Capi;
+  tagClient: TagClient;
 
   constructor(credentials: CapiCredentials = {}, region: RegionType = 'ap-guangzhou') {
     this.region = region;
@@ -35,6 +37,8 @@ export default class Cynosdb {
       SecretKey: this.credentials.SecretKey!,
       Token: this.credentials.Token,
     });
+
+    this.tagClient = new TagClient(this.credentials, this.region);
   }
 
   /** 部署 Cynosdb 实例 */
@@ -63,6 +67,7 @@ export default class Cynosdb {
       autoPause = 'yes',
       autoPauseDelay = 3600, // default 1h
       enablePublicAccess,
+      tags = [],
     } = inputs;
 
     const outputs: CynosdbDeployOutputs = {
@@ -154,6 +159,21 @@ export default class Cynosdb {
       type: item.InstanceType,
       status: item.Status,
     }));
+
+    // create/update tags
+    if (tags.length > 0) {
+      const deployedTags = await this.tagClient.deployResourceTags({
+        tags: tags.map(({ key, value }) => ({ TagKey: key, TagValue: value })),
+        resourceId: outputs.clusterId!,
+        serviceType: ApiServiceType.cynosdb,
+        resourcePrefix: 'instance',
+      });
+
+      outputs.tags = deployedTags.map((item) => ({
+        key: item.TagKey,
+        value: item.TagValue!,
+      }));
+    }
 
     return outputs;
   }

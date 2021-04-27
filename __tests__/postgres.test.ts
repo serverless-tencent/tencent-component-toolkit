@@ -1,4 +1,4 @@
-import { PostgresqlDeployInputs } from './../src/modules/postgresql/interface';
+import { PostgresqlDeployInputs } from '../src/modules/postgresql/interface';
 import { Postgresql } from '../src';
 import { getDbInstanceDetail } from '../src/modules/postgresql/utils';
 import { sleep } from '@ygkit/request';
@@ -10,6 +10,12 @@ describe('Postgresql', () => {
   };
   const pg = new Postgresql(credentials, process.env.REGION);
 
+  const tags = [
+    {
+      key: 'slstest',
+      value: 'slstest',
+    },
+  ];
   const inputs: PostgresqlDeployInputs = {
     region: process.env.REGION,
     zone: process.env.ZONE,
@@ -22,6 +28,7 @@ describe('Postgresql', () => {
       subnetId: process.env.SUBNET_ID,
     },
     extranetAccess: false,
+    tags,
   };
 
   test('should deploy postgresql success', async () => {
@@ -40,6 +47,7 @@ describe('Postgresql', () => {
         password: expect.any(String),
         dbname: expect.stringContaining('tencentdb_'),
       },
+      tags,
     });
     inputs.dBInstanceId = res.dBInstanceId;
   });
@@ -68,6 +76,7 @@ describe('Postgresql', () => {
         password: expect.any(String),
         dbname: expect.stringContaining('tencentdb_'),
       },
+      tags,
     });
   });
   test('should remove postgresql success', async () => {

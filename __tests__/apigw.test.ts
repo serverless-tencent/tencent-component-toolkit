@@ -8,6 +8,12 @@ describe('apigw', () => {
     SecretId: process.env.TENCENT_SECRET_ID,
     SecretKey: process.env.TENCENT_SECRET_KEY,
   };
+  const tags = [
+    {
+      key: 'slstest',
+      value: 'slstest',
+    },
+  ];
   const inputs: ApigwDeployInputs = {
     protocols: ['http', 'https'],
     serviceName: 'serverless_test',
@@ -126,6 +132,7 @@ describe('apigw', () => {
         serviceMockReturnMessage: 'helloworld',
       },
     ],
+    tags,
   };
   const apigw = new Apigw(credentials, process.env.REGION);
   let outputs: ApigwDeployOutputs;
@@ -231,6 +238,7 @@ describe('apigw', () => {
           isBase64Encoded: false,
         },
       ],
+      tags,
     });
   });
 
@@ -349,6 +357,7 @@ describe('apigw', () => {
           isBase64Encoded: false,
         },
       ],
+      tags,
     });
   });
 
@@ -458,6 +467,7 @@ describe('apigw', () => {
           isBase64Encoded: false,
         },
       ],
+      tags,
     });
   });
 
