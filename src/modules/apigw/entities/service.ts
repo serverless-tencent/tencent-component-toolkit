@@ -58,14 +58,14 @@ export default class ServiceEntity {
       environment,
       protocols,
       netTypes,
-      serviceName = 'Serverless_Framework',
-      serviceDesc = 'Created By Serverless Framework',
+      serviceName = 'serverless',
+      serviceDesc = 'Created By Serverless',
     } = serviceConf;
 
     const apiInputs = {
       Action: 'CreateService' as const,
-      serviceName: serviceName || 'Serverless_Framework',
-      serviceDesc: serviceDesc || 'Created By Serverless Framework',
+      serviceName: serviceName,
+      serviceDesc: serviceDesc,
       protocol: protocols,
       netTypes,
     };
@@ -102,8 +102,8 @@ export default class ServiceEntity {
       serviceId,
       protocols,
       netTypes,
-      serviceName = 'Serverless_Framework',
-      serviceDesc = 'Created By Serverless Framework',
+      serviceName = 'serverless',
+      serviceDesc = 'Created By Serverless',
     } = serviceConf;
 
     let detail: Detail | null;
@@ -172,7 +172,7 @@ export default class ServiceEntity {
       Action: 'ReleaseService',
       serviceId: serviceId,
       environmentName: environment,
-      releaseDesc: 'Released by Serverless Component',
+      releaseDesc: 'Released by Serverless',
     });
   }
 }
