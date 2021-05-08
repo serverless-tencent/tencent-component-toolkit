@@ -45,6 +45,7 @@ export const formatInputs = (region: RegionType, inputs: ScfCreateFunctionInputs
     };
     AsyncRunEnable?: 'TRUE' | 'FALSE';
     TraceEnable?: 'TRUE' | 'FALSE';
+    InstallDependency?: 'TRUE' | 'FALSE';
   } = {
     FunctionName: inputs.name,
     CodeSource: 'Cos',
@@ -65,6 +66,7 @@ export const formatInputs = (region: RegionType, inputs: ScfCreateFunctionInputs
       },
     },
     L5Enable: inputs.l5Enable === true ? 'TRUE' : 'FALSE',
+    InstallDependency: inputs.installDependency === true ? 'TRUE' : 'FALSE',
   };
 
   // 非必须参数
