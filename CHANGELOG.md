@@ -1,3 +1,16 @@
+# [2.9.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.8.1...v2.9.0) (2021-05-08)
+
+
+### Bug Fixes
+
+* **scf:** support installDependency config ([a6a7437](https://github.com/serverless-tencent/tencent-component-toolkit/commit/a6a7437b4ba51de9b6beb00582b93f85b3b85774))
+* **apigw:** update default config ([400fa5f](https://github.com/serverless-tencent/tencent-component-toolkit/commit/400fa5f123845602526d611ba41a20543f9befa9))
+
+
+### Features
+
+* add asw and account module ([cfef151](https://github.com/serverless-tencent/tencent-component-toolkit/commit/cfef15135050f90588d907b0507c7386dc7c18e7))
+
 ## [2.8.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.8.0...v2.8.1) (2021-04-27)
 
 
