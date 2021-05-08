@@ -1,3 +1,10 @@
+## [2.9.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.9.0...v2.9.1) (2021-05-08)
+
+
+### Bug Fixes
+
+* **asw:** support get method ([d0a4f82](https://github.com/serverless-tencent/tencent-component-toolkit/commit/d0a4f820a4d4d8ad0a2413af3b79cd79a0ffe5a1))
+
 # [2.9.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.8.1...v2.9.0) (2021-05-08)
 
 
