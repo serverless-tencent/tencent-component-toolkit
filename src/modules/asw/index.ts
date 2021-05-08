@@ -12,6 +12,7 @@ import {
   ExecuteApiOptions,
   ExecuteResult,
   ExecuteState,
+  FlowDetail,
 } from './interface';
 import APIS, { ActionType } from './apis';
 import { pascalCaseProps, randomId } from '../../utils/index';
@@ -40,6 +41,24 @@ export default class Asw {
     this.account = new Account(credentials);
 
     this.cam = new Cam(credentials);
+  }
+
+  /**
+   * 获取执行状态
+   * @param executeName 执行名称
+   * @returns 执行状态
+   */
+  async get(resourceId: string): Promise<FlowDetail | null> {
+    try {
+      const res = await this.request({
+        Action: 'DescribeFlowServiceDetail',
+        FlowServiceResource: resourceId,
+      });
+
+      return res as FlowDetail;
+    } catch (e) {
+      return null;
+    }
   }
 
   /**
