@@ -247,3 +247,8 @@ export function getYestoday() {
   const yestoday = getToday(new Date(timestamp));
   return yestoday;
 }
+
+export const randomId = (len = 6) => {
+  const randomStr = Math.random().toString(36);
+  return randomStr.substr(-len);
+};

@@ -73,7 +73,9 @@ export function ApiFactory<ACTIONS_T extends readonly string[]>({
           }
           throw new ApiError({
             type: `API_${serviceType.toUpperCase()}_${action}`,
-            message: `${Response.Error.Message} (reqId: ${Response.RequestId})`,
+            message: `[${serviceType.toUpperCase()}] ${Response.Error.Message} (reqId: ${
+              Response.RequestId
+            })`,
             reqId: Response.RequestId,
             code: Response.Error.Code,
           });

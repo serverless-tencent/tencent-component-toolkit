@@ -48,12 +48,16 @@ export default class Cam {
   }
 
   /** 创建角色 */
-  async CreateRole(roleName: string, policiesDocument: string) {
+  async CreateRole(
+    roleName: string,
+    policiesDocument: string,
+    description = 'Created By Serverless',
+  ) {
     const reqParams = {
       Action: 'CreateRole' as const,
       RoleName: roleName,
       PolicyDocument: policiesDocument,
-      Description: 'Created By Serverless Framework',
+      Description: description,
     };
     return this.request(reqParams);
   }

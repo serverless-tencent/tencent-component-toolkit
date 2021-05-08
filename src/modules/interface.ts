@@ -1,4 +1,7 @@
 export enum ApiServiceType {
+  // account 账号信息
+  account = 'account',
+
   /** API 网关服务 (apigateway) */
   apigateway = 'apigateway',
   apigw = 'apigw',
@@ -30,6 +33,9 @@ export enum ApiServiceType {
 
   // 监控 */
   monitor = 'monitor',
+
+  // asw 状态机
+  asw = 'asw',
 }
 
 export type RegionType = string;
