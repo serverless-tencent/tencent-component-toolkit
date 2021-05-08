@@ -117,3 +117,30 @@ export interface ExecuteState {
   // 请求 ID
   RequestId: string;
 }
+
+export interface FlowDetail {
+  // 状态机所属服务名
+  FlowServiceName: string;
+  // 状态机状态
+  Status: string;
+  // 定义文本（JSON格式）
+  Definition: string;
+  // 角色资源名
+  RoleResource: string;
+  // 状态机的类型，可以为 （EXPRESS/STANDARD）
+  Type: string;
+  // 生成时间
+  CreateDate: string;
+  // 备注
+  Description: string;
+  // 状态机所属服务中文名
+  FlowServiceChineseName: string;
+  // Boolean	是否开启日志CLS服务
+  EnableCLS: boolean;
+  // CLS日志查看地址
+  CLSUrl: string;
+  // 工作流提示输入
+  FlowInput: string;
+  // 请求 ID
+  RequestId: string;
+}

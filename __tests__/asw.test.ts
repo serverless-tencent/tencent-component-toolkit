@@ -45,6 +45,14 @@ describe('Account', () => {
     createResult = res;
   });
 
+  test('get', async () => {
+    const res = await client.get(createResult.resourceId);
+
+    expect(res.FlowServiceName).toBe(options.name);
+    expect(res.Type).toBe('STANDARD');
+    expect(res.Definition).toBe(options.definition);
+  });
+
   test('update', async () => {
     options.resourceId = createResult.resourceId;
     options.role = createResult.roleName;
