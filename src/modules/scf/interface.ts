@@ -139,6 +139,7 @@ export interface ScfCreateFunctionInputs {
 
   asyncRunEnable?: undefined | boolean;
   traceEnable?: undefined | boolean;
+  installDependency?: undefined | boolean;
 }
 
 export interface ScfUpdateAliasTrafficInputs {
