@@ -1,3 +1,10 @@
+## [2.9.4](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.9.3...v2.9.4) (2021-05-10)
+
+
+### Bug Fixes
+
+* **asw:** parameter IsNewRole ([17eb6e5](https://github.com/serverless-tencent/tencent-component-toolkit/commit/17eb6e50da6281c7663b00bb5030ea69198bfe14))
+
 ## [2.9.3](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.9.2...v2.9.3) (2021-05-10)
 
 
