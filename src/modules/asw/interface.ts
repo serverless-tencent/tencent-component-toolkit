@@ -48,10 +48,10 @@ export interface CreateOptions {
   appId?: string;
 }
 
-export interface UpdateOptions extends CreateOptions {
+export type UpdateOptions = Omit<CreateOptions, 'input'> & {
   // 状态机资源 ID
   resourceId: string;
-}
+};
 
 export interface BaseResult {
   // 请求 ID

@@ -129,7 +129,6 @@ export default class Asw {
       chineseName = 'serverless',
       description = 'Created By Serverless',
       enableCls = false,
-      input,
     } = options;
 
     const reqParams: UpdateApiOptions = {
@@ -153,9 +152,6 @@ export default class Asw {
     }
     reqParams.RoleResource = `qcs::cam::uin/${accountInfo.ownerUin}:roleName/${roleName}`;
 
-    if (input) {
-      reqParams.Input = input;
-    }
     const { RequestId, FlowServiceResource } = await this.request({
       ...reqParams,
       Action: 'ModifyFlowService',

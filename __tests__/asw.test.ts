@@ -9,11 +9,16 @@ describe('Account', () => {
   };
   const client = new Asw(credentials);
 
+  const input = JSON.stringify({
+    key: 'value',
+  });
+
   const options: {
     definition: string;
     name: string;
     resourceId?: string;
     role?: string;
+    input?: string;
   } = {
     definition: JSON.stringify({
       Comment: 'Serverless Test',
@@ -24,12 +29,8 @@ describe('Account', () => {
       },
     }),
     name: 'serverless-test',
+    input,
   };
-
-  const input = JSON.stringify({
-    key1: 'test value 1',
-    key2: 'test value 2',
-  });
 
   let executeName: string;
   let createResult: CreateResult;
