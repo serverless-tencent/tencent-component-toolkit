@@ -1,3 +1,11 @@
+## [2.9.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.9.1...v2.9.2) (2021-05-10)
+
+
+### Bug Fixes
+
+* **account:** appid not exist bug ([d696d98](https://github.com/serverless-tencent/tencent-component-toolkit/commit/d696d987053396377309d55414e8a68c6fc179ed))
+* **asw:** support appId option ([751a58f](https://github.com/serverless-tencent/tencent-component-toolkit/commit/751a58f34398c28f71390a995cc4f9f11e3a4495))
+
 ## [2.9.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.9.0...v2.9.1) (2021-05-08)
 
 
