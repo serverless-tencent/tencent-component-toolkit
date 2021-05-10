@@ -40,7 +40,7 @@ export default class Cam {
     return {
       ownerUin: res.OwnerUin,
       uin: res.Uin,
-      appId: res.AppId![0] || '',
+      appId: (res.AppId && res.AppId[0]) || '',
       account: res.Account,
       userType: res.UserType,
       type: res.Type,
