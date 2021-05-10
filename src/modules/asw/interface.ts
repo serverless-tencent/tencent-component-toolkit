@@ -43,6 +43,9 @@ export interface CreateOptions {
   enableCls?: boolean;
   // 状态机默认输入参数
   input?: string;
+
+  // app id
+  appId?: string;
 }
 
 export interface UpdateOptions extends CreateOptions {
