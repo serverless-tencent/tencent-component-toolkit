@@ -99,7 +99,7 @@ describe('Scf', () => {
     handler: 'sl_handler.handler',
     runtime: 'Nodejs12.16',
     region: 'ap-guangzhou',
-    description: 'Created by Serverless Framework',
+    description: 'Created by Serverless',
     memorySize: 256,
     timeout: 20,
     needSetTraffic: true,
@@ -170,96 +170,69 @@ describe('Scf', () => {
   test('deploy', async () => {
     await sleep(3000);
     outputs = await scf.deploy(inputs);
-    expect(outputs).toEqual({
-      Qualifier: '$LATEST',
-      Description: 'Created by Serverless Framework',
-      Timeout: inputs.timeout,
-      InitTimeout: expect.any(Number),
-      MemorySize: inputs.memorySize,
-      Runtime: inputs.runtime,
-      VpcConfig: { VpcId: vpcConfig.vpcId, SubnetId: vpcConfig.subnetId },
-      Environment: {
-        Variables: [
-          {
-            Key: 'TEST',
-            Value: 'value',
-          },
-        ],
-      },
-      Handler: inputs.handler,
-      AsyncRunEnable: 'FALSE',
-      LogType: expect.any(String),
-      TraceEnable: 'FALSE',
-      UseGpu: 'FALSE',
-      Role: inputs.role,
-      CodeSize: 0,
-      FunctionVersion: '$LATEST',
-      FunctionName: inputs.name,
-      Namespace: 'test',
-      InstallDependency: 'FALSE',
-      Status: 'Active',
-      // Status: expect.any(String),
-      AvailableStatus: 'Available',
-      StatusDesc: expect.any(String),
-      FunctionId: expect.stringContaining('lam-'),
-      L5Enable: 'FALSE',
-      EipConfig: { EipFixed: 'TRUE', Eips: expect.any(Array) },
-      ModTime: expect.any(String),
-      AddTime: expect.any(String),
-      Layers: [
+    expect(outputs.Qualifier).toBe('$LATEST');
+    expect(outputs.Description).toBe('Created by Serverless');
+    expect(outputs.Timeout).toBe(inputs.timeout);
+    expect(outputs.MemorySize).toBe(inputs.memorySize);
+    expect(outputs.Runtime).toBe(inputs.runtime);
+    expect(outputs.Handler).toBe(inputs.handler);
+    expect(outputs.Role).toBe(inputs.role);
+    expect(outputs.VpcConfig).toEqual({ VpcId: vpcConfig.vpcId, SubnetId: vpcConfig.subnetId });
+    expect(outputs.FunctionName).toBe(inputs.name);
+    expect(outputs.Environment).toEqual({
+      Variables: [
         {
-          LayerName: layerInputs.name,
-          LayerVersion: expect.any(Number),
-          CompatibleRuntimes: layerInputs.runtimes,
-          Description: layerInputs.description,
-          LicenseInfo: '',
-          AddTime: expect.any(String),
-          Status: 'Active',
-          Src: 'Default',
+          Key: 'TEST',
+          Value: 'value',
         },
       ],
-      DeadLetterConfig: { Type: '', Name: '', FilterType: '' },
-      OnsEnable: 'FALSE',
-      PublicNetConfig: {
-        PublicNetStatus: 'ENABLE',
-        EipConfig: { EipStatus: 'ENABLE', EipAddress: expect.any(Array) },
-      },
-      Triggers: expect.any(Array),
-      ClsLogsetId: expect.any(String),
-      ClsTopicId: expect.any(String),
-      CodeInfo: '',
-      CodeResult: 'success',
-      CodeError: '',
-      ErrNo: 0,
-      Tags: [
-        {
-          Key: 'test',
-          Value: 'test',
-        },
-      ],
-      AccessInfo: { Host: '', Vip: '' },
-      Type: 'Event',
-      CfsConfig: {
-        CfsInsList: [
-          {
-            UserId: '10000',
-            UserGroupId: '10000',
-            CfsId: inputs.cfs[0].cfsId,
-            MountInsId: inputs.cfs[0].cfsId,
-            LocalMountDir: inputs.cfs[0].localMountDir,
-            RemoteMountDir: inputs.cfs[0].remoteMountDir,
-            IpAddress: expect.any(String),
-            MountVpcId: inputs.vpcConfig.vpcId,
-            MountSubnetId: inputs.vpcConfig.subnetId,
-          },
-        ],
-      },
-      StatusReasons: [],
-      RequestId: expect.any(String),
-      LastVersion: '1',
-      Traffic: inputs.traffic,
-      ConfigTrafficVersion: '1',
     });
+    expect(outputs.AsyncRunEnable).toBe('FALSE');
+    expect(outputs.Status).toBe('Active');
+    expect(outputs.EipConfig).toEqual({ EipFixed: 'TRUE', Eips: expect.any(Array) });
+    expect(outputs.Layers).toEqual([
+      {
+        LayerName: layerInputs.name,
+        LayerVersion: expect.any(Number),
+        CompatibleRuntimes: layerInputs.runtimes,
+        Description: layerInputs.description,
+        LicenseInfo: '',
+        AddTime: expect.any(String),
+        Status: 'Active',
+        Src: 'Default',
+      },
+    ]);
+    expect(outputs.PublicNetConfig).toEqual({
+      PublicNetStatus: 'ENABLE',
+      EipConfig: { EipStatus: 'ENABLE', EipAddress: expect.any(Array) },
+    });
+    expect(outputs.Tags).toEqual([
+      {
+        Key: 'test',
+        Value: 'test',
+      },
+    ]);
+    expect(outputs.CfsConfig).toEqual({
+      CfsInsList: [
+        {
+          UserId: '10000',
+          UserGroupId: '10000',
+          CfsId: inputs.cfs[0].cfsId,
+          MountInsId: inputs.cfs[0].cfsId,
+          LocalMountDir: inputs.cfs[0].localMountDir,
+          RemoteMountDir: inputs.cfs[0].remoteMountDir,
+          IpAddress: expect.any(String),
+          MountVpcId: inputs.vpcConfig.vpcId,
+          MountSubnetId: inputs.vpcConfig.subnetId,
+        },
+      ],
+    });
+    expect(outputs.LastVersion).toBe('1');
+    expect(outputs.Traffic).toBe(inputs.traffic);
+    expect(outputs.ConfigTrafficVersion).toBe('1');
+    expect(outputs.InstallDependency).toBe('FALSE');
+    expect(outputs.AsyncRunEnable).toBe('FALSE');
+    expect(outputs.TraceEnable).toBe('FALSE');
 
     // expect triggers result
     expect(outputs.Triggers).toEqual([
@@ -355,96 +328,69 @@ describe('Scf', () => {
   test('update', async () => {
     await sleep(3000);
     outputs = await scf.deploy(inputs);
-    expect(outputs).toEqual({
-      Qualifier: '$LATEST',
-      Description: 'Created by Serverless Framework',
-      Timeout: inputs.timeout,
-      InitTimeout: expect.any(Number),
-      MemorySize: inputs.memorySize,
-      Runtime: inputs.runtime,
-      VpcConfig: { VpcId: vpcConfig.vpcId, SubnetId: vpcConfig.subnetId },
-      Environment: {
-        Variables: [
-          {
-            Key: 'TEST',
-            Value: 'value',
-          },
-        ],
-      },
-      Handler: inputs.handler,
-      AsyncRunEnable: 'FALSE',
-      LogType: expect.any(String),
-      TraceEnable: 'FALSE',
-      UseGpu: 'FALSE',
-      Role: inputs.role,
-      CodeSize: 0,
-      FunctionVersion: '$LATEST',
-      FunctionName: inputs.name,
-      Namespace: 'test',
-      InstallDependency: 'FALSE',
-      Status: 'Active',
-      // Status: expect.any(String),
-      AvailableStatus: 'Available',
-      StatusDesc: expect.any(String),
-      FunctionId: expect.stringContaining('lam-'),
-      L5Enable: 'FALSE',
-      EipConfig: { EipFixed: 'TRUE', Eips: expect.any(Array) },
-      ModTime: expect.any(String),
-      AddTime: expect.any(String),
-      Layers: [
+    expect(outputs.Qualifier).toBe('$LATEST');
+    expect(outputs.Description).toBe('Created by Serverless');
+    expect(outputs.Timeout).toBe(inputs.timeout);
+    expect(outputs.MemorySize).toBe(inputs.memorySize);
+    expect(outputs.Runtime).toBe(inputs.runtime);
+    expect(outputs.Handler).toBe(inputs.handler);
+    expect(outputs.Role).toBe(inputs.role);
+    expect(outputs.VpcConfig).toEqual({ VpcId: vpcConfig.vpcId, SubnetId: vpcConfig.subnetId });
+    expect(outputs.FunctionName).toBe(inputs.name);
+    expect(outputs.Environment).toEqual({
+      Variables: [
         {
-          LayerName: layerInputs.name,
-          LayerVersion: expect.any(Number),
-          CompatibleRuntimes: layerInputs.runtimes,
-          Description: layerInputs.description,
-          LicenseInfo: '',
-          AddTime: expect.any(String),
-          Status: 'Active',
-          Src: 'Default',
+          Key: 'TEST',
+          Value: 'value',
         },
       ],
-      DeadLetterConfig: { Type: '', Name: '', FilterType: '' },
-      OnsEnable: 'FALSE',
-      PublicNetConfig: {
-        PublicNetStatus: 'ENABLE',
-        EipConfig: { EipStatus: 'ENABLE', EipAddress: expect.any(Array) },
-      },
-      Triggers: expect.any(Array),
-      ClsLogsetId: expect.any(String),
-      ClsTopicId: expect.any(String),
-      CodeInfo: '',
-      CodeResult: 'success',
-      CodeError: '',
-      ErrNo: 0,
-      Tags: [
-        {
-          Key: 'test',
-          Value: 'test',
-        },
-      ],
-      AccessInfo: { Host: '', Vip: '' },
-      Type: 'Event',
-      CfsConfig: {
-        CfsInsList: [
-          {
-            UserId: '10000',
-            UserGroupId: '10000',
-            CfsId: inputs.cfs[0].cfsId,
-            MountInsId: inputs.cfs[0].cfsId,
-            LocalMountDir: inputs.cfs[0].localMountDir,
-            RemoteMountDir: inputs.cfs[0].remoteMountDir,
-            IpAddress: expect.any(String),
-            MountVpcId: inputs.vpcConfig.vpcId,
-            MountSubnetId: inputs.vpcConfig.subnetId,
-          },
-        ],
-      },
-      StatusReasons: [],
-      RequestId: expect.any(String),
-      LastVersion: '2',
-      Traffic: inputs.traffic,
-      ConfigTrafficVersion: '2',
     });
+    expect(outputs.AsyncRunEnable).toBe('FALSE');
+    expect(outputs.Status).toBe('Active');
+    expect(outputs.EipConfig).toEqual({ EipFixed: 'TRUE', Eips: expect.any(Array) });
+    expect(outputs.Layers).toEqual([
+      {
+        LayerName: layerInputs.name,
+        LayerVersion: expect.any(Number),
+        CompatibleRuntimes: layerInputs.runtimes,
+        Description: layerInputs.description,
+        LicenseInfo: '',
+        AddTime: expect.any(String),
+        Status: 'Active',
+        Src: 'Default',
+      },
+    ]);
+    expect(outputs.PublicNetConfig).toEqual({
+      PublicNetStatus: 'ENABLE',
+      EipConfig: { EipStatus: 'ENABLE', EipAddress: expect.any(Array) },
+    });
+    expect(outputs.Tags).toEqual([
+      {
+        Key: 'test',
+        Value: 'test',
+      },
+    ]);
+    expect(outputs.CfsConfig).toEqual({
+      CfsInsList: [
+        {
+          UserId: '10000',
+          UserGroupId: '10000',
+          CfsId: inputs.cfs[0].cfsId,
+          MountInsId: inputs.cfs[0].cfsId,
+          LocalMountDir: inputs.cfs[0].localMountDir,
+          RemoteMountDir: inputs.cfs[0].remoteMountDir,
+          IpAddress: expect.any(String),
+          MountVpcId: inputs.vpcConfig.vpcId,
+          MountSubnetId: inputs.vpcConfig.subnetId,
+        },
+      ],
+    });
+    expect(outputs.LastVersion).toBe('2');
+    expect(outputs.Traffic).toBe(inputs.traffic);
+    expect(outputs.ConfigTrafficVersion).toBe('2');
+    expect(outputs.InstallDependency).toBe('FALSE');
+    expect(outputs.AsyncRunEnable).toBe('FALSE');
+    expect(outputs.TraceEnable).toBe('FALSE');
 
     // expect triggers result
     expect(outputs.Triggers).toEqual([
