@@ -136,7 +136,7 @@ export default class Asw {
       FlowServiceResource: resourceId,
       Definition: definition,
       FlowServiceName: name,
-      IsNewRole: !!role,
+      IsNewRole: !role,
       Type: type,
       FlowServiceChineseName: chineseName,
       Description: description,
