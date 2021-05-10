@@ -1,3 +1,10 @@
+## [2.9.5](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.9.4...v2.9.5) (2021-05-10)
+
+
+### Bug Fixes
+
+* **asw:** remove input option for update ([91b34f8](https://github.com/serverless-tencent/tencent-component-toolkit/commit/91b34f89e4bf8ef7657194d6718e3d061addf138))
+
 ## [2.9.4](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.9.3...v2.9.4) (2021-05-10)
 
 
