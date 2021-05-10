@@ -89,12 +89,14 @@ export default class Asw {
     };
 
     let roleName = role;
-    const { appId, ownerUin } = await this.account.get();
+    const accountInfo = await this.account.get();
 
     if (!roleName) {
-      roleName = await this.createRole(name, appId);
+      // 如果上层传入 appId 直接使用上层 appId，如果没有尝试通过 accountInfo 中来获取
+      const appId = options.appId || accountInfo.appId;
+      roleName = await this.createRole(name, appId!);
     }
-    reqParams.RoleResource = `qcs::cam::uin/${ownerUin}:roleName/${roleName}`;
+    reqParams.RoleResource = `qcs::cam::uin/${accountInfo.ownerUin}:roleName/${roleName}`;
 
     if (input) {
       reqParams.Input = input;
