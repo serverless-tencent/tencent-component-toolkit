@@ -192,8 +192,7 @@ describe('Scf', () => {
     expect(outputs.EipConfig).toEqual({ EipFixed: 'TRUE', Eips: expect.any(Array) });
 
     expect(outputs.Layers[0].LayerName).toBe(layerInputs.name);
-    expect(outputs.Layers[0].CompatibleRuntimes).toBe(layerInputs.name);
-    expect(outputs.Layers[0].CompatibleRuntimes).toBe(layerInputs.runtimes);
+    expect(outputs.Layers[0].CompatibleRuntimes).toEqual(layerInputs.runtimes);
     expect(outputs.Layers[0].Description).toBe(layerInputs.description);
 
     expect(outputs.PublicNetConfig).toEqual({
@@ -344,8 +343,7 @@ describe('Scf', () => {
     expect(outputs.EipConfig).toEqual({ EipFixed: 'TRUE', Eips: expect.any(Array) });
 
     expect(outputs.Layers[0].LayerName).toBe(layerInputs.name);
-    expect(outputs.Layers[0].CompatibleRuntimes).toBe(layerInputs.name);
-    expect(outputs.Layers[0].CompatibleRuntimes).toBe(layerInputs.runtimes);
+    expect(outputs.Layers[0].CompatibleRuntimes).toEqual(layerInputs.runtimes);
     expect(outputs.Layers[0].Description).toBe(layerInputs.description);
 
     expect(outputs.PublicNetConfig).toEqual({
