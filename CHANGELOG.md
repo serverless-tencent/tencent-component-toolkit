@@ -1,3 +1,10 @@
+## [2.9.6](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.9.5...v2.9.6) (2021-05-11)
+
+
+### Bug Fixes
+
+* **scf:** optimize function name error message ([#223](https://github.com/serverless-tencent/tencent-component-toolkit/issues/223)) ([6fae687](https://github.com/serverless-tencent/tencent-component-toolkit/commit/6fae6876f40bdc0353f048ce4e108f19ea46c2ea))
+
 ## [2.9.5](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.9.4...v2.9.5) (2021-05-10)
 
 
