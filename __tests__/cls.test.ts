@@ -75,7 +75,6 @@ describe('Cls', () => {
       topicId: 'e9e38c86-c7ba-475b-a852-6305880d2212',
       interval: 3600,
     });
-    console.log('logs', res);
     expect(res).toBeInstanceOf(Array);
   });
 });
