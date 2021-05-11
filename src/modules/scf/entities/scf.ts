@@ -55,16 +55,25 @@ export default class ScfEntity extends BaseEntity {
       });
       return Response;
     } catch (e) {
-      if (e.code == 'ResourceNotFound.FunctionName' || e.code == 'ResourceNotFound.Function') {
+      if (e.code === 'ResourceNotFound.FunctionName' || e.code === 'ResourceNotFound.Function') {
         return null;
       }
-      throw new ApiError({
-        type: 'API_SCF_GetFunction',
-        message: e.message,
-        stack: e.stack,
-        reqId: e.reqId,
-        code: e.code,
-      });
+      if (e.code === 'InvalidParameterValue.FunctionName') {
+        throw new ApiError({
+          type: 'API_SCF_GetFunction',
+          message: `SCF 函数名称命名不符合规则。 只能包含字母、数字、下划线、连字符，以字母开头，以数字或字母结尾，2~60个字符`,
+          reqId: e.reqId,
+          code: e.code,
+          displayMsg: `SCF 函数名称命名不符合规则。 只能包含字母、数字、下划线、连字符，以字母开头，以数字或字母结尾，2~60个字符`,
+        });
+      } else {
+        throw new ApiError({
+          type: 'API_SCF_GetFunction',
+          message: e.message,
+          reqId: e.reqId,
+          code: e.code,
+        });
+      }
     }
   }
 

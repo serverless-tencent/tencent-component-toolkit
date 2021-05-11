@@ -2,7 +2,7 @@ import { ScfDeployInputs } from '../src/modules/scf/interface';
 import { sleep } from '@ygkit/request';
 import { Scf } from '../src';
 
-describe('Scf - singapore', () => {
+describe('Scf - special', () => {
   const credentials = {
     SecretId: process.env.TENCENT_SECRET_ID,
     SecretKey: process.env.TENCENT_SECRET_KEY,

@@ -190,18 +190,11 @@ describe('Scf', () => {
     expect(outputs.AsyncRunEnable).toBe('FALSE');
     expect(outputs.Status).toBe('Active');
     expect(outputs.EipConfig).toEqual({ EipFixed: 'TRUE', Eips: expect.any(Array) });
-    expect(outputs.Layers).toEqual([
-      {
-        LayerName: layerInputs.name,
-        LayerVersion: expect.any(Number),
-        CompatibleRuntimes: layerInputs.runtimes,
-        Description: layerInputs.description,
-        LicenseInfo: '',
-        AddTime: expect.any(String),
-        Status: 'Active',
-        Src: 'Default',
-      },
-    ]);
+
+    expect(outputs.Layers[0].LayerName).toBe(layerInputs.name);
+    expect(outputs.Layers[0].CompatibleRuntimes).toEqual(layerInputs.runtimes);
+    expect(outputs.Layers[0].Description).toBe(layerInputs.description);
+
     expect(outputs.PublicNetConfig).toEqual({
       PublicNetStatus: 'ENABLE',
       EipConfig: { EipStatus: 'ENABLE', EipAddress: expect.any(Array) },
@@ -348,18 +341,11 @@ describe('Scf', () => {
     expect(outputs.AsyncRunEnable).toBe('FALSE');
     expect(outputs.Status).toBe('Active');
     expect(outputs.EipConfig).toEqual({ EipFixed: 'TRUE', Eips: expect.any(Array) });
-    expect(outputs.Layers).toEqual([
-      {
-        LayerName: layerInputs.name,
-        LayerVersion: expect.any(Number),
-        CompatibleRuntimes: layerInputs.runtimes,
-        Description: layerInputs.description,
-        LicenseInfo: '',
-        AddTime: expect.any(String),
-        Status: 'Active',
-        Src: 'Default',
-      },
-    ]);
+
+    expect(outputs.Layers[0].LayerName).toBe(layerInputs.name);
+    expect(outputs.Layers[0].CompatibleRuntimes).toEqual(layerInputs.runtimes);
+    expect(outputs.Layers[0].Description).toBe(layerInputs.description);
+
     expect(outputs.PublicNetConfig).toEqual({
       PublicNetStatus: 'ENABLE',
       EipConfig: { EipStatus: 'ENABLE', EipAddress: expect.any(Array) },

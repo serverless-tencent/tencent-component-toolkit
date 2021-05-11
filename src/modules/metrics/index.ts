@@ -73,7 +73,6 @@ export default class Metrics {
       throw new ApiError({
         type: 'API_METRICS_getScfMetrics',
         message: e.message,
-        stack: e.stack,
         reqId: e.reqId,
         code: e.code,
       });
@@ -105,7 +104,6 @@ export default class Metrics {
       throw new ApiError({
         type: 'API_METRICS_getApigwMetrics',
         message: e.message,
-        stack: e.stack,
         reqId: e.reqId,
         code: e.code,
       });
@@ -138,7 +136,6 @@ export default class Metrics {
       throw new ApiError({
         type: 'API_METRICS_getCustomMetrics',
         message: e.message,
-        stack: e.stack,
         reqId: e.reqId,
         code: e.code,
       });
