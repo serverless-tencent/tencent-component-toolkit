@@ -29,6 +29,8 @@ export interface CreateOptions {
   definition: string;
   // 状态机服务名称，必须唯一
   name: string;
+  // 用户主账号 UIN
+  uin: string;
   // 是否是新创建角色
   isNewRole?: boolean;
   // 角色名称

@@ -18,6 +18,8 @@ describe('Account', () => {
     name: string;
     resourceId?: string;
     role?: string;
+    uin: string;
+    appId: string;
     input?: string;
   } = {
     definition: JSON.stringify({
@@ -29,6 +31,8 @@ describe('Account', () => {
       },
     }),
     name: 'serverless-test',
+    uin: process.env.TENCENT_UIN,
+    appId: process.env.TENCENT_APP_ID,
     input,
   };
 
@@ -100,8 +104,6 @@ describe('Account', () => {
     });
 
     // 删除测试创建的角色
-    if (createResult.isNewRole) {
-      await client.cam.DeleteRole(createResult.roleName);
-    }
+    await client.cam.DeleteRole(createResult.roleName);
   });
 });
