@@ -231,6 +231,7 @@ export default class Scf {
   async deploy(inputs: ScfDeployInputs): Promise<ScfDeployOutputs> {
     const namespace = inputs.namespace ?? CONFIGS.defaultNamespace;
     const functionName = inputs.name;
+    const { ignoreTriggers = false } = inputs;
 
     // 在部署前，检查函数初始状态，如果初始为 CreateFailed，尝试先删除，再重新创建
     let funcInfo = await this.scf.getInitialStatus({ namespace, functionName });
@@ -327,8 +328,10 @@ export default class Scf {
     }
 
     // create/update/delete triggers
-    if (inputs.events) {
+    if (inputs.events && !ignoreTriggers) {
       outputs.Triggers = await this.deployTrigger(funcInfo!, inputs);
+    } else {
+      outputs.Triggers = [];
     }
 
     console.log(`Deploy function ${functionName} success.`);

@@ -179,6 +179,9 @@ export interface ScfDeployInputs extends ScfCreateFunctionInputs {
 
   // FIXME: apigw event type
   events?: OriginTriggerType[];
+
+  // 是否忽略触发器操作流程
+  ignoreTriggers?: boolean;
 }
 
 export interface ScfDeployOutputs {

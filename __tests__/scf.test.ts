@@ -508,6 +508,15 @@ describe('Scf', () => {
     expect(outputs.ClsTopicId).toBe('');
   });
 
+  test('[ignoreTriggers = true] update', async () => {
+    await sleep(3000);
+    inputs.ignoreTriggers = true;
+    outputs = await scf.deploy(inputs);
+
+    // expect triggers result
+    expect(outputs.Triggers).toEqual([]);
+  });
+
   test('remove', async () => {
     const res = await scf.remove({
       functionName: inputs.name,

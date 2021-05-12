@@ -90,6 +90,14 @@ describe('Scf - special', () => {
     expect(outputs.InstallDependency).toBe('TRUE');
     expect(outputs.Role).toBe(inputs.role);
   });
+  test('[ignoreTriggers = true] update', async () => {
+    await sleep(3000);
+    inputs.ignoreTriggers = true;
+    outputs = await scf.deploy(inputs);
+
+    // expect triggers result
+    expect(outputs.Triggers).toEqual([]);
+  });
   test('should remove Scf success', async () => {
     const res = await scf.remove({
       functionName: inputs.name,
