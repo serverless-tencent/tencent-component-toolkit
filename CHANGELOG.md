@@ -1,3 +1,10 @@
+## [2.9.7](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.9.6...v2.9.7) (2021-05-12)
+
+
+### Bug Fixes
+
+* **asw:** add uin option ([ff9d048](https://github.com/serverless-tencent/tencent-component-toolkit/commit/ff9d048fd0cee2b990310382e8d0772df55770eb))
+
 ## [2.9.6](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.9.5...v2.9.6) (2021-05-11)
 
 
