@@ -1,3 +1,11 @@
+## [2.9.8](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.9.7...v2.9.8) (2021-05-12)
+
+
+### Bug Fixes
+
+* **asw:** remove auto create role feature ([0ab5de0](https://github.com/serverless-tencent/tencent-component-toolkit/commit/0ab5de091c4c3364740bda45f4cc722c936f29de))
+* **scf:** support ignoreTriggers option ([c42d6de](https://github.com/serverless-tencent/tencent-component-toolkit/commit/c42d6dec888ee9779b998a6b1c75c8b60e5ecad7))
+
 ## [2.9.7](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.9.6...v2.9.7) (2021-05-12)
 
 
