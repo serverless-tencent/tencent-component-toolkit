@@ -17,13 +17,12 @@ import {
 import APIS, { ActionType } from './apis';
 import { pascalCaseProps, randomId } from '../../utils/index';
 import { CapiCredentials, RegionType } from '../interface';
-import { Account, Cam } from '../../';
+import { Cam } from '../../';
 
 export default class Asw {
   credentials: CapiCredentials;
   capi: Capi;
   region: RegionType;
-  account: Account;
   cam: Cam;
 
   constructor(credentials: CapiCredentials, region: RegionType = 'ap-guangzhou') {
@@ -37,8 +36,6 @@ export default class Asw {
       SecretKey: this.credentials.SecretKey!,
       Token: this.credentials.Token,
     });
-
-    this.account = new Account(credentials);
 
     this.cam = new Cam(credentials);
   }
@@ -70,8 +67,7 @@ export default class Asw {
     const {
       definition,
       name,
-      role,
-      uin,
+      roleArn,
       type = 'STANDARD',
       chineseName = 'serverless',
       description = 'Created By Serverless',
@@ -82,21 +78,13 @@ export default class Asw {
     const reqParams: CreateApiOptions = {
       Definition: definition,
       FlowServiceName: name,
-      IsNewRole: !!role,
+      IsNewRole: false,
       Type: type,
       FlowServiceChineseName: chineseName,
       Description: description,
       EnableCLS: enableCls,
+      RoleResource: roleArn,
     };
-
-    let roleName = role;
-
-    if (!roleName) {
-      // 如果上层传入 appId 直接使用上层 appId，如果没有尝试通过 accountInfo 中来获取
-      const { appId } = options;
-      roleName = await this.createRole(name, appId!);
-    }
-    reqParams.RoleResource = `qcs::cam::uin/${uin}:roleName/${roleName}`;
 
     if (input) {
       reqParams.Input = input;
@@ -109,8 +97,7 @@ export default class Asw {
     return {
       requestId: RequestId,
       resourceId: FlowServiceResource,
-      isNewRole: reqParams.IsNewRole,
-      roleName,
+      roleArn,
     };
   }
 
@@ -124,8 +111,7 @@ export default class Asw {
       resourceId,
       definition,
       name,
-      role,
-      uin,
+      roleArn,
       type = 'STANDARD',
       chineseName = 'serverless',
       description = 'Created By Serverless',
@@ -136,22 +122,13 @@ export default class Asw {
       FlowServiceResource: resourceId,
       Definition: definition,
       FlowServiceName: name,
-      IsNewRole: !role,
+      IsNewRole: false,
       Type: type,
       FlowServiceChineseName: chineseName,
       Description: description,
       EnableCLS: enableCls,
+      RoleResource: roleArn,
     };
-
-    let roleName = role;
-
-    if (!roleName) {
-      // 如果上层传入 appId 直接使用上层 appId，如果没有尝试通过 accountInfo 中来获取
-      const { appId } = options;
-      roleName = await this.createRole(name, appId!);
-    }
-
-    reqParams.RoleResource = `qcs::cam::uin/${uin}:roleName/${roleName}`;
 
     const { RequestId, FlowServiceResource } = await this.request({
       ...reqParams,
@@ -161,8 +138,7 @@ export default class Asw {
     return {
       requestId: RequestId,
       resourceId: FlowServiceResource,
-      isNewRole: reqParams.IsNewRole,
-      roleName,
+      roleArn,
     };
   }
 
