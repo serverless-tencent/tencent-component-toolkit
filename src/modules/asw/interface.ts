@@ -29,12 +29,10 @@ export interface CreateOptions {
   definition: string;
   // 状态机服务名称，必须唯一
   name: string;
-  // 用户主账号 UIN
-  uin: string;
   // 是否是新创建角色
   isNewRole?: boolean;
   // 角色名称
-  role?: string;
+  roleArn: string;
   // 状态机类型，EXPRESS，STANDARD
   type?: string;
   // 状态机服务中文名称
@@ -45,9 +43,6 @@ export interface CreateOptions {
   enableCls?: boolean;
   // 状态机默认输入参数
   input?: string;
-
-  // app id
-  appId?: string;
 }
 
 export type UpdateOptions = Omit<CreateOptions, 'input'> & {
@@ -63,14 +58,12 @@ export interface BaseResult {
 }
 
 export interface CreateResult extends BaseResult {
-  // 是否是新建角色
-  isNewRole: boolean;
-  // 角色名称
-  roleName: string;
+  // 角色 arn
+  roleArn: string;
 }
 export type UpdateResult = BaseResult & {
-  isNewRole: boolean;
-  roleName: string;
+  // 角色 arn
+  roleArn: string;
 };
 export type DeleteResult = BaseResult;
 

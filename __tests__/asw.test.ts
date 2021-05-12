@@ -13,13 +13,13 @@ describe('Account', () => {
     key: 'value',
   });
 
+  const roleArn = 'qcs::cam::uin/100015854621:roleName/serverless-test-aws';
+
   const options: {
     definition: string;
     name: string;
     resourceId?: string;
-    role?: string;
-    uin: string;
-    appId: string;
+    roleArn: string;
     input?: string;
   } = {
     definition: JSON.stringify({
@@ -31,8 +31,7 @@ describe('Account', () => {
       },
     }),
     name: 'serverless-test',
-    uin: process.env.TENCENT_UIN,
-    appId: process.env.TENCENT_APP_ID,
+    roleArn,
     input,
   };
 
@@ -44,8 +43,7 @@ describe('Account', () => {
     expect(res).toEqual({
       requestId: expect.any(String),
       resourceId: expect.any(String),
-      isNewRole: expect.any(Boolean),
-      roleName: expect.stringContaining('serverless-test_'),
+      roleArn,
     });
     createResult = res;
   });
@@ -60,13 +58,12 @@ describe('Account', () => {
 
   test('update', async () => {
     options.resourceId = createResult.resourceId;
-    options.role = createResult.roleName;
+    options.roleArn = createResult.roleArn;
     const res = await client.update(options as UpdateOptions);
     expect(res).toEqual({
       requestId: expect.any(String),
       resourceId: createResult.resourceId,
-      isNewRole: expect.any(Boolean),
-      roleName: expect.stringContaining('serverless-test_'),
+      roleArn,
     });
   });
 
@@ -102,8 +99,5 @@ describe('Account', () => {
       requestId: expect.any(String),
       resourceId: createResult.resourceId,
     });
-
-    // 删除测试创建的角色
-    await client.cam.DeleteRole(createResult.roleName);
   });
 });
