@@ -41,7 +41,7 @@ export default class Cdn {
     }
   }
 
-  async pushCdnUrls(urls: string[], userAgent = 'flush', area = 'mainland') {
+  async pushCdnUrls(urls: string[], userAgent = 'TencentCdn', area = 'mainland') {
     console.log(`Pushing CDN caches...`);
     try {
       await APIS.PushUrlsCache(this.capi, {
