@@ -184,7 +184,8 @@ export default class ScfEntity extends BaseEntity {
 
     const reqInputs: Partial<typeof reqParams> = reqParams;
 
-    // 更新函数接口不能传递一下参数
+    // 更新函数接口不能传递以下参数
+    delete reqInputs.Type;
     delete reqInputs.Handler;
     delete reqInputs.Code;
     delete reqInputs.CodeSource;

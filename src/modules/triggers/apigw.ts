@@ -188,6 +188,8 @@ export default class ApigwTrigger extends BaseTrigger<ApigwTriggerInputsParams> 
     };
     const triggerKey = this.getKey(triggerInputs);
 
+    console.log('triggerInputs', triggerInputs);
+
     return {
       triggerKey,
       triggerInputs,
