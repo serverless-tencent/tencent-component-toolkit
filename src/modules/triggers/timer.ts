@@ -1,4 +1,5 @@
 import Scf from '../scf';
+import { TriggerManager } from './manager';
 import { CapiCredentials, RegionType } from './../interface';
 import BaseTrigger, { TRIGGER_STATUS_MAP } from './base';
 import { TimerTriggerInputsParams, TriggerInputs, CreateTriggerReq } from './interface';
@@ -57,17 +58,24 @@ export default class TimerTrigger extends BaseTrigger<TimerTriggerInputsParams> 
     region,
     inputs,
   }: {
-    scf: Scf;
+    scf: Scf | TriggerManager;
     region: RegionType;
     inputs: TriggerInputs<TimerTriggerInputsParams>;
   }) {
     const { triggerInputs } = this.formatInputs({ region, inputs });
     console.log(`Creating ${triggerInputs.Type} trigger ${triggerInputs.TriggerName}`);
+
     const { TriggerInfo } = await scf.request(triggerInputs);
     TriggerInfo.Qualifier = TriggerInfo.Qualifier || triggerInputs.Qualifier;
     return TriggerInfo;
   }
-  async delete({ scf, inputs }: { scf: Scf; inputs: TriggerInputs<TimerTriggerInputsParams> }) {
+  async delete({
+    scf,
+    inputs,
+  }: {
+    scf: Scf | TriggerManager;
+    inputs: TriggerInputs<TimerTriggerInputsParams>;
+  }) {
     console.log(`Removing ${inputs.type} trigger ${inputs.triggerName}`);
     try {
       await scf.request({

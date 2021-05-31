@@ -13,7 +13,7 @@ import {
   ApigwUpdateServiceInputs,
   ApigwDeployWithServiceIdInputs,
 } from './interface';
-import { getProtocolString } from './utils';
+import { getProtocolString, getUrlProtocol } from './utils';
 
 // sub service entities
 import ServiceEntity from './entities/service';
@@ -66,6 +66,18 @@ export default class Apigw {
       console.warn(e);
     }
     return true;
+  }
+
+  formatApigwOutputs(outputs: ApigwDeployOutputs): ApigwDeployOutputs {
+    const baseUrl = `${getUrlProtocol(outputs.protocols as string)}://${outputs.subDomain}`;
+    outputs.url = baseUrl;
+
+    outputs.apiList = outputs.apiList.map((item: ApiEndpoint) => {
+      item.url = `${baseUrl}/${outputs.environment}${`/${item.path}`.replace('//', '/')}`;
+      return item;
+    });
+
+    return outputs;
   }
 
   /** 部署 API 网关 */
@@ -138,7 +150,7 @@ export default class Apigw {
       console.log(`[TAG] ${e.message}`);
     }
 
-    return outputs;
+    return this.formatApigwOutputs(outputs);
   }
 
   async remove(inputs: ApigwRemoveInputs) {
@@ -277,7 +289,7 @@ export default class Apigw {
         }));
       }
 
-      return outputs;
+      return this.formatApigwOutputs(outputs);
     }
     throw new ApiError({
       type: 'API_APIGW_DescribeService',

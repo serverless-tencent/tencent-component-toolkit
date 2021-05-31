@@ -10,6 +10,7 @@ import {
 } from './interface';
 import BaseTrigger from './base';
 import { CapiCredentials, RegionType } from '../interface';
+import { TriggerManager } from './manager';
 
 export default class clbTrigger extends BaseTrigger<ClbTriggerInputsParams> {
   clb: Clb;
@@ -87,7 +88,13 @@ export default class clbTrigger extends BaseTrigger<ClbTriggerInputsParams> {
    * 删除 clb 触发器
    * @param {scf: Scf, inputs: TriggerInputs} 删除 clb 触发器参数
    */
-  async delete({ scf, inputs }: { scf: Scf; inputs: TriggerInputs<ClbTriggerInputsParams> }) {
+  async delete({
+    scf,
+    inputs,
+  }: {
+    scf: Scf | TriggerManager;
+    inputs: TriggerInputs<ClbTriggerInputsParams>;
+  }) {
     console.log(`[CLB] Removing clb trigger ${inputs.triggerName} for ${inputs.functionName}`);
     try {
       const { RequestId } = await scf.request({
@@ -138,12 +145,7 @@ export default class clbTrigger extends BaseTrigger<ClbTriggerInputsParams> {
     return triggerKey;
   }
 
-  async formatInputs({
-    inputs,
-  }: {
-    region?: RegionType;
-    inputs: TriggerInputs<ClbTriggerInputsParams>;
-  }) {
+  async formatInputs({ inputs }: { inputs: TriggerInputs<ClbTriggerInputsParams> }) {
     const { parameters } = inputs;
     const {
       loadBalanceId,
@@ -178,8 +180,3 @@ export default class clbTrigger extends BaseTrigger<ClbTriggerInputsParams> {
     } as any;
   }
 }
-
-// CreateRule {"serviceType":"clb","action":"CreateRule","regionId":4,"data":{"Version":"2018-03-17","Region":"ap-shanghai","ListenerId":"lbl-pk163z8v","LoadBalancerId":"lb-ht446s0z","Rules":[{"Domain":"175.24.155.250","Url":"/3/"}]}}
-// RegisterFunctionTargets {"serviceType":"clb","action":"RegisterFunctionTargets","regionId":4,"data":{"Version":"2018-03-17","Region":"ap-shanghai","LoadBalancerId":"lb-ht446s0z","ListenerId":"lbl-pk163z8v","LocationId":"loc-i3x9dbnz","FunctionTargets":[{"Weight":10,"Function":{"FunctionName":"clb-test-2","FunctionNamespace":"default","FunctionQualifier":"$DEFAULT"}}]}}
-// DescribeListeners {"serviceType":"clb","action":"DescribeListeners","regionId":4,"data":{"Version":"2018-03-17","Region":"ap-shanghai","LoadBalancerId":"lb-ht446s0z"}}
-// DeleteTrigger {"serviceType":"scf","action":"DeleteTrigger","regionId":4,"data":{"Version":"2018-04-16","Region":"ap-shanghai","FunctionName":"clb-test-2","Namespace":"default","Type":"clb","Qualifier":"$DEFAULT","TriggerName":"clb_c14bverv4mic5p2eqp20","TriggerDesc":"{\"clbId\":\"lb-ht446s0z\",\"listenerId\":\"lbl-pk163z8v\",\"protocol\":\"HTTP\",\"port\":80,\"host\":\"175.24.155.250\",\"url\":\"/2\",\"fullUrl\":\"http://175.24.155.250/2\"}"}}

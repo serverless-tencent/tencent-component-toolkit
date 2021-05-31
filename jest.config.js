@@ -16,6 +16,7 @@ const config = {
     '/__tests__/apigw.custom-domains.test.ts',
     '/__tests__/scf.sp.test.ts', // 专门用来验证测试小地域功能发布测试
     '/__tests__/triggers/mps.test.ts',
+    '/__tests__/trigger.manager.test.ts',
   ],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
 };

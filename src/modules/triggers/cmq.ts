@@ -1,4 +1,5 @@
 import Scf from '../scf';
+import { TriggerManager } from './manager';
 import { CapiCredentials, RegionType } from './../interface';
 import BaseTrigger from './base';
 import { CmqTriggerInputsParams, TriggerInputs, CreateTriggerReq } from './interface';
@@ -48,7 +49,7 @@ export default class CmqTrigger extends BaseTrigger<CmqTriggerInputsParams> {
     region,
     inputs,
   }: {
-    scf: Scf;
+    scf: Scf | TriggerManager;
     region: RegionType;
     inputs: TriggerInputs<CmqTriggerInputsParams>;
   }) {
@@ -59,7 +60,13 @@ export default class CmqTrigger extends BaseTrigger<CmqTriggerInputsParams> {
     return TriggerInfo;
   }
 
-  async delete({ scf, inputs }: { scf: Scf; inputs: TriggerInputs<CmqTriggerInputsParams> }) {
+  async delete({
+    scf,
+    inputs,
+  }: {
+    scf: Scf | TriggerManager;
+    inputs: TriggerInputs<CmqTriggerInputsParams>;
+  }) {
     console.log(`Removing ${inputs.type} trigger ${inputs.triggerName}`);
     try {
       await scf.request({

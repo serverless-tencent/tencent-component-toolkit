@@ -93,6 +93,7 @@ export interface CosTriggerInputsParams {
 export interface MpsTriggerInputsParams {
   type?: string;
   qualifier?: string;
+  namespace?: string;
   enable?: boolean;
 }
 export interface TimerTriggerInputsParams {
@@ -102,6 +103,7 @@ export interface TimerTriggerInputsParams {
   enable?: boolean;
 
   argument?: string;
+  namespace?: string;
 }
 
 export interface TriggerInputs<P extends TriggerInputsParams = TriggerInputsParams> {
@@ -110,14 +112,46 @@ export interface TriggerInputs<P extends TriggerInputsParams = TriggerInputsPara
   triggerDesc?: string;
   triggerName?: string;
   qualifier?: string;
-  parameters?: P;
   name?: string;
   namespace?: string;
+  parameters?: P;
+
+  function?: {
+    qualifier?: string;
+    name?: string;
+    namespace?: string;
+  };
 
   // FIXME:
   FunctionName?: string;
   Namespace?: string;
   Qualifier?: string;
+}
+
+export interface TriggerDetail {
+  NeedCreate?: boolean;
+  Type: string;
+  TriggerDesc?: string;
+  TriggerName?: string;
+  Qualifier?: string;
+  compared?: boolean;
+
+  triggerType: string;
+}
+
+export interface NewTriggerInputs {
+  type: string;
+
+  function?: {
+    name: string;
+    namespace?: string;
+    qualifier?: string;
+  };
+
+  parameters: {
+    endpoints?: ApiEndpoint[];
+    [key: string]: any;
+  };
 }
 
 export * from './clb';

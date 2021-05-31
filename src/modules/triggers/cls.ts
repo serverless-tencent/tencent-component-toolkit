@@ -4,6 +4,7 @@ import { ClsTriggerInputsParams, TriggerInputs, CreateTriggerReq } from './inter
 import Scf from '../scf';
 import BaseTrigger from './base';
 import { createClsTrigger, deleteClsTrigger, getClsTrigger, updateClsTrigger } from '../cls/utils';
+import { TriggerManager } from './manager';
 
 export default class ClsTrigger extends BaseTrigger<ClsTriggerInputsParams> {
   client: Cls;
@@ -30,9 +31,10 @@ export default class ClsTrigger extends BaseTrigger<ClsTriggerInputsParams> {
 
   formatInputs({ inputs }: { inputs: TriggerInputs<ClsTriggerInputsParams> }) {
     const { parameters } = inputs;
+    const qualifier = parameters?.qualifier ?? inputs.Qualifier ?? '$DEFAULT';
     const triggerInputs: CreateTriggerReq = {
       Type: 'cls',
-      Qualifier: parameters?.qualifier ?? '$DEFAULT',
+      Qualifier: qualifier,
       TriggerName: '',
       TriggerDesc: {
         effective: parameters?.enable,
@@ -41,8 +43,7 @@ export default class ClsTrigger extends BaseTrigger<ClsTriggerInputsParams> {
         max_size: parameters?.maxSize,
         max_wait: parameters?.maxWait,
         name_space: inputs.Namespace,
-        // FIXME: casing
-        qualifier: inputs.Qualifier ?? '$DEFAULT',
+        qualifier,
         topic_id: parameters?.topicId,
       },
       Enable: parameters?.enable ? 'OPEN' : 'CLOSE',
@@ -74,13 +75,12 @@ export default class ClsTrigger extends BaseTrigger<ClsTriggerInputsParams> {
       namespace,
       functionName: inputs.functionName,
       ...parameters,
-      Qualifier: qualifier,
+      qualifier,
     };
     const clsInputs = {
       topic_id: parameters?.topicId,
-      // FIXME: namespace or name_space?
       name_space: namespace,
-      function_name: inputs.functionName,
+      function_name: inputs.functionName || inputs.function?.name,
       qualifier: qualifier,
       max_wait: parameters?.maxWait,
       max_size: parameters?.maxSize,
@@ -101,7 +101,13 @@ export default class ClsTrigger extends BaseTrigger<ClsTriggerInputsParams> {
     return res;
   }
 
-  async delete({ scf, inputs }: { scf: Scf; inputs: TriggerInputs<ClsTriggerInputsParams> }) {
+  async delete({
+    scf,
+    inputs,
+  }: {
+    scf: Scf | TriggerManager;
+    inputs: TriggerInputs<ClsTriggerInputsParams>;
+  }) {
     console.log(`Removing ${inputs.type} trigger ${inputs.triggerName}`);
     try {
       const res = await scf.request({

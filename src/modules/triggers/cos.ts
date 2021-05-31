@@ -1,4 +1,5 @@
 import Scf from '../scf';
+import { TriggerManager } from './manager';
 import { CapiCredentials, RegionType } from './../interface';
 import BaseTrigger, { TRIGGER_STATUS_MAP } from './base';
 import { CosTriggerInputsParams, TriggerInputs, CreateTriggerReq } from './interface';
@@ -55,7 +56,7 @@ export default class CosTrigger extends BaseTrigger<CosTriggerInputsParams> {
     region,
     inputs,
   }: {
-    scf: Scf;
+    scf: Scf | TriggerManager;
     region: RegionType;
     inputs: TriggerInputs<CosTriggerInputsParams>;
   }) {
@@ -67,7 +68,13 @@ export default class CosTrigger extends BaseTrigger<CosTriggerInputsParams> {
     return TriggerInfo;
   }
 
-  async delete({ scf, inputs }: { scf: Scf; inputs: TriggerInputs<CosTriggerInputsParams> }) {
+  async delete({
+    scf,
+    inputs,
+  }: {
+    scf: Scf | TriggerManager;
+    inputs: TriggerInputs<CosTriggerInputsParams>;
+  }) {
     console.log(`Removing ${inputs.type} trigger ${inputs.triggerName}`);
     try {
       await scf.request({

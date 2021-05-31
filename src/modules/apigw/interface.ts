@@ -54,11 +54,16 @@ export interface ApiEndpoint {
   responseType?: 'HTML' | string;
   enableCORS?: boolean;
   authRelationApiId?: string;
+  url?: string;
   authRelationApi?: {
     method: string;
     path: string;
   };
   function?: {
+    name?: string;
+    namespace?: string;
+    qualifier?: string;
+
     functionName?: string;
     functionNamespace?: string;
     functionQualifier?: string;
@@ -164,6 +169,7 @@ export interface ApigwDeployInputs extends ApigwCreateServiceInputs, ApigwBindCu
   region?: RegionType;
   oldState?: any;
   environment?: EnviromentType;
+  namespace?: string;
 
   endpoints?: ApiEndpoint[];
   isInputServiceId?: boolean;
@@ -203,6 +209,7 @@ export interface ApigwDeployOutputs {
   customDomains?: ApigwBindCustomDomainOutputs[];
   usagePlan?: ApigwUsagePlanOutputs;
 
+  url?: string;
   tags?: TagInput[];
 }
 

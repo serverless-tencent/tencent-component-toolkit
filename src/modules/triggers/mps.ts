@@ -1,11 +1,11 @@
 import { ApiServiceType } from './../interface';
-import { FunctionInfo } from './../scf/interface';
 import Scf from '../scf';
 import { TriggerInputs, MpsTriggerInputsParams, CreateTriggerReq } from './interface';
 import { MPS } from './apis';
 import { pascalCaseProps } from '../../utils/index';
 import BaseTrigger from './base';
 import { CapiCredentials, RegionType } from '../interface';
+import { TriggerManager } from './manager';
 
 export default class MpsTrigger extends BaseTrigger<MpsTriggerInputsParams> {
   constructor({
@@ -143,8 +143,7 @@ export default class MpsTrigger extends BaseTrigger<MpsTriggerInputsParams> {
     scf,
     inputs,
   }: {
-    scf: Scf;
-    funcInfo?: FunctionInfo;
+    scf: Scf | TriggerManager;
     inputs: TriggerInputs<MpsTriggerInputsParams>;
   }) {
     console.log(`Removing ${inputs.type} trigger ${inputs.triggerName}`);

@@ -13,7 +13,6 @@ export interface TriggerType {
 export type OriginTriggerType = {
   [name: string]: { serviceName?: string; name?: string; parameters?: any };
 };
-
 export interface Tag {
   Key: string;
   Value: string;
@@ -186,6 +185,10 @@ export interface ScfDeployInputs extends ScfCreateFunctionInputs {
 
 export interface ScfDeployOutputs {
   FunctionName: string;
+  Type: string;
+  Timeout: number;
+  MemorySize: number;
+  Handler?: string;
   Runtime: string;
   Namespace: string;
   LastVersion?: string;
@@ -203,7 +206,8 @@ export interface ScfRemoveInputs {
   namespace?: string;
   Namespace?: string;
 
-  Triggers?: ApigwRemoveInputs[];
+  Triggers?: ApigwRemoveInputs[] | Record<string, any>[];
+  triggers?: ApigwRemoveInputs[] | Record<string, any>[];
 }
 
 export interface ScfInvokeInputs {
