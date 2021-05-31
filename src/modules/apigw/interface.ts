@@ -256,6 +256,8 @@ export interface ApigwRemoveInputs {
 }
 
 export interface ApiDetail {
+  Method: string;
+  Path: string;
   ApiId: string;
   InternalDomain: string;
 }
