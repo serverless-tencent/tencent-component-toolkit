@@ -457,7 +457,7 @@ export default class Cos {
         Sign: inputs.sign === false ? false : true,
       });
       // FIXME: Fuck you Cos SDK, res is not an object;
-      return (res as unknown) as string;
+      return res as unknown as string;
     } catch (err) {
       throw constructCosError(`API_COS_getObjectUrl`, err);
     }

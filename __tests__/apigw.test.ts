@@ -156,6 +156,7 @@ describe('apigw', () => {
         },
         usagePlanId: expect.stringContaining('usagePlan-'),
       },
+      url: expect.stringContaining('http'),
       apiList: [
         {
           path: '/',
@@ -167,6 +168,7 @@ describe('apigw', () => {
           authType: 'NONE',
           businessType: 'NORMAL',
           isBase64Encoded: true,
+          url: expect.stringContaining('http'),
         },
         {
           path: '/mo',
@@ -178,6 +180,7 @@ describe('apigw', () => {
           authType: 'NONE',
           businessType: 'NORMAL',
           isBase64Encoded: false,
+          url: expect.stringContaining('http'),
         },
         {
           path: '/auto',
@@ -189,6 +192,7 @@ describe('apigw', () => {
           authType: 'NONE',
           businessType: 'NORMAL',
           isBase64Encoded: false,
+          url: expect.stringContaining('http'),
         },
         {
           path: '/ws',
@@ -200,6 +204,7 @@ describe('apigw', () => {
           authType: 'NONE',
           businessType: 'NORMAL',
           isBase64Encoded: false,
+          url: expect.stringContaining('http'),
         },
         {
           path: '/wsf',
@@ -213,6 +218,7 @@ describe('apigw', () => {
           authType: 'NONE',
           businessType: 'NORMAL',
           isBase64Encoded: false,
+          url: expect.stringContaining('http'),
         },
         {
           path: '/oauth',
@@ -224,6 +230,7 @@ describe('apigw', () => {
           businessType: 'OAUTH',
           internalDomain: expect.any(String),
           isBase64Encoded: false,
+          url: expect.stringContaining('http'),
         },
         {
           path: '/oauthwork',
@@ -236,6 +243,7 @@ describe('apigw', () => {
           authRelationApiId: expect.stringContaining('api-'),
           internalDomain: expect.any(String),
           isBase64Encoded: false,
+          url: expect.stringContaining('http'),
         },
       ],
       tags,
@@ -267,6 +275,7 @@ describe('apigw', () => {
       subDomain: expect.stringContaining('.apigw.tencentcs.com'),
       protocols: 'http&https',
       environment: 'release',
+      url: expect.stringContaining('http'),
       apiList: [
         {
           path: '/',
@@ -286,6 +295,7 @@ describe('apigw', () => {
             usagePlanId: expect.stringContaining('usagePlan-'),
           },
           isBase64Encoded: true,
+          url: expect.stringContaining('http'),
         },
         {
           path: '/mo',
@@ -297,6 +307,7 @@ describe('apigw', () => {
           authType: 'NONE',
           businessType: 'NORMAL',
           isBase64Encoded: false,
+          url: expect.stringContaining('http'),
         },
         {
           path: '/auto',
@@ -308,6 +319,7 @@ describe('apigw', () => {
           authType: 'NONE',
           businessType: 'NORMAL',
           isBase64Encoded: false,
+          url: expect.stringContaining('http'),
         },
         {
           path: '/ws',
@@ -319,6 +331,7 @@ describe('apigw', () => {
           businessType: 'NORMAL',
           created: true,
           isBase64Encoded: false,
+          url: expect.stringContaining('http'),
         },
         {
           path: '/wsf',
@@ -332,6 +345,7 @@ describe('apigw', () => {
           businessType: 'NORMAL',
           created: true,
           isBase64Encoded: false,
+          url: expect.stringContaining('http'),
         },
         {
           path: '/oauth',
@@ -343,6 +357,7 @@ describe('apigw', () => {
           businessType: 'OAUTH',
           internalDomain: expect.any(String),
           isBase64Encoded: false,
+          url: expect.stringContaining('http'),
         },
         {
           path: '/oauthwork',
@@ -355,6 +370,7 @@ describe('apigw', () => {
           authRelationApiId: expect.stringContaining('api-'),
           internalDomain: expect.any(String),
           isBase64Encoded: false,
+          url: expect.stringContaining('http'),
         },
       ],
       tags,
@@ -385,6 +401,7 @@ describe('apigw', () => {
       subDomain: expect.stringContaining('.apigw.tencentcs.com'),
       protocols: 'http&https',
       environment: 'release',
+      url: expect.stringContaining('http'),
       apiList: [
         {
           path: '/',
@@ -396,6 +413,7 @@ describe('apigw', () => {
           authType: 'NONE',
           businessType: 'NORMAL',
           isBase64Encoded: true,
+          url: expect.stringContaining('http'),
         },
         {
           path: '/mo',
@@ -407,6 +425,7 @@ describe('apigw', () => {
           authType: 'NONE',
           businessType: 'NORMAL',
           isBase64Encoded: false,
+          url: expect.stringContaining('http'),
         },
         {
           path: '/auto',
@@ -418,6 +437,7 @@ describe('apigw', () => {
           authType: 'NONE',
           businessType: 'NORMAL',
           isBase64Encoded: false,
+          url: expect.stringContaining('http'),
         },
         {
           path: '/ws',
@@ -429,6 +449,7 @@ describe('apigw', () => {
           businessType: 'NORMAL',
           created: true,
           isBase64Encoded: false,
+          url: expect.stringContaining('http'),
         },
         {
           path: '/wsf',
@@ -442,6 +463,7 @@ describe('apigw', () => {
           businessType: 'NORMAL',
           created: true,
           isBase64Encoded: false,
+          url: expect.stringContaining('http'),
         },
         {
           path: '/oauth',
@@ -453,6 +475,7 @@ describe('apigw', () => {
           businessType: 'OAUTH',
           internalDomain: expect.any(String),
           isBase64Encoded: false,
+          url: expect.stringContaining('http'),
         },
         {
           path: '/oauthwork',
@@ -465,6 +488,7 @@ describe('apigw', () => {
           authRelationApiId: expect.stringContaining('api-'),
           internalDomain: expect.any(String),
           isBase64Encoded: false,
+          url: expect.stringContaining('http'),
         },
       ],
       tags,
