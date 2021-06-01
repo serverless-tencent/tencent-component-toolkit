@@ -29,7 +29,7 @@ export default class ApiEntity {
 
   async request({ Action, ...data }: { Action: ActionType; [key: string]: any }) {
     const result = await APIS[Action](this.capi, pascalCaseProps(data));
-    return result as never;
+    return result as any;
   }
 
   async removeRequest({ Action, ...data }: { Action: ActionType; [key: string]: any }) {
@@ -308,7 +308,6 @@ export default class ApiEntity {
 
     let curApi;
     let apiDetail: ApiDetail | null = null;
-    let apiExist = false;
     if (apiConfig.apiId) {
       apiDetail = await this.getById({ serviceId: serviceId!, apiId: apiConfig.apiId });
     }
@@ -321,12 +320,8 @@ export default class ApiEntity {
       });
     }
 
-    if (apiDetail) {
-      apiExist = true;
-    }
-
     // api 存在就更新，不存在就创建
-    if (apiExist) {
+    if (apiDetail) {
       curApi = await this.update(
         {
           serviceId,
@@ -539,15 +534,10 @@ export default class ApiEntity {
       Limit: 100,
       Filters: [{ Name: 'ApiPath', Values: [path] }],
     })) as {
-      ApiIdStatusSet: { Method: string; Path: string; ApiId: string; InternalDomain: string }[];
+      ApiIdStatusSet: ApiDetail[];
     };
 
-    let apiDetail: {
-      Method: string;
-      Path: string;
-      ApiId: string;
-      InternalDomain: string;
-    } | null = null;
+    let apiDetail: any = null;
 
     if (ApiIdStatusSet) {
       ApiIdStatusSet.forEach((item) => {
@@ -561,12 +551,12 @@ export default class ApiEntity {
       });
     }
 
-    if (apiDetail!) {
-      apiDetail = await this.request({
+    if (apiDetail) {
+      apiDetail = (await this.request({
         Action: 'DescribeApi',
         serviceId: serviceId,
         apiId: apiDetail!.ApiId,
-      });
+      })) as ApiDetail;
     }
     return apiDetail!;
   }

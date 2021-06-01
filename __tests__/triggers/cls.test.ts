@@ -63,7 +63,6 @@ describe('Cls Trigger', () => {
     });
 
     expect(res).toEqual({
-      Qualifier: '$DEFAULT',
       namespace: namespace,
       functionName: functionName,
       maxSize: 100,
@@ -91,7 +90,6 @@ describe('Cls Trigger', () => {
       maxWait: 60,
       qualifier: '$DEFAULT',
       topicId: clsOutputs.topicId,
-      Qualifier: '$DEFAULT',
     });
   });
 
@@ -113,7 +111,6 @@ describe('Cls Trigger', () => {
       maxWait: 60,
       qualifier: '$DEFAULT',
       topicId: clsOutputs.topicId,
-      Qualifier: '$DEFAULT',
     });
   });
 

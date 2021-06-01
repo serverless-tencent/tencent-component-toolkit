@@ -17,7 +17,7 @@ export { default as CmqTrigger } from './cmq';
 export { default as ClsTrigger } from './cls';
 export { default as MpsTrigger } from './mps';
 
-const TRIGGER = ({
+const TRIGGER = {
   timer: TimerTrigger,
   cos: CosTrigger,
   apigw: ApigwTrigger,
@@ -26,7 +26,7 @@ const TRIGGER = ({
   cls: ClsTrigger,
   mps: MpsTrigger,
   clb: ClbTrigger,
-} as any) as Record<
+} as any as Record<
   string,
   BaseTrigger & { new (options: { credentials: CapiCredentials; region: RegionType }): BaseTrigger }
 >;

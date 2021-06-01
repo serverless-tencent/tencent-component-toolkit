@@ -1,3 +1,4 @@
+import { ApigwRemoveInputs } from './../apigw/interface';
 import { ActionType } from './apis';
 import { RegionType, ApiServiceType, CapiCredentials } from './../interface';
 import { Capi } from '@tencent-sdk/capi';
@@ -202,7 +203,7 @@ export default class Scf {
       if (trigger?.NeedCreate === true) {
         const TriggerClass = TRIGGERS[Type];
         if (!TriggerClass) {
-          throw new ApiTypeError('PARAMETER_SCF', `Unknow trigger type ${Type}`);
+          throw new ApiTypeError('PARAMETER_SCF', `Unknown trigger type ${Type}`);
         }
         const triggerInstance = new TriggerClass({
           credentials: this.credentials,
@@ -249,7 +250,7 @@ export default class Scf {
 
     funcInfo = await this.scf.isOperational({ namespace, functionName });
 
-    const outputs = (funcInfo as ScfDeployOutputs) || ({} as ScfDeployOutputs);
+    const outputs = (funcInfo as any) || ({} as ScfDeployOutputs);
     if (inputs.publish) {
       const { FunctionVersion } = await this.version.publish({
         functionName,
@@ -363,14 +364,15 @@ export default class Scf {
       await this.scf.isOperational({ namespace, functionName });
     } catch (e) {}
 
-    if (inputs.Triggers) {
-      for (let i = 0; i < inputs.Triggers.length; i++) {
-        if (inputs.Triggers[i].serviceId) {
+    const triggers = inputs.Triggers || inputs.triggers;
+    if (triggers) {
+      for (let i = 0; i < triggers.length; i++) {
+        if (triggers[i].serviceId) {
           try {
             // delete apigw trigger
-            const curTrigger = inputs.Triggers[i];
+            const curTrigger = triggers[i];
             curTrigger.isRemoveTrigger = true;
-            await this.apigwClient.remove(curTrigger);
+            await this.apigwClient.remove(curTrigger as ApigwRemoveInputs);
           } catch (e) {
             console.log(e);
           }

@@ -10,3 +10,7 @@ export function getProtocolString(protocols: string | ('http' | 'https')[]) {
   const tempProtocol = protocols.join('&').toLowerCase();
   return (tempProtocol === 'https&http' ? 'http&https' : tempProtocol) ?? 'http&https';
 }
+
+export function getUrlProtocol(p: string) {
+  return p.indexOf('https') !== -1 ? 'https' : 'http';
+}

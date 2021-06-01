@@ -3,6 +3,7 @@ import { RegionType, CapiCredentials, ApiServiceType } from '../interface';
 import { SCF } from './apis';
 import { TriggerInputs, TriggerInputsParams, CreateTriggerReq } from './interface';
 import Scf from '../scf';
+import { TriggerManager } from './manager';
 
 type Qualifier = string;
 
@@ -97,7 +98,7 @@ export default abstract class BaseTrigger<P = TriggerInputsParams> {
     region,
     inputs,
   }: {
-    scf: Scf;
+    scf: Scf | TriggerManager;
     region: string;
     inputs: TriggerInputs<P>;
   }): Promise<any>;
@@ -108,30 +109,10 @@ export default abstract class BaseTrigger<P = TriggerInputsParams> {
     region,
     inputs,
   }: {
-    scf: Scf;
+    scf: Scf | TriggerManager;
     region: RegionType;
     inputs: TriggerInputs<P>;
   }): Promise<boolean | { requestId: string; success: boolean }>;
-
-  //   {
-  //     console.log(`Removing ${inputs.Type} trigger ${inputs.TriggerName}`);
-  //     try {
-  //       await scf.request({
-  //         Action: 'DeleteTrigger',
-  //         FunctionName: funcInfo.FunctionName,
-  //         Namespace: funcInfo.Namespace,
-  //         Type: inputs.Type,
-  //         TriggerDesc: inputs.TriggerDesc,
-  //         TriggerName: inputs.TriggerName,
-  //         Qualifier: inputs.Qualifier,
-  //       });
-  //       return true;
-  //     } catch (e) {
-  //       console.log(e);
-  //       return false;
-  //     }
-  //   }
-  // }
 }
 
 export const TRIGGER_STATUS_MAP = {

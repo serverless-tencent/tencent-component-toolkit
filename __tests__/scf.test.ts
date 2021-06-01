@@ -248,8 +248,10 @@ describe('Scf', () => {
             authType: 'NONE',
             businessType: 'NORMAL',
             isBase64Encoded: false,
+            url: expect.stringContaining('http'),
           },
         ],
+        url: expect.stringContaining('http'),
       },
       {
         NeedCreate: expect.any(Boolean),
@@ -290,7 +292,6 @@ describe('Scf', () => {
         maxWait: triggers.cls.cls.parameters.maxWait,
         qualifier: triggers.cls.cls.parameters.qualifier,
         topicId: triggers.cls.cls.parameters.topicId,
-        Qualifier: expect.any(String),
       },
       // {
       //   enable: triggers.mps.mps.parameters.enable,
@@ -399,8 +400,10 @@ describe('Scf', () => {
             authType: 'NONE',
             businessType: 'NORMAL',
             isBase64Encoded: false,
+            url: expect.stringContaining('http'),
           },
         ],
+        url: expect.stringContaining('http'),
       },
       {
         NeedCreate: expect.any(Boolean),
@@ -441,7 +444,6 @@ describe('Scf', () => {
         maxWait: triggers.cls.cls.parameters.maxWait,
         qualifier: triggers.cls.cls.parameters.qualifier,
         topicId: triggers.cls.cls.parameters.topicId,
-        Qualifier: expect.any(String),
       },
       // {
       //   enable: triggers.mps.mps.parameters.enable,

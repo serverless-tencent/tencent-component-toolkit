@@ -9,6 +9,7 @@ import {
   CreateTriggerReq,
 } from './interface';
 import Scf from '../scf';
+import { TriggerManager } from './manager';
 import { FunctionInfo } from '../scf/interface';
 
 export default class ApigwTrigger extends BaseTrigger<ApigwTriggerInputsParams> {
@@ -153,6 +154,7 @@ export default class ApigwTrigger extends BaseTrigger<ApigwTriggerInputsParams> 
       serviceName,
       serviceDesc,
       isInputServiceId = false,
+      namespace,
     } = parameters!;
     const endpoints = parameters?.endpoints ?? [{ path: '/', method: 'ANY' }];
     const triggerInputs: ApigwTriggerInputsParams = {
@@ -172,7 +174,7 @@ export default class ApigwTrigger extends BaseTrigger<ApigwTriggerInputsParams> 
       endpoints: endpoints.map((ep: any) => {
         ep.function = ep.function || {};
         ep.function.functionName = inputs.functionName;
-        ep.function.functionNamespace = inputs.namespace;
+        ep.function.functionNamespace = inputs.namespace || namespace || 'default';
         ep.function.functionQualifier = ep.function.functionQualifier ?? '$DEFAULT';
         return ep;
       }),
@@ -196,7 +198,7 @@ export default class ApigwTrigger extends BaseTrigger<ApigwTriggerInputsParams> 
     region,
     inputs,
   }: {
-    scf: Scf;
+    scf: Scf | TriggerManager;
     region: RegionType;
     inputs: TriggerInputs<ApigwTriggerInputsParams>;
     funcInfo?: FunctionInfo;
@@ -207,7 +209,7 @@ export default class ApigwTrigger extends BaseTrigger<ApigwTriggerInputsParams> 
   }
 
   /** Delete Apigateway trigger */
-  async delete({ scf, inputs }: { scf: Scf; inputs: TriggerInputs }) {
+  async delete({ scf, inputs }: { scf: Scf | TriggerManager; inputs: TriggerInputs }) {
     console.log(`Removing ${inputs.type} trigger ${inputs.triggerName}`);
     try {
       const res = await scf.request({
