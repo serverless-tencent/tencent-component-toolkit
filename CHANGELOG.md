@@ -1,3 +1,10 @@
+# [2.10.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.9.8...v2.10.0) (2021-06-01)
+
+
+### Features
+
+* **triggers:** add manager ([#226](https://github.com/serverless-tencent/tencent-component-toolkit/issues/226)) ([31ea84e](https://github.com/serverless-tencent/tencent-component-toolkit/commit/31ea84e0b8b1251df76a0ee7e4702641e83cfa73))
+
 ## [2.9.8](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.9.7...v2.9.8) (2021-05-12)
 
 
