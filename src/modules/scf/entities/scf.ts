@@ -191,6 +191,7 @@ export default class ScfEntity extends BaseEntity {
     delete reqInputs.CodeSource;
     delete reqInputs.AsyncRunEnable;
     delete reqInputs.InstallDependency;
+    delete reqInputs.DeployMode;
 
     // +++++++++++++++++++++++
     // FIXME: 以下是函数绑定层逻辑，当函数有一个层，更新的时候想删除，需要传递参数 Layers 不能为空，必须包含特殊元素：{ LayerName: '', LayerVersion: 0 }

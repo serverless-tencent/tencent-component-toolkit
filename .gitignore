@@ -23,3 +23,5 @@ lib
 env.js
 package-lock.json
 yarn.lock
+
+__tests__/apigw.list.test.ts

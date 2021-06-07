@@ -176,6 +176,8 @@ export default class ApigwTrigger extends BaseTrigger<ApigwTriggerInputsParams> 
         ep.function.functionName = inputs.functionName;
         ep.function.functionNamespace = inputs.namespace || namespace || 'default';
         ep.function.functionQualifier = ep.function.functionQualifier ?? '$DEFAULT';
+        // HTTP - Web 类型，EVENT - 时间类型
+        ep.function.functionType = ep.function.type === 'web' ? 'HTTP' : 'EVENT';
         return ep;
       }),
       netTypes: parameters?.netTypes,
@@ -187,8 +189,6 @@ export default class ApigwTrigger extends BaseTrigger<ApigwTriggerInputsParams> 
       created: !!parameters?.created,
     };
     const triggerKey = this.getKey(triggerInputs);
-
-    console.log('triggerInputs', triggerInputs);
 
     return {
       triggerKey,

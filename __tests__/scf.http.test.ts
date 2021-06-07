@@ -1,7 +1,8 @@
+import { sleep } from '@ygkit/request';
 import { ScfDeployInputs } from '../src/modules/scf/interface';
 import { Scf } from '../src';
 
-describe('Scf - special', () => {
+describe('Scf - http', () => {
   const credentials = {
     SecretId: process.env.TENCENT_SECRET_ID,
     SecretKey: process.env.TENCENT_SECRET_KEY,
@@ -19,7 +20,7 @@ describe('Scf - special', () => {
               path: '/',
               method: 'ANY',
               function: {
-                isIntegratedResponse: true,
+                type: 'web',
               },
             },
           ],
@@ -31,14 +32,14 @@ describe('Scf - special', () => {
   const events = Object.entries(triggers).map(([, value]) => value);
 
   const inputs: ScfDeployInputs = {
-    name: `serverless-test-http-${Date.now()}`,
+    // name: `serverless-test-http-${Date.now()}`,
+    name: `serverless-test-http`,
     code: {
       bucket: 'test-chongqing',
       object: 'express_http.zip',
     },
     type: 'web',
     namespace: 'default',
-    // role: 'SCF_QcsRole',
     runtime: 'Nodejs12.16',
     region: 'ap-chongqing',
     description: 'Created by Serverless',
@@ -57,7 +58,7 @@ describe('Scf - special', () => {
 
   let outputs;
 
-  test('should deploy SCF success', async () => {
+  test('deploy', async () => {
     outputs = await scf.deploy(inputs);
     expect(outputs.FunctionName).toBe(inputs.name);
     expect(outputs.Type).toBe('HTTP');
@@ -67,22 +68,22 @@ describe('Scf - special', () => {
     expect(outputs.MemorySize).toBe(inputs.memorySize);
     expect(outputs.Runtime).toBe(inputs.runtime);
   });
-  // test('should update SCF success', async () => {
-  //   await sleep(3000);
-  //   outputs = await scf.deploy(inputs);
-  //   expect(outputs.FunctionName).toBe(inputs.name);
-  //   expect(outputs.Type).toBe('HTTP');
-  //   expect(outputs.Qualifier).toBe('$LATEST');
-  //   expect(outputs.Description).toBe('Created by Serverless');
-  //   expect(outputs.Timeout).toBe(inputs.timeout);
-  //   expect(outputs.MemorySize).toBe(inputs.memorySize);
-  //   expect(outputs.Runtime).toBe(inputs.runtime);
-  // });
-  // test('should remove Scf success', async () => {
-  //   const res = await scf.remove({
-  //     functionName: inputs.name,
-  //     ...outputs,
-  //   });
-  //   expect(res).toEqual(true);
-  // });
+  test('update', async () => {
+    await sleep(3000);
+    outputs = await scf.deploy(inputs);
+    expect(outputs.FunctionName).toBe(inputs.name);
+    expect(outputs.Type).toBe('HTTP');
+    expect(outputs.Qualifier).toBe('$LATEST');
+    expect(outputs.Description).toBe('Created by Serverless');
+    expect(outputs.Timeout).toBe(inputs.timeout);
+    expect(outputs.MemorySize).toBe(inputs.memorySize);
+    expect(outputs.Runtime).toBe(inputs.runtime);
+  });
+  test('remove', async () => {
+    const res = await scf.remove({
+      functionName: inputs.name,
+      ...outputs,
+    });
+    expect(res).toEqual(true);
+  });
 });

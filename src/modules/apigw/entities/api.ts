@@ -461,6 +461,7 @@ export default class ApiEntity {
             );
           }
           apiInputs.serviceScfFunctionName = endpoint.function.functionName;
+          apiInputs.serviceScfFunctionType = endpoint.function.functionType;
           apiInputs.serviceScfFunctionNamespace = endpoint.function.functionNamespace || 'default';
           apiInputs.serviceScfIsIntegratedResponse = endpoint.function.isIntegratedResponse
             ? true
