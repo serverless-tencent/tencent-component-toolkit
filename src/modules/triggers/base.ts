@@ -35,13 +35,7 @@ export default abstract class BaseTrigger<P = TriggerInputsParams> {
 
   abstract getKey(triggerType: CreateTriggerReq): Promise<string> | string;
 
-  abstract formatInputs({
-    region,
-    inputs,
-  }: {
-    region: RegionType;
-    inputs: TriggerInputs<P>;
-  }):
+  abstract formatInputs({ region, inputs }: { region: RegionType; inputs: TriggerInputs<P> }):
     | {
         triggerKey: string;
         triggerInputs: P;
