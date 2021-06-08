@@ -1,3 +1,10 @@
+# [2.11.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.10.0...v2.11.0) (2021-06-08)
+
+
+### Features
+
+* **scf:** support http type ([#227](https://github.com/serverless-tencent/tencent-component-toolkit/issues/227)) ([20e2cc6](https://github.com/serverless-tencent/tencent-component-toolkit/commit/20e2cc6eea10d5bcc340d31ae31887886bcf6c52))
+
 # [2.10.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.9.8...v2.10.0) (2021-06-01)
 
 
