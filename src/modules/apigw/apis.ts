@@ -34,6 +34,8 @@ const ACTIONS = [
   'DescribeServiceSubDomainMappings',
   'BindSubDomain',
   'UnBindSubDomain',
+  'DescribeServicesStatus',
+  'DescribeServiceEnvironmentList',
 ] as const;
 
 export type ActionType = typeof ACTIONS[number];

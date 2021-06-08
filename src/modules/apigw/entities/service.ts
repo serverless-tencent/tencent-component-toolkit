@@ -39,6 +39,28 @@ export default class ServiceEntity {
     return result as never;
   }
 
+  /**
+   * 获取 API 网关列表
+   * @param options 参数
+   * @returns 网关列表
+   */
+  async list(options?: { offset?: number; limit?: number }) {
+    options = {
+      ...{ limit: 10, offset: 0 },
+      ...(options || {}),
+    };
+    try {
+      const res: { TotalCount: number; ServiceSet: any[] } = await this.request({
+        Action: 'DescribeServicesStatus',
+        Offset: options.offset,
+        Limit: options.limit,
+      });
+      return res.ServiceSet || [];
+    } catch (e) {
+      return [];
+    }
+  }
+
   async getById(serviceId: string) {
     try {
       const detail: Detail = await this.request({
@@ -49,6 +71,112 @@ export default class ServiceEntity {
       return detail;
     } catch (e) {
       return null;
+    }
+  }
+
+  async removeApiUsagePlan(ServiceId: string) {
+    const { ApiUsagePlanList = [] } = await this.request({
+      Action: 'DescribeApiUsagePlan',
+      ServiceId,
+    });
+
+    for (let i = 0; i < ApiUsagePlanList.length; i++) {
+      const { UsagePlanId, Environment, ApiId } = ApiUsagePlanList[i];
+      console.log(`APIGW - Removing api usage plan: ${UsagePlanId}`);
+      const { AccessKeyList = [] } = await this.request({
+        Action: 'DescribeUsagePlanSecretIds',
+        UsagePlanId: UsagePlanId,
+        Limit: 100,
+      });
+
+      const AccessKeyIds = AccessKeyList.map((item: { SecretId: string }) => item.SecretId);
+
+      if (AccessKeyIds && AccessKeyIds.length > 0) {
+        await this.request({
+          Action: 'UnBindSecretIds',
+          UsagePlanId: UsagePlanId,
+          AccessKeyIds: AccessKeyIds,
+        });
+        // delelet all created api key
+        for (let sIdx = 0; sIdx < AccessKeyIds.length; sIdx++) {
+          await this.request({
+            Action: 'DisableApiKey',
+            AccessKeyId: AccessKeyIds[sIdx],
+          });
+        }
+      }
+
+      // unbind environment
+      await this.request({
+        Action: 'UnBindEnvironment',
+        ServiceId,
+        UsagePlanIds: [UsagePlanId],
+        Environment: Environment,
+        BindType: 'API',
+        ApiIds: [ApiId],
+      });
+
+      await this.request({
+        Action: 'DeleteUsagePlan',
+        UsagePlanId: UsagePlanId,
+      });
+    }
+  }
+
+  async removeById(serviceId: string) {
+    try {
+      const { ApiIdStatusSet = [] } = await this.request({
+        Action: 'DescribeApisStatus',
+        ServiceId: serviceId,
+        Limit: 100,
+      });
+
+      // remove all apis
+      for (let i = 0; i < ApiIdStatusSet.length; i++) {
+        const { ApiId } = ApiIdStatusSet[i];
+
+        await this.removeApiUsagePlan(serviceId);
+
+        console.log(`APIGW - Removing api: ${ApiId}`);
+
+        await this.request({
+          Action: 'DeleteApi',
+          ServiceId: serviceId,
+          ApiId,
+        });
+      }
+
+      // unrelease service
+      // get environment list
+      const { EnvironmentList = [] } = await this.request({
+        Action: 'DescribeServiceEnvironmentList',
+        ServiceId: serviceId,
+      });
+
+      for (let i = 0; i < EnvironmentList.length; i++) {
+        const { EnvironmentName, Status } = EnvironmentList[i];
+        if (Status === 1) {
+          try {
+            console.log(
+              `APIGW - Unreleasing service: ${serviceId}, environment: ${EnvironmentName}`,
+            );
+            await this.request({
+              Action: 'UnReleaseService',
+              ServiceId: serviceId,
+              EnvironmentName,
+            });
+          } catch (e) {}
+        }
+      }
+
+      // delete service
+      console.log(`APIGW - Removing service: ${serviceId}`);
+      await this.request({
+        Action: 'DeleteService',
+        ServiceId: serviceId,
+      });
+    } catch (e) {
+      console.error(e);
     }
   }
 

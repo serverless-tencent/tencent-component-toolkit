@@ -15,6 +15,7 @@ const config = {
     '/__tests__/cdn.test.ts',
     '/__tests__/apigw.custom-domains.test.ts',
     '/__tests__/scf.sp.test.ts', // 专门用来验证测试小地域功能发布测试
+    '/__tests__/scf.http.test.ts', // 专门用来验证测试 HTTP 直通
     '/__tests__/triggers/mps.test.ts',
     '/__tests__/trigger.manager.test.ts',
   ],

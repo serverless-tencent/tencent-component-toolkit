@@ -18,6 +18,8 @@ export const formatInputs = (region: RegionType, inputs: ScfCreateFunctionInputs
     Timeout?: number;
     InitTimeout?: number;
     MemorySize?: number;
+    Type?: 'HTTP' | 'Event';
+    DeployMode?: 'code' | 'image';
     PublicNetConfig?: {
       PublicNetStatus: 'ENABLE' | 'DISABLE';
       EipConfig: {
@@ -53,7 +55,8 @@ export const formatInputs = (region: RegionType, inputs: ScfCreateFunctionInputs
       CosBucketName: inputs.code?.bucket,
       CosObjectName: inputs.code?.object,
     },
-    Handler: inputs.handler,
+    Type: inputs.type === 'web' ? 'HTTP' : 'Event',
+    DeployMode: inputs.deployMode === 'image' ? 'image' : 'code',
     Runtime: inputs.runtime,
     Namespace: inputs.namespace || CONFIGS.defaultNamespace,
     Timeout: +(inputs.timeout || CONFIGS.defaultTimeout),
@@ -68,6 +71,19 @@ export const formatInputs = (region: RegionType, inputs: ScfCreateFunctionInputs
     L5Enable: inputs.l5Enable === true ? 'TRUE' : 'FALSE',
     InstallDependency: inputs.installDependency === true ? 'TRUE' : 'FALSE',
   };
+
+  // 只有 Event 函数才支持
+  if (inputs.type !== 'web') {
+    functionInputs.Handler = inputs.handler;
+
+    if (inputs.asyncRunEnable !== undefined) {
+      functionInputs.AsyncRunEnable = inputs.asyncRunEnable === true ? 'TRUE' : 'FALSE';
+    }
+
+    if (inputs.traceEnable !== undefined) {
+      functionInputs.TraceEnable = inputs.traceEnable === true ? 'TRUE' : 'FALSE';
+    }
+  }
 
   // 非必须参数
   if (inputs.role) {
@@ -141,14 +157,6 @@ export const formatInputs = (region: RegionType, inputs: ScfCreateFunctionInputs
         UserId: String(item.userId || 10000),
       });
     });
-  }
-
-  if (inputs.asyncRunEnable !== undefined) {
-    functionInputs.AsyncRunEnable = inputs.asyncRunEnable === true ? 'TRUE' : 'FALSE';
-  }
-
-  if (inputs.traceEnable !== undefined) {
-    functionInputs.TraceEnable = inputs.traceEnable === true ? 'TRUE' : 'FALSE';
   }
 
   return functionInputs;

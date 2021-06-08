@@ -83,6 +83,8 @@ export interface ScfCreateFunctionInputs {
   Namespace?: string;
 
   name: string;
+  type?: string;
+  deployMode?: string;
   code?: {
     bucket: string;
     object: string;

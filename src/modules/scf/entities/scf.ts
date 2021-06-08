@@ -184,12 +184,14 @@ export default class ScfEntity extends BaseEntity {
 
     const reqInputs: Partial<typeof reqParams> = reqParams;
 
-    // 更新函数接口不能传递一下参数
+    // 更新函数接口不能传递以下参数
+    delete reqInputs.Type;
     delete reqInputs.Handler;
     delete reqInputs.Code;
     delete reqInputs.CodeSource;
     delete reqInputs.AsyncRunEnable;
     delete reqInputs.InstallDependency;
+    delete reqInputs.DeployMode;
 
     // +++++++++++++++++++++++
     // FIXME: 以下是函数绑定层逻辑，当函数有一个层，更新的时候想删除，需要传递参数 Layers 不能为空，必须包含特殊元素：{ LayerName: '', LayerVersion: 0 }
