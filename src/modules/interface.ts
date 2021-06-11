@@ -36,6 +36,9 @@ export enum ApiServiceType {
 
   // asw 状态机
   asw = 'asw',
+
+  // asw 状态机
+  tcr = 'tcr',
 }
 
 export type RegionType = string;

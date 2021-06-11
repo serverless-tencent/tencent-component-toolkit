@@ -44,6 +44,7 @@ export function ApiFactory<ACTIONS_T extends readonly string[]>({
   responseHandler = (res: any) => res,
   errorHandler,
 }: ApiFactoryOptions<ACTIONS_T>) {
+  const SERVICE_TYPE = serviceType;
   const APIS: Record<ACTIONS_T[number], (capi: Capi, inputs: any) => any> = {} as any;
   actions.forEach((action: ACTIONS_T[number]) => {
     APIS[action] = async (capi: Capi, inputs: any) => {
@@ -72,10 +73,8 @@ export function ApiFactory<ACTIONS_T extends readonly string[]>({
             return errorHandler(action, Response);
           }
           throw new ApiError({
-            type: `API_${serviceType.toUpperCase()}_${action}`,
-            message: `[${serviceType.toUpperCase()}] ${Response.Error.Message} (reqId: ${
-              Response.RequestId
-            })`,
+            type: `API_${SERVICE_TYPE}_${action}`,
+            message: `[${SERVICE_TYPE}] ${Response.Error.Message} (reqId: ${Response.RequestId})`,
             reqId: Response.RequestId,
             code: Response.Error.Code,
           });
@@ -83,8 +82,8 @@ export function ApiFactory<ACTIONS_T extends readonly string[]>({
         return responseHandler(Response);
       } catch (e) {
         throw new ApiError({
-          type: `API_${serviceType.toUpperCase()}_${action}`,
-          message: e.message,
+          type: `API_${SERVICE_TYPE}_${action}`,
+          message: `[${SERVICE_TYPE}] ${e.message}`,
           stack: e.stack,
           reqId: e.reqId,
           code: e.code,
