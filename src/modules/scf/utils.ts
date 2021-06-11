@@ -1,60 +1,12 @@
 import { RegionType } from './../interface';
-import { ScfCreateFunctionInputs } from './interface';
+import { ScfCreateFunctionInputs, BaseFunctionConfig } from './interface';
 const CONFIGS = require('./config').default;
 
 // get function basement configure
 // FIXME: unused variable region
 export const formatInputs = (region: RegionType, inputs: ScfCreateFunctionInputs) => {
-  const functionInputs: {
-    FunctionName: string;
-    CodeSource?: 'Cos';
-    Code?: {
-      CosBucketName?: string;
-      CosObjectName?: string;
-    };
-    Handler?: string;
-    Runtime?: string;
-    Namespace?: string;
-    Timeout?: number;
-    InitTimeout?: number;
-    MemorySize?: number;
-    Type?: 'HTTP' | 'Event';
-    DeployMode?: 'code' | 'image';
-    PublicNetConfig?: {
-      PublicNetStatus: 'ENABLE' | 'DISABLE';
-      EipConfig: {
-        EipStatus: 'ENABLE' | 'DISABLE';
-      };
-    };
-    L5Enable?: 'TRUE' | 'FALSE';
-    Role?: string;
-    Description?: string;
-    ClsLogsetId?: string;
-    ClsTopicId?: string;
-    Environment?: { Variables: { Key: string; Value: string }[] };
-    VpcConfig?: { VpcId?: string; SubnetId?: string };
-    Layers?: { LayerName: string; LayerVersion: number }[];
-    DeadLetterConfig?: { Type?: string; Name?: string; FilterType?: string };
-    CfsConfig?: {
-      CfsInsList: {
-        CfsId: string;
-        MountInsId: string;
-        LocalMountDir: string;
-        RemoteMountDir: string;
-        UserGroupId: string;
-        UserId: string;
-      }[];
-    };
-    AsyncRunEnable?: 'TRUE' | 'FALSE';
-    TraceEnable?: 'TRUE' | 'FALSE';
-    InstallDependency?: 'TRUE' | 'FALSE';
-  } = {
+  const functionInputs: BaseFunctionConfig = {
     FunctionName: inputs.name,
-    CodeSource: 'Cos',
-    Code: {
-      CosBucketName: inputs.code?.bucket,
-      CosObjectName: inputs.code?.object,
-    },
     Type: inputs.type === 'web' ? 'HTTP' : 'Event',
     DeployMode: inputs.deployMode === 'image' ? 'image' : 'code',
     Runtime: inputs.runtime,
@@ -71,6 +23,32 @@ export const formatInputs = (region: RegionType, inputs: ScfCreateFunctionInputs
     L5Enable: inputs.l5Enable === true ? 'TRUE' : 'FALSE',
     InstallDependency: inputs.installDependency === true ? 'TRUE' : 'FALSE',
   };
+
+  // 镜像方式部署
+  if (inputs.imageConfig) {
+    const { imageConfig } = inputs;
+    functionInputs.Code = {
+      ImageConfig: {
+        ImageType: imageConfig.imageType,
+        ImageUri: imageConfig.imageUri,
+      },
+    };
+    if (imageConfig.imageType === 'enterprise') {
+      functionInputs.Code!.ImageConfig!.RegistryId = imageConfig.registryId;
+    }
+    if (imageConfig.command) {
+      functionInputs.Code!.ImageConfig!.Command = imageConfig.command;
+    }
+    if (imageConfig.args) {
+      functionInputs.Code!.ImageConfig!.Args = imageConfig.args;
+    }
+  } else {
+    // 基于 COS 代码部署
+    functionInputs.Code = {
+      CosBucketName: inputs.code?.bucket,
+      CosObjectName: inputs.code?.object,
+    };
+  }
 
   // 只有 Event 函数才支持
   if (inputs.type !== 'web') {

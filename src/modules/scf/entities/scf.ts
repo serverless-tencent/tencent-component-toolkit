@@ -9,7 +9,13 @@ import { formatInputs } from '../utils';
 
 import BaseEntity from './base';
 
-import { ScfCreateFunctionInputs, FunctionInfo, FaasBaseConfig, GetLogOptions } from '../interface';
+import {
+  ScfCreateFunctionInputs,
+  FunctionInfo,
+  FaasBaseConfig,
+  GetLogOptions,
+  UpdateFunctionCodeOptions,
+} from '../interface';
 
 export default class ScfEntity extends BaseEntity {
   region: string;
@@ -152,12 +158,13 @@ export default class ScfEntity extends BaseEntity {
   async updateCode(inputs: ScfCreateFunctionInputs, funcInfo: FunctionInfo) {
     console.log(`Updating function ${inputs.name} code, region ${this.region}`);
     const functionInputs = await formatInputs(this.region, inputs);
-    const reqParams = {
+    const reqParams: UpdateFunctionCodeOptions = {
       Action: 'UpdateFunctionCode' as const,
       Handler: functionInputs.Handler || funcInfo.Handler,
       FunctionName: functionInputs.FunctionName,
-      CosBucketName: functionInputs.Code?.CosBucketName,
-      CosObjectName: functionInputs.Code?.CosObjectName,
+      // CosBucketName: functionInputs.Code?.CosBucketName,
+      // CosObjectName: functionInputs.Code?.CosObjectName,
+      Code: functionInputs.Code,
       Namespace: inputs.namespace || funcInfo.Namespace,
       InstallDependency: functionInputs.InstallDependency,
     };
@@ -188,7 +195,6 @@ export default class ScfEntity extends BaseEntity {
     delete reqInputs.Type;
     delete reqInputs.Handler;
     delete reqInputs.Code;
-    delete reqInputs.CodeSource;
     delete reqInputs.AsyncRunEnable;
     delete reqInputs.InstallDependency;
     delete reqInputs.DeployMode;
@@ -227,7 +233,7 @@ export default class ScfEntity extends BaseEntity {
     } catch (e) {
       throw new ApiError({
         type: 'API_SCF_DeleteFunction',
-        message: `Cannot delete function in 2 minutes, (reqId: ${res.RequestId})`,
+        message: `删除函数是失败：${e.message}, (reqId: ${res.RequestId})`,
       });
     }
     return true;
