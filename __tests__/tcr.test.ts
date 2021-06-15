@@ -50,11 +50,13 @@ describe('Tcr', () => {
     test('get enterprise image info', async () => {
       const res = await client.getImageInfo({
         registryId,
-        namespace,
         repositoryName,
+        namespace,
         tagName,
       });
       expect(res).toEqual({
+        registryId,
+        registryName,
         imageType: 'enterprise',
         imageUrl: `${registryName}.tencentcloudcr.com/${namespace}/${repositoryName}`,
         imageUri: expect.stringContaining(
@@ -72,6 +74,8 @@ describe('Tcr', () => {
         tagName,
       });
       expect(res).toEqual({
+        registryId,
+        registryName,
         imageType: 'enterprise',
         imageUrl: `${registryName}.tencentcloudcr.com/${namespace}/${repositoryName}`,
         imageUri: expect.stringContaining(
