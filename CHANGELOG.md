@@ -1,3 +1,15 @@
+# [2.12.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.11.0...v2.12.0) (2021-06-15)
+
+
+### Bug Fixes
+
+* **scf:** support get demo address ([7750182](https://github.com/serverless-tencent/tencent-component-toolkit/commit/775018202727d40f7dd732d561ebd47162f78a27))
+
+
+### Features
+
+* support image deploy and add tcr module ([7da7a38](https://github.com/serverless-tencent/tencent-component-toolkit/commit/7da7a38ed797f49e44092e19605b929f06d6f2da))
+
 # [2.11.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.10.0...v2.11.0) (2021-06-08)
 
 
