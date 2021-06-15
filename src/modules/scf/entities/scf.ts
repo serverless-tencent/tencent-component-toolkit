@@ -397,4 +397,18 @@ export default class ScfEntity extends BaseEntity {
 
     return res;
   }
+
+  async getDemoAddress(demoId: string) {
+    try {
+      const res = await this.request({
+        Action: 'GetDemoAddress',
+        DemoId: demoId,
+      });
+      return res?.DownloadAddress;
+    } catch (e) {
+      console.log(`[SCF] 获取模板代码失败，${e.message}`);
+
+      return undefined;
+    }
+  }
 }

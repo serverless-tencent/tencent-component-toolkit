@@ -7,7 +7,7 @@ describe('Scf - special', () => {
     SecretId: process.env.TENCENT_SECRET_ID,
     SecretKey: process.env.TENCENT_SECRET_KEY,
   };
-  const scf = new Scf(credentials, 'ap-guangzhou');
+  const client = new Scf(credentials, 'ap-guangzhou');
 
   const triggers = {
     apigw: {
@@ -66,9 +66,13 @@ describe('Scf - special', () => {
 
   let outputs;
 
+  test('get demo addresss', async () => {
+    const res = await client.scf.getDemoAddress('demo-nhbwbsi4');
+    expect(res).toContain(`https://`);
+  });
   test('should deploy SCF success', async () => {
     await sleep(3000);
-    outputs = await scf.deploy(inputs);
+    outputs = await client.deploy(inputs);
     expect(outputs.FunctionName).toBe(inputs.name);
     expect(outputs.Qualifier).toBe('$LATEST');
     expect(outputs.Description).toBe('Created by Serverless');
@@ -80,7 +84,7 @@ describe('Scf - special', () => {
   });
   test('should update SCF success', async () => {
     await sleep(3000);
-    outputs = await scf.deploy(inputs);
+    outputs = await client.deploy(inputs);
     expect(outputs.FunctionName).toBe(inputs.name);
     expect(outputs.Qualifier).toBe('$LATEST');
     expect(outputs.Description).toBe('Created by Serverless');
@@ -93,13 +97,13 @@ describe('Scf - special', () => {
   test('[ignoreTriggers = true] update', async () => {
     await sleep(3000);
     inputs.ignoreTriggers = true;
-    outputs = await scf.deploy(inputs);
+    outputs = await client.deploy(inputs);
 
     // expect triggers result
     expect(outputs.Triggers).toEqual([]);
   });
   test('should remove Scf success', async () => {
-    const res = await scf.remove({
+    const res = await client.remove({
       functionName: inputs.name,
       ...outputs,
     });
