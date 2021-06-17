@@ -62,15 +62,21 @@ export default class Scf {
     return result;
   }
 
-  async getTriggerList(functionName: string, namespace = 'default'): Promise<TriggerType[]> {
+  async getTriggerList(
+    functionName: string,
+    namespace = 'default',
+    page = 0,
+  ): Promise<TriggerType[]> {
+    const limit = 100;
     const { Triggers = [], TotalCount } = await this.request({
       Action: 'ListTriggers',
       FunctionName: functionName,
       Namespace: namespace,
       Limit: 100,
+      Offset: page * limit,
     });
     if (TotalCount > 100) {
-      const res = await this.getTriggerList(functionName, namespace);
+      const res = await this.getTriggerList(functionName, namespace, page + 1);
       return Triggers.concat(res);
     }
 

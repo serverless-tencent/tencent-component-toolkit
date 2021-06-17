@@ -148,7 +148,7 @@ export default class ScfEntity extends BaseEntity {
   // 创建函数
   async create(inputs: ScfCreateFunctionInputs) {
     console.log(`Creating function ${inputs.name}, region ${this.region}`);
-    const inp = formatInputs(this.region, inputs);
+    const inp = formatInputs(inputs);
     const functionInputs = { Action: 'CreateFunction' as const, ...inp };
     await this.request(functionInputs);
     return true;
@@ -157,7 +157,7 @@ export default class ScfEntity extends BaseEntity {
   // 更新函数代码
   async updateCode(inputs: ScfCreateFunctionInputs, funcInfo: FunctionInfo) {
     console.log(`Updating function ${inputs.name} code, region ${this.region}`);
-    const functionInputs = await formatInputs(this.region, inputs);
+    const functionInputs = await formatInputs(inputs);
     const reqParams: UpdateFunctionCodeOptions = {
       Action: 'UpdateFunctionCode' as const,
       Handler: functionInputs.Handler || funcInfo.Handler,
@@ -175,7 +175,7 @@ export default class ScfEntity extends BaseEntity {
   // 更新函数配置
   async updateConfigure(inputs: ScfCreateFunctionInputs, funcInfo: FunctionInfo) {
     console.log(`Updating function ${inputs.name} configure, region ${this.region}`);
-    let reqParams = await formatInputs(this.region, inputs);
+    let reqParams = await formatInputs(inputs);
 
     reqParams = {
       ...reqParams,

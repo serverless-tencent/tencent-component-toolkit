@@ -1,7 +1,8 @@
+import { Capi } from '@tencent-sdk/capi';
+import { sleep } from '@ygkit/request';
 import { ActionType } from '../scf/apis';
 import { RegionType, ApiServiceType, CapiCredentials } from '../interface';
-import { Capi } from '@tencent-sdk/capi';
-import { ApiTypeError } from '../../utils/error';
+import { ApiError } from '../../utils/error';
 import { deepClone } from '../../utils';
 import TagsUtils from '../tag/index';
 import ApigwUtils from '../apigw';
@@ -39,6 +40,11 @@ export class TriggerManager {
   scfNameCache: Record<string, any> = {};
 
   scf: ScfEntity;
+
+  // 当前正在执行的触发器任务数
+  runningTasks = 0;
+  // 支持并行执行的最大触发器任务数
+  maxRunningTasks = 1;
 
   constructor(credentials = {}, region: RegionType = 'ap-guangzhou') {
     this.region = region;
@@ -228,7 +234,6 @@ export class TriggerManager {
     // 1. 删除老的无法更新的触发器
     for (let i = 0, len = deleteList.length; i < len; i++) {
       const trigger = deleteList[i];
-
       await this.removeTrigger({
         name,
         namespace,
@@ -243,12 +248,21 @@ export class TriggerManager {
       if (trigger?.NeedCreate === true) {
         const TriggerClass = TRIGGERS[Type];
         if (!TriggerClass) {
-          throw new ApiTypeError('PARAMETER_SCF', `Unknown trigger type ${Type}`);
+          throw new ApiError({
+            type: 'PARAMETER_ERROR',
+            message: `[TRIGGER] 未知触发器类型： ${Type}`,
+          });
         }
         const triggerInstance = new TriggerClass({
           credentials: this.credentials,
           region: this.region,
         });
+        // 针对触发器创建接口限频，由于后端服务问题，必须设置并发为 1
+        // TODO: 兼容多个网关触发器并行部署时，服务发布会报错，待后端接口支持状态查询后再额外改造 apigw 模块
+        this.runningTasks++;
+        if (this.runningTasks > this.maxRunningTasks) {
+          await sleep(1000);
+        }
         const triggerOutput = await triggerInstance.create({
           scf: this,
           region: this.region,
@@ -258,6 +272,7 @@ export class TriggerManager {
             ...trigger,
           },
         });
+        this.runningTasks--;
 
         deployList[i] = {
           ...triggerOutput,
@@ -396,14 +411,17 @@ export class TriggerManager {
         name: curScf.name,
         triggers,
       });
-
-      createTasks.push(
-        this.deployTrigger({
+      const task = async () => {
+        const res = await this.deployTrigger({
           name: curScf.name,
           namespace: curScf.namespace,
           events: triggersConfig,
-        }),
-      );
+        });
+        // this.runningTasks--;
+        return res;
+      };
+
+      createTasks.push(task());
     }
     const res = await Promise.all(createTasks);
 

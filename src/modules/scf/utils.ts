@@ -1,10 +1,9 @@
-import { RegionType } from './../interface';
 import { ScfCreateFunctionInputs, BaseFunctionConfig } from './interface';
 const CONFIGS = require('./config').default;
 
 // get function basement configure
 // FIXME: unused variable region
-export const formatInputs = (region: RegionType, inputs: ScfCreateFunctionInputs) => {
+export const formatInputs = (inputs: ScfCreateFunctionInputs) => {
   const functionInputs: BaseFunctionConfig = {
     FunctionName: inputs.name,
     Type: inputs.type === 'web' ? 'HTTP' : 'Event',
