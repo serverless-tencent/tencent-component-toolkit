@@ -194,6 +194,7 @@ export default class ScfEntity extends BaseEntity {
     // 更新函数接口不能传递以下参数
     delete reqInputs.Type;
     delete reqInputs.Handler;
+    delete reqInputs.Runtime;
     delete reqInputs.Code;
     delete reqInputs.AsyncRunEnable;
     delete reqInputs.InstallDependency;

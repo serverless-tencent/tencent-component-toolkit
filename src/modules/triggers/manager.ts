@@ -1,3 +1,4 @@
+import { SimpleApigwDetail } from './interface/index';
 import { Capi } from '@tencent-sdk/capi';
 import { sleep } from '@ygkit/request';
 import { ActionType } from '../scf/apis';
@@ -105,7 +106,6 @@ export class TriggerManager {
     const deleteList: (TriggerDetail | null)[] = deepClone(oldList);
     const createList: (NewTriggerInputs | null)[] = deepClone(events);
     const deployList: (TriggerDetail | null)[] = [];
-    // const noKeyTypes = ['apigw'];
     const updateList: (NewTriggerInputs | null)[] = [];
 
     for (let index = 0; index < events.length; index++) {
@@ -242,6 +242,7 @@ export class TriggerManager {
     }
 
     // 2. 创建新的触发器
+    const apigwServiceList = [];
     for (let i = 0; i < deployList.length; i++) {
       const trigger = deployList[i];
       const { Type } = trigger;
@@ -263,6 +264,9 @@ export class TriggerManager {
         if (this.runningTasks > this.maxRunningTasks) {
           await sleep(1000);
         }
+
+        // 禁用自动发布
+        trigger.isAutoRelease = true;
         const triggerOutput = await triggerInstance.create({
           scf: this,
           region: this.region,
@@ -272,6 +276,13 @@ export class TriggerManager {
             ...trigger,
           },
         });
+        // 筛选出 API 网关触发器，可以单独的进行发布
+        if (triggerOutput.serviceId) {
+          apigwServiceList.push({
+            serviceId: triggerOutput.serviceId,
+            environment: triggerOutput.environment,
+          });
+        }
         this.runningTasks--;
 
         deployList[i] = {
@@ -290,7 +301,7 @@ export class TriggerManager {
       name,
       triggers: deployList,
     };
-    return outputs;
+    return { outputs, apigwServiceList };
   }
 
   /**
@@ -396,6 +407,25 @@ export class TriggerManager {
     });
   }
 
+  async bulkReleaseApigw(list: SimpleApigwDetail[]) {
+    // 筛选非重复的网关服务
+    const uniqueList: SimpleApigwDetail[] = [];
+    const map: { [key: string]: number } = {};
+    list.forEach((item) => {
+      if (!map[item.serviceId]) {
+        map[item.serviceId] = 1;
+        uniqueList.push(item);
+      }
+    });
+
+    const releaseTask: Promise<any>[] = [];
+    for (let i = 0; i < uniqueList.length; i++) {
+      const temp = uniqueList[i];
+      releaseTask.push(this.apigwClient.service.release(temp));
+    }
+    await Promise.all(releaseTask);
+  }
+
   /**
    * 批量处理多函数关联的触发器配置
    * @param triggers 触发器列表
@@ -404,6 +434,7 @@ export class TriggerManager {
   async bulkCreateTriggers(triggers: NewTriggerInputs[] = []) {
     const scfList = await this.getScfsByTriggers(triggers);
 
+    let apigwList: SimpleApigwDetail[] = [];
     const createTasks: Promise<any>[] = [];
     for (let i = 0; i < scfList.length; i++) {
       const curScf = scfList[i];
@@ -412,18 +443,20 @@ export class TriggerManager {
         triggers,
       });
       const task = async () => {
-        const res = await this.deployTrigger({
+        const { outputs, apigwServiceList } = await this.deployTrigger({
           name: curScf.name,
           namespace: curScf.namespace,
           events: triggersConfig,
         });
-        // this.runningTasks--;
-        return res;
+        apigwList = apigwList.concat(apigwServiceList);
+        return outputs;
       };
 
       createTasks.push(task());
     }
     const res = await Promise.all(createTasks);
+
+    await this.bulkReleaseApigw(apigwList);
 
     return res;
   }

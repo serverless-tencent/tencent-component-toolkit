@@ -145,7 +145,7 @@ export default class ApigwTrigger extends BaseTrigger<ApigwTriggerInputsParams> 
     funcInfo?: FunctionInfo;
     inputs: TriggerInputs<ApigwTriggerInputsParams>;
   }) {
-    const { parameters } = inputs;
+    const { parameters, isAutoRelease } = inputs;
     const {
       oldState,
       protocols,
@@ -158,6 +158,7 @@ export default class ApigwTrigger extends BaseTrigger<ApigwTriggerInputsParams> 
     } = parameters!;
     const endpoints = parameters?.endpoints ?? [{ path: '/', method: 'ANY' }];
     const triggerInputs: ApigwTriggerInputsParams = {
+      isAutoRelease,
       oldState: oldState ?? {},
       region,
       protocols,
