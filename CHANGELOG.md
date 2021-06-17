@@ -1,3 +1,10 @@
+## [2.12.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.12.0...v2.12.1) (2021-06-17)
+
+
+### Bug Fixes
+
+* **trigger:** add trigger create rate limitation ([c9e00b7](https://github.com/serverless-tencent/tencent-component-toolkit/commit/c9e00b74a85c93f58a866017ab891d3f7e287e7c))
+
 # [2.12.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.11.0...v2.12.0) (2021-06-15)
 
 
