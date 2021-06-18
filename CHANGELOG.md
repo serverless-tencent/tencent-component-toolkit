@@ -1,3 +1,10 @@
+## [2.12.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.12.1...v2.12.2) (2021-06-18)
+
+
+### Bug Fixes
+
+* **triggers:** apigw release bug for manager ([#230](https://github.com/serverless-tencent/tencent-component-toolkit/issues/230)) ([2dbecba](https://github.com/serverless-tencent/tencent-component-toolkit/commit/2dbecba0cfc3e5e5e56efe3b3efea4472f8bad7c))
+
 ## [2.12.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.12.0...v2.12.1) (2021-06-17)
 
 
