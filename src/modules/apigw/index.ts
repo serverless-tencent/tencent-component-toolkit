@@ -82,7 +82,12 @@ export default class Apigw {
 
   /** 部署 API 网关 */
   async deploy(inputs: ApigwDeployInputs) {
-    const { environment = 'release' as const, oldState = {}, isInputServiceId = false } = inputs;
+    const {
+      environment = 'release' as const,
+      oldState = {},
+      isInputServiceId = false,
+      isAutoRelease = false,
+    } = inputs;
     if (isInputServiceId) {
       return this.deployWIthInputServiceId(inputs as ApigwDeployWithServiceIdInputs);
     }
@@ -107,7 +112,9 @@ export default class Apigw {
       environment,
     });
 
-    await this.service.release({ serviceId, environment });
+    if (!isAutoRelease) {
+      await this.service.release({ serviceId, environment });
+    }
 
     console.log(`Deploy service ${serviceId} success`);
 
@@ -162,6 +169,7 @@ export default class Apigw {
       customDomains,
       usagePlan,
       isRemoveTrigger = false,
+      isAutoRelease = true,
     } = inputs;
 
     // check service exist
@@ -180,7 +188,7 @@ export default class Apigw {
 
     // 定制化需求：如果用户在yaml中配置了 serviceId，则只执行删除 api 逻辑
     // 删除后需要重新发布
-    if (isRemoveTrigger) {
+    if (isRemoveTrigger && isAutoRelease) {
       await this.service.release({ serviceId, environment });
       return;
     }
@@ -240,7 +248,12 @@ export default class Apigw {
   }
 
   async deployWIthInputServiceId(inputs: ApigwDeployWithServiceIdInputs) {
-    const { environment = 'release' as const, oldState = {}, serviceId } = inputs;
+    const {
+      environment = 'release' as const,
+      oldState = {},
+      serviceId,
+      isAutoRelease = true,
+    } = inputs;
     inputs.protocols = getProtocolString(inputs.protocols as ('http' | 'https')[]);
 
     const endpoints = inputs.endpoints || [];
@@ -255,7 +268,9 @@ export default class Apigw {
         environment,
       });
 
-      await this.service.release({ serviceId, environment });
+      if (!isAutoRelease) {
+        await this.service.release({ serviceId, environment });
+      }
 
       console.log(`Deploy service ${serviceId} success`);
 

@@ -278,6 +278,9 @@ export interface ScfRemoveInputs {
 
   Triggers?: ApigwRemoveInputs[] | Record<string, any>[];
   triggers?: ApigwRemoveInputs[] | Record<string, any>[];
+
+  // 是否自动发布 API 网关
+  isAutoRelease?: boolean;
 }
 
 export interface ScfInvokeInputs {

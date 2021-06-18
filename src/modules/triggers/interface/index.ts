@@ -126,6 +126,9 @@ export interface TriggerInputs<P extends TriggerInputsParams = TriggerInputsPara
   FunctionName?: string;
   Namespace?: string;
   Qualifier?: string;
+
+  // 是否自动发布服务（API 网关特有）
+  isAutoRelease?: boolean;
 }
 
 export interface TriggerDetail {
@@ -137,6 +140,8 @@ export interface TriggerDetail {
   compared?: boolean;
 
   triggerType: string;
+
+  [key: string]: any;
 }
 
 export interface NewTriggerInputs {
@@ -155,3 +160,10 @@ export interface NewTriggerInputs {
 }
 
 export * from './clb';
+
+export interface SimpleApigwDetail {
+  functionName: string;
+  serviceId: string;
+  serviceName: string;
+  environment: string;
+}

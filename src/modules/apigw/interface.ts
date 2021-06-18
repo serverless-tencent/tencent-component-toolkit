@@ -174,6 +174,9 @@ export interface ApigwDeployInputs extends ApigwCreateServiceInputs, ApigwBindCu
   endpoints?: ApiEndpoint[];
   isInputServiceId?: boolean;
   isRemoveTrigger?: boolean;
+
+  // 是否自动发布服务（API 网关特有）
+  isAutoRelease?: boolean;
 }
 
 export type ApigwDeployWithServiceIdInputs = ApigwDeployInputs & { serviceId: string };
@@ -253,6 +256,7 @@ export interface ApigwRemoveInputs {
   usagePlan?: ApigwSetupUsagePlanInputs;
   isInputServiceId?: boolean;
   isRemoveTrigger?: boolean;
+  isAutoRelease?: boolean;
 }
 
 export interface ApiDetail {
