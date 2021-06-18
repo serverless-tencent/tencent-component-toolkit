@@ -85,9 +85,9 @@ describe('Trigger Manager', () => {
   ];
 
   test('bulk create triggers', async () => {
-    const res = await client.bulkCreateTriggers(triggers);
+    const { triggerList } = await client.bulkCreateTriggers(triggers);
 
-    expect(res).toEqual([
+    expect(triggerList).toEqual([
       {
         name: functionConfig.name,
         triggers: [

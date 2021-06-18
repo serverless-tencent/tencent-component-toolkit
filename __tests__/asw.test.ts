@@ -2,7 +2,7 @@ import { sleep } from '@ygkit/request';
 import Asw from '../src/modules/asw';
 import { UpdateOptions, CreateResult } from './../src/modules/asw/interface';
 
-describe('Account', () => {
+describe('Asw', () => {
   const credentials = {
     SecretId: process.env.TENCENT_SECRET_ID,
     SecretKey: process.env.TENCENT_SECRET_KEY,

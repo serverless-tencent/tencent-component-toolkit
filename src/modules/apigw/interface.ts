@@ -256,6 +256,7 @@ export interface ApigwRemoveInputs {
   usagePlan?: ApigwSetupUsagePlanInputs;
   isInputServiceId?: boolean;
   isRemoveTrigger?: boolean;
+  isAutoRelease?: boolean;
 }
 
 export interface ApiDetail {

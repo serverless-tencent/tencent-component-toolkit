@@ -162,6 +162,8 @@ export interface NewTriggerInputs {
 export * from './clb';
 
 export interface SimpleApigwDetail {
+  functionName: string;
   serviceId: string;
+  serviceName: string;
   environment: string;
 }

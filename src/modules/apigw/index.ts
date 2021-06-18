@@ -169,6 +169,7 @@ export default class Apigw {
       customDomains,
       usagePlan,
       isRemoveTrigger = false,
+      isAutoRelease = true,
     } = inputs;
 
     // check service exist
@@ -187,7 +188,7 @@ export default class Apigw {
 
     // 定制化需求：如果用户在yaml中配置了 serviceId，则只执行删除 api 逻辑
     // 删除后需要重新发布
-    if (isRemoveTrigger) {
+    if (isRemoveTrigger && isAutoRelease) {
       await this.service.release({ serviceId, environment });
       return;
     }

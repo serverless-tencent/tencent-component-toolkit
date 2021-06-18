@@ -370,6 +370,7 @@ export default class Scf {
       await this.scf.isOperational({ namespace, functionName });
     } catch (e) {}
 
+    const { isAutoRelease = true } = inputs;
     const triggers = inputs.Triggers || inputs.triggers;
     if (triggers) {
       for (let i = 0; i < triggers.length; i++) {
@@ -378,6 +379,7 @@ export default class Scf {
             // delete apigw trigger
             const curTrigger = triggers[i];
             curTrigger.isRemoveTrigger = true;
+            curTrigger.isAutoRelease = isAutoRelease;
             await this.apigwClient.remove(curTrigger as ApigwRemoveInputs);
           } catch (e) {
             console.log(e);
@@ -387,7 +389,6 @@ export default class Scf {
     }
 
     await this.scf.delete({ namespace, functionName });
-
     console.log(`Remove function ${functionName} success`);
 
     return true;
