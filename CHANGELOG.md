@@ -1,3 +1,10 @@
+## [2.12.3](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.12.2...v2.12.3) (2021-06-22)
+
+
+### Bug Fixes
+
+* **apigw:** optimize remove apigw trigger flow ([2a536a9](https://github.com/serverless-tencent/tencent-component-toolkit/commit/2a536a9b95ecc96bfc0e003eda2ac5af5d93278a))
+
 ## [2.12.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.12.1...v2.12.2) (2021-06-18)
 
 
