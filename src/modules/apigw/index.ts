@@ -193,7 +193,7 @@ export default class Apigw {
       return;
     }
 
-    // remove usage plan
+    // 删除使用计划
     if (usagePlan) {
       await this.usagePlan.remove({
         serviceId,
@@ -202,7 +202,7 @@ export default class Apigw {
       });
     }
 
-    // 2. unbind all custom domains
+    // 解绑自定义域名
     if (customDomains) {
       for (let i = 0; i < customDomains.length; i++) {
         const curDomain = customDomains[i];
@@ -217,33 +217,11 @@ export default class Apigw {
       }
     }
 
-    if (created === true) {
-      // unrelease service
-      console.log(`Unreleasing service: ${serviceId}, environment ${environment}`);
-      await this.removeRequest({
-        Action: 'UnReleaseService',
+    if (created && isAutoRelease) {
+      await this.service.remove({
         serviceId,
-        environmentName: environment,
+        environment,
       });
-      console.log(`Unrelease service ${serviceId}, environment ${environment} success`);
-
-      // 在删除之前，如果关联了标签，需要先删除标签关联
-      if (detail.Tags && detail.Tags.length > 0) {
-        await this.tagClient.deployResourceTags({
-          tags: [],
-          resourceId: serviceId,
-          serviceType: ApiServiceType.apigw,
-          resourcePrefix: 'service',
-        });
-      }
-
-      // delete service
-      console.log(`Removing service ${serviceId}`);
-      await this.removeRequest({
-        Action: 'DeleteService',
-        serviceId,
-      });
-      console.log(`Remove service ${serviceId} success`);
     }
   }
 

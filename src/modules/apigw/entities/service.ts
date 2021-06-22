@@ -6,9 +6,11 @@ import {
   ApigwCreateOrUpdateServiceOutputs,
   ApigwSetupUsagePlanInputs,
 } from '../interface';
+import { ApiServiceType } from '../../interface';
 import { pascalCaseProps, deepClone } from '../../../utils';
 import APIS, { ActionType } from '../apis';
 import UsagePlanEntity from './usage-plan';
+import Tag from '../../tag';
 
 interface Detail {
   InnerSubDomain: string;
@@ -27,11 +29,22 @@ interface Detail {
 export default class ServiceEntity {
   capi: Capi;
   usagePlan: UsagePlanEntity;
+  tag: Tag;
 
   constructor(capi: Capi) {
     this.capi = capi;
 
     this.usagePlan = new UsagePlanEntity(capi);
+
+    const { options } = capi;
+    this.tag = new Tag(
+      {
+        SecretId: options.SecretId,
+        SecretKey: options.SecretKey,
+        Token: options.Token,
+      },
+      options.Region,
+    );
   }
 
   async request({ Action, ...data }: { Action: ActionType; [key: string]: any }) {
@@ -302,5 +315,43 @@ export default class ServiceEntity {
       environmentName: environment,
       releaseDesc: 'Released by Serverless',
     });
+  }
+
+  async remove({ serviceId, environment }: { serviceId: string; environment: string }) {
+    const detail = await this.getById(serviceId);
+    if (!detail) {
+      console.log(`API service ${serviceId} not exist`);
+      return true;
+    }
+
+    try {
+      console.log(`Unreleasing service: ${serviceId}, environment ${environment}`);
+      await this.request({
+        Action: 'UnReleaseService',
+        serviceId,
+        environmentName: environment,
+      });
+      console.log(`Unrelease service ${serviceId}, environment ${environment} success`);
+
+      // 在删除之前，如果关联了标签，需要先删除标签关联
+      if (detail.Tags && detail.Tags.length > 0) {
+        await this.tag.deployResourceTags({
+          tags: [],
+          resourceId: serviceId,
+          serviceType: ApiServiceType.apigw,
+          resourcePrefix: 'service',
+        });
+      }
+
+      // delete service
+      console.log(`Removing service ${serviceId}`);
+      await this.request({
+        Action: 'DeleteService',
+        serviceId,
+      });
+      console.log(`Remove service ${serviceId} success`);
+    } catch (e) {
+      console.log(e.message);
+    }
   }
 }
