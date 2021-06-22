@@ -162,8 +162,14 @@ export interface NewTriggerInputs {
 export * from './clb';
 
 export interface SimpleApigwDetail {
+  // 是否是通过 CLI 创建的
+  created?: boolean;
+  // 当前触发器关联函数名称
   functionName: string;
+  // 服务 ID
   serviceId: string;
+  // 服务名称
   serviceName: string;
+  // 发布的环境
   environment: string;
 }

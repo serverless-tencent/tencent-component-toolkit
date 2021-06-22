@@ -273,6 +273,7 @@ export class TriggerManager {
         // 筛选出 API 网关触发器，可以单独的进行发布
         if (triggerOutput.serviceId) {
           apigwServiceList.push({
+            created: triggerOutput.created,
             functionName: name,
             serviceId: triggerOutput.serviceId,
             serviceName: triggerOutput.serviceName,
@@ -403,6 +404,31 @@ export class TriggerManager {
     });
   }
 
+  /**
+   * 批量删除 API 网关，防止重复删除同一个网关
+   * @param list API 网关列表
+   */
+  async bulkRemoveApigw(list: SimpleApigwDetail[]) {
+    // 筛选非重复的网关服务
+    const uniqueList: SimpleApigwDetail[] = [];
+    const map: { [key: string]: number } = {};
+    list.forEach((item) => {
+      if (!map[item.serviceId]) {
+        map[item.serviceId] = 1;
+        uniqueList.push(item);
+      }
+    });
+
+    const releaseTask: Promise<any>[] = [];
+    for (let i = 0; i < uniqueList.length; i++) {
+      const temp = uniqueList[i];
+      const exist = await this.apigwClient.service.getById(temp.serviceId);
+      if (exist) {
+        releaseTask.push(this.apigwClient.service.release(temp));
+      }
+    }
+    await Promise.all(releaseTask);
+  }
   /**
    * 批量发布 API 网关，防止重复发布同一个网关
    * @param list API 网关列表
