@@ -32,7 +32,7 @@ export const formatInputs = (inputs: ScfCreateFunctionInputs) => {
         ImageUri: imageConfig.imageUri,
       },
     };
-    if (imageConfig.imageType === 'enterprise') {
+    if (imageConfig.registryId) {
       functionInputs.Code!.ImageConfig!.RegistryId = imageConfig.registryId;
     }
     if (imageConfig.command) {
