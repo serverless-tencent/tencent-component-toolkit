@@ -1,3 +1,10 @@
+## [2.12.4](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.12.3...v2.12.4) (2021-06-23)
+
+
+### Bug Fixes
+
+* **scf:** format image config ([65aaa13](https://github.com/serverless-tencent/tencent-component-toolkit/commit/65aaa13c014c585b882ef063812b3c172db331c6))
+
 ## [2.12.3](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.12.2...v2.12.3) (2021-06-22)
 
 
