@@ -72,7 +72,7 @@ describe('Cos', () => {
   };
   const cos = new Cos(credentials, process.env.REGION);
 
-  test('[cos] deploy cos fail', async () => {
+  test('deploy cos fail', async () => {
     try {
       const res = await cos.deploy({ ...inputs, bucket: '1234567890' });
       expect(res).toBe(undefined);
@@ -82,31 +82,42 @@ describe('Cos', () => {
     }
   });
 
-  test('[cos] convert error correct', async () => {
+  test('convert error correct', async () => {
     expect(
       convertCosError({
+        code: 'error',
         message: 'message',
-        requestId: '123',
+        headers: {
+          'x-cos-request-id': '123',
+        },
+        error: undefined,
       }).message,
     ).toBe('message (reqId: 123)');
 
     expect(
       convertCosError({
+        code: 'error',
+        message: 'error_message',
         error: 'message',
       }).message,
-    ).toBe('message');
+    ).toBe('error_message');
 
     expect(
       convertCosError({
+        code: 'error',
+        message: 'error_message',
+        headers: {
+          'x-cos-request-id': '123',
+        },
         error: {
+          Code: 'error',
           Message: 'message',
-          RequestId: '123',
         },
       }).message,
     ).toBe('message (reqId: 123)');
   });
 
-  test('[cos] should deploy cos', async () => {
+  test('should deploy cos', async () => {
     const res = await cos.deploy(inputs);
     await sleep(1000);
     const reqUrl = `https://${bucket}.cos.${process.env.REGION}.myqcloud.com/index.html`;
@@ -115,7 +126,7 @@ describe('Cos', () => {
     expect(data).toMatch(/Serverless/gi);
   });
 
-  test('[cos] deploy cos again (update)', async () => {
+  test('deploy cos again (update)', async () => {
     const res = await cos.deploy(inputs);
     await sleep(1000);
     const reqUrl = `https://${bucket}.cos.${process.env.REGION}.myqcloud.com/index.html`;
@@ -124,7 +135,7 @@ describe('Cos', () => {
     expect(data).toMatch(/Serverless/gi);
   });
 
-  test('[cos] getObjectUrl', async () => {
+  test('getObjectUrl', async () => {
     const res = await cos.getObjectUrl({
       bucket,
       object: 'index.html',
@@ -201,7 +212,7 @@ describe('Cos', () => {
     expect(data).toMatch(/Serverless/gi);
   });
 
-  test('[cos] remove success', async () => {
+  test('remove success', async () => {
     await cos.remove(inputs);
     try {
       await cos.getBucket({
