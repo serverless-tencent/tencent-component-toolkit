@@ -12,7 +12,7 @@ export interface CosSetAclInputs {
         displayName?: string;
       };
       grants?: {
-        permission?: 'READ' | 'WRITE';
+        permission?: 'READ' | 'WRITE' | 'READ_ACP' | 'WRITE_ACP' | 'FULL_CONTROL';
         grantee?: {
           id?: string;
           displayName?: string;
