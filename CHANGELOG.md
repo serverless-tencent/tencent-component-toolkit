@@ -1,3 +1,10 @@
+## [2.12.6](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.12.5...v2.12.6) (2021-06-24)
+
+
+### Bug Fixes
+
+* **scf:** auto release ([8a0184b](https://github.com/serverless-tencent/tencent-component-toolkit/commit/8a0184b49f9762b1b2d179cd964e11f3fcd30e27))
+
 ## [2.12.5](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.12.4...v2.12.5) (2021-06-24)
 
 
