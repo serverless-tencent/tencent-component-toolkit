@@ -123,9 +123,14 @@ export async function openCdnService(capi: Capi) {
       PayTypeMainland: 'flux',
       PayTypeOverseas: 'flux',
     });
+    return true;
   } catch (e) {
-    if (e.code !== 'ResourceInUse.CdnUserExists') {
+    if (
+      e.code !== 'ResourceInUse.CdnUserExists' &&
+      e.code !== 'UnauthorizedOperation.OperationTooOften'
+    ) {
       throw e;
     }
+    return false;
   }
 }

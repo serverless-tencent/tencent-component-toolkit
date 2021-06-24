@@ -86,7 +86,7 @@ export default class Apigw {
       environment = 'release' as const,
       oldState = {},
       isInputServiceId = false,
-      isAutoRelease = false,
+      isAutoRelease = true,
     } = inputs;
     if (isInputServiceId) {
       return this.deployWIthInputServiceId(inputs as ApigwDeployWithServiceIdInputs);
@@ -112,7 +112,7 @@ export default class Apigw {
       environment,
     });
 
-    if (!isAutoRelease) {
+    if (isAutoRelease) {
       await this.service.release({ serviceId, environment });
     }
 
@@ -246,7 +246,7 @@ export default class Apigw {
         environment,
       });
 
-      if (!isAutoRelease) {
+      if (isAutoRelease) {
         await this.service.release({ serviceId, environment });
       }
 
