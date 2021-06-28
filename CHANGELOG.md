@@ -1,3 +1,10 @@
+## [2.12.8](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.12.7...v2.12.8) (2021-06-28)
+
+
+### Bug Fixes
+
+* **triggers:** manager filter trigger bug ([cce91bc](https://github.com/serverless-tencent/tencent-component-toolkit/commit/cce91bc58aa7fff694ab6098d27ae9b3f8c108d2))
+
 ## [2.12.7](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.12.6...v2.12.7) (2021-06-28)
 
 
