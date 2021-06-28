@@ -1,3 +1,10 @@
+## [2.12.7](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.12.6...v2.12.7) (2021-06-28)
+
+
+### Bug Fixes
+
+* **scf:** update apigw trigger bug ([2561e68](https://github.com/serverless-tencent/tencent-component-toolkit/commit/2561e68533ccdbb513a0d3b4b2f0cafda08b9eee))
+
 ## [2.12.6](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.12.5...v2.12.6) (2021-06-24)
 
 
