@@ -1,3 +1,10 @@
+## [2.12.9](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.12.8...v2.12.9) (2021-06-28)
+
+
+### Bug Fixes
+
+* **scf:** web function handler config ([#234](https://github.com/serverless-tencent/tencent-component-toolkit/issues/234)) ([3becd8f](https://github.com/serverless-tencent/tencent-component-toolkit/commit/3becd8f06cf73bd9bc06450ca5180710d6f8c7d0))
+
 ## [2.12.8](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.12.7...v2.12.8) (2021-06-28)
 
 
