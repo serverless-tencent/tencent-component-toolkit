@@ -89,37 +89,23 @@ export default class Scf {
     oldList: TriggerType[],
   ) {
     const deleteList: (TriggerType | null)[] = deepClone(oldList);
-    const createList: (OriginTriggerType | null)[] = deepClone(events);
     const deployList: (TriggerType | null)[] = [];
-    // const noKeyTypes = ['apigw'];
-    const updateList: (OriginTriggerType | null)[] = [];
 
-    for (let index = 0; index < events.length; index++) {
-      const event = events[index];
-      const Type = Object.keys(event)[0];
-      const TriggerClass = TRIGGERS[Type];
-      const triggerInstance: BaseTrigger = new TriggerClass({
-        credentials: this.credentials,
-        region: this.region,
-      });
-      const { triggerKey } = await triggerInstance.formatInputs({
-        region: this.region,
-        inputs: {
-          namespace: funcInfo.Namespace,
-          functionName: funcInfo.FunctionName,
-          ...event[Type],
-        },
-      });
-      deployList[index] = {
-        NeedCreate: true,
-        Type,
-        ...event[Type],
-      };
-
-      for (let i = 0; i < oldList.length; i++) {
-        const oldTrigger = oldList[i];
+    const compareTriggerKey = async ({
+      triggerType,
+      newIndex,
+      newKey,
+      oldTriggerList,
+    }: {
+      triggerType: string;
+      newIndex: number;
+      newKey: string;
+      oldTriggerList: TriggerType[];
+    }) => {
+      for (let i = 0; i < oldTriggerList.length; i++) {
+        const oldTrigger = oldTriggerList[i];
         // 如果类型不一致或者已经比较过（key值一致），则继续下一次循环
-        if (oldTrigger.Type !== Type || oldTrigger.compared === true) {
+        if (oldTrigger.Type !== triggerType || oldTrigger.compared === true) {
           continue;
         }
         const OldTriggerClass = TRIGGERS[oldTrigger.Type];
@@ -130,17 +116,16 @@ export default class Scf {
         const oldKey = await oldTriggerInstance.getKey(oldTrigger);
 
         // 如果 key 不一致则继续下一次循环
-        if (oldKey !== triggerKey) {
+        if (oldKey !== newKey) {
           continue;
         }
 
         oldList[i].compared = true;
 
         deleteList[i] = null;
-        updateList.push(createList[index]);
-        if (CAN_UPDATE_TRIGGER.indexOf(Type) === -1) {
-          createList[index] = null;
-          deployList[index] = {
+
+        if (CAN_UPDATE_TRIGGER.indexOf(triggerType) === -1) {
+          deployList[newIndex] = {
             NeedCreate: false,
             ...oldTrigger,
           };
@@ -148,11 +133,60 @@ export default class Scf {
         // 如果找到 key 值一样的，直接跳出循环
         break;
       }
+    };
+
+    for (let index = 0; index < events.length; index++) {
+      const event = events[index];
+      const Type = Object.keys(event)[0];
+      const TriggerClass = TRIGGERS[Type];
+      const triggerInstance: BaseTrigger = new TriggerClass({
+        credentials: this.credentials,
+        region: this.region,
+      });
+      deployList[index] = {
+        NeedCreate: true,
+        Type,
+        ...event[Type],
+      };
+
+      // 需要特殊比较 API 网关触发器，因为一个触发器配置中，可能包含多个 API 触发器
+      if (Type === 'apigw') {
+        const { parameters = {} } = event[Type];
+        const { endpoints = [{ path: '/', method: 'ANY' }] } = parameters;
+        for (const item of endpoints) {
+          const newKey = await triggerInstance.getKey({
+            TriggerDesc: {
+              serviceId: parameters.serviceId,
+              path: item.path,
+              method: item.method,
+            },
+          });
+          await compareTriggerKey({
+            triggerType: Type,
+            newIndex: index,
+            newKey: newKey,
+            oldTriggerList: oldList,
+          });
+        }
+      } else {
+        const { triggerKey } = await triggerInstance.formatInputs({
+          region: this.region,
+          inputs: {
+            namespace: funcInfo.Namespace,
+            functionName: funcInfo.FunctionName,
+            ...event[Type],
+          },
+        });
+        await compareTriggerKey({
+          triggerType: Type,
+          newIndex: index,
+          newKey: triggerKey,
+          oldTriggerList: oldList,
+        });
+      }
     }
     return {
-      updateList,
       deleteList: deleteList.filter((item) => item) as TriggerType[],
-      createList: createList.filter((item) => item) as OriginTriggerType[],
       deployList: deployList.map((item) => {
         delete item?.compared;
         return item as TriggerType;

@@ -127,13 +127,15 @@ export default class ApigwTrigger extends BaseTrigger<ApigwTriggerInputsParams> 
       try {
         const { api } = JSON.parse(TriggerDesc);
         const { path, method } = api.requestConfig;
-        return `${serviceId}/${path.toLowerCase()}/${method}`;
+        return `${serviceId}/${path.toLowerCase()}/${method.toLowerCase()}`;
       } catch (e) {
         return '';
       }
     }
 
-    return `${TriggerDesc.serviceId}/${TriggerDesc.path.toLowerCase()}/${TriggerDesc.method}`;
+    return `${
+      TriggerDesc.serviceId
+    }/${TriggerDesc.path.toLowerCase()}/${TriggerDesc.method.toLowerCase()}`;
   }
 
   /** 格式化输入 */
