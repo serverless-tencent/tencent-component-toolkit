@@ -79,12 +79,100 @@ describe('Trigger Manager', () => {
             path: '/',
             method: 'GET',
           },
+          {
+            function: {
+              ...functionConfig,
+
+              functionNamespace: functionConfig.namespace,
+              functionName: functionConfig.name,
+              functionQualifier: functionConfig.qualifier,
+            },
+            path: '/test',
+            method: 'GET',
+          },
         ],
       },
     },
   ];
 
   test('bulk create triggers', async () => {
+    const { triggerList } = await client.bulkCreateTriggers(triggers);
+
+    expect(triggerList).toEqual([
+      {
+        name: functionConfig.name,
+        triggers: [
+          {
+            AddTime: expect.any(String),
+            AvailableStatus: 'Available',
+            BindStatus: expect.any(String),
+            CustomArgument: 'argument',
+            Enable: 1,
+            ModTime: expect.any(String),
+            Qualifier: '$DEFAULT',
+            ResourceId: expect.any(String),
+            TriggerAttribute: expect.any(String),
+            TriggerDesc: '{"cron":"* * */4 * * * *"}',
+            TriggerName: 'timer1',
+            Type: 'timer',
+            triggerType: 'timer',
+          },
+          {
+            AddTime: expect.any(String),
+            AvailableStatus: expect.any(String),
+            BindStatus: expect.any(String),
+            CustomArgument: '',
+            Enable: 1,
+            ModTime: expect.any(String),
+            Qualifier: '$DEFAULT',
+            ResourceId: expect.any(String),
+            TriggerAttribute: expect.any(String),
+            TriggerDesc: expect.stringContaining('"event":"cos:ObjectCreated:*"'),
+            TriggerName: expect.stringContaining('cos'),
+            Type: 'cos',
+            triggerType: 'cos',
+          },
+          {
+            namespace: functionConfig.namespace,
+            functionName: functionConfig.name,
+            qualifier: functionConfig.qualifier,
+            topicId: '6e60b6c7-a98e-4fc8-8ba8-bdfe4ab9c245',
+            maxWait: 60,
+            maxSize: 100,
+            enable: true,
+            triggerType: 'cls',
+          },
+          {
+            namespace: functionConfig.namespace,
+            functionName: functionConfig.name,
+            qualifier: functionConfig.qualifier,
+            loadBalanceId: expect.stringContaining('lb-'),
+            listenerId: expect.stringContaining('lbl-'),
+            locationId: expect.stringContaining('loc-'),
+            domain: expect.any(String),
+            protocol: 'HTTP',
+            port: 80,
+            url: '/',
+            weight: 20,
+            triggerType: 'clb',
+          },
+          {
+            created: expect.any(Boolean),
+            serviceId: expect.stringContaining('service-'),
+            serviceName: 'serverless',
+            subDomain: expect.stringContaining('.apigw.tencentcs.com'),
+            url: expect.stringContaining('.apigw.tencentcs.com'),
+            protocols: 'http',
+            environment: 'release',
+            apiList: expect.any(Array),
+            triggerType: 'apigw',
+          },
+        ],
+      },
+    ]);
+  });
+
+  test('bulk update triggers', async () => {
     const { triggerList } = await client.bulkCreateTriggers(triggers);
 
     expect(triggerList).toEqual([
