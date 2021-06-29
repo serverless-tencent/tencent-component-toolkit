@@ -52,6 +52,8 @@ export const formatInputs = (inputs: ScfCreateFunctionInputs) => {
 
   // 只有 Event 函数才支持
   if (inputs.type !== 'web') {
+    functionInputs.Handler = inputs.handler;
+
     if (inputs.asyncRunEnable !== undefined) {
       functionInputs.AsyncRunEnable = inputs.asyncRunEnable === true ? 'TRUE' : 'FALSE';
     }
