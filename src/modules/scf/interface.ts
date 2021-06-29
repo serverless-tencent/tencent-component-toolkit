@@ -1,6 +1,60 @@
 import { RegionType } from './../interface';
 import { ApigwRemoveInputs } from './../apigw/interface';
 
+export interface FunctionCode {
+  CosBucketName?: string;
+  CosObjectName?: string;
+
+  // 镜像部署代码
+  ImageConfig?: {
+    ImageType: string;
+    ImageUri: string;
+    RegistryId?: string;
+    Command?: string;
+    Args?: string;
+  };
+}
+export interface BaseFunctionConfig {
+  FunctionName: string;
+  Code?: FunctionCode;
+  Handler?: string;
+  Runtime?: string;
+  Namespace?: string;
+  Timeout?: number;
+  InitTimeout?: number;
+  MemorySize?: number;
+  Type?: 'HTTP' | 'Event';
+  DeployMode?: 'code' | 'image';
+  PublicNetConfig?: {
+    PublicNetStatus: 'ENABLE' | 'DISABLE';
+    EipConfig: {
+      EipStatus: 'ENABLE' | 'DISABLE';
+    };
+  };
+  L5Enable?: 'TRUE' | 'FALSE';
+  Role?: string;
+  Description?: string;
+  ClsLogsetId?: string;
+  ClsTopicId?: string;
+  Environment?: { Variables: { Key: string; Value: string }[] };
+  VpcConfig?: { VpcId?: string; SubnetId?: string };
+  Layers?: { LayerName: string; LayerVersion: number }[];
+  DeadLetterConfig?: { Type?: string; Name?: string; FilterType?: string };
+  CfsConfig?: {
+    CfsInsList: {
+      CfsId: string;
+      MountInsId: string;
+      LocalMountDir: string;
+      RemoteMountDir: string;
+      UserGroupId: string;
+      UserId: string;
+    }[];
+  };
+  AsyncRunEnable?: 'TRUE' | 'FALSE';
+  TraceEnable?: 'TRUE' | 'FALSE';
+  InstallDependency?: 'TRUE' | 'FALSE';
+}
+
 export interface TriggerType {
   NeedCreate?: boolean;
   Type: string;
@@ -141,6 +195,20 @@ export interface ScfCreateFunctionInputs {
   asyncRunEnable?: undefined | boolean;
   traceEnable?: undefined | boolean;
   installDependency?: undefined | boolean;
+
+  // 镜像
+  imageConfig?: {
+    // 镜像类型：enterprise - 企业版、personal - 个人版
+    imageType: string;
+    // 镜像地址
+    imageUri: string;
+    // 仓库 ID
+    registryId?: string;
+    // 启动命令
+    command?: string;
+    // 启动命令参数
+    args?: string;
+  };
 }
 
 export interface ScfUpdateAliasTrafficInputs {
@@ -210,6 +278,9 @@ export interface ScfRemoveInputs {
 
   Triggers?: ApigwRemoveInputs[] | Record<string, any>[];
   triggers?: ApigwRemoveInputs[] | Record<string, any>[];
+
+  // 是否自动发布 API 网关
+  isAutoRelease?: boolean;
 }
 
 export interface ScfInvokeInputs {
@@ -257,3 +328,18 @@ export type GetLogOptions = Omit<GetSearchSqlOptions, 'startTime'> & {
   // 时间间隔，单位秒，默认为 3600s
   interval?: string;
 };
+
+export interface UpdateFunctionCodeOptions {
+  Action: any;
+  Handler: string;
+  FunctionName: string;
+  Namespace: string;
+  InstallDependency?: string;
+
+  // cos 方式
+  CosBucketName?: string;
+  CosObjectName?: string;
+
+  // image 方式
+  Code?: FunctionCode;
+}

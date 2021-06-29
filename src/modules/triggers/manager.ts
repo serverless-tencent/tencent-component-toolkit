@@ -1,7 +1,8 @@
+import { SimpleApigwDetail } from './interface/index';
+import { Capi } from '@tencent-sdk/capi';
 import { ActionType } from '../scf/apis';
 import { RegionType, ApiServiceType, CapiCredentials } from '../interface';
-import { Capi } from '@tencent-sdk/capi';
-import { ApiTypeError } from '../../utils/error';
+import { ApiError } from '../../utils/error';
 import { deepClone } from '../../utils';
 import TagsUtils from '../tag/index';
 import ApigwUtils from '../apigw';
@@ -39,6 +40,11 @@ export class TriggerManager {
   scfNameCache: Record<string, any> = {};
 
   scf: ScfEntity;
+
+  // 当前正在执行的触发器任务数
+  runningTasks = 0;
+  // 支持并行执行的最大触发器任务数
+  maxRunningTasks = 1;
 
   constructor(credentials = {}, region: RegionType = 'ap-guangzhou') {
     this.region = region;
@@ -97,38 +103,23 @@ export class TriggerManager {
     oldList: TriggerDetail[];
   }) {
     const deleteList: (TriggerDetail | null)[] = deepClone(oldList);
-    const createList: (NewTriggerInputs | null)[] = deepClone(events);
     const deployList: (TriggerDetail | null)[] = [];
-    // const noKeyTypes = ['apigw'];
-    const updateList: (NewTriggerInputs | null)[] = [];
 
-    for (let index = 0; index < events.length; index++) {
-      const event = events[index];
-      const { type } = event;
-      const TriggerClass = TRIGGERS[type];
-      const triggerInstance: BaseTrigger = new TriggerClass({
-        credentials: this.credentials,
-        region: this.region,
-      });
-      const { triggerKey } = await triggerInstance.formatInputs({
-        region: this.region,
-        inputs: {
-          namespace: namespace,
-          functionName: name,
-          ...event,
-        },
-      });
-      deployList[index] = {
-        NeedCreate: true,
-        Type: type,
-        triggerType: type,
-        ...event,
-      };
-
-      for (let i = 0; i < oldList.length; i++) {
-        const oldTrigger = oldList[i];
+    const compareTriggerKey = async ({
+      triggerType,
+      newIndex,
+      newKey,
+      oldTriggerList,
+    }: {
+      triggerType: string;
+      newIndex: number;
+      newKey: string;
+      oldTriggerList: TriggerDetail[];
+    }) => {
+      for (let i = 0; i < oldTriggerList.length; i++) {
+        const oldTrigger = oldTriggerList[i];
         // 如果类型不一致或者已经比较过（key值一致），则继续下一次循环
-        if (oldTrigger.Type !== type || oldTrigger.compared === true) {
+        if (oldTrigger.Type !== triggerType || oldTrigger.compared === true) {
           continue;
         }
         const OldTriggerClass = TRIGGERS[oldTrigger.Type];
@@ -139,17 +130,16 @@ export class TriggerManager {
         const oldKey = await oldTriggerInstance.getKey(oldTrigger);
 
         // 如果 key 不一致则继续下一次循环
-        if (oldKey !== triggerKey) {
+        if (oldKey !== newKey) {
           continue;
         }
 
         oldList[i].compared = true;
 
         deleteList[i] = null;
-        updateList.push(createList[index]);
-        if (CAN_UPDATE_TRIGGER.indexOf(type) === -1) {
-          createList[index] = null;
-          deployList[index] = {
+
+        if (CAN_UPDATE_TRIGGER.indexOf(triggerType) === -1) {
+          deployList[newIndex] = {
             NeedCreate: false,
             ...oldTrigger,
           };
@@ -157,11 +147,62 @@ export class TriggerManager {
         // 如果找到 key 值一样的，直接跳出循环
         break;
       }
+    };
+
+    for (let index = 0; index < events.length; index++) {
+      const event = events[index];
+      const { type } = event;
+      const TriggerClass = TRIGGERS[type];
+      const triggerInstance: BaseTrigger = new TriggerClass({
+        credentials: this.credentials,
+        region: this.region,
+      });
+
+      deployList[index] = {
+        NeedCreate: true,
+        Type: type,
+        triggerType: type,
+        ...event,
+      };
+
+      // 需要特殊比较 API 网关触发器，因为一个触发器配置中，可能包含多个 API 触发器
+      if (type === 'apigw') {
+        const { parameters = {} } = event;
+        const { endpoints = [{ path: '/', method: 'ANY' }] } = parameters;
+        for (const item of endpoints) {
+          const newKey = await triggerInstance.getKey({
+            TriggerDesc: {
+              serviceId: parameters.serviceId,
+              path: item.path,
+              method: item.method,
+            },
+          });
+          await compareTriggerKey({
+            triggerType: type,
+            newIndex: index,
+            newKey: newKey,
+            oldTriggerList: oldList,
+          });
+        }
+      } else {
+        const { triggerKey } = await triggerInstance.formatInputs({
+          region: this.region,
+          inputs: {
+            namespace: namespace,
+            functionName: name,
+            ...event,
+          },
+        });
+        await compareTriggerKey({
+          triggerType: type,
+          newIndex: index,
+          newKey: triggerKey,
+          oldTriggerList: oldList,
+        });
+      }
     }
     return {
-      updateList,
       deleteList: deleteList.filter((item) => item) as TriggerDetail[],
-      createList: createList.filter((item) => item) as NewTriggerInputs[],
       deployList: deployList.map((item) => {
         delete item?.compared;
         return item as TriggerDetail;
@@ -169,6 +210,7 @@ export class TriggerManager {
     };
   }
 
+  // 删除函数触发器
   async removeTrigger({
     trigger,
     name,
@@ -203,7 +245,7 @@ export class TriggerManager {
   }
 
   // 部署函数触发器
-  async deployTrigger({
+  async createTrigger({
     name,
     namespace = 'default',
     events = [],
@@ -228,7 +270,6 @@ export class TriggerManager {
     // 1. 删除老的无法更新的触发器
     for (let i = 0, len = deleteList.length; i < len; i++) {
       const trigger = deleteList[i];
-
       await this.removeTrigger({
         name,
         namespace,
@@ -237,27 +278,45 @@ export class TriggerManager {
     }
 
     // 2. 创建新的触发器
+    const apigwServiceList: SimpleApigwDetail[] = [];
     for (let i = 0; i < deployList.length; i++) {
       const trigger = deployList[i];
       const { Type } = trigger;
       if (trigger?.NeedCreate === true) {
         const TriggerClass = TRIGGERS[Type];
         if (!TriggerClass) {
-          throw new ApiTypeError('PARAMETER_SCF', `Unknown trigger type ${Type}`);
+          throw new ApiError({
+            type: 'PARAMETER_ERROR',
+            message: `[TRIGGER] 未知触发器类型： ${Type}`,
+          });
         }
         const triggerInstance = new TriggerClass({
           credentials: this.credentials,
           region: this.region,
         });
+
         const triggerOutput = await triggerInstance.create({
           scf: this,
           region: this.region,
           inputs: {
             namespace,
             functionName: name,
+            // 禁用自动发布
+            isAutoRelease: false,
             ...trigger,
           },
         });
+        // 筛选出 API 网关触发器，可以单独的进行发布
+        if (triggerOutput.serviceId) {
+          apigwServiceList.push({
+            created: triggerOutput.created,
+            functionName: name,
+            serviceId: triggerOutput.serviceId,
+            serviceName: triggerOutput.serviceName,
+            environment: triggerOutput.environment,
+          });
+        }
+        this.runningTasks--;
 
         deployList[i] = {
           ...triggerOutput,
@@ -275,7 +334,7 @@ export class TriggerManager {
       name,
       triggers: deployList,
     };
-    return outputs;
+    return { outputs, apigwServiceList };
   }
 
   /**
@@ -382,6 +441,57 @@ export class TriggerManager {
   }
 
   /**
+   * 批量删除 API 网关，防止重复删除同一个网关
+   * @param list API 网关列表
+   */
+  async bulkRemoveApigw(list: SimpleApigwDetail[]) {
+    // 筛选非重复的网关服务
+    const uniqueList: SimpleApigwDetail[] = [];
+    const map: { [key: string]: number } = {};
+    list.forEach((item) => {
+      if (!map[item.serviceId]) {
+        map[item.serviceId] = 1;
+        uniqueList.push(item);
+      }
+    });
+
+    const releaseTask: Promise<any>[] = [];
+    for (let i = 0; i < uniqueList.length; i++) {
+      const temp = uniqueList[i];
+      const exist = await this.apigwClient.service.getById(temp.serviceId);
+      if (exist) {
+        releaseTask.push(this.apigwClient.service.release(temp));
+      }
+    }
+    await Promise.all(releaseTask);
+  }
+  /**
+   * 批量发布 API 网关，防止重复发布同一个网关
+   * @param list API 网关列表
+   */
+  async bulkReleaseApigw(list: SimpleApigwDetail[]) {
+    // 筛选非重复的网关服务
+    const uniqueList: SimpleApigwDetail[] = [];
+    const map: { [key: string]: number } = {};
+    list.forEach((item) => {
+      if (!map[item.serviceId]) {
+        map[item.serviceId] = 1;
+        uniqueList.push(item);
+      }
+    });
+
+    const releaseTask: Promise<any>[] = [];
+    for (let i = 0; i < uniqueList.length; i++) {
+      const temp = uniqueList[i];
+      const exist = await this.apigwClient.service.getById(temp.serviceId);
+      if (exist) {
+        releaseTask.push(this.apigwClient.service.release(temp));
+      }
+    }
+    await Promise.all(releaseTask);
+  }
+
+  /**
    * 批量处理多函数关联的触发器配置
    * @param triggers 触发器列表
    * @returns 触发器部署 outputs
@@ -389,25 +499,33 @@ export class TriggerManager {
   async bulkCreateTriggers(triggers: NewTriggerInputs[] = []) {
     const scfList = await this.getScfsByTriggers(triggers);
 
-    const createTasks: Promise<any>[] = [];
+    let apigwList: SimpleApigwDetail[] = [];
+    const res = [];
     for (let i = 0; i < scfList.length; i++) {
       const curScf = scfList[i];
       const triggersConfig = this.getScfTriggersConfig({
         name: curScf.name,
         triggers,
       });
-
-      createTasks.push(
-        this.deployTrigger({
+      const task = async () => {
+        const { outputs, apigwServiceList } = await this.createTrigger({
           name: curScf.name,
           namespace: curScf.namespace,
           events: triggersConfig,
-        }),
-      );
+        });
+        apigwList = apigwList.concat(apigwServiceList);
+        return outputs;
+      };
+      const temp = await task();
+      res.push(temp);
     }
-    const res = await Promise.all(createTasks);
 
-    return res;
+    await this.bulkReleaseApigw(apigwList);
+
+    return {
+      triggerList: res,
+      apigwList,
+    };
   }
 
   /**

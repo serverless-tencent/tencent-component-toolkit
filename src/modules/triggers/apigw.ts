@@ -127,13 +127,15 @@ export default class ApigwTrigger extends BaseTrigger<ApigwTriggerInputsParams> 
       try {
         const { api } = JSON.parse(TriggerDesc);
         const { path, method } = api.requestConfig;
-        return `${serviceId}/${path.toLowerCase()}/${method}`;
+        return `${serviceId}/${path.toLowerCase()}/${method.toLowerCase()}`;
       } catch (e) {
         return '';
       }
     }
 
-    return `${TriggerDesc.serviceId}/${TriggerDesc.path.toLowerCase()}/${TriggerDesc.method}`;
+    return `${
+      TriggerDesc.serviceId
+    }/${TriggerDesc.path.toLowerCase()}/${TriggerDesc.method.toLowerCase()}`;
   }
 
   /** 格式化输入 */
@@ -145,7 +147,7 @@ export default class ApigwTrigger extends BaseTrigger<ApigwTriggerInputsParams> 
     funcInfo?: FunctionInfo;
     inputs: TriggerInputs<ApigwTriggerInputsParams>;
   }) {
-    const { parameters } = inputs;
+    const { parameters, isAutoRelease } = inputs;
     const {
       oldState,
       protocols,
@@ -158,6 +160,7 @@ export default class ApigwTrigger extends BaseTrigger<ApigwTriggerInputsParams> 
     } = parameters!;
     const endpoints = parameters?.endpoints ?? [{ path: '/', method: 'ANY' }];
     const triggerInputs: ApigwTriggerInputsParams = {
+      isAutoRelease,
       oldState: oldState ?? {},
       region,
       protocols,

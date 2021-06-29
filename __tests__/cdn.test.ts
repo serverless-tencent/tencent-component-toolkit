@@ -1,6 +1,6 @@
 import { CdnDeployInputs } from './../src/modules/cdn/interface';
 import { Cdn } from '../src';
-import { getCdnByDomain } from '../src/modules/cdn/utils';
+import { getCdnByDomain, openCdnService } from '../src/modules/cdn/utils';
 import { sleep } from '@ygkit/request';
 
 describe('Cdn', () => {
@@ -41,6 +41,12 @@ describe('Cdn', () => {
     tags,
   };
   const cdn = new Cdn(credentials);
+
+  test('openCdnService', async () => {
+    await openCdnService(cdn.capi);
+
+    expect(true).toEqual(true);
+  });
 
   test('should deploy CDN success with originType = cos', async () => {
     await sleep(5000);

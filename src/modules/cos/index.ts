@@ -1,6 +1,7 @@
 import { RegionType, CapiCredentials } from './../interface';
 import COS, {
   CORSRule,
+  CosSdkError,
   LifecycleRule,
   PutBucketAclParams,
   PutBucketCorsParams,
@@ -36,53 +37,38 @@ import fs from 'fs';
 import { traverseDirSync } from '../../utils';
 import { ApiTypeError, ApiError } from '../../utils/error';
 
-export interface CosError {
-  error?:
-    | {
-        Code?: string;
-        Message?: string;
-        Stack?: string;
-        RequestId?: string;
-      }
-    | string;
-  code?: string;
-  message?: string;
-  stack?: string;
-  requestId?: string;
+export interface CosInsideError {
+  Code: string;
+  Message: string;
+  RequestId?: string;
+  Resource?: string;
+  TraceId?: string;
 }
 
 /** 将 Cos error 转为统一的形式 */
-export function convertCosError(err: CosError) {
+export function convertCosError(err: CosSdkError) {
+  let { code } = err;
+  const reqId = err?.headers && err?.headers['x-cos-request-id'];
+  const traceId = err?.headers && err?.headers['x-cos-trace-id'];
+  const msgSuffix = reqId ? ` (reqId: ${reqId}${traceId ? `, traceId: ${traceId}` : ''})` : '';
   if (typeof err.error === 'string') {
     return {
-      code: err.code!,
-      message: err.message! ?? err.error,
-      stack: err?.stack,
-      reqId: err?.requestId,
+      code,
+      message: `${err.message ?? err.error}`,
+      reqId,
     };
   }
+  const error = err.error as CosInsideError;
+  code = error?.Code || err.code;
+  const message = `${error?.Message || err.message}${msgSuffix}`;
   return {
-    code: err?.error?.Code ?? err.code!,
-    message: err?.error?.Message
-      ? `${err?.error?.Message} (reqId: ${err.error.RequestId})`
-      : `${err.message!} (reqId: ${err.requestId!})`,
-    stack: err?.stack ?? err?.error?.Stack!,
-    reqId: err?.error?.RequestId ?? err.requestId!,
+    code,
+    message: `${message}`,
+    reqId,
   };
 }
 
-function constructCosError(
-  type: string,
-  err: {
-    error: {
-      Code: string;
-      Message: string;
-      Stack: string;
-      RequestId: string;
-    };
-    stack: string;
-  },
-) {
+function constructCosError(type: string, err: CosSdkError) {
   const e = convertCosError(err);
   return new ApiError({ type, ...e });
 }
@@ -179,17 +165,16 @@ export default class Cos {
       const accessControlPolicy: Exclude<typeof setAclParams.AccessControlPolicy, undefined> = {
         Owner: {
           ID: acp?.owner?.id!,
-          DisplayName: acp?.owner?.displayName!,
         },
-        Grants: {
-          Permission: acp?.grants?.permission!,
-          // FIXME: dont have URI
-          Grantee: {
-            ID: acp?.grants?.grantee?.id!,
-            DisplayName: acp.grants?.grantee?.displayName!,
-            // URI: acp?.grants?.grantee?.uri!,
+        Grants: [
+          {
+            Permission: acp?.grants?.permission!,
+            // FIXME: dont have URI
+            Grantee: {
+              ID: acp?.grants?.grantee?.id!,
+            },
           },
-        },
+        ],
       };
       setAclParams.AccessControlPolicy = accessControlPolicy;
     }
@@ -444,23 +429,28 @@ export default class Cos {
   }
 
   async getObjectUrl(inputs: CosGetObjectUrlInputs = {}) {
-    try {
-      const res = await this.cosClient.getObjectUrl({
-        Bucket: inputs.bucket!,
-        Region: this.region,
-        Key: inputs.object!,
-        // default request method is GET
-        Method: inputs.method ?? 'GET',
-        // default expire time is 15min
-        Expires: inputs.expires ?? 900,
-        // default is sign url
-        Sign: inputs.sign === false ? false : true,
-      });
-      // FIXME: Fuck you Cos SDK, res is not an object;
-      return res as unknown as string;
-    } catch (err) {
-      throw constructCosError(`API_COS_getObjectUrl`, err);
-    }
+    return new Promise((resolve, reject) => {
+      this.cosClient.getObjectUrl(
+        {
+          Bucket: inputs.bucket!,
+          Region: this.region,
+          Key: inputs.object!,
+          // default request method is GET
+          Method: inputs.method ?? 'GET',
+          // default expire time is 15min
+          Expires: inputs.expires ?? 900,
+          // default is sign url
+          Sign: inputs.sign === false ? false : true,
+        },
+        (err, data) => {
+          if (err) {
+            reject(constructCosError(`API_COS_getObjectUrl`, err));
+            return;
+          }
+          resolve(data.Url);
+        },
+      );
+    });
   }
 
   async getBucketObjects(bucket: string) {

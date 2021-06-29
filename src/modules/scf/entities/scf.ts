@@ -9,7 +9,13 @@ import { formatInputs } from '../utils';
 
 import BaseEntity from './base';
 
-import { ScfCreateFunctionInputs, FunctionInfo, FaasBaseConfig, GetLogOptions } from '../interface';
+import {
+  ScfCreateFunctionInputs,
+  FunctionInfo,
+  FaasBaseConfig,
+  GetLogOptions,
+  UpdateFunctionCodeOptions,
+} from '../interface';
 
 export default class ScfEntity extends BaseEntity {
   region: string;
@@ -142,7 +148,7 @@ export default class ScfEntity extends BaseEntity {
   // 创建函数
   async create(inputs: ScfCreateFunctionInputs) {
     console.log(`Creating function ${inputs.name}, region ${this.region}`);
-    const inp = formatInputs(this.region, inputs);
+    const inp = formatInputs(inputs);
     const functionInputs = { Action: 'CreateFunction' as const, ...inp };
     await this.request(functionInputs);
     return true;
@@ -151,13 +157,14 @@ export default class ScfEntity extends BaseEntity {
   // 更新函数代码
   async updateCode(inputs: ScfCreateFunctionInputs, funcInfo: FunctionInfo) {
     console.log(`Updating function ${inputs.name} code, region ${this.region}`);
-    const functionInputs = await formatInputs(this.region, inputs);
-    const reqParams = {
+    const functionInputs = await formatInputs(inputs);
+    const reqParams: UpdateFunctionCodeOptions = {
       Action: 'UpdateFunctionCode' as const,
       Handler: functionInputs.Handler || funcInfo.Handler,
       FunctionName: functionInputs.FunctionName,
-      CosBucketName: functionInputs.Code?.CosBucketName,
-      CosObjectName: functionInputs.Code?.CosObjectName,
+      // CosBucketName: functionInputs.Code?.CosBucketName,
+      // CosObjectName: functionInputs.Code?.CosObjectName,
+      Code: functionInputs.Code,
       Namespace: inputs.namespace || funcInfo.Namespace,
       InstallDependency: functionInputs.InstallDependency,
     };
@@ -168,7 +175,7 @@ export default class ScfEntity extends BaseEntity {
   // 更新函数配置
   async updateConfigure(inputs: ScfCreateFunctionInputs, funcInfo: FunctionInfo) {
     console.log(`Updating function ${inputs.name} configure, region ${this.region}`);
-    let reqParams = await formatInputs(this.region, inputs);
+    let reqParams = await formatInputs(inputs);
 
     reqParams = {
       ...reqParams,
@@ -187,8 +194,8 @@ export default class ScfEntity extends BaseEntity {
     // 更新函数接口不能传递以下参数
     delete reqInputs.Type;
     delete reqInputs.Handler;
+    delete reqInputs.Runtime;
     delete reqInputs.Code;
-    delete reqInputs.CodeSource;
     delete reqInputs.AsyncRunEnable;
     delete reqInputs.InstallDependency;
     delete reqInputs.DeployMode;
@@ -227,7 +234,7 @@ export default class ScfEntity extends BaseEntity {
     } catch (e) {
       throw new ApiError({
         type: 'API_SCF_DeleteFunction',
-        message: `Cannot delete function in 2 minutes, (reqId: ${res.RequestId})`,
+        message: `删除函数是失败：${e.message}, (reqId: ${res.RequestId})`,
       });
     }
     return true;
@@ -390,5 +397,19 @@ export default class ScfEntity extends BaseEntity {
     });
 
     return res;
+  }
+
+  async getDemoAddress(demoId: string) {
+    try {
+      const res = await this.request({
+        Action: 'GetDemoAddress',
+        DemoId: demoId,
+      });
+      return res?.DownloadAddress;
+    } catch (e) {
+      console.log(`[SCF] 获取模板代码失败，${e.message}`);
+
+      return undefined;
+    }
   }
 }

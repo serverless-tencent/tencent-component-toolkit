@@ -1,3 +1,78 @@
+## [2.12.9](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.12.8...v2.12.9) (2021-06-28)
+
+
+### Bug Fixes
+
+* **scf:** web function handler config ([#234](https://github.com/serverless-tencent/tencent-component-toolkit/issues/234)) ([3becd8f](https://github.com/serverless-tencent/tencent-component-toolkit/commit/3becd8f06cf73bd9bc06450ca5180710d6f8c7d0))
+
+## [2.12.8](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.12.7...v2.12.8) (2021-06-28)
+
+
+### Bug Fixes
+
+* **triggers:** manager filter trigger bug ([cce91bc](https://github.com/serverless-tencent/tencent-component-toolkit/commit/cce91bc58aa7fff694ab6098d27ae9b3f8c108d2))
+
+## [2.12.7](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.12.6...v2.12.7) (2021-06-28)
+
+
+### Bug Fixes
+
+* **scf:** update apigw trigger bug ([2561e68](https://github.com/serverless-tencent/tencent-component-toolkit/commit/2561e68533ccdbb513a0d3b4b2f0cafda08b9eee))
+
+## [2.12.6](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.12.5...v2.12.6) (2021-06-24)
+
+
+### Bug Fixes
+
+* **scf:** auto release ([8a0184b](https://github.com/serverless-tencent/tencent-component-toolkit/commit/8a0184b49f9762b1b2d179cd964e11f3fcd30e27))
+
+## [2.12.5](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.12.4...v2.12.5) (2021-06-24)
+
+
+### Bug Fixes
+
+* **cos:** update cos sdk version and refactor cos error ([8b3dc2f](https://github.com/serverless-tencent/tencent-component-toolkit/commit/8b3dc2f7af1ba7f46cab77fb2986a11813fb72be))
+
+## [2.12.4](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.12.3...v2.12.4) (2021-06-23)
+
+
+### Bug Fixes
+
+* **scf:** format image config ([65aaa13](https://github.com/serverless-tencent/tencent-component-toolkit/commit/65aaa13c014c585b882ef063812b3c172db331c6))
+
+## [2.12.3](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.12.2...v2.12.3) (2021-06-22)
+
+
+### Bug Fixes
+
+* **apigw:** optimize remove apigw trigger flow ([2a536a9](https://github.com/serverless-tencent/tencent-component-toolkit/commit/2a536a9b95ecc96bfc0e003eda2ac5af5d93278a))
+
+## [2.12.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.12.1...v2.12.2) (2021-06-18)
+
+
+### Bug Fixes
+
+* **triggers:** apigw release bug for manager ([#230](https://github.com/serverless-tencent/tencent-component-toolkit/issues/230)) ([2dbecba](https://github.com/serverless-tencent/tencent-component-toolkit/commit/2dbecba0cfc3e5e5e56efe3b3efea4472f8bad7c))
+
+## [2.12.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.12.0...v2.12.1) (2021-06-17)
+
+
+### Bug Fixes
+
+* **trigger:** add trigger create rate limitation ([c9e00b7](https://github.com/serverless-tencent/tencent-component-toolkit/commit/c9e00b74a85c93f58a866017ab891d3f7e287e7c))
+
+# [2.12.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.11.0...v2.12.0) (2021-06-15)
+
+
+### Bug Fixes
+
+* **scf:** support get demo address ([7750182](https://github.com/serverless-tencent/tencent-component-toolkit/commit/775018202727d40f7dd732d561ebd47162f78a27))
+
+
+### Features
+
+* support image deploy and add tcr module ([7da7a38](https://github.com/serverless-tencent/tencent-component-toolkit/commit/7da7a38ed797f49e44092e19605b929f06d6f2da))
+
 # [2.11.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.10.0...v2.11.0) (2021-06-08)
 
 

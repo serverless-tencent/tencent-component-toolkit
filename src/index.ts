@@ -18,5 +18,6 @@ export { default as Monitor } from './modules/monitor';
 export { default as Account } from './modules/account';
 export { default as Asw } from './modules/asw';
 export { default as EventBridge } from './modules/eb';
+export { default as Tcr } from './modules/tcr';
 
 export { TriggerManager } from './modules/triggers/manager';
