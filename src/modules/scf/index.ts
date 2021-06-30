@@ -432,6 +432,7 @@ export default class Scf {
     const Response = await this.request({
       Action: 'Invoke',
       FunctionName: inputs.functionName,
+      Qualifier: inputs.qualifier ?? CONFIGS.defaultQualifier,
       Namespace: inputs.namespace ?? CONFIGS.defaultNamespace,
       ClientContext: JSON.stringify(inputs.clientContext ?? {}),
       LogType: inputs.logType ?? 'Tail',
