@@ -1,3 +1,10 @@
+## [2.12.11](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.12.10...v2.12.11) (2021-06-30)
+
+
+### Bug Fixes
+
+* **scf:** invoke support qualifier option ([f3c73c4](https://github.com/serverless-tencent/tencent-component-toolkit/commit/f3c73c452305b764d7beb4cdf01c4eb1ae211734))
+
 ## [2.12.10](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.12.9...v2.12.10) (2021-06-30)
 
 
