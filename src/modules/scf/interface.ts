@@ -286,6 +286,7 @@ export interface ScfRemoveInputs {
 export interface ScfInvokeInputs {
   functionName: string;
   namespace?: string;
+  qualifier?: string;
   logType?: string;
   clientContext?: any;
   invocationType?: string;

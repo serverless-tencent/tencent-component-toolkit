@@ -1,5 +1,6 @@
 const CONFIGS = {
   defaultNamespace: 'default',
+  defaultQualifier: '$LATEST',
   defaultMemorySize: 128,
   defaultTimeout: 3,
   defaultInitTimeout: 3,
