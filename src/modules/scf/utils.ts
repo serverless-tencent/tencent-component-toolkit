@@ -21,7 +21,6 @@ export const formatInputs = (inputs: ScfCreateFunctionInputs) => {
     },
     L5Enable: inputs.l5Enable === true ? 'TRUE' : 'FALSE',
     InstallDependency: inputs.installDependency === true ? 'TRUE' : 'FALSE',
-    Handler: inputs.type === 'web' ? 'scf_bootstrap' : inputs.handler,
   };
 
   // 镜像方式部署
@@ -52,6 +51,8 @@ export const formatInputs = (inputs: ScfCreateFunctionInputs) => {
 
   // 只有 Event 函数才支持
   if (inputs.type !== 'web') {
+    functionInputs.Handler = inputs.handler;
+
     if (inputs.asyncRunEnable !== undefined) {
       functionInputs.AsyncRunEnable = inputs.asyncRunEnable === true ? 'TRUE' : 'FALSE';
     }
