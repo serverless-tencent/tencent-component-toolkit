@@ -161,6 +161,12 @@ export interface NewTriggerInputs {
 
 export * from './clb';
 
+interface ApiOutput {
+  path: string;
+  method: string;
+
+  [key: string]: any;
+}
 export interface SimpleApigwDetail {
   // 是否是通过 CLI 创建的
   created?: boolean;
@@ -172,4 +178,6 @@ export interface SimpleApigwDetail {
   serviceName: string;
   // 发布的环境
   environment: string;
+  // api 列表
+  apiList: ApiOutput[];
 }

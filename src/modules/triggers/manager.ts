@@ -314,6 +314,7 @@ export class TriggerManager {
             serviceId: triggerOutput.serviceId,
             serviceName: triggerOutput.serviceName,
             environment: triggerOutput.environment,
+            apiList: triggerOutput.apiList || [],
           });
         }
         this.runningTasks--;

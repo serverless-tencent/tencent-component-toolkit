@@ -3,7 +3,7 @@ import {
   UpdateApiInputs,
   ApiDeployInputs,
   ApiDeployOutputs,
-  CreateOrUpdateApiInputs,
+  CreateApiInputs,
   ApiRemoveInputs,
   ApiBulkRemoveInputs,
   ApiBulkDeployInputs,
@@ -12,19 +12,22 @@ import {
 import { pascalCaseProps } from '../../../utils';
 import { ApiTypeError } from '../../../utils/error';
 import APIS, { ActionType } from '../apis';
-import UsagePlanEntiry from './usage-plan';
+import UsagePlanEntity from './usage-plan';
+import ApplicationEntity from './application';
 import { ApigwTrigger } from '../../triggers';
 
 export default class ApiEntity {
   capi: Capi;
-  usagePlan: UsagePlanEntiry;
+  usagePlan: UsagePlanEntity;
   trigger: ApigwTrigger;
+  app: ApplicationEntity;
 
   constructor(capi: Capi, trigger: ApigwTrigger) {
     this.capi = capi;
     this.trigger = trigger;
 
-    this.usagePlan = new UsagePlanEntiry(capi);
+    this.usagePlan = new UsagePlanEntity(capi);
+    this.app = new ApplicationEntity(capi);
   }
 
   async request({ Action, ...data }: { Action: ActionType; [key: string]: any }) {
@@ -41,7 +44,7 @@ export default class ApiEntity {
     return true;
   }
 
-  async create({ serviceId, endpoint, environment }: CreateOrUpdateApiInputs) {
+  async create({ serviceId, endpoint, environment }: CreateApiInputs) {
     // compatibility for secret auth config depends on auth & usagePlan
     const authType = endpoint?.auth ? 'SECRET' : endpoint?.authType ?? 'NONE';
     const businessType = endpoint?.businessType ?? 'NORMAL';
@@ -58,39 +61,7 @@ export default class ApiEntity {
       output.authRelationApiId = endpoint.authRelationApiId;
     }
 
-    const apiInputs = {
-      protocol: endpoint?.protocol ?? 'HTTP',
-      serviceId: serviceId,
-      apiName: endpoint?.apiName ?? 'index',
-      apiDesc: endpoint?.description,
-      apiType: 'NORMAL',
-      authType: authType,
-      apiBusinessType: endpoint?.businessType ?? 'NORMAL',
-      serviceType: endpoint?.serviceType ?? 'SCF',
-      requestConfig: {
-        path: endpoint?.path,
-        method: endpoint?.method,
-      },
-      serviceTimeout: endpoint?.serviceTimeout ?? 15,
-      responseType: endpoint?.responseType ?? 'HTML',
-      enableCORS: endpoint?.enableCORS === true,
-      isBase64Encoded: endpoint?.isBase64Encoded === true,
-      isBase64Trigger: undefined as undefined | boolean,
-      base64EncodedTriggerRules: undefined as
-        | undefined
-        | {
-            name: string;
-            value: string[];
-          }[],
-      oauthConfig: endpoint?.oauthConfig,
-      authRelationApiId: endpoint?.authRelationApiId,
-    };
-
-    if (!apiInputs.authRelationApiId) {
-      delete apiInputs.authRelationApiId;
-    }
-
-    this.formatInput(endpoint, apiInputs);
+    const apiInputs = this.formatInput({ endpoint, serviceId });
 
     const res = await this.request({
       Action: 'CreateApi',
@@ -120,6 +91,7 @@ export default class ApiEntity {
 
     output.apiName = apiInputs.apiName;
 
+    // 以下为密钥对鉴权方式
     if (endpoint?.usagePlan) {
       const usagePlan = await this.usagePlan.bind({
         apiId: output.apiId,
@@ -130,6 +102,18 @@ export default class ApiEntity {
       });
 
       output.usagePlan = usagePlan;
+    }
+
+    // 部署网关应用
+    if (endpoint.app) {
+      const app = await this.app.bind({
+        serviceId,
+        environment,
+        apiId: output.apiId!,
+        appConfig: endpoint.app,
+      });
+
+      output.app = app;
     }
 
     return output;
@@ -155,39 +139,7 @@ export default class ApiEntity {
       output.authRelationApiId = endpoint.authRelationApiId;
     }
 
-    const apiInputs = {
-      protocol: endpoint?.protocol ?? 'HTTP',
-      serviceId: serviceId,
-      apiName: endpoint?.apiName ?? 'index',
-      apiDesc: endpoint?.description,
-      apiType: 'NORMAL',
-      authType: authType,
-      apiBusinessType: endpoint?.businessType ?? 'NORMAL',
-      serviceType: endpoint?.serviceType ?? 'SCF',
-      requestConfig: {
-        path: endpoint?.path,
-        method: endpoint?.method,
-      },
-      serviceTimeout: endpoint?.serviceTimeout ?? 15,
-      responseType: endpoint?.responseType ?? 'HTML',
-      enableCORS: endpoint?.enableCORS === true,
-      isBase64Encoded: endpoint?.isBase64Encoded === true,
-      isBase64Trigger: undefined as undefined | boolean,
-      base64EncodedTriggerRules: undefined as
-        | undefined
-        | {
-            name: string;
-            value: string[];
-          }[],
-      oauthConfig: endpoint?.oauthConfig,
-      authRelationApiId: endpoint?.authRelationApiId,
-    };
-
-    if (!apiInputs.authRelationApiId) {
-      delete apiInputs.authRelationApiId;
-    }
-
-    this.formatInput(endpoint, apiInputs);
+    const apiInputs = this.formatInput({ endpoint, serviceId });
 
     console.log(`Api method ${endpoint?.method}, path ${endpoint?.path} already exist`);
     endpoint.apiId = apiDetail.ApiId;
@@ -220,6 +172,18 @@ export default class ApiEntity {
       });
 
       output.usagePlan = usagePlan;
+    }
+
+    // 部署网关应用
+    if (endpoint.app) {
+      const app = await this.app.bind({
+        serviceId,
+        environment,
+        apiId: output.apiId,
+        appConfig: endpoint.app,
+      });
+
+      output.app = app;
     }
 
     return output;
@@ -415,8 +379,38 @@ export default class ApiEntity {
     };
   }
 
-  formatInput(endpoint: any, apiInputs: any) {
-    if (endpoint.param) {
+  formatInput({ serviceId, endpoint }: Omit<CreateApiInputs, 'environment'>) {
+    const authType = endpoint?.auth ? 'SECRET' : endpoint?.authType ?? 'NONE';
+
+    const apiInputs: { [key: string]: any } = {
+      protocol: endpoint?.protocol ?? 'HTTP',
+      serviceId: serviceId,
+      apiName: endpoint?.apiName ?? 'index',
+      apiDesc: endpoint?.description,
+      apiType: 'NORMAL',
+      authType: authType,
+      apiBusinessType: endpoint?.businessType ?? 'NORMAL',
+      serviceType: endpoint?.serviceType ?? 'SCF',
+      requestConfig: {
+        path: endpoint?.path,
+        method: endpoint?.method,
+      },
+      serviceTimeout: endpoint?.serviceTimeout ?? 15,
+      responseType: endpoint?.responseType ?? 'HTML',
+      enableCORS: endpoint?.enableCORS === true,
+      isBase64Encoded: endpoint?.isBase64Encoded === true,
+      isBase64Trigger: undefined as undefined | boolean,
+      base64EncodedTriggerRules: undefined as
+        | undefined
+        | {
+            name: string;
+            value: string[];
+          }[],
+      oauthConfig: endpoint?.oauthConfig,
+      authRelationApiId: endpoint?.authRelationApiId,
+    };
+
+    if (endpoint?.param) {
       apiInputs.requestParameters = endpoint.param;
     }
 
@@ -427,6 +421,7 @@ export default class ApiEntity {
       if (serviceType === 'WEBSOCKET') {
         this.formatServiceConfig(endpoint, apiInputs);
       } else {
+        endpoint.function = endpoint.function || {};
         const funcNamespace = endpoint.function.functionNamespace || 'default';
         const funcQualifier = endpoint.function.functionQualifier
           ? endpoint.function.functionQualifier
@@ -488,7 +483,7 @@ export default class ApiEntity {
               apiInputs.serviceParameters.push(targetParam);
             }
           }
-          if (endpoint.serviceConfig.uniqVpcId) {
+          if (endpoint.serviceConfig?.uniqVpcId) {
             apiInputs.serviceConfig.uniqVpcId = endpoint.serviceConfig.uniqVpcId;
             apiInputs.serviceConfig.product = 'clb';
           }
@@ -503,6 +498,8 @@ export default class ApiEntity {
           apiInputs.serviceMockReturnMessage = endpoint.serviceMockReturnMessage;
       }
     }
+
+    return apiInputs;
   }
 
   async getList(serviceId: string) {

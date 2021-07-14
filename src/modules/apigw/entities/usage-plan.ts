@@ -9,7 +9,7 @@ import {
 } from '../interface';
 import { pascalCaseProps, uniqueArray } from '../../../utils';
 
-export default class UsagePlanEntiry {
+export default class UsagePlanEntity {
   capi: Capi;
   constructor(capi: Capi) {
     this.capi = capi;
@@ -258,7 +258,7 @@ export default class UsagePlanEntiry {
         console.log(`Usage plan ${usagePlan.usagePlanId} already bind to api ${apiId}`);
       } else {
         console.log(
-          `Usage plan ${usagePlan.usagePlanId} already bind to enviromment ${environment}`,
+          `Usage plan ${usagePlan.usagePlanId} already bind to environment ${environment}`,
         );
       }
 
@@ -279,7 +279,7 @@ export default class UsagePlanEntiry {
       return usagePlan;
     }
 
-    console.log(`Binding usage plan ${usagePlan.usagePlanId} to enviromment ${environment}`);
+    console.log(`Binding usage plan ${usagePlan.usagePlanId} to environment ${environment}`);
     await this.request({
       Action: 'BindEnvironment',
       serviceId,
@@ -287,7 +287,7 @@ export default class UsagePlanEntiry {
       bindType: 'SERVICE',
       usagePlanIds: [usagePlan.usagePlanId],
     });
-    console.log(`Bind usage plan ${usagePlan.usagePlanId} to enviromment ${environment} success`);
+    console.log(`Bind usage plan ${usagePlan.usagePlanId} to environment ${environment} success`);
 
     return usagePlan;
   }

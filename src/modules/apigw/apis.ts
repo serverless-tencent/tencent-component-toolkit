@@ -36,6 +36,10 @@ const ACTIONS = [
   'UnBindSubDomain',
   'DescribeServicesStatus',
   'DescribeServiceEnvironmentList',
+  'CreateApiApp',
+  'ModifyApiApp',
+  'BindApiApp',
+  'UnbindApiApp',
 ] as const;
 
 export type ActionType = typeof ACTIONS[number];
