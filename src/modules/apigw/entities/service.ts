@@ -106,8 +106,6 @@ export default class ServiceEntity {
       usagePlanList = ServiceUsagePlanList;
     }
 
-    console.log({ usagePlanList });
-
     for (let i = 0; i < usagePlanList.length; i++) {
       const { UsagePlanId, Environment, ApiId } = usagePlanList[i];
       console.log(`APIGW - Removing api usage plan: ${UsagePlanId}`);

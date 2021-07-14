@@ -249,13 +249,6 @@ describe('apigw deploy, update and remove', () => {
       ],
       tags,
     });
-
-    const r = await apigw.request({
-      Action: 'DescribeServiceUsagePlan',
-      ServiceId: outputs.serviceId,
-    });
-
-    console.log({ usagePlanRes0: r, serviceId: outputs.serviceId });
   });
 
   test('[Environment UsagePlan] should update a apigw without usagePlan success', async () => {
@@ -287,11 +280,9 @@ describe('apigw deploy, update and remove', () => {
   });
 });
 
-describe('apigw deploy and remove with serviceId', () => {
+describe('apigw usagePlan', () => {
   const apigw = new Apigw(credentials, process.env.REGION);
   let outputs: ApigwDeployOutputs;
-  let outputsWithId: ApigwDeployOutputs;
-
   test('[Api UsagePlan] should deploy a apigw success', async () => {
     const apigwInputs = deepClone(inputs);
     apigwInputs.endpoints[0].usagePlan = apigwInputs.usagePlan;
@@ -417,6 +408,11 @@ describe('apigw deploy and remove with serviceId', () => {
     });
     expect(detail).toBeNull();
   });
+});
+
+describe('apigw deploy and remove with serviceId', () => {
+  const apigw = new Apigw(credentials, process.env.REGION);
+  let outputs: ApigwDeployOutputs;
 
   test('[isInputServiceId] should deploy a apigw success', async () => {
     const apigwInputs = deepClone(inputs);
@@ -425,8 +421,8 @@ describe('apigw deploy and remove with serviceId', () => {
     delete apigwInputs.usagePlan;
     delete apigwInputs.auth;
 
-    outputsWithId = await apigw.deploy(apigwInputs);
-    expect(outputsWithId).toEqual({
+    outputs = await apigw.deploy(apigwInputs);
+    expect(outputs).toEqual({
       created: false,
       serviceId: expect.stringContaining('service-'),
       serviceName: 'serverless_unit_test',
@@ -528,12 +524,12 @@ describe('apigw deploy and remove with serviceId', () => {
   });
 
   test('[isInputServiceId] should remove apigw success', async () => {
-    await apigw.remove(outputsWithId);
-    const detail = await apigw.service.getById(outputsWithId.serviceId);
+    await apigw.remove(outputs);
+    const detail = await apigw.service.getById(outputs.serviceId);
     expect(detail).toBeDefined();
     expect(detail.ServiceName).toBe('serverless_unit_test');
     expect(detail.ServiceDesc).toBe('Created By Serverless');
-    const apiList = await apigw.api.getList(outputsWithId.serviceId);
+    const apiList = await apigw.api.getList(outputs.serviceId);
     expect(apiList.length).toBe(0);
   });
 });
