@@ -185,7 +185,6 @@ export default class Apigw {
       serviceId,
       environment,
     });
-
     // 定制化需求：如果用户在yaml中配置了 serviceId，则只执行删除 api 逻辑
     // 删除后需要重新发布
     if (isRemoveTrigger && isAutoRelease) {

@@ -87,14 +87,29 @@ export default class ServiceEntity {
     }
   }
 
-  async removeApiUsagePlan(ServiceId: string) {
-    const { ApiUsagePlanList = [] } = await this.request({
-      Action: 'DescribeApiUsagePlan',
-      ServiceId,
-    });
+  async removeUsagePlan(ServiceId: string, type: 'API' | 'SERVICE') {
+    let usagePlanList: { UsagePlanId: string; Environment: string; ApiId: string }[] = [];
+    if (type === 'API') {
+      const { ApiUsagePlanList = [] } = await this.request({
+        Action: 'DescribeApiUsagePlan',
+        ServiceId,
+      });
+      usagePlanList = ApiUsagePlanList;
+    }
 
-    for (let i = 0; i < ApiUsagePlanList.length; i++) {
-      const { UsagePlanId, Environment, ApiId } = ApiUsagePlanList[i];
+    if (type === 'SERVICE') {
+      const { ServiceUsagePlanList = [] } = await this.request({
+        Action: 'DescribeServiceUsagePlan',
+        ServiceId,
+      });
+
+      usagePlanList = ServiceUsagePlanList;
+    }
+
+    console.log({ usagePlanList });
+
+    for (let i = 0; i < usagePlanList.length; i++) {
+      const { UsagePlanId, Environment, ApiId } = usagePlanList[i];
       console.log(`APIGW - Removing api usage plan: ${UsagePlanId}`);
       const { AccessKeyList = [] } = await this.request({
         Action: 'DescribeUsagePlanSecretIds',
@@ -102,7 +117,9 @@ export default class ServiceEntity {
         Limit: 100,
       });
 
-      const AccessKeyIds = AccessKeyList.map((item: { SecretId: string }) => item.SecretId);
+      const AccessKeyIds = AccessKeyList.map((item: { SecretId: string }) => item.SecretId).filter(
+        (v) => v != null,
+      );
 
       if (AccessKeyIds && AccessKeyIds.length > 0) {
         await this.request({
@@ -120,14 +137,17 @@ export default class ServiceEntity {
       }
 
       // unbind environment
-      await this.request({
+      const req: any = {
         Action: 'UnBindEnvironment',
         ServiceId,
         UsagePlanIds: [UsagePlanId],
         Environment: Environment,
-        BindType: 'API',
-        ApiIds: [ApiId],
-      });
+        BindType: type,
+      };
+      if (type === 'API') {
+        req.ApiIds = [ApiId];
+      }
+      await this.request(req);
 
       await this.request({
         Action: 'DeleteUsagePlan',
@@ -148,7 +168,7 @@ export default class ServiceEntity {
       for (let i = 0; i < ApiIdStatusSet.length; i++) {
         const { ApiId } = ApiIdStatusSet[i];
 
-        await this.removeApiUsagePlan(serviceId);
+        await this.removeUsagePlan(serviceId, 'API');
 
         console.log(`APIGW - Removing api: ${ApiId}`);
 
@@ -270,6 +290,8 @@ export default class ServiceEntity {
             ? [detail!.OuterSubDomain, detail!.InnerSubDomain]
             : detail!.OuterSubDomain || detail!.InnerSubDomain;
 
+        // 更新时删除后重新绑定用户计划
+        await this.removeUsagePlan(serviceId, 'SERVICE');
         if (serviceConf.usagePlan) {
           outputs.usagePlan = await this.usagePlan.bind({
             serviceId: detail!.ServiceId,

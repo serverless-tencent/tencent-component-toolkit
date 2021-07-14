@@ -104,7 +104,7 @@ export default class ApiEntity {
       output.usagePlan = usagePlan;
     }
 
-    // 部署网关应用
+    // 网关应用鉴权方式
     if (endpoint.app) {
       const app = await this.app.bind({
         serviceId,
@@ -308,28 +308,38 @@ export default class ApiEntity {
     return curApi;
   }
 
-  async remove({ apiConfig, serviceId, environment }: ApiRemoveInputs) {
+  async remove({ apiConfig: endpoint, serviceId, environment }: ApiRemoveInputs) {
     // 1. remove usage plan
-    if (apiConfig.usagePlan) {
+    if (endpoint.usagePlan) {
       await this.usagePlan.remove({
         serviceId,
         environment,
-        apiId: apiConfig.apiId,
-        usagePlan: apiConfig.usagePlan,
+        apiId: endpoint.apiId,
+        usagePlan: endpoint.usagePlan,
       });
     }
 
-    // 2. delete only apis created by serverless framework
-    if (apiConfig.apiId && apiConfig.created === true) {
-      console.log(`Removing api ${apiConfig.apiId}`);
+    // 2. unbind app
+    if (endpoint.app) {
+      await this.app.unbind({
+        serviceId,
+        environment,
+        apiId: endpoint.apiId!,
+        appConfig: endpoint.app,
+      });
+    }
+
+    // 3. delete only apis created by serverless framework
+    if (endpoint.apiId && endpoint.created === true) {
+      console.log(`Removing api ${endpoint.apiId}`);
       await this.trigger.remove({
         serviceId,
-        apiId: apiConfig.apiId,
+        apiId: endpoint.apiId,
       });
 
       await this.removeRequest({
         Action: 'DeleteApi',
-        apiId: apiConfig.apiId,
+        apiId: endpoint.apiId,
         serviceId,
       });
     }

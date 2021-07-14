@@ -66,13 +66,15 @@ export default class AppEntity {
   async unbind({ serviceId, environment, apiId, appConfig }: AppBindOptions) {
     console.log(`Unbinding api(${apiId}) from application(${appConfig.id})`);
 
-    await this.request({
+    const res = await this.request({
       Action: 'UnbindApiApp',
       ApiAppId: appConfig.id,
       ApiId: apiId,
       Environment: environment,
       ServiceId: serviceId,
     });
+
+    return res;
   }
 
   async create({ name, description = '' }: ApiAppCreateOptions) {
