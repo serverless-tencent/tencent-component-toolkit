@@ -219,6 +219,7 @@ export default class ServiceEntity {
       netTypes,
       serviceName = 'serverless',
       serviceDesc = 'Created By Serverless',
+      instanceId,
     } = serviceConf;
 
     const apiInputs = {
@@ -226,6 +227,7 @@ export default class ServiceEntity {
       serviceName: serviceName,
       serviceDesc: serviceDesc,
       protocol: protocols,
+      instanceId,
       netTypes,
     };
 

@@ -128,6 +128,10 @@ export default class Apigw {
       apiList,
     };
 
+    if (inputs.instanceId) {
+      outputs.instanceId = inputs.instanceId;
+    }
+
     // bind custom domain
     const customDomains = await this.customDomain.bind({
       serviceId,

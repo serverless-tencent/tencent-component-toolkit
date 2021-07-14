@@ -129,6 +129,7 @@ export interface ApigwCreateServiceInputs {
   serviceName?: string;
   serviceDesc?: string;
   serviceId?: string;
+  instanceId?: string;
 
   usagePlan?: ApigwSetupUsagePlanInputs;
   auth?: ApigwSetupUsagePlanSecretInputs;
@@ -217,6 +218,7 @@ export interface ApigwUsagePlanOutputs {
 
 export interface ApigwDeployOutputs {
   created?: boolean;
+  instanceId?: string;
   serviceId: string;
   serviceName: string;
   subDomain: string | string[];
