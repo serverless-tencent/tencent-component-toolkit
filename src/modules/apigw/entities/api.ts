@@ -174,7 +174,35 @@ export default class ApiEntity {
       output.usagePlan = usagePlan;
     }
 
-    // 部署网关应用
+    // 解绑网关应用
+    const apiAppRes: {
+      ApiAppApiSet: {
+        ApiAppId: string;
+        ApiAppName: string;
+        ApiId: string;
+        ServiceId: string;
+        ApiRegion: string;
+        EnvironmentName: string;
+        AuthorizedTime: string;
+      }[];
+    } = await this.request({
+      Action: 'DescribeApiBindApiAppsStatus',
+      ServiceId: serviceId,
+      ApiIds: [endpoint.apiId],
+    });
+    for (const apiApp of apiAppRes.ApiAppApiSet) {
+      await this.app.unbind({
+        serviceId: apiApp.ServiceId,
+        environment,
+        apiId: apiApp.ApiId,
+        appConfig: {
+          name: '',
+          id: apiApp.ApiAppId,
+        },
+      });
+    }
+
+    // 绑定网关应用
     if (endpoint.app) {
       const app = await this.app.bind({
         serviceId,
@@ -272,6 +300,7 @@ export default class ApiEntity {
 
     let curApi;
     let apiDetail: ApiDetail | null = null;
+
     if (apiConfig.apiId) {
       apiDetail = await this.getById({ serviceId: serviceId!, apiId: apiConfig.apiId });
     }

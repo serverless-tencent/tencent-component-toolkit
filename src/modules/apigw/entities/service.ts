@@ -292,6 +292,7 @@ export default class ServiceEntity {
 
         // 更新时删除后重新绑定用户计划
         await this.removeUsagePlan(serviceId, 'SERVICE');
+        await this.removeUsagePlan(serviceId, 'API');
         if (serviceConf.usagePlan) {
           outputs.usagePlan = await this.usagePlan.bind({
             serviceId: detail!.ServiceId,

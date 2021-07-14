@@ -40,6 +40,7 @@ const ACTIONS = [
   'ModifyApiApp',
   'BindApiApp',
   'UnbindApiApp',
+  'DescribeApiBindApiAppsStatus',
 ] as const;
 
 export type ActionType = typeof ACTIONS[number];

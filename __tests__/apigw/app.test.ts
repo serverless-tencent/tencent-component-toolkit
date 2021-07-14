@@ -30,14 +30,14 @@ describe('apigw app', () => {
     ],
   };
   const apigw = new Apigw(credentials, process.env.REGION);
-  let bindOutputs: ApigwDeployOutputs;
+  let outputs: ApigwDeployOutputs;
 
   // 由于自定义域名必须 ICP 备案，所以这里测试域名不会通过，具体测试请使用
   test('create apigw with app auth success', async () => {
     const apigwInputs = deepClone(inputs);
-    bindOutputs = await apigw.deploy(apigwInputs);
+    outputs = await apigw.deploy(apigwInputs);
 
-    expect(bindOutputs.apiList).toEqual([
+    expect(outputs.apiList).toEqual([
       {
         path: '/appauth',
         internalDomain: expect.any(String),
@@ -58,13 +58,39 @@ describe('apigw app', () => {
     ]);
   });
 
+  test('update apigw without app auth success', async () => {
+    const apigwInputs = deepClone(inputs);
+    delete apigwInputs.endpoints[0].app;
+    apigwInputs.serviceId = outputs.serviceId;
+    apigwInputs.endpoints[0].apiId = outputs.apiList[0].apiId;
+    outputs = await apigw.deploy(apigwInputs);
+
+    const apiAppRes: {
+      ApiAppApiSet: {
+        ApiAppId: string;
+        ApiAppName: string;
+        ApiId: string;
+        ServiceId: string;
+        ApiRegion: string;
+        EnvironmentName: string;
+        AuthorizedTime: string;
+      }[];
+    } = await apigw.request({
+      Action: 'DescribeApiBindApiAppsStatus',
+      ServiceId: outputs.serviceId,
+      ApiIds: [outputs.apiList[0].apiId],
+    });
+    expect(apiAppRes.ApiAppApiSet).toEqual([]);
+  });
+
   test('remove app auth success', async () => {
-    await apigw.remove(bindOutputs);
+    outputs.apiList[0].created = true;
+    await apigw.remove(outputs);
 
     const detail = await apigw.request({
       Action: 'DescribeApi',
-      serviceId: bindOutputs.serviceId,
-      apiId: bindOutputs.apiList[0].apiId,
+      serviceId: outputs.serviceId,
+      apiId: outputs.apiList[0].apiId,
     });
 
     expect(detail).toBeNull();
