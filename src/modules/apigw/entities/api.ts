@@ -8,6 +8,7 @@ import {
   ApiBulkRemoveInputs,
   ApiBulkDeployInputs,
   ApiDetail,
+  EnviromentType,
 } from '../interface';
 import { pascalCaseProps } from '../../../utils';
 import { ApiTypeError } from '../../../utils/error';
@@ -45,6 +46,7 @@ export default class ApiEntity {
   }
 
   async create({ serviceId, endpoint, environment }: CreateApiInputs) {
+    console.log(`Api method ${endpoint?.method}, path ${endpoint?.path} creating`);
     // compatibility for secret auth config depends on auth & usagePlan
     const authType = endpoint?.auth ? 'SECRET' : endpoint?.authType ?? 'NONE';
     const businessType = endpoint?.businessType ?? 'NORMAL';
@@ -119,6 +121,45 @@ export default class ApiEntity {
     return output;
   }
 
+  // 解绑网关应用
+  async unbindApiApp({
+    serviceId,
+    apiId,
+    environment,
+  }: {
+    serviceId: string;
+    apiId: string;
+    environment: EnviromentType;
+  }) {
+    const apiAppRes: {
+      ApiAppApiSet: {
+        ApiAppId: string;
+        ApiAppName: string;
+        ApiId: string;
+        ServiceId: string;
+        ApiRegion: string;
+        EnvironmentName: string;
+        AuthorizedTime: string;
+      }[];
+    } = await this.request({
+      Action: 'DescribeApiBindApiAppsStatus',
+      ServiceId: serviceId,
+      ApiIds: [apiId],
+    });
+    for (const apiApp of apiAppRes.ApiAppApiSet) {
+      console.log(`Unbinding api app ${apiApp.ApiAppId}`);
+      await this.app.unbind({
+        serviceId: apiApp.ServiceId,
+        environment,
+        apiId: apiApp.ApiId,
+        appConfig: {
+          name: '',
+          id: apiApp.ApiAppId,
+        },
+      });
+    }
+  }
+
   async update(
     { serviceId, endpoint, environment, created }: UpdateApiInputs,
     apiDetail: ApiDetail,
@@ -149,6 +190,9 @@ export default class ApiEntity {
       apiInputs.base64EncodedTriggerRules = endpoint.base64EncodedTriggerRules;
     }
 
+    // TODO: 一个奇怪的问题：测试中不解绑 app 直接修改没有问题，但实际中必须先解绑 app
+    await this.unbindApiApp({ serviceId, apiId: endpoint.apiId, environment });
+
     await this.request({
       Action: 'ModifyApi',
       apiId: endpoint.apiId,
@@ -163,6 +207,7 @@ export default class ApiEntity {
     output.apiName = apiInputs.apiName;
 
     if (endpoint?.usagePlan) {
+      console.log(`Binding api usage plan`);
       const usagePlan = await this.usagePlan.bind({
         apiId: output.apiId,
         serviceId,
@@ -174,36 +219,9 @@ export default class ApiEntity {
       output.usagePlan = usagePlan;
     }
 
-    // 解绑网关应用
-    const apiAppRes: {
-      ApiAppApiSet: {
-        ApiAppId: string;
-        ApiAppName: string;
-        ApiId: string;
-        ServiceId: string;
-        ApiRegion: string;
-        EnvironmentName: string;
-        AuthorizedTime: string;
-      }[];
-    } = await this.request({
-      Action: 'DescribeApiBindApiAppsStatus',
-      ServiceId: serviceId,
-      ApiIds: [endpoint.apiId],
-    });
-    for (const apiApp of apiAppRes.ApiAppApiSet) {
-      await this.app.unbind({
-        serviceId: apiApp.ServiceId,
-        environment,
-        apiId: apiApp.ApiId,
-        appConfig: {
-          name: '',
-          id: apiApp.ApiAppId,
-        },
-      });
-    }
-
     // 绑定网关应用
     if (endpoint.app) {
+      console.log(`Binding api app`);
       const app = await this.app.bind({
         serviceId,
         environment,
