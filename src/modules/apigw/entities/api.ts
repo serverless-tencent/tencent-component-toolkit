@@ -356,7 +356,7 @@ export default class ApiEntity {
   }
 
   async remove({ apiConfig: endpoint, serviceId, environment }: ApiRemoveInputs) {
-    // 1. remove usage plan
+    // 1. unbind and remove usage plan (only remove created usage plan)
     if (endpoint.usagePlan) {
       await this.usagePlan.remove({
         serviceId,

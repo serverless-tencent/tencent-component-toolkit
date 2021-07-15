@@ -95,7 +95,7 @@ export default class Apigw {
 
     let serviceOutputs: ApigwCreateOrUpdateServiceOutputs;
     if (inputs.serviceId) {
-      serviceOutputs = await this.service.update({...inputs, serviceId: inputs.serviceId!});
+      serviceOutputs = await this.service.update({ ...inputs, serviceId: inputs.serviceId! });
     } else {
       serviceOutputs = await this.service.create(inputs);
     }
