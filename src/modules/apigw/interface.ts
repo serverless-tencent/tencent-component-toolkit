@@ -143,7 +143,6 @@ export interface ApigwUpdateServiceInputs {
   serviceName?: string;
   serviceDesc?: string;
   serviceId: string;
-  instanceId: string;
 
   usagePlan?: ApigwSetupUsagePlanInputs;
   auth?: ApigwSetupUsagePlanSecretInputs;

@@ -95,7 +95,7 @@ export default class Apigw {
 
     let serviceOutputs: ApigwCreateOrUpdateServiceOutputs;
     if (inputs.serviceId) {
-      serviceOutputs = await this.service.update(inputs as ApigwUpdateServiceInputs);
+      serviceOutputs = await this.service.update({...inputs, serviceId: inputs.serviceId!});
     } else {
       serviceOutputs = await this.service.create(inputs);
     }
@@ -128,6 +128,8 @@ export default class Apigw {
       apiList,
     };
 
+    // InstanceId 只能在创建时指定，创建后不可修改
+    // 创建时不指定则是共享实例
     if (inputs.instanceId) {
       outputs.instanceId = inputs.instanceId;
     }
