@@ -265,6 +265,7 @@ export default class ServiceEntity {
       netTypes,
       serviceName = 'serverless',
       serviceDesc = 'Created By Serverless',
+      instanceId,
     } = serviceConf;
 
     let detail: Detail | null;
@@ -314,6 +315,7 @@ export default class ServiceEntity {
             serviceId,
             serviceDesc: serviceDesc || detail.ServiceDesc,
             serviceName: serviceName || detail.ServiceName,
+            instanceId,
             protocol: protocols,
             netTypes: netTypes,
           };
