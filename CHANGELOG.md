@@ -1,3 +1,10 @@
+# [2.13.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.12.11...v2.13.0) (2021-07-16)
+
+
+### Features
+
+* **apigw:** support app auth and instance ([#237](https://github.com/serverless-tencent/tencent-component-toolkit/issues/237)) ([16d3a9a](https://github.com/serverless-tencent/tencent-component-toolkit/commit/16d3a9a45322662af803548654311aacbeefe5bd))
+
 ## [2.12.11](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.12.10...v2.12.11) (2021-06-30)
 
 
