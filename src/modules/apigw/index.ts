@@ -95,7 +95,7 @@ export default class Apigw {
 
     let serviceOutputs: ApigwCreateOrUpdateServiceOutputs;
     if (inputs.serviceId) {
-      serviceOutputs = await this.service.update(inputs as ApigwUpdateServiceInputs);
+      serviceOutputs = await this.service.update({ ...inputs, serviceId: inputs.serviceId! });
     } else {
       serviceOutputs = await this.service.create(inputs);
     }
@@ -127,6 +127,12 @@ export default class Apigw {
       environment: environment,
       apiList,
     };
+
+    // InstanceId 只能在创建时指定，创建后不可修改
+    // 创建时不指定则是共享实例
+    if (inputs.instanceId) {
+      outputs.instanceId = inputs.instanceId;
+    }
 
     // bind custom domain
     const customDomains = await this.customDomain.bind({
@@ -185,7 +191,6 @@ export default class Apigw {
       serviceId,
       environment,
     });
-
     // 定制化需求：如果用户在yaml中配置了 serviceId，则只执行删除 api 逻辑
     // 删除后需要重新发布
     if (isRemoveTrigger && isAutoRelease) {

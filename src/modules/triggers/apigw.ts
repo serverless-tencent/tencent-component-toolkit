@@ -157,17 +157,19 @@ export default class ApigwTrigger extends BaseTrigger<ApigwTriggerInputsParams> 
       serviceDesc,
       isInputServiceId = false,
       namespace,
+      instanceId,
     } = parameters!;
     const endpoints = parameters?.endpoints ?? [{ path: '/', method: 'ANY' }];
     const triggerInputs: ApigwTriggerInputsParams = {
-      isAutoRelease,
       oldState: oldState ?? {},
+      isAutoRelease,
       region,
       protocols,
       environment,
       serviceId,
       serviceName,
       serviceDesc,
+      instanceId,
 
       // 定制化需求：是否在 yaml 文件中配置了 apigw 触发器的 serviceId
       isInputServiceId,

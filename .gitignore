@@ -24,6 +24,6 @@ env.js
 package-lock.json
 yarn.lock
 
-__tests__/apigw.sp.test.ts
-__tests__/scf.image.test.ts
-__tests__/scf.sp.test.ts
+__tests__/apigw/special.test.ts
+__tests__/scf/image.test.ts
+__tests__/scf/special.test.ts
