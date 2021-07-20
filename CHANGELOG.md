@@ -1,3 +1,10 @@
+## [2.13.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.13.1...v2.13.2) (2021-07-20)
+
+
+### Bug Fixes
+
+* **cos:** update too many bucket error msg ([278aaaa](https://github.com/serverless-tencent/tencent-component-toolkit/commit/278aaaa114a033bb04075afe317d2e4c204eac9a))
+
 ## [2.13.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.13.0...v2.13.1) (2021-07-20)
 
 
