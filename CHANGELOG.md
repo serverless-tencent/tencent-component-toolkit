@@ -1,3 +1,10 @@
+## [2.13.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.13.0...v2.13.1) (2021-07-20)
+
+
+### Bug Fixes
+
+* **cos:** compatibility for too many buckets error ([3e4dc64](https://github.com/serverless-tencent/tencent-component-toolkit/commit/3e4dc641cd3349a3ffaef3f324ddfcf5ae190206))
+
 # [2.13.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.12.11...v2.13.0) (2021-07-16)
 
 
