@@ -1,3 +1,10 @@
+## [2.13.3](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.13.2...v2.13.3) (2021-07-21)
+
+
+### Bug Fixes
+
+* support async retry config  ([#238](https://github.com/serverless-tencent/tencent-component-toolkit/issues/238)) ([82224cb](https://github.com/serverless-tencent/tencent-component-toolkit/commit/82224cba9f2b39f459152d25143a2b99dcc59727))
+
 ## [2.13.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.13.1...v2.13.2) (2021-07-20)
 
 
