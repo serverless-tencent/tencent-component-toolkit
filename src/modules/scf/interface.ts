@@ -87,6 +87,7 @@ export interface FunctionInfo {
   Tags: Tag[];
   ClsLogsetId: string;
   ClsTopicId: string;
+  Qualifier: string;
 }
 
 export interface ScfPublishVersionInputs {
@@ -192,6 +193,8 @@ export interface ScfCreateFunctionInputs {
     userId?: string;
   }[];
 
+  qualifier?: string;
+
   asyncRunEnable?: undefined | boolean;
   traceEnable?: undefined | boolean;
   installDependency?: undefined | boolean;
@@ -209,6 +212,10 @@ export interface ScfCreateFunctionInputs {
     // 启动命令参数
     args?: string;
   };
+
+  // 异步调用重试配置
+  msgTTL?: number; // 消息保留时间，单位秒
+  retryNum?: number; // 重试次数
 }
 
 export interface ScfUpdateAliasTrafficInputs {
