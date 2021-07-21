@@ -216,6 +216,36 @@ export default class ScfEntity extends BaseEntity {
     return true;
   }
 
+  // 获取异步函数配置
+  async getAsyncRetryConfig(inputs: ScfCreateFunctionInputs, funcInfo: FunctionInfo) {
+    const reqParams = {
+      Namespace: inputs.namespace || funcInfo.Namespace,
+      FunctionName: inputs.name || funcInfo.FunctionName,
+      Qualifier: inputs.qualifier || funcInfo.Qualifier || '$LATEST',
+    };
+
+    const reqInputs: Partial<typeof reqParams> = reqParams;
+
+    const res = await this.request({ Action: 'GetFunctionEventInvokeConfig', ...reqInputs });
+    return res;
+  }
+  async updateAsyncRetry(inputs: ScfCreateFunctionInputs, funcInfo: FunctionInfo) {
+    console.log(`Updating function ${inputs.name} async retry configure, region ${this.region}`);
+    const reqParams = {
+      Namespace: inputs.namespace || funcInfo.Namespace,
+      FunctionName: inputs.name || funcInfo.FunctionName,
+      AsyncTriggerConfig: {
+        MsgTTL: inputs.msgTTL || 21600,
+        RetryConfig: [{ RetryNum: inputs.retryNum ?? 2 }],
+      },
+    };
+
+    const reqInputs: Partial<typeof reqParams> = reqParams;
+
+    await this.request({ Action: 'UpdateFunctionEventInvokeConfig', ...reqInputs });
+    return true;
+  }
+
   // delete function
   async delete({ namespace, functionName }: { namespace: string; functionName: string }) {
     namespace = namespace || CONFIGS.defaultNamespace;

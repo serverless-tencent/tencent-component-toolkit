@@ -526,30 +526,4 @@ describe('Scf', () => {
     });
     expect(res).toEqual(true);
   });
-  test('[asyncRunEnable and traceEnable] create', async () => {
-    await sleep(3000);
-    delete inputs.cls;
-    inputs.asyncRunEnable = true;
-    inputs.traceEnable = true;
-    outputs = await scf.deploy(inputs);
-
-    expect(outputs.AsyncRunEnable).toBe('TRUE');
-    expect(outputs.TraceEnable).toBe('TRUE');
-  });
-  test('[asyncRunEnable and traceEnable] update', async () => {
-    await sleep(3000);
-    inputs.asyncRunEnable = true;
-    inputs.traceEnable = false;
-    outputs = await scf.deploy(inputs);
-
-    expect(outputs.AsyncRunEnable).toBe('TRUE');
-    expect(outputs.TraceEnable).toBe('FALSE');
-  });
-  test('[asyncRunEnable and traceEnable] remove', async () => {
-    const res = await scf.remove({
-      functionName: inputs.name,
-      ...outputs,
-    });
-    expect(res).toEqual(true);
-  });
 });
