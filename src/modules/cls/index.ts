@@ -1,13 +1,17 @@
 import { Cls as ClsClient } from '@tencent-sdk/cls';
 import {
-  ClsDelopyIndexInputs,
-  ClsDeployInputs,
-  ClsDeployLogsetInputs,
-  ClsDeployOutputs,
-  ClsDeployTopicInputs,
+  DeployIndexInputs,
+  DeployInputs,
+  DeployLogsetInputs,
+  DeployOutputs,
+  DeployTopicInputs,
   GetLogOptions,
   GetLogDetailOptions,
   LogContent,
+  DeployDashboardInputs,
+  RemoveDashboardInputs,
+  Dashboard,
+  DashboardItem,
 } from './interface';
 import { CapiCredentials, RegionType } from './../interface';
 import { ApiError } from '../../utils/error';
@@ -32,7 +36,8 @@ export default class Cls {
     });
   }
 
-  async deployLogset(inputs: ClsDeployLogsetInputs = {} as any) {
+  // 创建/更新 日志集
+  async deployLogset(inputs: DeployLogsetInputs = {} as any) {
     const outputs = {
       region: this.region,
       name: inputs.name,
@@ -86,7 +91,8 @@ export default class Cls {
     return outputs;
   }
 
-  async deployTopic(inputs: ClsDeployTopicInputs) {
+  // 创建/更新 主题
+  async deployTopic(inputs: DeployTopicInputs) {
     const outputs = {
       region: this.region,
       name: inputs.topic,
@@ -140,7 +146,8 @@ export default class Cls {
     return outputs;
   }
 
-  async deployIndex(inputs: ClsDelopyIndexInputs) {
+  // 更新索引
+  async deployIndex(inputs: DeployIndexInputs) {
     await updateIndex(this.cls, {
       topicId: inputs.topicId!,
       // FIXME: effective is always true in updateIndex
@@ -149,8 +156,9 @@ export default class Cls {
     });
   }
 
-  async deploy(inputs: ClsDeployInputs = {}) {
-    const outputs: ClsDeployOutputs = {
+  // 部署
+  async deploy(inputs: DeployInputs = {}) {
+    const outputs: DeployOutputs = {
       region: this.region,
       name: inputs.name,
       topic: inputs.topic,
@@ -165,6 +173,7 @@ export default class Cls {
     return outputs;
   }
 
+  // 删除
   async remove(inputs: { topicId?: string; logsetId?: string } = {}) {
     try {
       console.log(`Start removing cls`);
@@ -197,6 +206,7 @@ export default class Cls {
     return {};
   }
 
+  // 获取日志列表
   async getLogList(data: GetLogOptions) {
     const clsClient = new ClsClient({
       region: this.region,
@@ -263,6 +273,8 @@ export default class Cls {
     }
     return logs;
   }
+
+  // 获取日志详情
   async getLogDetail(data: GetLogDetailOptions) {
     const clsClient = new ClsClient({
       region: this.region,
@@ -287,5 +299,158 @@ export default class Cls {
     };
     const { results = [] } = await clsClient.searchLog(searchParameters);
     return results;
+  }
+
+  // 获取 dashboard 列表
+  async getDashboardList(): Promise<Dashboard[]> {
+    const res = await this.cls.request({
+      method: 'GET',
+      path: '/dashboards',
+    });
+    if (res.error) {
+      throw new ApiError({
+        type: 'API_getDashboard',
+        message: res.error.message,
+      });
+    }
+    const dashboards = (res.dashboards || []).map(
+      ({ CreateTime, DashboardName, DashboardId, data }: DashboardItem) => {
+        return {
+          createTime: CreateTime,
+          name: DashboardName,
+          id: DashboardId,
+          data,
+        };
+      },
+    );
+
+    return dashboards;
+  }
+
+  // 获取 dashboard 详情
+  async getDashboardDetail({
+    name,
+    id,
+  }: {
+    name?: string;
+    id?: string;
+  }): Promise<Dashboard | undefined> {
+    if (id) {
+      const res = await this.cls.request({
+        method: 'GET',
+        path: `/dashboard`,
+        query: {
+          DashboardId: id,
+        },
+      });
+      if (res.error) {
+        return undefined;
+      }
+
+      return {
+        id,
+        createTime: res.CreateTime,
+        name: res.DashboardName,
+        data: res.data,
+      };
+    }
+    if (name) {
+      const list = await this.getDashboardList();
+      const exist = list.find((item) => item.name === name);
+      if (exist) {
+        return exist;
+      }
+      return undefined;
+    }
+    throw new ApiError({
+      type: 'API_getDashboardDetail',
+      message: 'name or id is required',
+    });
+  }
+
+  // 删除 dashboard
+  async removeDashboard({ id, name }: RemoveDashboardInputs) {
+    if (!id && !name) {
+      throw new ApiError({
+        type: 'API_removeDashboard',
+        message: 'id or name is required',
+      });
+    }
+    if (!id) {
+      // 通过名称查找ID
+      const exist = await this.getDashboardDetail({ name });
+      if (!exist) {
+        console.log(`Dashboard ${name} not exist`);
+
+        return true;
+      }
+      ({ id } = exist);
+    }
+    // 删除 dashboard
+    const res = await this.cls.request({
+      method: 'DELETE',
+      path: `/dashboard`,
+      query: {
+        DashboardId: id,
+      },
+    });
+
+    if (res.error) {
+      throw new ApiError({
+        type: 'API_deleteDashboard',
+        message: res.error.message,
+      });
+    }
+
+    return true;
+  }
+
+  // 创建 dashboard
+  async deployDashboard(inputs: DeployDashboardInputs) {
+    const { name, data } = inputs;
+    // 1. 检查是否存在同名 dashboard
+    const exist = await this.getDashboardDetail({ name });
+    let dashboardId = '';
+    // 2. 如果不存在则创建，否则更新
+    if (exist) {
+      dashboardId = exist.id;
+      const res = await this.cls.request({
+        method: 'PUT',
+        path: '/dashboard',
+        data: {
+          DashboardId: exist.id,
+          DashboardName: name,
+          data,
+        },
+      });
+      if (res.error) {
+        throw new ApiError({
+          type: 'API_updateDashboard',
+          message: res.error.message,
+        });
+      }
+    } else {
+      const res = await this.cls.request({
+        method: 'POST',
+        path: '/dashboard',
+        data: {
+          DashboardName: name,
+          data,
+        },
+      });
+      if (res.error) {
+        throw new ApiError({
+          type: 'API_createDashboard',
+          message: res.error.message,
+        });
+      }
+      dashboardId = res.DashboardId;
+    }
+
+    return {
+      id: dashboardId,
+      name,
+      data,
+    };
   }
 }
