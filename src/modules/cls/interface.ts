@@ -1,12 +1,12 @@
 import { IndexRule } from '@tencent-sdk/cls/dist/typings';
 import { RegionType } from './../interface';
-export interface ClsDeployLogsetInputs {
+export interface DeployLogsetInputs {
   name?: string;
   period?: number;
   logsetId?: string;
 }
 
-export interface ClsDeployTopicInputs {
+export interface DeployTopicInputs {
   name?: string;
   period?: number;
   logsetId?: string;
@@ -14,22 +14,19 @@ export interface ClsDeployTopicInputs {
   topicId?: string;
 }
 
-export interface ClsDelopyIndexInputs {
+export interface DeployIndexInputs {
   topicId?: string;
   effective?: boolean;
   rule?: IndexRule;
 }
 
-export interface ClsDeployInputs
-  extends ClsDeployLogsetInputs,
-    ClsDeployTopicInputs,
-    ClsDelopyIndexInputs {
+export interface DeployInputs extends DeployLogsetInputs, DeployTopicInputs, DeployIndexInputs {
   region?: RegionType;
   name?: string;
   topic?: string;
 }
 
-export interface ClsDeployOutputs extends Partial<ClsDeployInputs> {
+export interface DeployOutputs extends Partial<DeployInputs> {
   region: RegionType;
 }
 
@@ -109,4 +106,26 @@ export interface LogContent {
   SCF_Type: string;
   // 状态吗
   SCF_StatusCode: string;
+}
+
+export interface DeployDashboardInputs {
+  name: string;
+  data: string;
+}
+export interface RemoveDashboardInputs {
+  name?: string;
+  id?: string;
+}
+
+export interface DashboardItem {
+  CreateTime: string;
+  DashboardId: string;
+  DashboardName: string;
+  data: string;
+}
+export interface Dashboard {
+  createTime: string;
+  id: string;
+  name: string;
+  data: string;
 }
