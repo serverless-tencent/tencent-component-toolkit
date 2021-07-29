@@ -286,3 +286,21 @@ export interface ApiAppCreateOptions {
   name: string;
   description?: string;
 }
+
+export interface ApiAppItem {
+  ApiAppName: string;
+  ApiAppId: string;
+  ApiAppKey: string;
+  ApiAppSecret: string;
+  CreatedTime: string;
+  ModifiedTime: string;
+  ApiAppDesc: string;
+}
+
+export interface ApiAppDetail {
+  id: string;
+  name: string;
+  key: string;
+  secret: string;
+  description: string;
+}
