@@ -1,3 +1,11 @@
+## [2.13.4](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.13.3...v2.13.4) (2021-07-29)
+
+
+### Bug Fixes
+
+* **cdn:** multi deploy bug ([c3ea89f](https://github.com/serverless-tencent/tencent-component-toolkit/commit/c3ea89f5e367664109f819c34f0966df65771552))
+* **apigw:** support app remove ([f4f748a](https://github.com/serverless-tencent/tencent-component-toolkit/commit/f4f748acfa8ae37e4f11a48fc45a6675bb585b26))
+
 ## [2.13.3](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.13.2...v2.13.3) (2021-07-21)
 
 
