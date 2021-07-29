@@ -125,12 +125,13 @@ export async function openCdnService(capi: Capi) {
     });
     return true;
   } catch (e) {
-    if (
-      e.code !== 'ResourceInUse.CdnUserExists' &&
-      e.code !== 'UnauthorizedOperation.OperationTooOften'
-    ) {
-      throw e;
-    }
+    // if (
+    //   e.code !== 'ResourceInUse.CdnUserExists' &&
+    //   e.code !== 'UnauthorizedOperation.OperationTooOften'
+    // ) {
+    //   throw e;
+    // }
+    // DO NOT THROW ERROR
     return false;
   }
 }
