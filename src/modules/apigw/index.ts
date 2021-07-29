@@ -10,7 +10,6 @@ import {
   ApigwDeployOutputs,
   ApigwRemoveInputs,
   ApigwCreateOrUpdateServiceOutputs,
-  ApigwUpdateServiceInputs,
   ApigwDeployWithServiceIdInputs,
 } from './interface';
 import { getProtocolString, getUrlProtocol } from './utils';

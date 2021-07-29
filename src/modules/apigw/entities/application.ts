@@ -1,4 +1,4 @@
-import { ApiAppCreateOptions } from './../interface';
+import { ApiAppCreateOptions, ApiAppItem, ApiAppDetail } from './../interface';
 import { Capi } from '@tencent-sdk/capi';
 import APIS, { ActionType } from '../apis';
 import { pascalCaseProps } from '../../../utils';
@@ -34,6 +34,24 @@ export default class AppEntity {
       console.warn(e);
     }
     return true;
+  }
+
+  async get(id: string): Promise<ApiAppDetail | undefined> {
+    const { ApiAppSet = [] }: { ApiAppSet: ApiAppItem[] } = await this.request({
+      Action: 'DescribeApiApp',
+      ApiAppId: id,
+    });
+    if (ApiAppSet[0] && ApiAppSet[0].ApiAppId === id) {
+      const [current] = ApiAppSet;
+      return {
+        id,
+        name: current.ApiAppName,
+        description: current.ApiAppDesc,
+        key: current.ApiAppKey,
+        secret: current.ApiAppSecret,
+      };
+    }
+    return undefined;
   }
 
   // bind api to application, if not config app id just create it
@@ -107,5 +125,14 @@ export default class AppEntity {
       name,
       description,
     };
+  }
+  async delete(id: string) {
+    console.log(`Removing apigw application ${id}`);
+    await this.removeRequest({
+      Action: 'DeleteApiApp',
+      ApiAppId: id,
+    });
+
+    return true;
   }
 }

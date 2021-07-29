@@ -1,3 +1,4 @@
+import { sleep } from '@ygkit/request';
 import { ApigwDeployInputs, ApigwDeployOutputs } from '../../src/modules/apigw/interface';
 import { Apigw } from '../../src';
 import { deepClone } from '../../src/utils';
@@ -6,6 +7,10 @@ describe('apigw app', () => {
   const credentials = {
     SecretId: process.env.TENCENT_SECRET_ID,
     SecretKey: process.env.TENCENT_SECRET_KEY,
+  };
+  const appConfig = {
+    name: 'serverless_app_test',
+    description: 'Created by serverless test',
   };
   const inputs: ApigwDeployInputs = {
     protocols: ['http', 'https'],
@@ -19,10 +24,7 @@ describe('apigw app', () => {
         method: 'POST',
         apiName: 'appauth',
         authType: 'APP',
-        app: {
-          name: 'serverless_app_test',
-          description: 'Created by serverless test',
-        },
+        app: appConfig,
         function: {
           functionName: 'serverless-unit-test',
         },
@@ -31,7 +33,7 @@ describe('apigw app', () => {
   };
   const apigw = new Apigw(credentials, process.env.REGION);
   let outputs: ApigwDeployOutputs;
-
+  let appId: string = '';
   // 由于自定义域名必须 ICP 备案，所以这里测试域名不会通过，具体测试请使用
   test('create apigw with app auth success', async () => {
     const apigwInputs = deepClone(inputs);
@@ -56,6 +58,7 @@ describe('apigw app', () => {
         },
       },
     ]);
+    appId = outputs.apiList[0].app.id;
   });
 
   test('update apigw without app auth success', async () => {
@@ -94,5 +97,25 @@ describe('apigw app', () => {
     });
 
     expect(detail).toBeNull();
+  });
+
+  test('get apigw app', async () => {
+    const { app } = apigw.api;
+    const exist = await app.get(appId);
+    expect(exist).toEqual({
+      id: appId,
+      name: appConfig.name,
+      description: expect.any(String),
+      key: expect.any(String),
+      secret: expect.any(String),
+    });
+  });
+
+  test('delete apigw app', async () => {
+    const { app } = apigw.api;
+    await app.delete(appId);
+    await sleep(2000);
+    const detail = await app.get(appId);
+    expect(detail).toEqual(undefined);
   });
 });
