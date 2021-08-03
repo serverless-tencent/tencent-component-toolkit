@@ -1,4 +1,4 @@
-import { ClsDeployInputs, ClsDeployOutputs } from '../../src/modules/cls/interface';
+import { DeployInputs, DeployOutputs } from '../../src/modules/cls/interface';
 import { Scf } from '../../src';
 import { Cls } from '../../src';
 import { sleep } from '@ygkit/request';
@@ -11,9 +11,9 @@ describe('Cls', () => {
   const scf = new Scf(credentials, process.env.REGION);
   const client = new Cls(credentials, process.env.REGION);
 
-  let outputs: ClsDeployOutputs;
+  let outputs: DeployOutputs;
 
-  const inputs: ClsDeployInputs = {
+  const inputs: DeployInputs = {
     region: 'ap-guangzhou',
     name: 'cls-test',
     topic: 'cls-topic-test',

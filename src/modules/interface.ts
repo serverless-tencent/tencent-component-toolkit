@@ -1,3 +1,5 @@
+import { PascalCase, CamelCase } from 'type-fest';
+
 export enum ApiServiceType {
   // account 账号信息
   account = 'account',
@@ -39,6 +41,9 @@ export enum ApiServiceType {
 
   // asw 状态机
   tcr = 'tcr',
+
+  // 日志服务
+  cls = 'cls',
 }
 
 export type RegionType = string;
@@ -61,3 +66,14 @@ export interface TagInput {
   key: string;
   value: string;
 }
+
+export type CamelCasedProps<T> = {
+  [K in keyof T as CamelCase<K>]: T[K] extends Array<infer U> | undefined
+    ? Array<U>
+    : CamelCasedProps<T[K]>;
+};
+export type PascalCasedProps<T> = {
+  [K in keyof T as PascalCase<K>]: T[K] extends Array<infer U> | undefined
+    ? Array<U>
+    : PascalCasedProps<T[K]>;
+};
