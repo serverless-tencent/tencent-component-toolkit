@@ -1,4 +1,4 @@
-import { PascalCasedProps } from './../../utils/index';
+import { PascalCasedProps } from './../../modules/interface';
 import { ApiServiceType } from './../interface';
 import { Capi } from '@tencent-sdk/capi';
 import { sleep, waitResponse } from '@ygkit/request';
