@@ -1,5 +1,5 @@
 import { CertInfo } from './interface';
-import { PascalCasedProps } from './../../utils/index';
+import { PascalCasedProps } from './../../modules/interface';
 import { Capi } from '@tencent-sdk/capi';
 import fs from 'fs';
 import path from 'path';
