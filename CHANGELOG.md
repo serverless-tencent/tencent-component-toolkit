@@ -1,3 +1,18 @@
+# [2.14.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.13.4...v2.14.0) (2021-08-05)
+
+
+### Bug Fixes
+
+* import error ([38107ea](https://github.com/serverless-tencent/tencent-component-toolkit/commit/38107ea5fdd1f75a2b8ce3ad2bec1d12be97170a))
+* **apigw:** pascal api parameter error ([58e614c](https://github.com/serverless-tencent/tencent-component-toolkit/commit/58e614c11be13e1336a43e76a5bd345eee92fd5e))
+* remove initTimeout when user not config ([bb6f7ad](https://github.com/serverless-tencent/tencent-component-toolkit/commit/bb6f7ad7b51d69fc5fbe02a25c965110135f874b))
+
+
+### Features
+
+* **cls:** support alarm and notice ([40ede8d](https://github.com/serverless-tencent/tencent-component-toolkit/commit/40ede8de0ada30de5b38e1fa9949183c19c4f927))
+* **cls:** support dashboard ([96d78f1](https://github.com/serverless-tencent/tencent-component-toolkit/commit/96d78f1fd5dc05632716c28d13ebe2c9890c506c))
+
 ## [2.13.4](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.13.3...v2.13.4) (2021-07-29)
 
 
