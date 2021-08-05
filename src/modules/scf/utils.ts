@@ -11,7 +11,7 @@ export const formatInputs = (inputs: ScfCreateFunctionInputs) => {
     Runtime: inputs.runtime,
     Namespace: inputs.namespace || CONFIGS.defaultNamespace,
     Timeout: +(inputs.timeout || CONFIGS.defaultTimeout),
-    InitTimeout: +(inputs.initTimeout || CONFIGS.defaultInitTimeout),
+    InitTimeout: inputs.initTimeout,
     MemorySize: +(inputs.memorySize || CONFIGS.defaultMemorySize),
     PublicNetConfig: {
       PublicNetStatus: inputs.publicAccess === false ? 'DISABLE' : 'ENABLE',
