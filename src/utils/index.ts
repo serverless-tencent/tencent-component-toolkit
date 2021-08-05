@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import camelCase from 'camelcase';
+import { PascalCase } from 'type-fest';
 import { CamelCasedProps, PascalCasedProps } from '../modules/interface';
 
 // TODO: 将一些库换成 lodash
@@ -173,13 +174,20 @@ export function camelCaseProps<T>(obj: T): CamelCasedProps<T> {
   return res as CamelCasedProps<T>;
 }
 
+export function pascalCase<T extends string>(str: T): PascalCase<T> {
+  if (str.length <= 1) {
+    return str.toUpperCase() as any;
+  }
+  return `${str[0].toUpperCase()}${str.slice(1)}` as any;
+}
+
 export function pascalCaseProps<T>(obj: T): PascalCasedProps<T> {
   let res: Record<string, any> = {};
   if (isObject(obj)) {
     res = {} as any;
     Object.keys(obj).forEach((key: string) => {
       const val = (obj as any)[key];
-      const k = camelCase(key, { pascalCase: true });
+      const k = pascalCase(key);
       res[k] = isObject(val) || isArray(val) ? pascalCaseProps(val) : val;
     });
   }

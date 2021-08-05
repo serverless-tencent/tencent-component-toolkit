@@ -24,16 +24,15 @@ const config = {
 };
 
 if (mod) {
+  config.testPathIgnorePatterns = ['/node_modules/', '/__tests__/apigw/custom-domains.test.ts'];
   if (mod === 'custom-domains') {
     config.testRegex = `/__tests__/apigw/custom-domains.test.(js|ts)`;
   } else {
     if (mod.indexOf('.') !== -1) {
       const [moduleName, subModuleName] = mod.split('.');
       config.testRegex = `/__tests__/${moduleName}/${subModuleName}.test.(js|ts)`;
-      config.testPathIgnorePatterns = ['/node_modules/'];
     } else {
       config.testRegex = `/__tests__/${process.env.MODULE}/.*.test.(js|ts)`;
-      config.testPathIgnorePatterns = ['/node_modules/'];
     }
 
     if (mod === 'scf') {
