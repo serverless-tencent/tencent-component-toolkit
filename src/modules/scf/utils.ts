@@ -11,7 +11,6 @@ export const formatInputs = (inputs: ScfCreateFunctionInputs) => {
     Runtime: inputs.runtime,
     Namespace: inputs.namespace || CONFIGS.defaultNamespace,
     Timeout: +(inputs.timeout || CONFIGS.defaultTimeout),
-    InitTimeout: +(inputs.initTimeout || CONFIGS.defaultInitTimeout),
     MemorySize: +(inputs.memorySize || CONFIGS.defaultMemorySize),
     PublicNetConfig: {
       PublicNetStatus: inputs.publicAccess === false ? 'DISABLE' : 'ENABLE',
@@ -22,6 +21,10 @@ export const formatInputs = (inputs: ScfCreateFunctionInputs) => {
     L5Enable: inputs.l5Enable === true ? 'TRUE' : 'FALSE',
     InstallDependency: inputs.installDependency === true ? 'TRUE' : 'FALSE',
   };
+
+  if (inputs.initTimeout) {
+    functionInputs.InitTimeout = inputs.initTimeout;
+  }
 
   // 镜像方式部署
   if (inputs.imageConfig) {
