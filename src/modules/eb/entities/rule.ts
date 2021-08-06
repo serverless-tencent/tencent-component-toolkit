@@ -70,13 +70,14 @@ export default class RuleEntity {
       eventBusId,
       ruleName,
       eventPattern,
+      enable = true,
       type = 'Cloud',
       description = 'Created By Serverless',
     } = ruleConf;
 
     const apiInputs = {
       Action: 'CreateRule' as const,
-      enable: true,
+      enable,
       eventBusId,
       ruleName,
       eventPattern,
@@ -93,6 +94,7 @@ export default class RuleEntity {
         eventPattern,
         description,
         type,
+        enable,
       };
       console.log(`Create event rule ${ruleName} successfully`);
       return deepClone(outputs);
@@ -106,7 +108,7 @@ export default class RuleEntity {
 
   /** 更新事件规则 */
   async update(ruleConf: EventRuleUpdateInfo) {
-    const { eventBusId, ruleId, eventPattern, ruleName, description } = ruleConf;
+    const { eventBusId, ruleId, eventPattern, ruleName, description, enable } = ruleConf;
 
     let detail: EventRuleDetail | null;
     const outputs: EventRuleOutputs = { ruleId, eventBusId, ruleName, eventPattern };
@@ -123,6 +125,7 @@ export default class RuleEntity {
             ruleName,
             eventPattern,
             description,
+            enable,
           };
           await this.request(apiInputs);
           console.log(`Update event rule ${ruleName} successfully`);

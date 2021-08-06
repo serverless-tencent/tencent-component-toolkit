@@ -123,6 +123,7 @@ export interface EventConnectionUpdateInfo {
   connectionId: string;
   connectionName?: string;
   description?: string;
+  enable: boolean;
 }
 
 export interface EventConnectionOutputs {
@@ -188,6 +189,7 @@ export interface EventRuleOutputs {
   eventPattern: string;
   type?: string;
   description?: string;
+  enable?: boolean;
 }
 
 export interface EventRuleUpdateInfo {
@@ -196,6 +198,7 @@ export interface EventRuleUpdateInfo {
   eventPattern: string;
   ruleName: string;
   description?: string;
+  enable?: boolean;
 }
 
 interface EventTargetDetail {
@@ -246,7 +249,7 @@ export interface EventConnectionItem {
   connectionId?: string;
   connectionName: string;
   connectionDescription?: {
-    resourceDescription: string;
+    serviceId: string;
     gwParams: {
       Protocol: string;
       Method: string;

@@ -153,7 +153,7 @@ export default class ConnectionEntity {
 
   /** 更新事件连接器 */
   async update(connConf: EventConnectionUpdateInfo) {
-    const { eventBusId, connectionId, connectionName, description } = connConf;
+    const { eventBusId, connectionId, connectionName, description, enable } = connConf;
 
     let detail: EventConnectionDetail | null;
     const outputs: EventConnectionOutputs = { connectionId };
@@ -163,8 +163,8 @@ export default class ConnectionEntity {
         detail = await this.getById(eventBusId, connectionId);
         if (detail) {
           outputs.type = detail.Type;
-          outputs.connectionName = detail.ConnectionName;
-          outputs.connectionId = detail.ConnectionId;
+          outputs.connectionName = connectionName;
+          outputs.connectionId = connectionId;
           outputs.connectionDescription = detail.ConnectionDescription;
           const apiInputs = {
             Action: 'UpdateConnection' as const,
@@ -172,6 +172,7 @@ export default class ConnectionEntity {
             eventBusId,
             connectionName,
             description,
+            enable,
           };
           await this.request(apiInputs);
           console.log(`Update event connection ${connectionName} successfully`);

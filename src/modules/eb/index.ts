@@ -71,25 +71,31 @@ export default class EventBridge {
       for (const connInput of inputs.connections) {
         let conn;
         if (connInput?.connectionId) {
-          // TODO: 由于更新接口的问题，暂时无法更新
           // 连接器更新接口只支持修改名字和描述
           conn = await this.connection.update({
             eventBusId: eventBusId,
             connectionId: connInput.connectionId,
             connectionName: connInput.connectionName,
             description: connInput.description,
+            enable: connInput.enable || true,
           });
         } else {
+          const resourceId = getQcsResourceId(
+            'apigw',
+            this.region,
+            inputs.uin,
+            `serviceid/${connInput?.connectionDescription?.serviceId}`,
+          );
           conn = await this.connection.create({
             eventBusId,
+            uin: inputs.uin,
+            type: connInput.type,
             connectionName: connInput?.connectionName,
             connectionDescription: {
-              resourceDescription: connInput.connectionDescription?.resourceDescription,
+              resourceDescription: resourceId,
               gwParams: connInput.connectionDescription?.gwParams,
             },
-            uin: inputs.uin,
             description: connInput.description,
-            type: connInput.type,
           });
         }
         connectionList.push(conn);
@@ -115,7 +121,7 @@ export default class EventBridge {
     const targetList: EventTargetOutputs[] = [];
     const existTargets = await this.target.list(eventBusId, ruleId);
     const tempTargets = confTargets.map((item: any) => {
-      // e.g: "qcs::scf:ap-guangzhou:uin/100014475911:namespace/default/function/helloworld-1622536829/$DEFAULT"
+      // e.g: "qcs::scf:ap-guangzhou:uin/100012341234:namespace/default/function/helloworld-1622531234/$DEFAULT"
       const resource = getQcsResourceId(
         'scf',
         this.region,
@@ -188,6 +194,7 @@ export default class EventBridge {
               eventPattern: tempPattern,
               ruleName: tempRuleName,
               description: ruleInput?.description,
+              enable: ruleInput?.enable,
             });
           } else {
             rule = await this.rule.create({
@@ -196,6 +203,7 @@ export default class EventBridge {
               eventBusId,
               description: ruleInput?.description,
               type: type as EventBusType,
+              enable: ruleInput?.enable,
             });
           }
 

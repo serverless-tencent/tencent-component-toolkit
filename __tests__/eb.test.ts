@@ -1,6 +1,7 @@
 import {
   EbDeployInputs,
   EbDeployOutputs,
+  EventConnectionItem,
   // EventConnectionItem,
   EventConnectionOutputs,
 } from '../src/modules/eb/interface';
@@ -27,9 +28,9 @@ describe('eb', () => {
         enable: true,
         type: 'apigw',
         // connectionDescription: {
-        //   resourceDescription: 'qcs::xxxxx',
+        //   serviceId: 'service-abcd123',
         //   gwParams: {
-        //     Protocol: 'HTTPS',
+        //     Protocol: 'HTTP',
         //     Method: 'POST',
         //   },
         // },
@@ -72,8 +73,10 @@ describe('eb', () => {
     });
     // 获取自动创建的API网关，便于后续测试
     inputs.connections[0].connectionId = outputs.connections[0].connectionId;
+    const qcsItems = outputs.connections[0].connectionDescription.ResourceDescription.split('/');
+    const tempServiceId = qcsItems[qcsItems.length - 1];
     inputs.connections[0].connectionDescription = {
-      resourceDescription: outputs.connections[0].connectionDescription.ResourceDescription,
+      serviceId: tempServiceId,
       gwParams: outputs.connections[0].connectionDescription.APIGWParams,
     };
     testConnInfo = outputs.connections[0];
@@ -99,36 +102,41 @@ describe('eb', () => {
   });
 
   /* TODO: 由于更新接口的问题，等后台修复后再测 */
-  // test('[Auto Connection] should update event bridge success', async () => {
-  //   inputs.eventBusName = 'new-eb-01';
-  //   const newConn = {
-  //     connectionName: 'test-conn-02',
-  //     description: 'test connection binding',
-  //     type: 'apigw',
-  //     enable: true,
-  //     connectionDescription: {
-  //       resourceDescription: inputs.connections[0].connectionDescription.resourceDescription,
-  //       gwParams: { Protocol: 'HTTP', Method: 'GET' },
-  //     },
-  //   };
-  //   inputs.connections.push(newConn as EventConnectionItem);
-  //   inputs.connections[0].connectionName = 'new-conn-01';
-  //   inputs.rules[0].ruleName = 'new-rule-01';
+  test('[Auto Connection] should update event bridge success', async () => {
+    inputs.eventBusName = 'new-eb-01';
+    const newConn = {
+      connectionName: 'test-conn-02',
+      description: 'test connection binding',
+      type: 'apigw',
+      enable: true,
+      connectionDescription: {
+        // resourceDescription: inputs.connections[0].connectionDescription.resourceDescription,
+        serviceId: inputs.connections[0].connectionDescription.serviceId,
+        gwParams: { Protocol: 'HTTP', Method: 'GET' },
+      },
+    };
+    inputs.connections.push(newConn as EventConnectionItem);
+    inputs.connections[0].connectionName = 'new-conn-01';
+    inputs.rules[0].ruleName = 'new-rule-01';
 
-  //   outputs = await eb.deploy(inputs);
-  //   expect(outputs.eventBusName).toEqual(inputs.eventBusName);
-  //   expect(outputs.rules[0].ruleName).toEqual(inputs.rules[0].ruleName);
-  //   expect(outputs.connections).toHaveLength(2);
-  //   expect(outputs.connections[0].connectionName).toEqual(inputs.connections[0].connectionName);
-  //   expect(outputs.connections[1].connectionName).toEqual(inputs.connections[1].connectionName);
-  //   expect(outputs.connections[1].type).toEqual(inputs.connections[1].type);
-  //   expect(outputs.connections[1].connectionDescription.ResourceDescription).toEqual(
-  //     inputs.connections[1].connectionDescription.resourceDescription,
-  //   );
-  //   expect(outputs.connections[1].connectionDescription.APIGWParams).toEqual(
-  //     inputs.connections[1].connectionDescription.gwParams,
-  //   );
-  // });
+    outputs = await eb.deploy(inputs);
+    expect(outputs.eventBusName).toEqual(inputs.eventBusName);
+    expect(outputs.rules[0].ruleName).toEqual(inputs.rules[0].ruleName);
+    expect(outputs.connections).toHaveLength(2);
+    expect(outputs.connections[0].connectionName).toEqual(inputs.connections[0].connectionName);
+    expect(outputs.connections[1].connectionName).toEqual(inputs.connections[1].connectionName);
+    expect(outputs.connections[1].type).toEqual(inputs.connections[1].type);
+    const targetResDesc = getQcsResourceId(
+      'apigw',
+      'ap-guangzhou',
+      process.env.TENCENT_UIN,
+      `serviceid/${inputs.connections[1].connectionDescription.serviceId}`,
+    );
+    expect(outputs.connections[1].connectionDescription.ResourceDescription).toEqual(targetResDesc);
+    expect(outputs.connections[1].connectionDescription.APIGWParams).toEqual(
+      inputs.connections[1].connectionDescription.gwParams,
+    );
+  });
 
   test('[Auto Connection] should remove event bridge success', async () => {
     const res = await eb.remove(outputs.eventBusId);
@@ -136,6 +144,8 @@ describe('eb', () => {
   });
 
   test('[Spec Connection] should deploy event bridge success', async () => {
+    const qcsItems = testConnInfo.connectionDescription.ResourceDescription.split('/');
+    const tempServiceId = qcsItems[qcsItems.length - 1];
     const newInput: EbDeployInputs = {
       type: 'Cloud',
       eventBusName: 'test-eb-02',
@@ -149,7 +159,7 @@ describe('eb', () => {
           enable: true,
           type: 'apigw',
           connectionDescription: {
-            resourceDescription: testConnInfo.connectionDescription.ResourceDescription,
+            serviceId: tempServiceId,
             gwParams: testConnInfo.connectionDescription.APIGWParams,
           },
         },
@@ -174,9 +184,13 @@ describe('eb', () => {
     };
     outputs = await eb.deploy(newInput);
     expect(outputs.eventBusName).toEqual(newInput.eventBusName);
-    expect(outputs.connections[0].connectionDescription.ResourceDescription).toEqual(
-      newInput.connections[0].connectionDescription.resourceDescription,
+    const targetResDesc = getQcsResourceId(
+      'apigw',
+      'ap-guangzhou',
+      process.env.TENCENT_UIN,
+      `serviceid/${newInput.connections[0].connectionDescription.serviceId}`,
     );
+    expect(outputs.connections[0].connectionDescription.ResourceDescription).toEqual(targetResDesc);
     expect(outputs.connections[0].connectionDescription.APIGWParams).toEqual(
       newInput.connections[0].connectionDescription.gwParams,
     );
