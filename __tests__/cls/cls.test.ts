@@ -13,6 +13,28 @@ describe('Cls', () => {
 
   let outputs: DeployOutputs;
 
+  const alarms = [
+    {
+      name: 'cls-alarm-test',
+      targets: [
+        {
+          period: 15,
+          query: '* | select count(*) as errCount',
+        },
+      ],
+      monitor: {
+        type: 'Period',
+        time: 1,
+      },
+      trigger: {
+        condition: '$1.count > 1',
+        count: 2,
+        period: 15,
+      },
+      noticeId: 'notice-4271ef11-1b09-459f-8dd1-b0a411757663',
+    },
+  ];
+
   const inputs: DeployInputs = {
     region: 'ap-guangzhou',
     name: 'cls-test',
@@ -32,7 +54,7 @@ describe('Cls', () => {
     },
   };
 
-  test('should deploy cls success', async () => {
+  test('deploy cls', async () => {
     const res = await client.deploy(inputs);
     expect(res).toEqual({
       region: process.env.REGION,
@@ -40,6 +62,28 @@ describe('Cls', () => {
       topic: inputs.topic,
       logsetId: expect.any(String),
       topicId: expect.any(String),
+    });
+
+    outputs = res;
+  });
+
+  test('deploy cls with alarms', async () => {
+    inputs.alarms = alarms;
+    const res = await client.deploy(inputs);
+    expect(res).toEqual({
+      region: process.env.REGION,
+      name: inputs.name,
+      topic: inputs.topic,
+      logsetId: expect.any(String),
+      topicId: expect.any(String),
+      alarms: [
+        {
+          id: expect.stringContaining('alarm-'),
+          logsetId: expect.any(String),
+          topicId: expect.any(String),
+          ...alarms[0],
+        },
+      ],
     });
 
     outputs = res;
