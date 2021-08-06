@@ -288,6 +288,13 @@ export default class Scf {
       await this.scf.updateConfigure(inputs, funcInfo);
     }
 
+    await this.scf.isOperational({ namespace, functionName });
+
+    // 如果是异步函数，判断是否需要更新异步调用重试配置
+    if (inputs.asyncRunEnable) {
+      await this.scf.updateAsyncRetry(inputs, funcInfo!);
+    }
+
     funcInfo = await this.scf.isOperational({ namespace, functionName });
 
     const outputs = (funcInfo as any) || ({} as ScfDeployOutputs);
@@ -432,6 +439,7 @@ export default class Scf {
     const Response = await this.request({
       Action: 'Invoke',
       FunctionName: inputs.functionName,
+      Qualifier: inputs.qualifier ?? CONFIGS.defaultQualifier,
       Namespace: inputs.namespace ?? CONFIGS.defaultNamespace,
       ClientContext: JSON.stringify(inputs.clientContext ?? {}),
       LogType: inputs.logType ?? 'Tail',

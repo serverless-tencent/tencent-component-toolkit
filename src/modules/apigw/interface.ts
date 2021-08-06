@@ -64,11 +64,15 @@ export interface ApiEndpoint {
     namespace?: string;
     qualifier?: string;
 
+    functionType?: string;
     functionName?: string;
     functionNamespace?: string;
     functionQualifier?: string;
     transportFunctionName?: string;
     registerFunctionName?: string;
+    cleanupFunctionName?: string;
+
+    isIntegratedResponse?: boolean;
   };
   internalDomain?: string;
   isBase64Encoded?: boolean;
@@ -79,12 +83,22 @@ export interface ApiEndpoint {
     url?: string;
     path?: string;
     method?: string;
+    uniqVpcId?: string;
   };
   oauthConfig?: {
     loginRedirectUrl: string;
     publicKey: string;
     tokenLocation: string;
   };
+
+  // API 应用配置
+  app?: {
+    name: string;
+    id?: string;
+    description?: string;
+  };
+
+  [key: string]: any;
 }
 
 export interface ApigwCustomDomain {
@@ -115,6 +129,7 @@ export interface ApigwCreateServiceInputs {
   serviceName?: string;
   serviceDesc?: string;
   serviceId?: string;
+  instanceId?: string;
 
   usagePlan?: ApigwSetupUsagePlanInputs;
   auth?: ApigwSetupUsagePlanSecretInputs;
@@ -142,10 +157,10 @@ export interface ApigwCreateOrUpdateServiceOutputs {
 
 export type ApiDeployOutputs = ApiEndpoint;
 
-export interface CreateOrUpdateApiInputs {
-  serviceId?: string;
-  endpoint?: ApiEndpoint;
-  environment?: EnviromentType;
+export interface CreateApiInputs {
+  serviceId: string;
+  endpoint: ApiEndpoint;
+  environment: EnviromentType;
   created?: boolean;
 }
 
@@ -203,6 +218,7 @@ export interface ApigwUsagePlanOutputs {
 
 export interface ApigwDeployOutputs {
   created?: boolean;
+  instanceId?: string;
   serviceId: string;
   serviceName: string;
   subDomain: string | string[];
@@ -264,4 +280,27 @@ export interface ApiDetail {
   Path: string;
   ApiId: string;
   InternalDomain: string;
+}
+
+export interface ApiAppCreateOptions {
+  name: string;
+  description?: string;
+}
+
+export interface ApiAppItem {
+  ApiAppName: string;
+  ApiAppId: string;
+  ApiAppKey: string;
+  ApiAppSecret: string;
+  CreatedTime: string;
+  ModifiedTime: string;
+  ApiAppDesc: string;
+}
+
+export interface ApiAppDetail {
+  id: string;
+  name: string;
+  key: string;
+  secret: string;
+  description: string;
 }

@@ -13,6 +13,8 @@ export { default as Layer } from './modules/layer';
 export { default as Cfs } from './modules/cfs';
 export { default as Cynosdb } from './modules/cynosdb';
 export { default as Cls } from './modules/cls';
+export { default as ClsAlarm } from './modules/cls/alarm';
+export { default as ClsNotice } from './modules/cls/notice';
 export { default as Clb } from './modules/clb';
 export { default as Monitor } from './modules/monitor';
 export { default as Account } from './modules/account';

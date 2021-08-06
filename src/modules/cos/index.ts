@@ -130,6 +130,14 @@ export default class Cos {
       const e = convertCosError(err);
       if (e.code === 'BucketAlreadyExists' || e.code === 'BucketAlreadyOwnedByYou') {
         console.log(`Bucket ${inputs.bucket} already exist.`);
+      } else if (e.code === 'TooManyBuckets') {
+        // 存储桶太多了，就先查看是否存在，如果不存在再抛出错误
+        const exist = await this.isBucketExist(inputs.bucket!);
+        if (exist) {
+          console.log(`Bucket ${inputs.bucket} already exist.`);
+          return true;
+        }
+        throw constructCosError(`API_COS_putBucket`, err);
       } else {
         // 失败重试 1 次，如果再次出错，正常处理
         if (this.retryTimes < this.maxRetryTimes) {

@@ -1,7 +1,12 @@
 import { Cls } from '@tencent-sdk/cls';
 import { IndexRule } from '@tencent-sdk/cls/dist/typings';
 import { ApiError } from '../../utils/error';
-import { StatusSqlMapEnum, GetSearchSqlOptions } from './interface';
+import {
+  StatusSqlMapEnum,
+  GetSearchSqlOptions,
+  CreateAlarmOptions,
+  CreateNoticeOptions,
+} from './interface';
 
 export async function getLogsetByName(cls: Cls, data: { name: string }) {
   const { logsets = [] } = await cls.getLogsetList();
@@ -279,4 +284,67 @@ export function getSearchSql(options: GetSearchSqlOptions) {
   const sql = `* | SELECT SCF_RequestId as requestId, SCF_RetryNum as retryNum, MAX(SCF_StartTime) as startTime WHERE ${where} GROUP BY SCF_RequestId, SCF_RetryNum ORDER BY startTime desc`;
 
   return sql;
+}
+
+// 格式化告警配置参数
+export function formatAlarmOptions(options: CreateAlarmOptions) {
+  const { targets = [], monitor = { type: 'Period', time: 15 }, trigger, noticeId = '' } = options;
+  const AlarmTargets = targets.map((item, index) => {
+    return {
+      LogsetId: options.logsetId,
+      TopicId: options.topicId,
+      Query: item.query,
+      Number: index + 1,
+      StartTimeOffset: -(item.period ?? 15),
+      EndTimeOffset: 0,
+    };
+  });
+  return {
+    Name: options.name,
+    AlarmTargets,
+    MonitorTime: {
+      Type: monitor.type ?? 'Period',
+      Time: monitor.type === 'Fixed' ? monitor.time + 1 : monitor.time,
+    },
+    Condition: trigger.condition,
+    TriggerCount: trigger.count ?? 1,
+    AlarmPeriod: trigger.period ?? 15,
+    AlarmNoticeIds: [noticeId],
+    Status: options.status ?? true,
+  };
+}
+
+// 格式化通知配置参数
+export function formatNoticeOptions(options: CreateNoticeOptions) {
+  const { name, type, receivers, webCallbacks } = options;
+  const NoticeReceivers = receivers.map((item) => {
+    return {
+      EndTime: item.end,
+      ReceiverChannels: item.channels,
+      ReceiverIds: item.ids,
+      ReceiverType: item.type,
+      StartTime: item.start,
+    };
+  });
+  const WebCallbacks = webCallbacks.map((item) => {
+    return item.type === 'WeCom'
+      ? {
+          Body: item.body,
+          CallbackType: item.type,
+          Url: item.url,
+        }
+      : {
+          Body: item.body,
+          CallbackType: item.type,
+          Url: item.url,
+          Headers: item.headers,
+          Method: item.method,
+        };
+  });
+  return {
+    Name: name,
+    NoticeReceivers,
+    Type: type,
+    WebCallbacks: WebCallbacks,
+  };
 }

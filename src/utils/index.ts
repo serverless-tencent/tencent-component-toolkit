@@ -1,6 +1,8 @@
 import fs from 'fs';
 import path from 'path';
+import camelCase from 'camelcase';
 import { PascalCase } from 'type-fest';
+import { CamelCasedProps, PascalCasedProps } from '../modules/interface';
 
 // TODO: 将一些库换成 lodash
 
@@ -153,6 +155,25 @@ export function uniqueArray<T>(arr: T[]) {
   });
 }
 
+export function camelCaseProps<T>(obj: T): CamelCasedProps<T> {
+  let res: Record<string, any> = {};
+  if (isObject(obj)) {
+    res = {} as any;
+    Object.keys(obj).forEach((key: string) => {
+      const val = (obj as any)[key];
+      const k = camelCase(key);
+      res[k] = isObject(val) || isArray(val) ? camelCaseProps(val) : val;
+    });
+  }
+  if (isArray(obj as any)) {
+    res = [];
+    (obj as any).forEach((item: any) => {
+      res.push(isObject(item) || isArray(item) ? camelCaseProps(item) : item);
+    });
+  }
+  return res as CamelCasedProps<T>;
+}
+
 export function pascalCase<T extends string>(str: T): PascalCase<T> {
   if (str.length <= 1) {
     return str.toUpperCase() as any;
@@ -160,11 +181,6 @@ export function pascalCase<T extends string>(str: T): PascalCase<T> {
   return `${str[0].toUpperCase()}${str.slice(1)}` as any;
 }
 
-export type PascalCasedProps<T> = {
-  [K in keyof T as PascalCase<K>]: T[K] extends Array<infer U> | undefined
-    ? Array<U>
-    : PascalCasedProps<T[K]>;
-};
 export function pascalCaseProps<T>(obj: T): PascalCasedProps<T> {
   let res: Record<string, any> = {};
   if (isObject(obj)) {

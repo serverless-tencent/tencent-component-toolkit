@@ -1,3 +1,61 @@
+# [2.14.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.13.4...v2.14.0) (2021-08-05)
+
+
+### Bug Fixes
+
+* import error ([38107ea](https://github.com/serverless-tencent/tencent-component-toolkit/commit/38107ea5fdd1f75a2b8ce3ad2bec1d12be97170a))
+* **apigw:** pascal api parameter error ([58e614c](https://github.com/serverless-tencent/tencent-component-toolkit/commit/58e614c11be13e1336a43e76a5bd345eee92fd5e))
+* remove initTimeout when user not config ([bb6f7ad](https://github.com/serverless-tencent/tencent-component-toolkit/commit/bb6f7ad7b51d69fc5fbe02a25c965110135f874b))
+
+
+### Features
+
+* **cls:** support alarm and notice ([40ede8d](https://github.com/serverless-tencent/tencent-component-toolkit/commit/40ede8de0ada30de5b38e1fa9949183c19c4f927))
+* **cls:** support dashboard ([96d78f1](https://github.com/serverless-tencent/tencent-component-toolkit/commit/96d78f1fd5dc05632716c28d13ebe2c9890c506c))
+
+## [2.13.4](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.13.3...v2.13.4) (2021-07-29)
+
+
+### Bug Fixes
+
+* **cdn:** multi deploy bug ([c3ea89f](https://github.com/serverless-tencent/tencent-component-toolkit/commit/c3ea89f5e367664109f819c34f0966df65771552))
+* **apigw:** support app remove ([f4f748a](https://github.com/serverless-tencent/tencent-component-toolkit/commit/f4f748acfa8ae37e4f11a48fc45a6675bb585b26))
+
+## [2.13.3](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.13.2...v2.13.3) (2021-07-21)
+
+
+### Bug Fixes
+
+* support async retry config  ([#238](https://github.com/serverless-tencent/tencent-component-toolkit/issues/238)) ([82224cb](https://github.com/serverless-tencent/tencent-component-toolkit/commit/82224cba9f2b39f459152d25143a2b99dcc59727))
+
+## [2.13.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.13.1...v2.13.2) (2021-07-20)
+
+
+### Bug Fixes
+
+* **cos:** update too many bucket error msg ([278aaaa](https://github.com/serverless-tencent/tencent-component-toolkit/commit/278aaaa114a033bb04075afe317d2e4c204eac9a))
+
+## [2.13.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.13.0...v2.13.1) (2021-07-20)
+
+
+### Bug Fixes
+
+* **cos:** compatibility for too many buckets error ([3e4dc64](https://github.com/serverless-tencent/tencent-component-toolkit/commit/3e4dc641cd3349a3ffaef3f324ddfcf5ae190206))
+
+# [2.13.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.12.11...v2.13.0) (2021-07-16)
+
+
+### Features
+
+* **apigw:** support app auth and instance ([#237](https://github.com/serverless-tencent/tencent-component-toolkit/issues/237)) ([16d3a9a](https://github.com/serverless-tencent/tencent-component-toolkit/commit/16d3a9a45322662af803548654311aacbeefe5bd))
+
+## [2.12.11](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.12.10...v2.12.11) (2021-06-30)
+
+
+### Bug Fixes
+
+* **scf:** invoke support qualifier option ([f3c73c4](https://github.com/serverless-tencent/tencent-component-toolkit/commit/f3c73c452305b764d7beb4cdf01c4eb1ae211734))
+
 ## [2.12.10](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.12.9...v2.12.10) (2021-06-30)
 
 

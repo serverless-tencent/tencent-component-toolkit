@@ -1,5 +1,5 @@
 import { CertInfo } from './interface';
-import { PascalCasedProps } from './../../utils/index';
+import { PascalCasedProps } from './../../modules/interface';
 import { Capi } from '@tencent-sdk/capi';
 import fs from 'fs';
 import path from 'path';
@@ -125,12 +125,13 @@ export async function openCdnService(capi: Capi) {
     });
     return true;
   } catch (e) {
-    if (
-      e.code !== 'ResourceInUse.CdnUserExists' &&
-      e.code !== 'UnauthorizedOperation.OperationTooOften'
-    ) {
-      throw e;
-    }
+    // if (
+    //   e.code !== 'ResourceInUse.CdnUserExists' &&
+    //   e.code !== 'UnauthorizedOperation.OperationTooOften'
+    // ) {
+    //   throw e;
+    // }
+    // DO NOT THROW ERROR
     return false;
   }
 }

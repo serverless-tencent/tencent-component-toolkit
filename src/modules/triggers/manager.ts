@@ -202,7 +202,14 @@ export class TriggerManager {
       }
     }
     return {
-      deleteList: deleteList.filter((item) => item) as TriggerDetail[],
+      deleteList: deleteList
+        .filter((item) => item)
+        .map((item) => {
+          return {
+            ...item,
+            triggerType: item?.Type,
+          };
+        }) as TriggerDetail[],
       deployList: deployList.map((item) => {
         delete item?.compared;
         return item as TriggerDetail;
@@ -314,6 +321,7 @@ export class TriggerManager {
             serviceId: triggerOutput.serviceId,
             serviceName: triggerOutput.serviceName,
             environment: triggerOutput.environment,
+            apiList: triggerOutput.apiList || [],
           });
         }
         this.runningTasks--;
