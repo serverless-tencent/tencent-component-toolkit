@@ -12,16 +12,19 @@ import {
   RemoveDashboardInputs,
   Dashboard,
   DashboardItem,
+  AlarmInputs,
 } from './interface';
 import { CapiCredentials, RegionType } from './../interface';
 import { ApiError } from '../../utils/error';
 import { dtz, TIME_FORMAT, Dayjs } from '../../utils/dayjs';
 import { createLogset, createTopic, updateIndex, getSearchSql } from './utils';
+import Alarm from './alarm';
 
 export default class Cls {
   credentials: CapiCredentials;
   region: RegionType;
   cls: ClsClient;
+  alarm: Alarm;
 
   constructor(credentials: CapiCredentials, region: RegionType = 'ap-guangzhou', expire?: number) {
     this.region = region;
@@ -34,6 +37,8 @@ export default class Cls {
       debug: false,
       expire: expire,
     });
+
+    this.alarm = new Alarm(credentials, this.region);
   }
 
   // 创建/更新 日志集
@@ -170,11 +175,25 @@ export default class Cls {
     outputs.topicId = inputs.topicId = topicOutput.topicId;
     await this.deployIndex(inputs);
 
+    // 部署告警
+    const { alarms = [] } = inputs;
+    if (alarms.length > 0) {
+      outputs.alarms = [];
+      for (let i = 0, len = alarms.length; i < len; i++) {
+        const res = await this.alarm.create({
+          ...alarms[i],
+          logsetId: outputs.logsetId,
+          topicId: outputs.topicId,
+        });
+        outputs.alarms.push(res);
+      }
+    }
+
     return outputs;
   }
 
   // 删除
-  async remove(inputs: { topicId?: string; logsetId?: string } = {}) {
+  async remove(inputs: { topicId?: string; logsetId?: string; alarms?: AlarmInputs[] } = {}) {
     try {
       console.log(`Start removing cls`);
       console.log(`Removing cls topic id ${inputs.topicId}`);
@@ -197,6 +216,15 @@ export default class Cls {
           type: 'API_deleteLogset',
           message: res2.error.message,
         });
+      }
+      const { alarms = [] } = inputs;
+      if (alarms && alarms.length > 0) {
+        for (let i = 0, len = alarms.length; i < len; i++) {
+          const cur = alarms[i];
+          console.log(`Removing alarm name ${cur.name}, id ${cur.id}`);
+          await this.alarm.delete({ id: cur.id, name: cur.name });
+          console.log(`Remove alarm name ${cur.name}, id ${cur.id} success`);
+        }
       }
       console.log(`Removed cls id ${inputs.logsetId} success`);
     } catch (e) {
