@@ -418,6 +418,12 @@ describe('apigw deploy and remove with serviceId', () => {
     const apigwInputs = deepClone(inputs);
     apigwInputs.serviceId = 'service-mh4w4xnm';
     apigwInputs.isInputServiceId = true;
+    apigwInputs.tags = [
+      {
+        key: 'serverless',
+        value: 'integration_test[勿删]',
+      },
+    ];
     delete apigwInputs.usagePlan;
     delete apigwInputs.auth;
 
