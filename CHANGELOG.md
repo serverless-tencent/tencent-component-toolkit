@@ -1,3 +1,10 @@
+## [2.14.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.14.0...v2.14.1) (2021-08-09)
+
+
+### Bug Fixes
+
+* **cls:** add alarm flow for deploy and remove ([29f02cb](https://github.com/serverless-tencent/tencent-component-toolkit/commit/29f02cbf5a1e6e9ac40a400582de081f5cd7546b))
+
 # [2.14.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.13.4...v2.14.0) (2021-08-05)
 
 
