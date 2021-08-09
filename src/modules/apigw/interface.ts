@@ -181,6 +181,7 @@ export interface ApiDeployInputs {
 }
 
 export interface ApigwDeployInputs extends ApigwCreateServiceInputs, ApigwBindCustomDomainInputs {
+  ignoreUpdate?: boolean;
   region?: RegionType;
   oldState?: any;
   environment?: EnviromentType;

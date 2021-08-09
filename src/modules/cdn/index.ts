@@ -65,7 +65,11 @@ export default class Cdn {
   }
 
   /** 部署 CDN */
-  async deploy(inputs: CdnDeployInputs) {
+  async deploy(inputs: CdnDeployInputs): Promise<CdnOutputs | undefined> {
+    if (inputs.ignoreUpdate) {
+      console.log('CDN update ignored');
+      return;
+    }
     await openCdnService(this.capi);
     const { oldState = {} } = inputs;
     delete inputs.oldState;

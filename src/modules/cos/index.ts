@@ -628,7 +628,11 @@ export default class Cos {
     return `${inputs.bucket}.cos-website.${this.region}.myqcloud.com`;
   }
 
-  async deploy(inputs: CosDeployInputs = {}) {
+  async deploy(inputs: CosDeployInputs = {}): Promise<CosDeployInputs | undefined> {
+    if (inputs.ignoreUpdate) {
+      console.log('COS update ignored');
+      return;
+    }
     await this.createBucket(inputs);
     if (inputs.acl) {
       await this.setAcl(inputs);

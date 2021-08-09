@@ -192,6 +192,7 @@ export interface CosDeployInputs
     CosSetLifecycleInputs,
     CosSetVersioningInputs,
     CosWebsiteInputs {
+  ignoreUpdate?: boolean;
   keyPrefix?: string;
   rules?: {
     status?: string;
