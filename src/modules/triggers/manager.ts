@@ -384,7 +384,7 @@ export class TriggerManager {
         netTypes: parameters?.netTypes,
       });
       outputs.created = true;
-      outputs.serviceId = res.serviceId;
+      outputs.serviceId = res?.serviceId;
     }
     return outputs;
   }

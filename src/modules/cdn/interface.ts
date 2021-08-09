@@ -10,6 +10,8 @@ export interface CertInfo {
 export interface CdnDeployInputs {
   oldState?: any;
 
+  ignoreUpdate?: boolean;
+
   area: string;
 
   /** 是否等待 CDN 部署完毕 */
@@ -102,8 +104,9 @@ export interface CdnOutputs {
   domain: string;
   origins: string[];
   cname: string;
-  inputCache: string;
+  inputCache?: string;
   resourceId?: string;
 
   tags?: TagInput[];
+  refreshUrls?: string[];
 }

@@ -80,7 +80,11 @@ export default class Apigw {
   }
 
   /** 部署 API 网关 */
-  async deploy(inputs: ApigwDeployInputs) {
+  async deploy(inputs: ApigwDeployInputs): Promise<ApigwDeployOutputs | undefined> {
+    if (inputs.ignoreUpdate) {
+      console.log('API Gateway update ignored');
+      return;
+    }
     const {
       environment = 'release' as const,
       oldState = {},
