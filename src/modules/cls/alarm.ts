@@ -101,8 +101,7 @@ export default class Alarm {
       } else {
         console.log(`Alarm ${id} not exist`);
       }
-    }
-    if (name) {
+    } else if (name) {
       const detail = await this.get({ name });
       if (detail) {
         await this.request({
