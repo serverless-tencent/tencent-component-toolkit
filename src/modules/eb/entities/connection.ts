@@ -153,7 +153,7 @@ export default class ConnectionEntity {
 
   /** 更新事件连接器 */
   async update(connConf: EventConnectionUpdateInfo) {
-    const { eventBusId, connectionId, connectionName, description, enable } = connConf;
+    const { eventBusId, connectionId, connectionName, description, enable, gwParams } = connConf;
 
     let detail: EventConnectionDetail | null;
     const outputs: EventConnectionOutputs = { connectionId };
@@ -166,6 +166,20 @@ export default class ConnectionEntity {
           outputs.connectionName = connectionName;
           outputs.connectionId = connectionId;
           outputs.connectionDescription = detail.ConnectionDescription;
+
+          // 接口返回会新增/API/api-xxxx与入参不一致，需要进行转换
+          const qcsItems = detail.ConnectionDescription.ResourceDescription.split('/');
+          const propName = qcsItems[qcsItems.length - 2];
+          if (propName === 'API') {
+            const resItems = qcsItems.slice(0, qcsItems.length - 2);
+            outputs.connectionDescription.ResourceDescription = resItems.join('/');
+          }
+
+          // listConnections接口无法获取到APIGWParams信息，需从inputs中获取或默认值
+          if (!outputs.connectionDescription.APIGWParams) {
+            const defaultGwParam = { Protocol: 'HTTP', Method: 'POST' };
+            outputs.connectionDescription.APIGWParams = gwParams || defaultGwParam;
+          }
           const apiInputs = {
             Action: 'UpdateConnection' as const,
             connectionId,

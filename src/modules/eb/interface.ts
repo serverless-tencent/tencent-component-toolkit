@@ -124,6 +124,10 @@ export interface EventConnectionUpdateInfo {
   connectionName?: string;
   description?: string;
   enable: boolean;
+  gwParams?: {
+    Protocol: string;
+    Method: string;
+  };
 }
 
 export interface EventConnectionOutputs {

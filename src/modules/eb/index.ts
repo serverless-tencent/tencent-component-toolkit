@@ -78,6 +78,7 @@ export default class EventBridge {
             connectionName: connInput.connectionName,
             description: connInput.description,
             enable: connInput.enable || true,
+            gwParams: connInput?.connectionDescription?.gwParams,
           });
         } else {
           const resourceId = getQcsResourceId(

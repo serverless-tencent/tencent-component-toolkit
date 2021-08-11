@@ -2,11 +2,10 @@ import {
   EbDeployInputs,
   EbDeployOutputs,
   EventConnectionItem,
-  // EventConnectionItem,
   EventConnectionOutputs,
-} from '../src/modules/eb/interface';
-import { EventBridge } from '../src';
-import { getQcsResourceId } from '../src/utils';
+} from '../../src/modules/eb/interface';
+import { EventBridge } from '../../src';
+import { getQcsResourceId } from '../../src/utils';
 
 describe('eb', () => {
   const credentials = {
@@ -27,6 +26,7 @@ describe('eb', () => {
         description: 'test connection binding',
         enable: true,
         type: 'apigw',
+        //  e.g:
         // connectionDescription: {
         //   serviceId: 'service-abcd123',
         //   gwParams: {
@@ -101,7 +101,6 @@ describe('eb', () => {
     inputs.rules[0].targets[0].targetId = outputs.rules[0].targets[0].targetId;
   });
 
-  /* TODO: 由于更新接口的问题，等后台修复后再测 */
   test('[Auto Connection] should update event bridge success', async () => {
     inputs.eventBusName = 'new-eb-01';
     const newConn = {
@@ -110,7 +109,6 @@ describe('eb', () => {
       type: 'apigw',
       enable: true,
       connectionDescription: {
-        // resourceDescription: inputs.connections[0].connectionDescription.resourceDescription,
         serviceId: inputs.connections[0].connectionDescription.serviceId,
         gwParams: { Protocol: 'HTTP', Method: 'GET' },
       },
@@ -124,6 +122,19 @@ describe('eb', () => {
     expect(outputs.rules[0].ruleName).toEqual(inputs.rules[0].ruleName);
     expect(outputs.connections).toHaveLength(2);
     expect(outputs.connections[0].connectionName).toEqual(inputs.connections[0].connectionName);
+    expect(outputs.connections[0].connectionDescription.APIGWParams).toEqual(
+      inputs.connections[0].connectionDescription.gwParams,
+    );
+    const firstTargetResDesc = getQcsResourceId(
+      'apigw',
+      'ap-guangzhou',
+      process.env.TENCENT_UIN,
+      `serviceid/${inputs.connections[0].connectionDescription.serviceId}`,
+    );
+    expect(outputs.connections[0].connectionDescription.ResourceDescription).toEqual(
+      firstTargetResDesc,
+    );
+
     expect(outputs.connections[1].connectionName).toEqual(inputs.connections[1].connectionName);
     expect(outputs.connections[1].type).toEqual(inputs.connections[1].type);
     const targetResDesc = getQcsResourceId(
