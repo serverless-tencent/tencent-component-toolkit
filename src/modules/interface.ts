@@ -44,6 +44,9 @@ export enum ApiServiceType {
 
   // 日志服务
   cls = 'cls',
+
+  // 事件总线（EventBridge）
+  eb = 'eb',
 }
 
 export type RegionType = string;

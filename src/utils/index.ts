@@ -268,3 +268,8 @@ export const randomId = (len = 6) => {
   const randomStr = Math.random().toString(36);
   return randomStr.substr(-len);
 };
+
+export const getQcsResourceId = (service: string, region: string, uin: string, suffix: string) => {
+  // 云资源六段式
+  return `qcs::${service}:${region}:uin/${uin}:${suffix}`;
+};
