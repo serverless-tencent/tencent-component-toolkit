@@ -1,3 +1,10 @@
+# [2.15.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.14.1...v2.15.0) (2021-08-12)
+
+
+### Features
+
+* add event bridge module ([#244](https://github.com/serverless-tencent/tencent-component-toolkit/issues/244)) ([563b13e](https://github.com/serverless-tencent/tencent-component-toolkit/commit/563b13e69348362fd70d8e7afcd7cac46b079677))
+
 ## [2.14.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.14.0...v2.14.1) (2021-08-09)
 
 
