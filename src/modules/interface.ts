@@ -39,14 +39,14 @@ export enum ApiServiceType {
   // asw 状态机
   asw = 'asw',
 
-  // 事件总线（EventBridge）
-  eb = 'eb',
-
   // asw 状态机
   tcr = 'tcr',
 
   // 日志服务
   cls = 'cls',
+
+  // 事件总线（EventBridge）
+  eb = 'eb',
 }
 
 export type RegionType = string;
