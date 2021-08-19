@@ -30,7 +30,7 @@ export default class AliasEntity extends BaseEntity {
 
   async update(inputs: ScfUpdateAliasInputs) {
     console.log(
-      `Config function ${inputs.functionName} traffic ${inputs.traffic} for version ${inputs.lastVersion}`,
+      `Update function ${inputs.functionName} alias ${inputs.aliasName} to version ${inputs.functionVersion}`,
     );
     const publishInputs = {
       Action: 'UpdateAlias' as const,
@@ -39,14 +39,17 @@ export default class AliasEntity extends BaseEntity {
       Name: inputs.aliasName || '$DEFAULT',
       Namespace: inputs.namespace || 'default',
       RoutingConfig: {
-        AdditionalVersionWeights: [{ Version: inputs.lastVersion, Weight: inputs.traffic }],
+        AdditionalVersionWeights: inputs.additionalVersions?.map((v) => {
+          return {
+            Version: v.version,
+            Weight: v.weight,
+          };
+        }),
       },
       Description: inputs.description || 'Configured by Serverless Component',
     };
     const Response = await this.request(publishInputs);
-    console.log(
-      `Config function ${inputs.functionName} traffic ${inputs.traffic} for version ${inputs.lastVersion} success`,
-    );
+    console.log(`Update function ${inputs.functionName} alias success`);
     return Response;
   }
 
