@@ -115,9 +115,8 @@ export interface ScfGetAliasInputs {
 }
 
 export interface ScfUpdateAliasInputs extends ScfGetAliasInputs {
-  traffic: number;
-  lastVersion: string;
   description?: string;
+  additionalVersions?: [{ version: string; weight: number }];
 }
 
 export type ScfDeleteAliasInputs = ScfGetAliasInputs;
