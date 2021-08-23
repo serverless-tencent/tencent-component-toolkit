@@ -1,3 +1,17 @@
+# [2.16.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.15.0...v2.16.0) (2021-08-23)
+
+
+### Features
+
+* add ignoreUpdate options for apigw, cdn, cos ([8d6d573](https://github.com/serverless-tencent/tencent-component-toolkit/commit/8d6d5735bbef44124b2e600121fb283412fe7a03))
+* add scf concurrency config, fix alias ([cd374bb](https://github.com/serverless-tencent/tencent-component-toolkit/commit/cd374bbf3e319c950924c7d51e0862a1ddd945a3))
+* new api for scf alias update ([60d4d45](https://github.com/serverless-tencent/tencent-component-toolkit/commit/60d4d45caf7198ddd489cb4648685529da2dce93))
+
+
+### BREAKING CHANGES
+
+* scf alias update API not compact from older
+
 # [2.15.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.14.1...v2.15.0) (2021-08-12)
 
 
