@@ -23,13 +23,13 @@ import Alarm from './alarm';
 export default class Cls {
   credentials: CapiCredentials;
   region: RegionType;
-  cls: ClsClient;
+  clsClient: ClsClient;
   alarm: Alarm;
 
   constructor(credentials: CapiCredentials, region: RegionType = 'ap-guangzhou', expire?: number) {
     this.region = region;
     this.credentials = credentials;
-    this.cls = new ClsClient({
+    this.clsClient = new ClsClient({
       region: this.region,
       secretId: credentials.SecretId!,
       secretKey: credentials.SecretKey!,
@@ -52,7 +52,7 @@ export default class Cls {
     let exist = false;
     const { logsetId } = inputs;
     if (logsetId) {
-      const detail = await this.cls.getLogset({
+      const detail = await this.clsClient.getLogset({
         logset_id: logsetId,
       });
       if (detail.error) {
@@ -66,7 +66,7 @@ export default class Cls {
       if (detail.logset_id) {
         exist = true;
         console.log(`Updating cls ${logsetId}`);
-        const res = await this.cls.updateLogset({
+        const res = await this.clsClient.updateLogset({
           period: inputs.period!,
           logset_id: logsetId,
           logset_name: inputs.name!,
@@ -86,7 +86,7 @@ export default class Cls {
 
     // if not exist, create cls
     if (!exist) {
-      const res = await createLogset(this.cls, {
+      const res = await createLogset(this.clsClient, {
         name: inputs.name!,
         period: inputs.period!,
       });
@@ -106,7 +106,7 @@ export default class Cls {
     let exist = false;
     const { topicId } = inputs;
     if (topicId) {
-      const detail = await this.cls.getTopic({
+      const detail = await this.clsClient.getTopic({
         topic_id: topicId,
       });
       if (detail.error) {
@@ -120,7 +120,7 @@ export default class Cls {
       if (detail.topic_id) {
         exist = true;
         console.log(`Updating cls topic ${topicId}`);
-        const res = await this.cls.updateTopic({
+        const res = await this.clsClient.updateTopic({
           // FIXME: SDK 需要 logset_id, 但是没有
           // logset_id: '',
           topic_id: topicId,
@@ -141,7 +141,7 @@ export default class Cls {
 
     // if not exist, create cls
     if (!exist) {
-      const res = await createTopic(this.cls, {
+      const res = await createTopic(this.clsClient, {
         logsetId: inputs.logsetId!,
         name: inputs.topic!,
       });
@@ -153,7 +153,7 @@ export default class Cls {
 
   // 更新索引
   async deployIndex(inputs: DeployIndexInputs) {
-    await updateIndex(this.cls, {
+    await updateIndex(this.clsClient, {
       topicId: inputs.topicId!,
       // FIXME: effective is always true in updateIndex
       effective: inputs.effective !== false ? true : false,
@@ -197,7 +197,7 @@ export default class Cls {
     try {
       console.log(`Start removing cls`);
       console.log(`Removing cls topic id ${inputs.topicId}`);
-      const res1 = await this.cls.deleteTopic({
+      const res1 = await this.clsClient.deleteTopic({
         topic_id: inputs.topicId!,
       });
       if (res1.error) {
@@ -208,7 +208,7 @@ export default class Cls {
       }
       console.log(`Removed cls topic id ${inputs.logsetId} success`);
       console.log(`Removing cls id ${inputs.logsetId}`);
-      const res2 = await this.cls.deleteLogset({
+      const res2 = await this.clsClient.deleteLogset({
         logset_id: inputs.logsetId!,
       });
       if (res2.error) {
@@ -331,7 +331,7 @@ export default class Cls {
 
   // 获取 dashboard 列表
   async getDashboardList(): Promise<Dashboard[]> {
-    const res = await this.cls.request({
+    const res = await this.clsClient.request({
       method: 'GET',
       path: '/dashboards',
     });
@@ -364,7 +364,7 @@ export default class Cls {
     id?: string;
   }): Promise<Dashboard | undefined> {
     if (id) {
-      const res = await this.cls.request({
+      const res = await this.clsClient.request({
         method: 'GET',
         path: `/dashboard`,
         query: {
@@ -415,7 +415,7 @@ export default class Cls {
       ({ id } = exist);
     }
     // 删除 dashboard
-    const res = await this.cls.request({
+    const res = await this.clsClient.request({
       method: 'DELETE',
       path: `/dashboard`,
       query: {
@@ -442,7 +442,7 @@ export default class Cls {
     // 2. 如果不存在则创建，否则更新
     if (exist) {
       dashboardId = exist.id;
-      const res = await this.cls.request({
+      const res = await this.clsClient.request({
         method: 'PUT',
         path: '/dashboard',
         data: {
@@ -458,7 +458,7 @@ export default class Cls {
         });
       }
     } else {
-      const res = await this.cls.request({
+      const res = await this.clsClient.request({
         method: 'POST',
         path: '/dashboard',
         data: {
