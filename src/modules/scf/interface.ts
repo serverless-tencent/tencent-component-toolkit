@@ -116,7 +116,7 @@ export interface ScfGetAliasInputs {
 
 export interface ScfUpdateAliasInputs extends ScfGetAliasInputs {
   description?: string;
-  additionalVersions?: [{ version: string; weight: number }];
+  additionalVersions?: { version: string; weight: number }[];
 }
 
 export type ScfDeleteAliasInputs = ScfGetAliasInputs;
