@@ -34,6 +34,7 @@ interface ScfGetProvisionedInputs {
 export class ConcurrencyEntity extends BaseEntity {
   // 设置保留配额
   async setReserved(inputs: ScfSetReservedInputs) {
+    console.log(`Set function ${inputs.functionName} reserved`);
     return await this.request({
       Action: 'PutReservedConcurrencyConfig',
       FunctionName: inputs.functionName,
@@ -43,6 +44,7 @@ export class ConcurrencyEntity extends BaseEntity {
   }
 
   async getReserved(inputs: ScfGetReservedInputs) {
+    console.log(`Get function ${inputs.functionName} reserved`);
     const res = await this.request({
       Action: 'GetReservedConcurrencyConfig',
       FunctionName: inputs.functionName,
@@ -55,6 +57,7 @@ export class ConcurrencyEntity extends BaseEntity {
 
   // 设置预置并发
   async setProvisioned(inputs: ScfSetProvisionedInputs) {
+    console.log(`Set function ${inputs.functionName} provisioned`);
     // 删除上个版本的预置
     if (inputs.lastQualifier) {
       await this.request({
@@ -79,6 +82,7 @@ export class ConcurrencyEntity extends BaseEntity {
   }
 
   async getProvisioned(inputs: ScfGetProvisionedInputs) {
+    console.log(`Get function ${inputs.functionName} provisioned`);
     const res = await this.request({
       Action: 'GetProvisionedConcurrencyConfig',
       FunctionName: inputs.functionName,
@@ -110,6 +114,7 @@ export class ConcurrencyEntity extends BaseEntity {
   }
 
   async waitProvisioned(inputs: ScfGetProvisionedInputs) {
+    console.log(`Wait for function ${inputs.functionName} set provisioned finish`);
     while (true) {
       const outputs = await this.getProvisioned(inputs);
       let finish = true;
