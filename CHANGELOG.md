@@ -1,3 +1,10 @@
+## [2.16.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.16.0...v2.16.1) (2021-08-23)
+
+
+### Bug Fixes
+
+* add log for concurrency ([fb4e37b](https://github.com/serverless-tencent/tencent-component-toolkit/commit/fb4e37b7cba23c78674a563e061eee82a35e2b6f))
+
 # [2.16.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.15.0...v2.16.0) (2021-08-23)
 
 
