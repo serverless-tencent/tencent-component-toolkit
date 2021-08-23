@@ -1,5 +1,5 @@
 import { Capi } from '@tencent-sdk/capi';
-import { waitResponse } from '@ygkit/request';
+import { sleep, waitResponse } from '@ygkit/request';
 import dayjs from 'dayjs';
 import { ApiTypeError, ApiError } from '../../../utils/error';
 import { formatDate } from '../../../utils/dayjs';
@@ -83,6 +83,7 @@ export default class ScfEntity extends BaseEntity {
     }
   }
 
+  wait = this.checkStatus;
   // 由于函数的创建/更新是个异步过程，所以需要轮训函数状态
   // 每个 200ms（GetFunction 接口平均耗时） 轮训一次，轮训 1200 次，也就是 2 分钟
   async checkStatus({
@@ -114,9 +115,7 @@ export default class ScfEntity extends BaseEntity {
         if (CONFIGS.failStatus.indexOf(Status) !== -1) {
           break;
         }
-        // GetFunction 接口耗时一般需要200ms左右，QPS 大概为 5，小于云 API 20 的限制
-        // 所以不需要sleep
-        // await sleep(500);
+        await sleep(500);
         times = times - 1;
       }
       const { StatusReasons } = detail;

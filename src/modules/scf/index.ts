@@ -24,6 +24,7 @@ import {
 import ScfEntity from './entities/scf';
 import AliasEntity from './entities/alias';
 import VersionEntity from './entities/version';
+import { ConcurrencyEntity } from './entities/concurrency';
 
 /** 云函数组件 */
 export default class Scf {
@@ -36,6 +37,7 @@ export default class Scf {
   scf: ScfEntity;
   alias: AliasEntity;
   version: VersionEntity;
+  concurrency: ConcurrencyEntity;
 
   constructor(credentials = {}, region: RegionType = 'ap-guangzhou') {
     this.region = region;
@@ -54,6 +56,7 @@ export default class Scf {
 
     this.scf = new ScfEntity(this.capi, region);
     this.alias = new AliasEntity(this.capi);
+    this.concurrency = new ConcurrencyEntity(this.capi);
     this.version = new VersionEntity(this.capi);
   }
 
@@ -322,8 +325,9 @@ export default class Scf {
         namespace,
         functionName,
         region: this.region,
-        traffic: strip(1 - inputs.traffic!),
-        lastVersion: inputs.lastVersion!,
+        additionalVersions: needSetTraffic
+          ? [{ weight: strip(1 - inputs.traffic!), version: inputs.lastVersion! }]
+          : [],
         aliasName: inputs.aliasName,
         description: inputs.aliasDescription,
       });

@@ -20,6 +20,11 @@ const ACTIONS = [
   'Invoke',
   'ListTriggers',
   'GetDemoAddress',
+  'PutReservedConcurrencyConfig',
+  'PutProvisionedConcurrencyConfig',
+  'DeleteProvisionedConcurrencyConfig',
+  'GetReservedConcurrencyConfig',
+  'GetProvisionedConcurrencyConfig',
 ] as const;
 
 export type ActionType = typeof ACTIONS[number];
