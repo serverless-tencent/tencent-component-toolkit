@@ -8,10 +8,6 @@ import {
   GetLogOptions,
   GetLogDetailOptions,
   LogContent,
-  DeployDashboardInputs,
-  RemoveDashboardInputs,
-  Dashboard,
-  DashboardItem,
   AlarmInputs,
 } from './interface';
 import { CapiCredentials, RegionType } from './../interface';
@@ -19,12 +15,14 @@ import { ApiError } from '../../utils/error';
 import { dtz, TIME_FORMAT, Dayjs } from '../../utils/dayjs';
 import { createLogset, createTopic, updateIndex, getSearchSql } from './utils';
 import Alarm from './alarm';
+import { ClsDashboard } from './dashboard';
 
 export default class Cls {
   credentials: CapiCredentials;
   region: RegionType;
   clsClient: ClsClient;
   alarm: Alarm;
+  dashboard: ClsDashboard;
 
   constructor(credentials: CapiCredentials, region: RegionType = 'ap-guangzhou', expire?: number) {
     this.region = region;
@@ -39,6 +37,7 @@ export default class Cls {
     });
 
     this.alarm = new Alarm(credentials, this.region);
+    this.dashboard = new ClsDashboard(this);
   }
 
   // 创建/更新 日志集
@@ -327,158 +326,5 @@ export default class Cls {
     };
     const { results = [] } = await clsClient.searchLog(searchParameters);
     return results;
-  }
-
-  // 获取 dashboard 列表
-  async getDashboardList(): Promise<Dashboard[]> {
-    const res = await this.clsClient.request({
-      method: 'GET',
-      path: '/dashboards',
-    });
-    if (res.error) {
-      throw new ApiError({
-        type: 'API_getDashboard',
-        message: res.error.message,
-      });
-    }
-    const dashboards = (res.dashboards || []).map(
-      ({ CreateTime, DashboardName, DashboardId, data }: DashboardItem) => {
-        return {
-          createTime: CreateTime,
-          name: DashboardName,
-          id: DashboardId,
-          data,
-        };
-      },
-    );
-
-    return dashboards;
-  }
-
-  // 获取 dashboard 详情
-  async getDashboardDetail({
-    name,
-    id,
-  }: {
-    name?: string;
-    id?: string;
-  }): Promise<Dashboard | undefined> {
-    if (id) {
-      const res = await this.clsClient.request({
-        method: 'GET',
-        path: `/dashboard`,
-        query: {
-          DashboardId: id,
-        },
-      });
-      if (res.error) {
-        return undefined;
-      }
-
-      return {
-        id,
-        createTime: res.CreateTime,
-        name: res.DashboardName,
-        data: res.data,
-      };
-    }
-    if (name) {
-      const list = await this.getDashboardList();
-      const exist = list.find((item) => item.name === name);
-      if (exist) {
-        return exist;
-      }
-      return undefined;
-    }
-    throw new ApiError({
-      type: 'API_getDashboardDetail',
-      message: 'name or id is required',
-    });
-  }
-
-  // 删除 dashboard
-  async removeDashboard({ id, name }: RemoveDashboardInputs) {
-    if (!id && !name) {
-      throw new ApiError({
-        type: 'API_removeDashboard',
-        message: 'id or name is required',
-      });
-    }
-    if (!id) {
-      // 通过名称查找ID
-      const exist = await this.getDashboardDetail({ name });
-      if (!exist) {
-        console.log(`Dashboard ${name} not exist`);
-
-        return true;
-      }
-      ({ id } = exist);
-    }
-    // 删除 dashboard
-    const res = await this.clsClient.request({
-      method: 'DELETE',
-      path: `/dashboard`,
-      query: {
-        DashboardId: id,
-      },
-    });
-
-    if (res.error) {
-      throw new ApiError({
-        type: 'API_deleteDashboard',
-        message: res.error.message,
-      });
-    }
-
-    return true;
-  }
-
-  // 创建 dashboard
-  async deployDashboard(inputs: DeployDashboardInputs) {
-    const { name, data } = inputs;
-    // 1. 检查是否存在同名 dashboard
-    const exist = await this.getDashboardDetail({ name });
-    let dashboardId = '';
-    // 2. 如果不存在则创建，否则更新
-    if (exist) {
-      dashboardId = exist.id;
-      const res = await this.clsClient.request({
-        method: 'PUT',
-        path: '/dashboard',
-        data: {
-          DashboardId: exist.id,
-          DashboardName: name,
-          data,
-        },
-      });
-      if (res.error) {
-        throw new ApiError({
-          type: 'API_updateDashboard',
-          message: res.error.message,
-        });
-      }
-    } else {
-      const res = await this.clsClient.request({
-        method: 'POST',
-        path: '/dashboard',
-        data: {
-          DashboardName: name,
-          data,
-        },
-      });
-      if (res.error) {
-        throw new ApiError({
-          type: 'API_createDashboard',
-          message: res.error.message,
-        });
-      }
-      dashboardId = res.DashboardId;
-    }
-
-    return {
-      id: dashboardId,
-      name,
-      data,
-    };
   }
 }

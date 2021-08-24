@@ -195,7 +195,7 @@ export class ClsDashboard {
   }
 
   // 获取 dashboard 列表
-  async getDashboardList(): Promise<Dashboard[]> {
+  async getList(): Promise<Dashboard[]> {
     const res = await this.cls.clsClient.request({
       method: 'GET',
       path: '/dashboards',
@@ -224,13 +224,7 @@ export class ClsDashboard {
   }
 
   // 获取 dashboard 详情
-  async getDashboardDetail({
-    name,
-    id,
-  }: {
-    name?: string;
-    id?: string;
-  }): Promise<Dashboard | undefined> {
+  async getDetail({ name, id }: { name?: string; id?: string }): Promise<Dashboard | undefined> {
     if (id) {
       const res = await this.cls.clsClient.request({
         method: 'GET',
@@ -263,7 +257,7 @@ export class ClsDashboard {
       };
     }
     if (name) {
-      const list = await this.getDashboardList();
+      const list = await this.getList();
       const exist = list.find((item) => item.name === name);
       if (exist) {
         return exist;
@@ -277,7 +271,7 @@ export class ClsDashboard {
   }
 
   // 删除 dashboard
-  async removeDashboard({ id, name }: RemoveDashboardInputs) {
+  async remove({ id, name }: RemoveDashboardInputs) {
     if (!id && !name) {
       throw new ApiError({
         type: 'API_removeDashboard',
@@ -286,7 +280,7 @@ export class ClsDashboard {
     }
     if (!id) {
       // 通过名称查找ID
-      const exist = await this.getDashboardDetail({ name });
+      const exist = await this.getDetail({ name });
       if (!exist) {
         console.log(`Dashboard ${name} not exist`);
 
@@ -314,7 +308,7 @@ export class ClsDashboard {
   }
 
   // 创建 dashboard
-  async deployDashboard(inputs: DeployDashboardInputs, logsetConfig: LogsetConfig) {
+  async deploy(inputs: DeployDashboardInputs, logsetConfig: LogsetConfig) {
     const { name, chartList } = inputs;
     const data = JSON.stringify({
       panels: chartList.map((v) => {
@@ -341,7 +335,7 @@ export class ClsDashboard {
     });
 
     // 1. 检查是否存在同名 dashboard
-    const exist = await this.getDashboardDetail({ name });
+    const exist = await this.getDetail({ name });
     let dashboardId = '';
     // 2. 如果不存在则创建，否则更新
     if (exist) {
@@ -382,7 +376,7 @@ export class ClsDashboard {
     return {
       id: dashboardId,
       name,
-      outputs: inputs,
+      chartList: inputs.chartList,
     };
   }
 }
