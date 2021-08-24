@@ -1,3 +1,16 @@
+# [2.17.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.16.1...v2.17.0) (2021-08-24)
+
+
+### Bug Fixes
+
+* add uuid as deps ([afd6eee](https://github.com/serverless-tencent/tencent-component-toolkit/commit/afd6eee9f74c27ad12d13e7349be8229ee20ca54))
+
+
+### Features
+
+* improve cls api, add types ([4f94266](https://github.com/serverless-tencent/tencent-component-toolkit/commit/4f942660fe43e516d86bf24da1b4e678066eaccd))
+* refactor cls module with interface ([87b2ef2](https://github.com/serverless-tencent/tencent-component-toolkit/commit/87b2ef227d762ab8ebc89fd26f73ae752f473793))
+
 ## [2.16.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.16.0...v2.16.1) (2021-08-23)
 
 
