@@ -93,7 +93,7 @@ describe('Cls', () => {
     await sleep(5000);
     await client.remove(outputs);
 
-    const detail = await client.cls.getTopic({
+    const detail = await client.clsClient.getTopic({
       topic_id: outputs.topicId,
     });
 

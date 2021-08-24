@@ -1,30 +1,6 @@
 import { IndexRule } from '@tencent-sdk/cls/dist/typings';
 import { RegionType, CamelCasedProps } from './../interface';
 
-export interface DeployDashboardInputs {
-  name: string;
-  data: string;
-}
-export interface RemoveDashboardInputs {
-  name?: string;
-  id?: string;
-}
-
-// 云 API 返回的 dashboard 结构
-export interface DashboardItem {
-  CreateTime: string;
-  DashboardId: string;
-  DashboardName: string;
-  data: string;
-}
-
-// camelCase 的 dashboard 结构，并作了简化
-export interface Dashboard {
-  createTime: string;
-  id: string;
-  name: string;
-  data: string;
-}
 export interface CreateAlarmOptions {
   // 告警 ID
   id?: string;

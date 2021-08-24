@@ -1,5 +1,9 @@
-import { DeployDashboardInputs } from '../../src/modules/cls/interface';
 import { Cls } from '../../src';
+import {
+  DashboardChartType,
+  DeployDashboardInputs,
+  DeployDashChartInputs,
+} from '../../src/modules/cls/dashboard';
 
 // TODO: 添加更多的图形测试用例，目前 CLS 产品并未相关说明文档
 describe('Cls dashboard', () => {
@@ -7,153 +11,86 @@ describe('Cls dashboard', () => {
     SecretId: process.env.TENCENT_SECRET_ID,
     SecretKey: process.env.TENCENT_SECRET_KEY,
   };
-  const clsConfig = {
+  const logsetConfig = {
+    region: process.env.REGION,
     logsetId: '5681feab-fae1-4a50-b41b-fb93d565d1fc',
     topicId: 'c429f9ca-8229-4cef-9d63-dd9ad6189f4c',
   };
   // * | select SCF_StartTime as time, max(SCF_MemUsage) / 1000000 as memory group by SCF_StartTime
-  const chart1Config = {
-    id: 'chart-d0a90626-0a73-466c-8a94-2f5bdc597abd',
+  const chart1Config: DeployDashChartInputs = {
     title: 'Request URL Time',
-    type: 'bar',
+    type: 'bar' as DashboardChartType,
     query: '* | select url,request_time',
-    yAxis: 'request_time',
-    yAxisUnit: 'ms',
+    yAxisKey: 'request_time',
     aggregateKey: 'url',
   };
-  const chart2Config = {
-    id: 'chart-ed7a85c7-5327-4763-93c0-b137be676258',
+  const chart2Config: DeployDashChartInputs = {
     title: '4xx Code',
-    type: 'bar',
+    type: 'bar' as DashboardChartType,
     query:
       '* | select error_code, count(*) as count where error_code > 400 and error_code < 500 group by error_code',
-    yAxis: 'count',
-    yAxisUnit: '',
+    yAxisKey: 'count',
     aggregateKey: 'error_code',
   };
-  const client = new Cls(credentials, process.env.REGION);
+  const cls = new Cls(credentials, process.env.REGION);
 
   const inputs: DeployDashboardInputs = {
-    name: 'serverless-unit-test',
-    data: JSON.stringify({
-      panels: [
-        {
-          id: chart1Config.id,
-          title: chart1Config.title,
-          description: null,
-          gridPos: { x: 0, y: 0, w: 12, h: 8 },
-          type: chart1Config.type,
-          target: {
-            RegionId: 1,
-            LogsetId: clsConfig.logsetId,
-            TopicId: clsConfig.topicId,
-            Query: chart1Config.query,
-            ChartAxis: {
-              xAxisKey: '',
-              yAxisKeys: [chart1Config.yAxis],
-              aggregateKey: chart1Config.aggregateKey,
-            },
-          },
-          chartConfig: {
-            orientation: true,
-            unit: chart1Config.yAxisUnit,
-            options: { dataLinks: [] },
-            legend: { show: false },
-            xAxis: { position: 'bottom', axisLabel: {} },
-            yAxis: { position: 'top' },
-            type: 'basicBar',
-            staticStyle: 'current',
-            sort: -1,
-            decimals: null,
-            id: chart1Config.id,
-          },
-          fieldConfig: { defaults: {}, overrides: [] },
-        },
-        {
-          id: chart2Config.id,
-          title: chart2Config.title,
-          description: null,
-          gridPos: { x: 0, y: 0, w: 12, h: 8 },
-          type: chart2Config.type,
-          target: {
-            RegionId: 1,
-            LogsetId: clsConfig.logsetId,
-            TopicId: clsConfig.topicId,
-            Query: chart2Config.query,
-            ChartAxis: {
-              xAxisKey: '',
-              yAxisKeys: [chart2Config.yAxis],
-              aggregateKey: chart2Config.aggregateKey,
-            },
-          },
-          chartConfig: {
-            orientation: true,
-            unit: chart2Config.yAxisUnit,
-            options: { dataLinks: [] },
-            legend: { show: false },
-            xAxis: { position: 'bottom', axisLabel: {} },
-            yAxis: { position: 'top' },
-            type: 'basicBar',
-            staticStyle: 'current',
-            sort: -1,
-            decimals: null,
-            id: chart2Config.id,
-          },
-          fieldConfig: { defaults: {}, overrides: [] },
-        },
-      ],
-    }),
+    name: 'serverless-unit-test-dashboard',
+    chartList: [chart1Config, chart2Config],
   };
 
   let dashboardId = '';
 
   test('deploy dashboard', async () => {
-    const res = await client.deployDashboard(inputs);
+    const res = await cls.dashboard.deploy(inputs, logsetConfig);
     expect(res).toEqual({
       id: expect.stringContaining('dashboard-'),
       name: inputs.name,
-      data: inputs.data,
+      chartList: expect.any(Array),
     });
 
     dashboardId = res.id;
+
+    console.log({ dashboardId });
   });
 
   test('get dashboard list', async () => {
-    const res = await client.getDashboardList();
+    const res = await cls.dashboard.getList();
     expect(res[0]).toEqual({
       createTime: expect.any(String),
       id: expect.stringContaining('dashboard-'),
       name: expect.any(String),
-      data: expect.any(String),
+      chartList: expect.any(Array),
     });
   });
 
   test('get dashboard detail by id', async () => {
-    const res = await client.getDashboardDetail({
+    console.log({ dashboardId });
+    const res = await cls.dashboard.getDetail({
       id: dashboardId,
     });
     expect(res).toEqual({
-      createTime: expect.any(String),
       id: expect.stringContaining('dashboard-'),
       name: expect.any(String),
-      data: expect.any(String),
+      createTime: expect.any(String),
+      chartList: expect.any(Array),
     });
   });
 
   test('get dashboard detail by name', async () => {
-    const res = await client.getDashboardDetail({
+    const res = await cls.dashboard.getDetail({
       name: inputs.name,
     });
     expect(res).toEqual({
       createTime: expect.any(String),
       id: expect.stringContaining('dashboard-'),
       name: expect.any(String),
-      data: expect.any(String),
+      chartList: expect.any(Array),
     });
   });
 
   test('remove dashboard', async () => {
-    const res = await client.removeDashboard(inputs);
+    const res = await cls.dashboard.remove(inputs);
     expect(res).toEqual(true);
   });
 });
