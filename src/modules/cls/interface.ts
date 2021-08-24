@@ -1,5 +1,6 @@
 import { IndexRule } from '@tencent-sdk/cls/dist/typings';
 import { RegionType, CamelCasedProps } from './../interface';
+import { DeployDashboardInputs } from './dashboard';
 
 export interface CreateAlarmOptions {
   // 告警 ID
@@ -197,6 +198,7 @@ export interface DeployInputs extends DeployLogsetInputs, DeployTopicInputs, Dep
   name?: string;
   topic?: string;
   alarms?: AlarmInputs[];
+  dashboards?: DeployDashboardInputs[];
 }
 
 export interface DeployOutputs extends Partial<DeployInputs> {

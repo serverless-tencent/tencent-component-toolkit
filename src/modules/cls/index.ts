@@ -188,6 +188,19 @@ export default class Cls {
       }
     }
 
+    const { dashboards = [] } = inputs;
+    if (dashboards.length > 0) {
+      outputs.dashboards = [];
+      for (let i = 0; i < dashboards.length; i++) {
+        const res = await this.dashboard.deploy(dashboards[i], {
+          region: outputs.region,
+          logsetId: outputs.logsetId,
+          topicId: outputs.topicId,
+        });
+        outputs.dashboards.push(res);
+      }
+    }
+
     return outputs;
   }
 

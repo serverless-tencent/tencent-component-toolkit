@@ -177,7 +177,7 @@ export type DeployDashChartInputs = Omit<DashboardChart, 'id'>;
 
 export interface DeployDashboardInputs {
   name: string;
-  chartList: DeployDashChartInputs[];
+  charts: DeployDashChartInputs[];
 }
 
 // camelCase 的 dashboard 结构，并作了简化
@@ -185,7 +185,7 @@ export interface Dashboard {
   createTime: string;
   id: string;
   name: string;
-  chartList: DashboardChart[];
+  charts: DashboardChart[];
 }
 
 export class ClsDashboard {
@@ -213,7 +213,7 @@ export class ClsDashboard {
           createTime: CreateTime,
           name: DashboardName,
           id: DashboardId,
-          chartList: parseData.panels,
+          charts: parseData.panels,
         };
 
         return dashboard;
@@ -244,7 +244,7 @@ export class ClsDashboard {
         id,
         createTime: res.CreateTime,
         name: res.DashboardName,
-        chartList: rawPanels.map((v) => ({
+        charts: rawPanels.map((v) => ({
           id: v.id,
           title: v.title,
           description: v.description,
@@ -309,9 +309,9 @@ export class ClsDashboard {
 
   // 创建 dashboard
   async deploy(inputs: DeployDashboardInputs, logsetConfig: LogsetConfig) {
-    const { name, chartList } = inputs;
+    const { name, charts } = inputs;
     const data = JSON.stringify({
-      panels: chartList.map((v) => {
+      panels: charts.map((v) => {
         const panel: Raw.DashboardChart = {
           id: 'chart-' + uuid.v4(),
           title: v.title,
@@ -376,7 +376,7 @@ export class ClsDashboard {
     return {
       id: dashboardId,
       name,
-      chartList: inputs.chartList,
+      charts: inputs.charts,
     };
   }
 }
