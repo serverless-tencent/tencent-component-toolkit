@@ -1,3 +1,10 @@
+## [2.17.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.17.0...v2.17.1) (2021-08-24)
+
+
+### Bug Fixes
+
+* update dashboard api ([dd82924](https://github.com/serverless-tencent/tencent-component-toolkit/commit/dd8292496e57fbbb200eeac60e2bca9dcbd6dd2f))
+
 # [2.17.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.16.1...v2.17.0) (2021-08-24)
 
 
