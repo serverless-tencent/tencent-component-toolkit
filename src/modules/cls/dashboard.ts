@@ -196,7 +196,7 @@ export class ClsDashboard {
 
   // 获取 dashboard 列表
   async getList(): Promise<Dashboard[]> {
-    console.log(`Getting dashboard list}`);
+    console.log(`Getting dashboard list`);
     const res = await this.cls.clsClient.request({
       method: 'GET',
       path: '/dashboards',
@@ -248,7 +248,7 @@ export class ClsDashboard {
       try {
         parseData = JSON.parse(res.data);
       } catch (err) {
-        console.log(`get detail: ${id}, data: ${res.data}`);
+        console.log(`Get detail failed: ${id}, data: ${res.data}`);
       }
       const rawPanels: Raw.DashboardChart[] = parseData.panels;
 

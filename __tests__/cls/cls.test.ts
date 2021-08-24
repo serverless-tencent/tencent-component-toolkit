@@ -3,11 +3,46 @@ import { Scf } from '../../src';
 import { Cls } from '../../src';
 import { sleep } from '@ygkit/request';
 
-describe('Cls', () => {
-  const credentials = {
-    SecretId: process.env.TENCENT_SECRET_ID,
-    SecretKey: process.env.TENCENT_SECRET_KEY,
+const credentials = {
+  SecretId: process.env.TENCENT_SECRET_ID,
+  SecretKey: process.env.TENCENT_SECRET_KEY,
+};
+
+describe('Scf Cls', () => {
+  const client = new Cls(credentials, process.env.REGION);
+
+  const inputs: DeployInputs = {
+    region: 'ap-guangzhou',
+    name: 'SCF_logset_zyIdCSDW',
+    topic: 'SCF_logtopic_QExYJrDj',
+    period: 7,
+    rule: {
+      full_text: {
+        case_sensitive: true,
+        tokenizer: '!@#%^&*()_="\', <>/?|\\;:\n\t\r[]{}',
+      },
+      key_value: {
+        case_sensitive: true,
+        keys: ['SCF_RetMsg'],
+        types: ['text'],
+        tokenizers: [' '],
+      },
+    },
   };
+
+  test('deploy cls', async () => {
+    const res = await client.deploy(inputs);
+    expect(res).toEqual({
+      region: process.env.REGION,
+      name: inputs.name,
+      topic: inputs.topic,
+      logsetId: expect.any(String),
+      topicId: expect.any(String),
+    });
+  });
+});
+
+describe('Normal Cls', () => {
   const scf = new Scf(credentials, process.env.REGION);
   const client = new Cls(credentials, process.env.REGION);
 

@@ -152,12 +152,27 @@ export default class Cls {
 
   // 更新索引
   async deployIndex(inputs: DeployIndexInputs) {
-    await updateIndex(this.clsClient, {
-      topicId: inputs.topicId!,
-      // FIXME: effective is always true in updateIndex
-      effective: inputs.effective !== false ? true : false,
-      rule: inputs.rule,
-    });
+    if (inputs.rule) {
+      console.log('Deploying index');
+
+      try {
+        await updateIndex(this.clsClient, {
+          topicId: inputs.topicId!,
+          // FIXME: effective is always true in updateIndex
+          effective: inputs.effective !== false ? true : false,
+          rule: inputs.rule,
+        });
+      } catch (err) {
+        console.log('' + err);
+        if (err.message.includes('403')) {
+          console.log('Cant update index of CLS for SCF');
+        } else {
+          throw err;
+        }
+      }
+
+      // TODO: SCF Logset 403
+    }
   }
 
   // 部署
