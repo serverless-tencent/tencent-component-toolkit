@@ -196,6 +196,7 @@ export class ClsDashboard {
 
   // 获取 dashboard 列表
   async getList(): Promise<Dashboard[]> {
+    console.log(`Getting dashboard list}`);
     const res = await this.cls.clsClient.request({
       method: 'GET',
       path: '/dashboards',
@@ -208,7 +209,12 @@ export class ClsDashboard {
     }
     const dashboards = ((res.dashboards || []) as Raw.Dashboard[]).map(
       ({ CreateTime, DashboardName, DashboardId, data }: Raw.Dashboard) => {
-        const parseData = JSON.parse(data);
+        let parseData = [];
+        try {
+          parseData = JSON.parse(data);
+        } catch (err) {
+          console.log(`Get list fail id: ${DashboardId}, data: ${data}`);
+        }
         const dashboard: Dashboard = {
           createTime: CreateTime,
           name: DashboardName,
@@ -225,6 +231,7 @@ export class ClsDashboard {
 
   // 获取 dashboard 详情
   async getDetail({ name, id }: { name?: string; id?: string }): Promise<Dashboard | undefined> {
+    console.log(`Getting dashboard id: ${id}, name: ${name}`);
     if (id) {
       const res = await this.cls.clsClient.request({
         method: 'GET',
@@ -237,7 +244,12 @@ export class ClsDashboard {
         return undefined;
       }
 
-      const parseData = JSON.parse(res.data);
+      let parseData = [];
+      try {
+        parseData = JSON.parse(res.data);
+      } catch (err) {
+        console.log(`get detail: ${id}, data: ${res.data}`);
+      }
       const rawPanels: Raw.DashboardChart[] = parseData.panels;
 
       return {
@@ -272,6 +284,7 @@ export class ClsDashboard {
 
   // 删除 dashboard
   async remove({ id, name }: RemoveDashboardInputs) {
+    console.log(`Removing dashboard id: ${id}, name: ${name}`);
     if (!id && !name) {
       throw new ApiError({
         type: 'API_removeDashboard',
@@ -309,6 +322,7 @@ export class ClsDashboard {
 
   // 创建 dashboard
   async deploy(inputs: DeployDashboardInputs, logsetConfig: LogsetConfig) {
+    console.log(`Deploy dashboard ${inputs.name}`);
     const { name, charts } = inputs;
     const data = JSON.stringify({
       panels: charts.map((v) => {
