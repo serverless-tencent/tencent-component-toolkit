@@ -1,3 +1,10 @@
+## [2.17.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.17.1...v2.17.2) (2021-08-24)
+
+
+### Bug Fixes
+
+* add log, try and print data when error ([1bd849d](https://github.com/serverless-tencent/tencent-component-toolkit/commit/1bd849d2fcbfd9a56d4b5f10e80c5ba7b2818b95))
+
 ## [2.17.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.17.0...v2.17.1) (2021-08-24)
 
 
