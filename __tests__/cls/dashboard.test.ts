@@ -36,7 +36,7 @@ describe('Cls dashboard', () => {
 
   const inputs: DeployDashboardInputs = {
     name: 'serverless-unit-test-dashboard',
-    chartList: [chart1Config, chart2Config],
+    charts: [chart1Config, chart2Config],
   };
 
   let dashboardId = '';
@@ -46,7 +46,7 @@ describe('Cls dashboard', () => {
     expect(res).toEqual({
       id: expect.stringContaining('dashboard-'),
       name: inputs.name,
-      chartList: expect.any(Array),
+      charts: expect.any(Array),
     });
 
     dashboardId = res.id;
@@ -60,7 +60,7 @@ describe('Cls dashboard', () => {
       createTime: expect.any(String),
       id: expect.stringContaining('dashboard-'),
       name: expect.any(String),
-      chartList: expect.any(Array),
+      charts: expect.any(Array),
     });
   });
 
@@ -73,7 +73,7 @@ describe('Cls dashboard', () => {
       id: expect.stringContaining('dashboard-'),
       name: expect.any(String),
       createTime: expect.any(String),
-      chartList: expect.any(Array),
+      charts: expect.any(Array),
     });
   });
 
@@ -85,7 +85,7 @@ describe('Cls dashboard', () => {
       createTime: expect.any(String),
       id: expect.stringContaining('dashboard-'),
       name: expect.any(String),
-      chartList: expect.any(Array),
+      charts: expect.any(Array),
     });
   });
 
