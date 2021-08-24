@@ -1,3 +1,10 @@
+## [2.17.3](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.17.2...v2.17.3) (2021-08-24)
+
+
+### Bug Fixes
+
+* cls for scf cant update index, dont throw and use warning ([d452db7](https://github.com/serverless-tencent/tencent-component-toolkit/commit/d452db72da6e5a2896aa8a9cf7d64ecb169416bd))
+
 ## [2.17.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.17.1...v2.17.2) (2021-08-24)
 
 
