@@ -1,3 +1,10 @@
+# [2.18.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.17.3...v2.18.0) (2021-08-25)
+
+
+### Features
+
+* change cls index from snake_case to camelCase ([60fbd69](https://github.com/serverless-tencent/tencent-component-toolkit/commit/60fbd69f968e87e3e28d1063db016f7575e16742))
+
 ## [2.17.3](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.17.2...v2.17.3) (2021-08-24)
 
 
