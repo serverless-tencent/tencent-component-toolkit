@@ -152,15 +152,34 @@ export default class Cls {
 
   // 更新索引
   async deployIndex(inputs: DeployIndexInputs) {
-    if (inputs.rule) {
+    if (inputs.indexRule) {
       console.log('Deploying index');
 
+      const { fullText, keyValue } = inputs.indexRule!;
+      let parsedFullText;
+      let parsedKeyValue: any;
+      if (fullText) {
+        parsedFullText = {
+          case_sensitive: fullText.caseSensitive,
+          tokenizer: fullText.tokenizer,
+        };
+        parsedKeyValue = {
+          case_sensitive: keyValue?.caseSensitive!,
+          keys: keyValue?.keys?.map((v) => v.key) ?? [],
+          types: keyValue?.keys?.map((v) => v.type) ?? [],
+          sql_flags: keyValue?.keys?.map((v) => v.sqlFlag) ?? [],
+          tokenizers: keyValue?.keys.map((v) => v.tokenizer) ?? [],
+        };
+      }
       try {
         await updateIndex(this.clsClient, {
           topicId: inputs.topicId!,
           // FIXME: effective is always true in updateIndex
           effective: inputs.effective !== false ? true : false,
-          rule: inputs.rule,
+          rule: {
+            full_text: parsedFullText,
+            key_value: parsedKeyValue,
+          },
         });
       } catch (err) {
         console.log('' + err);

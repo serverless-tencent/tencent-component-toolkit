@@ -1,7 +1,7 @@
 import { CreateNoticeOptions, CreateNoticeResult } from '../../src/modules/cls/interface';
 import { ClsNotice } from '../../src';
 
-describe('Cls Alarm', () => {
+describe('Cls Notice', () => {
   const credentials = {
     SecretId: process.env.TENCENT_SECRET_ID,
     SecretKey: process.env.TENCENT_SECRET_KEY,
