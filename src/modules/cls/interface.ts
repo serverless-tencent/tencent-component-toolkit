@@ -1,4 +1,3 @@
-import { IndexRule } from '@tencent-sdk/cls/dist/typings';
 import { RegionType, CamelCasedProps } from './../interface';
 import { DeployDashboardInputs } from './dashboard';
 
@@ -162,7 +161,21 @@ export interface DeployTopicInputs {
 export interface DeployIndexInputs {
   topicId?: string;
   effective?: boolean;
-  rule?: IndexRule;
+  indexRule?: {
+    fullText: {
+      caseSensitive: boolean;
+      tokenizer: string;
+    };
+    keyValue?: {
+      caseSensitive: boolean;
+      keys: {
+        key: string;
+        type: string;
+        sqlFlag: boolean;
+        tokenizer: string;
+      }[];
+    };
+  };
 }
 
 export interface AlarmInputs {
