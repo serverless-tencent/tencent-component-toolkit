@@ -16,6 +16,7 @@ import { dtz, TIME_FORMAT, Dayjs } from '../../utils/dayjs';
 import { createLogset, createTopic, updateIndex, getSearchSql } from './utils';
 import Alarm from './alarm';
 import { ClsDashboard } from './dashboard';
+import { deepClone } from '../../utils';
 
 export default class Cls {
   credentials: CapiCredentials;
@@ -160,17 +161,20 @@ export default class Cls {
       let parsedKeyValue: any;
       if (fullText) {
         parsedFullText = {
-          case_sensitive: fullText.caseSensitive,
-          tokenizer: fullText.tokenizer,
-        };
-        parsedKeyValue = {
-          case_sensitive: keyValue?.caseSensitive!,
-          keys: keyValue?.keys?.map((v) => v.key) ?? [],
-          types: keyValue?.keys?.map((v) => v.type) ?? [],
-          sql_flags: keyValue?.keys?.map((v) => v.sqlFlag) ?? [],
-          tokenizers: keyValue?.keys.map((v) => v.tokenizer) ?? [],
+          case_sensitive: fullText.caseSensitive ?? false,
+          tokenizer: fullText.tokenizer ?? '',
         };
       }
+      if (keyValue) {
+        parsedKeyValue = deepClone({
+          case_sensitive: keyValue?.caseSensitive!,
+          keys: keyValue?.keys?.map((v) => v.key),
+          types: keyValue?.keys?.map((v) => v.type ?? 'text'),
+          sql_flags: keyValue?.keys?.map((v) => v.sqlFlag ?? true),
+          tokenizers: keyValue?.keys.map((v) => v.tokenizer ?? ''),
+        });
+      }
+
       try {
         await updateIndex(this.clsClient, {
           topicId: inputs.topicId!,

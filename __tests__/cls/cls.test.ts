@@ -16,16 +16,14 @@ describe('Scf Cls', () => {
     name: 'SCF_logset_zyIdCSDW',
     topic: 'SCF_logtopic_QExYJrDj',
     period: 7,
-    rule: {
-      full_text: {
-        case_sensitive: true,
+    indexRule: {
+      fullText: {
+        caseSensitive: true,
         tokenizer: '!@#%^&*()_="\', <>/?|\\;:\n\t\r[]{}',
       },
-      key_value: {
-        case_sensitive: true,
-        keys: ['SCF_RetMsg'],
-        types: ['text'],
-        tokenizers: [' '],
+      keyValue: {
+        caseSensitive: true,
+        keys: [{ key: 'SCF_RetMsg', type: 'text', tokenizer: '', sqlFlag: false }],
       },
     },
   };
@@ -75,16 +73,14 @@ describe('Normal Cls', () => {
     name: 'cls-test',
     topic: 'cls-topic-test',
     period: 7,
-    rule: {
-      full_text: {
-        case_sensitive: true,
+    indexRule: {
+      fullText: {
+        caseSensitive: true,
         tokenizer: '!@#%^&*()_="\', <>/?|\\;:\n\t\r[]{}',
       },
-      key_value: {
-        case_sensitive: true,
-        keys: ['SCF_RetMsg'],
-        types: ['text'],
-        tokenizers: [' '],
+      keyValue: {
+        caseSensitive: true,
+        keys: [{ key: 'SCF_RetMsg', type: 'text', sqlFlag: false }],
       },
     },
   };

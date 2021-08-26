@@ -163,16 +163,16 @@ export interface DeployIndexInputs {
   effective?: boolean;
   indexRule?: {
     fullText?: {
-      caseSensitive: boolean;
-      tokenizer: string;
+      caseSensitive?: boolean;
+      tokenizer?: string;
     };
     keyValue?: {
       caseSensitive: boolean;
       keys: {
         key: string;
         type: string;
-        sqlFlag: boolean;
-        tokenizer: string;
+        sqlFlag?: boolean;
+        tokenizer?: string;
       }[];
     };
   };
