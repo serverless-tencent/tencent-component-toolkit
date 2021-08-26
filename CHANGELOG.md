@@ -1,3 +1,11 @@
+## [2.18.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.18.0...v2.18.1) (2021-08-26)
+
+
+### Bug Fixes
+
+* give indexRule default value ([78c544d](https://github.com/serverless-tencent/tencent-component-toolkit/commit/78c544db9c180dde7d2b1934cfc1ac1909497123))
+* make fullText index optional ([987888a](https://github.com/serverless-tencent/tencent-component-toolkit/commit/987888aea8db6f0f663e22052e674eb867c4c7ff))
+
 # [2.18.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.17.3...v2.18.0) (2021-08-25)
 
 
