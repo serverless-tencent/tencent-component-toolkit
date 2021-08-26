@@ -162,7 +162,7 @@ export interface DeployIndexInputs {
   topicId?: string;
   effective?: boolean;
   indexRule?: {
-    fullText: {
+    fullText?: {
       caseSensitive: boolean;
       tokenizer: string;
     };
