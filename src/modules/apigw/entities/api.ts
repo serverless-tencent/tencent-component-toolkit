@@ -191,7 +191,7 @@ export default class ApiEntity {
     }
 
     // TODO: 一个奇怪的问题：测试中不解绑 app 直接修改没有问题，但实际中必须先解绑 app
-    await this.unbindApiApp({ serviceId, apiId: endpoint.apiId, environment });
+    // await this.unbindApiApp({ serviceId, apiId: endpoint.apiId, environment });
 
     await this.request({
       Action: 'ModifyApi',
