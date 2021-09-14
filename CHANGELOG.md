@@ -1,3 +1,11 @@
+## [2.18.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.18.1...v2.18.2) (2021-09-14)
+
+
+### Bug Fixes
+
+* don't unbind app on modify ([46da45f](https://github.com/serverless-tencent/tencent-component-toolkit/commit/46da45f6dc4cf76886e0a4adc494af4c52a979a6))
+* lock deps ([5eaf49b](https://github.com/serverless-tencent/tencent-component-toolkit/commit/5eaf49b1feab437a29c71a858dc54aa6e8242eec))
+
 ## [2.18.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.18.0...v2.18.1) (2021-08-26)
 
 
