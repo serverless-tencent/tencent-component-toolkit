@@ -35,8 +35,7 @@ jobs:
       - name: Install dependencies
         if: steps.cacheNpm.outputs.cache-hit != 'true'
         run: |
-          npm update --no-save
-          npm update --save-dev --no-save
+          npm ci
 
       - name: Build
         run: npm run build
