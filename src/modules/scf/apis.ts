@@ -12,6 +12,7 @@ const ACTIONS = [
   'CreateTrigger',
   'DeleteTrigger',
   'PublishVersion',
+  'ListVersionByFunction',
   'ListAliases',
   'CreateAlias',
   'UpdateAlias',
