@@ -1,3 +1,10 @@
+# [2.19.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.18.2...v2.19.0) (2021-09-15)
+
+
+### Features
+
+* add list version ([0130584](https://github.com/serverless-tencent/tencent-component-toolkit/commit/0130584eec2a249edd6fb79225a1ba839b9bfe6d))
+
 ## [2.18.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.18.1...v2.18.2) (2021-09-14)
 
 
