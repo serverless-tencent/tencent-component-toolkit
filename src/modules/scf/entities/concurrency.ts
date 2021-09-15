@@ -8,13 +8,16 @@ interface ScfSetReservedInputs {
   reservedMem: number;
 }
 
+interface ScfRemoveProvisionedInputs {
+  functionName: string;
+  namespace?: string;
+  qualifier: string;
+}
+
 // 文档：https://cloud.tencent.com/document/product/583/51246
 interface ScfSetProvisionedInputs {
   functionName: string;
   namespace?: string;
-
-  // 上次部署，这次要删除的版本
-  lastQualifier?: string;
 
   qualifier: string;
   provisionedNum: number;
@@ -55,22 +58,22 @@ export class ConcurrencyEntity extends BaseEntity {
     };
   }
 
+  async removeProvisioned(inputs: ScfRemoveProvisionedInputs) {
+    console.log(`Delete function ${inputs.functionName} qualifier ${inputs.qualifier} provisioned`);
+    return await this.request({
+      Action: 'DeleteProvisionedConcurrencyConfig',
+      FunctionName: inputs.functionName,
+      Namespace: inputs.namespace,
+
+      Qualifier: inputs.qualifier,
+    });
+  }
+
   // 设置预置并发
   async setProvisioned(inputs: ScfSetProvisionedInputs) {
-    console.log(`Set function ${inputs.functionName} provisioned`);
-    // 删除上个版本的预置
-    if (inputs.lastQualifier) {
-      await this.request({
-        Action: 'DeleteProvisionedConcurrencyConfig',
-        FunctionName: inputs.functionName,
-        Namespace: inputs.namespace,
-
-        Qualifier: inputs.lastQualifier,
-      });
-
-      await new Promise((res) => setTimeout(res, 2000));
-    }
-
+    console.log(
+      `Set function ${inputs.functionName} qualifier ${inputs.qualifier} provisioned to ${inputs.provisionedNum}`,
+    );
     return await this.request({
       Action: 'PutProvisionedConcurrencyConfig',
       FunctionName: inputs.functionName,
