@@ -38,7 +38,7 @@ export default class VersionEntity extends BaseEntity {
     };
     const Response = await this.request(listInputs);
 
-    console.log(`Published function ${inputs.functionName} version ${Response.FunctionVersion}`);
+    console.log(`List function ${inputs.functionName} version ${Response.FunctionVersion}`);
     return Response;
   }
 }
