@@ -1,3 +1,15 @@
+# [2.20.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.19.0...v2.20.0) (2021-09-15)
+
+
+### Bug Fixes
+
+* list function console.log ([d532825](https://github.com/serverless-tencent/tencent-component-toolkit/commit/d5328257379934be8a6d0ab6f0e1ab2a8560c7af))
+
+
+### Features
+
+* add remove provisioned in concurrency ([9a50745](https://github.com/serverless-tencent/tencent-component-toolkit/commit/9a507455d5c06a362ffe5289c953e62e6d51dfb2))
+
 # [2.19.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.18.2...v2.19.0) (2021-09-15)
 
 
