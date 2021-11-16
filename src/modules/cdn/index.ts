@@ -4,7 +4,7 @@ import { Capi } from '@tencent-sdk/capi';
 import { sleep, waitResponse } from '@ygkit/request';
 import { pascalCaseProps, deepClone } from '../../utils';
 import { ApiTypeError } from '../../utils/error';
-import { CapiCredentials } from '../interface';
+import { CapiCredentials, RegionType } from '../interface';
 import APIS from './apis';
 import { CdnDeployInputs, CdnOutputs } from './interface';
 import { TIMEOUT, formatCertInfo, formatOrigin, getCdnByDomain, openCdnService } from './utils';
@@ -15,18 +15,18 @@ export default class Cdn {
   capi: Capi;
   tagClient: TagClient;
 
-  constructor(credentials: CapiCredentials = {} as any) {
+  constructor(credentials: CapiCredentials = {} as any, region: RegionType = 'ap-guangzhou') {
     this.credentials = credentials;
 
     this.capi = new Capi({
-      Region: 'ap-guangzhou',
+      Region: region,
       ServiceType: ApiServiceType.cdn,
       SecretId: this.credentials.SecretId!,
       SecretKey: this.credentials.SecretKey!,
       Token: this.credentials.Token,
     });
 
-    this.tagClient = new TagClient(this.credentials);
+    this.tagClient = new TagClient(this.credentials, region);
   }
 
   async purgeCdnUrls(urls: string[], flushType = 'flush') {
