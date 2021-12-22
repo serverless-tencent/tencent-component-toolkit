@@ -1,4 +1,4 @@
-import { ScfCreateFunctionInputs, BaseFunctionConfig } from './interface';
+import { ScfCreateFunctionInputs, BaseFunctionConfig, ProtocolParams } from './interface';
 const CONFIGS = require('./config').default;
 
 // get function basement configure
@@ -66,6 +66,17 @@ export const formatInputs = (inputs: ScfCreateFunctionInputs) => {
   }
 
   // 非必须参数
+  if (inputs.type === 'web') {
+    if (inputs.protocolType) {
+      functionInputs.ProtocolType = inputs.protocolType;
+      if (inputs.protocolParams?.wsParams?.idleTimeOut) {
+        const protocolParams: ProtocolParams = {};
+        protocolParams.WSParams = { IdleTimeOut: inputs.protocolParams?.wsParams?.idleTimeOut };
+        functionInputs.ProtocolParams = protocolParams;
+      }
+    }
+  }
+
   if (inputs.role) {
     functionInputs.Role = inputs.role;
   }

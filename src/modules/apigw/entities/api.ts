@@ -440,7 +440,8 @@ export default class ApiEntity {
     const authType = endpoint?.auth ? 'SECRET' : endpoint?.authType ?? 'NONE';
 
     const apiInputs: { [key: string]: any } = {
-      protocol: endpoint?.protocol ?? 'HTTP',
+      // protocol: endpoint?.protocol ?? 'HTTP',
+      protocol: endpoint?.protocolType ?? 'HTTP',
       serviceId: serviceId,
       apiName: endpoint?.apiName ?? 'index',
       apiDesc: endpoint?.description,
@@ -450,7 +451,7 @@ export default class ApiEntity {
       serviceType: endpoint?.serviceType ?? 'SCF',
       requestConfig: {
         path: endpoint?.path,
-        method: endpoint?.method,
+        method: endpoint?.protocolType === 'WEBSOCKET' ? 'GET' : endpoint?.method,
       },
       serviceTimeout: endpoint?.serviceTimeout ?? 15,
       responseType: endpoint?.responseType ?? 'HTML',

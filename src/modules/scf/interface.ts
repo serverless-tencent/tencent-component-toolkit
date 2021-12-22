@@ -14,6 +14,16 @@ export interface FunctionCode {
     Args?: string;
   };
 }
+
+export interface WSParams {
+  idleTimeOut?: number;
+  IdleTimeOut?: number;
+}
+export interface ProtocolParams {
+  wsParams?: WSParams;
+  WSParams?: WSParams;
+}
+
 export interface BaseFunctionConfig {
   FunctionName: string;
   Code?: FunctionCode;
@@ -53,6 +63,8 @@ export interface BaseFunctionConfig {
   AsyncRunEnable?: 'TRUE' | 'FALSE';
   TraceEnable?: 'TRUE' | 'FALSE';
   InstallDependency?: 'TRUE' | 'FALSE';
+  ProtocolType?: string;
+  ProtocolParams?: ProtocolParams;
 }
 
 export interface TriggerType {
@@ -215,6 +227,9 @@ export interface ScfCreateFunctionInputs {
   // 异步调用重试配置
   msgTTL?: number; // 消息保留时间，单位秒
   retryNum?: number; // 重试次数
+
+  protocolType?: string;
+  protocolParams?: ProtocolParams;
 }
 
 export interface ScfUpdateAliasTrafficInputs {
@@ -257,6 +272,8 @@ export interface ScfDeployInputs extends ScfCreateFunctionInputs {
 
   // 是否忽略触发器操作流程
   ignoreTriggers?: boolean;
+  protocolType?: string;
+  protocolParams?: ProtocolParams;
 }
 
 export interface ScfDeployOutputs {
