@@ -1,3 +1,10 @@
+# [2.21.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.20.0...v2.21.0) (2021-12-22)
+
+
+### Features
+
+* add websocket service ([#258](https://github.com/serverless-tencent/tencent-component-toolkit/issues/258)) ([480723b](https://github.com/serverless-tencent/tencent-component-toolkit/commit/480723b380878023d8d8007e7324bdecd7d9a629))
+
 # [2.20.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.19.0...v2.20.0) (2021-09-15)
 
 
