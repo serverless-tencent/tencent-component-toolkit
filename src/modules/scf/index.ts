@@ -273,6 +273,7 @@ export default class Scf {
 
   // deploy SCF flow
   async deploy(inputs: ScfDeployInputs): Promise<ScfDeployOutputs> {
+    console.log('start toolkit');
     const namespace = inputs.namespace ?? CONFIGS.defaultNamespace;
     const functionName = inputs.name;
     const { ignoreTriggers = false } = inputs;
