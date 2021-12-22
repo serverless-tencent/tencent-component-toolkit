@@ -263,8 +263,8 @@ export default class ServiceEntity {
       serviceId,
       protocols,
       netTypes,
-      serviceName = 'serverless',
-      serviceDesc = 'Created By Serverless',
+      serviceName = '',
+      serviceDesc,
     } = serviceConf;
 
     let detail: Detail | null;
@@ -284,6 +284,7 @@ export default class ServiceEntity {
       if (detail) {
         detail.InnerSubDomain = detail.InternalSubDomain;
         exist = true;
+        serviceName ? (outputs.serviceName = detail.ServiceName) : '';
         outputs.serviceId = detail!.ServiceId;
         outputs.subDomain =
           detail!.OuterSubDomain && detail!.InnerSubDomain
@@ -312,11 +313,18 @@ export default class ServiceEntity {
           const apiInputs = {
             Action: 'ModifyService' as const,
             serviceId,
-            serviceDesc: serviceDesc || detail.ServiceDesc,
-            serviceName: serviceName || detail.ServiceName,
+            serviceDesc: serviceDesc || detail.ServiceDesc || undefined,
+            serviceName: serviceName || detail.ServiceName || undefined,
             protocol: protocols,
             netTypes: netTypes,
           };
+          if (!serviceName) {
+            delete apiInputs.serviceName;
+          }
+          if (!serviceDesc) {
+            delete apiInputs.serviceDesc;
+          }
+
           await this.request(apiInputs);
         }
       }
