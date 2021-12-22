@@ -1,3 +1,10 @@
+# [2.22.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.21.0...v2.22.0) (2021-12-22)
+
+
+### Features
+
+* update params ([#262](https://github.com/serverless-tencent/tencent-component-toolkit/issues/262)) ([4415557](https://github.com/serverless-tencent/tencent-component-toolkit/commit/4415557df21b2ed74f60a7b5c5eee5df2a3c3f93))
+
 # [2.21.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.20.0...v2.21.0) (2021-12-22)
 
 
