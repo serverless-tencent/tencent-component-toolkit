@@ -73,12 +73,12 @@ export default class ApiEntity {
     output.apiId = ApiId;
 
     console.log(`API ${ApiId} created`);
-    const apiDetail: ApiDetail = await this.request({
-      Action: 'DescribeApi',
-      serviceId: serviceId,
-      apiId: output.apiId,
-    });
-    output.internalDomain = apiDetail.InternalDomain || '';
+    // const apiDetail: ApiDetail = await this.request({
+    //   Action: 'DescribeApi',
+    //   serviceId: serviceId,
+    //   apiId: output.apiId,
+    // });
+    // output.internalDomain = apiDetail.InternalDomain || '';
 
     if (endpoint?.isBase64Encoded && endpoint.isBase64Trigger) {
       apiInputs.isBase64Trigger = endpoint.isBase64Trigger;
@@ -201,7 +201,7 @@ export default class ApiEntity {
 
     output.apiId = endpoint.apiId;
     output.created = !!created;
-    output.internalDomain = apiDetail.InternalDomain || '';
+    // output.internalDomain = apiDetail.InternalDomain || '';
     console.log(`Api ${output.apiId} updated`);
 
     output.apiName = apiInputs.apiName;

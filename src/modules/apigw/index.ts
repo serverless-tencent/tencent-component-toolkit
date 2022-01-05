@@ -166,7 +166,8 @@ export default class Apigw {
       console.log(`[TAG] ${e.message}`);
     }
 
-    return this.formatApigwOutputs(outputs);
+    // return this.formatApigwOutputs(outputs);
+    return outputs;
   }
 
   async remove(inputs: ApigwRemoveInputs) {
