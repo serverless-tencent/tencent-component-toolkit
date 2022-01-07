@@ -262,7 +262,7 @@ export default class ServiceEntity {
       environment,
       serviceId,
       protocols,
-      netTypes,
+      // netTypes,
       serviceName = '',
       serviceDesc,
     } = serviceConf;
@@ -316,7 +316,7 @@ export default class ServiceEntity {
             serviceDesc: serviceDesc || detail.ServiceDesc || undefined,
             serviceName: serviceName || detail.ServiceName || undefined,
             protocol: protocols,
-            netTypes: netTypes,
+            // netTypes: netTypes,
           };
           if (!serviceName) {
             delete apiInputs.serviceName;
