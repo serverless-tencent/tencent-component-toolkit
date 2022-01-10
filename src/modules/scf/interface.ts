@@ -371,7 +371,7 @@ export interface UpdateFunctionCodeOptions {
 export interface GetRequestStatusOptions {
   // 函数名称
   functionName: string;
-  // 请求 ID
+  // 请求ID
   functionRequestId: string;
   // 命名空间
   namespace?: string;
@@ -388,7 +388,7 @@ export interface GetRequestStatusOptions {
   functionName: string
 
   /**
-   * 需要查询状态的请求 id
+   * 需要查询状态的请求id
    */
   functionRequestId: string
 
