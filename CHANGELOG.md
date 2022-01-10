@@ -1,3 +1,10 @@
+# [2.23.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.22.2...v2.23.0) (2022-01-10)
+
+
+### Features
+
+* scf module add api ([#269](https://github.com/serverless-tencent/tencent-component-toolkit/issues/269)) ([c54d2fa](https://github.com/serverless-tencent/tencent-component-toolkit/commit/c54d2fafdf9ea6c713b9f12ca0df12c800be4f00))
+
 ## [2.22.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.22.1...v2.22.2) (2022-01-07)
 
 
