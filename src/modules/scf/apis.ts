@@ -26,6 +26,7 @@ const ACTIONS = [
   'DeleteProvisionedConcurrencyConfig',
   'GetReservedConcurrencyConfig',
   'GetProvisionedConcurrencyConfig',
+  'GetRequestStatus'
 ] as const;
 
 export type ActionType = typeof ACTIONS[number];
