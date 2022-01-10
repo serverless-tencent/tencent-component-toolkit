@@ -519,27 +519,6 @@ describe('Scf', () => {
     expect(outputs.Triggers).toEqual([]);
   });
 
-  test('get request status', async () => {
-    const invokeRes = await scf.invoke({
-      namespace: inputs.namespace,
-      functionName: inputs.name,
-    });
-
-    console.log(invokeRes);
-
-    const inputParams = {
-      functionName: inputs.name,
-      functionRequestId: invokeRes.Result.FunctionRequestId,
-      namespace: inputs.namespace,
-      // startTime: "2022-01-06 20:00:00",
-      // endTime: "2022-12-16 20:00:00"
-    };
-
-    const res = await scf.scf.getRequestStatus(inputParams);
-    console.log(res);
-    expect(res.TotalCount).toEqual(1);
-  });
-
   test('remove', async () => {
     const res = await scf.remove({
       functionName: inputs.name,

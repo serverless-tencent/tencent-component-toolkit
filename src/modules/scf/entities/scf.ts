@@ -1,20 +1,19 @@
-import {Capi} from '@tencent-sdk/capi';
-import {sleep, waitResponse} from '@ygkit/request';
+import { Capi } from '@tencent-sdk/capi';
+import { sleep, waitResponse } from '@ygkit/request';
 import dayjs from 'dayjs';
-import {ApiError, ApiTypeError} from '../../../utils/error';
-import {formatDate} from '../../../utils/dayjs';
+import { ApiTypeError, ApiError } from '../../../utils/error';
+import { formatDate } from '../../../utils/dayjs';
 import CONFIGS from '../config';
 import Cls from '../../cls';
-import {formatInputs} from '../utils';
+import { formatInputs } from '../utils';
 
 import BaseEntity from './base';
 
 import {
-  FaasBaseConfig,
-  FunctionInfo,
-  GetLogOptions,
-  GetRequestStatusOptions,
   ScfCreateFunctionInputs,
+  FunctionInfo,
+  FaasBaseConfig,
+  GetLogOptions,
   UpdateFunctionCodeOptions,
 } from '../interface';
 
@@ -441,37 +440,6 @@ export default class ScfEntity extends BaseEntity {
       console.log(`[SCF] 获取模板代码失败，${e.message}`);
 
       return undefined;
-    }
-  }
-
-  // 获取函数单个请求运行状态
-  async getRequestStatus(inputs: GetRequestStatusOptions) {
-    const reqParams: {
-      Namespace?: string;
-      FunctionName?: string;
-      FunctionRequestId?: string;
-      StartTime?: string;
-      EndTime?: string;
-    } = {
-      Namespace: inputs.namespace || 'default',
-      FunctionName: inputs.functionName,
-      FunctionRequestId: inputs.functionRequestId,
-    };
-
-    if (inputs.startTime) {
-      reqParams.StartTime = inputs.startTime
-    }
-
-    if (inputs.endTime) {
-      reqParams.EndTime = inputs.endTime
-    }
-
-    const reqInputs: Partial<typeof reqParams> = reqParams;
-
-    try {
-      return await this.request({Action: 'GetRequestStatus', ...reqInputs});
-    } catch (e) {
-      console.log(e);
     }
   }
 }
