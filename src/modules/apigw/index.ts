@@ -240,6 +240,9 @@ export default class Apigw {
       oldState = {},
       serviceId,
       isAutoRelease = true,
+      serviceName = '',
+      serviceDesc,
+      protocols,
     } = inputs;
     inputs.protocols = getProtocolString(inputs.protocols as ('http' | 'https')[]);
 
@@ -248,6 +251,32 @@ export default class Apigw {
 
     const detail = await this.service.getById(serviceId);
     if (detail) {
+      // 如果 serviceName，serviceDesc，protocols任意字段更新了，则更新服务
+      if (
+        !(
+          serviceName === detail.ServiceName &&
+          serviceDesc === detail.ServiceDesc &&
+          protocols === detail.Protocol
+        )
+      ) {
+        const apiInputs = {
+          Action: 'ModifyService' as const,
+          serviceId,
+          serviceDesc: serviceDesc || detail.ServiceDesc || undefined,
+          serviceName: serviceName || detail.ServiceName || undefined,
+          // protocol: protocols,
+          // netTypes: netTypes,
+        };
+        if (!serviceName) {
+          delete apiInputs.serviceName;
+        }
+        if (!serviceDesc) {
+          delete apiInputs.serviceDesc;
+        }
+
+        await this.request(apiInputs);
+      }
+
       const apiList: ApiEndpoint[] = await this.api.bulkDeploy({
         apiList: endpoints,
         stateList: stateApiList,
@@ -291,7 +320,8 @@ export default class Apigw {
         }));
       }
 
-      return this.formatApigwOutputs(outputs);
+      // return this.formatApigwOutputs(outputs);
+      return outputs;
     }
     throw new ApiError({
       type: 'API_APIGW_DescribeService',
