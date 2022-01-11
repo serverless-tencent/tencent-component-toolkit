@@ -292,7 +292,7 @@ export default class Apigw {
       const outputs: ApigwDeployOutputs = {
         created: false,
         serviceId,
-        serviceName: detail.ServiceName,
+        serviceName: serviceName || detail.ServiceName,
         subDomain: subDomain,
         protocols: inputs.protocols,
         environment: environment,
