@@ -247,6 +247,10 @@ export default class Tag {
         const oldTagVal = item.TagValue;
 
         if (String(inputTag.TagValue) !== String(oldTagVal)) {
+          // yml中 tagKey一样，tagVaule变化了 部署时会报错，解决方法是先解绑再绑定新的标签
+          detachTags.push({
+            TagKey: item.TagKey,
+          });
           attachTags.push(inputTag);
         } else {
           leftTags.push(item);

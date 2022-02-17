@@ -524,8 +524,9 @@ export default class Cos {
       const items = traverseDirSync(inputs.dir);
 
       let key;
-      const promises: Promise<PutObjectResult>[] = [];
-      items.forEach((item) => {
+      let promises: Promise<PutObjectResult>[] = [];
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
         // 如果是文件夹跳过
         if (item.stats.isDirectory()) {
           return;
@@ -547,11 +548,25 @@ export default class Cos {
           Body: fs.createReadStream(item.path),
         };
         promises.push(this.cosClient.putObject(itemParams));
-      });
-      try {
-        await Promise.all(promises);
-      } catch (err) {
-        throw constructCosError(`API_COS_putObject`, err);
+        // fs.createReadStream(item.path) 会一直打开文件，当文件超过1024会报错
+        // 解决方案是分段请求，超过100请求一次，请求后会自动关闭文件
+        if (promises.length >= 100) {
+          try {
+            await Promise.all(promises);
+            promises = [];
+          } catch (err) {
+            throw constructCosError(`API_COS_putObject`, err);
+          }
+        }
+      }
+      // 循环结束后可能还有不足100的文件，此时需要单独再上传
+      if (promises.length >= 1) {
+        try {
+          await Promise.all(promises);
+          promises = [];
+        } catch (err) {
+          throw constructCosError(`API_COS_putObject`, err);
+        }
       }
     } else if (inputs.file && (await fs.existsSync(inputs.file))) {
       /** 上传文件 */

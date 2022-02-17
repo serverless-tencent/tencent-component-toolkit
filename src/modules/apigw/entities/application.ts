@@ -70,13 +70,37 @@ export default class AppEntity {
     // 2. bind api to app
     console.log(`Binding api(${apiId}) to application(${appDetail.id})`);
 
-    await this.request({
-      Action: 'BindApiApp',
-      ApiAppId: appDetail.id,
-      ApiId: apiId,
-      Environment: environment,
+    // 绑定应用到API接口不支持可重入，第二次绑定会报错。
+    // 解决方法是查询Api绑定的应用列表 已经绑定直接跳过，未绑定执行绑定流程
+    const apiAppRes: {
+      ApiAppApiSet: {
+        ApiAppId: string;
+        ApiAppName: string;
+        ApiId: string;
+        ServiceId: string;
+        ApiRegion: string;
+        EnvironmentName: string;
+        AuthorizedTime: string;
+      }[];
+    } = await this.request({
+      Action: 'DescribeApiBindApiAppsStatus',
       ServiceId: serviceId,
+      ApiIds: [apiId],
     });
+    const isBinded = apiAppRes.ApiAppApiSet.find((item) => {
+      return item.ApiAppId === appDetail.id;
+    });
+
+    if (!isBinded) {
+      await this.request({
+        Action: 'BindApiApp',
+        ApiAppId: appDetail.id,
+        ApiId: apiId,
+        Environment: environment,
+        ServiceId: serviceId,
+      });
+      console.log('BindApiApp success');
+    }
 
     return appDetail;
   }
