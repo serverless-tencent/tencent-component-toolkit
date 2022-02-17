@@ -1,3 +1,10 @@
+## [2.23.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.23.1...v2.23.2) (2022-02-17)
+
+
+### Bug Fixes
+
+* bug修复 ([#271](https://github.com/serverless-tencent/tencent-component-toolkit/issues/271)) ([0888c34](https://github.com/serverless-tencent/tencent-component-toolkit/commit/0888c34d4694eff71630caa49ad5f5494f55d6c0))
+
 ## [2.23.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.23.0...v2.23.1) (2022-01-11)
 
 
