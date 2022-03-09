@@ -529,7 +529,7 @@ export default class Cos {
         const item = items[i];
         // 如果是文件夹跳过
         if (item.stats.isDirectory()) {
-          return;
+          continue;
         }
 
         key = path.relative(inputs.dir!, item.path);
