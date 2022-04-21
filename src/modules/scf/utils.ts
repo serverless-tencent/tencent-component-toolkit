@@ -22,6 +22,14 @@ export const formatInputs = (inputs: ScfCreateFunctionInputs) => {
     InstallDependency: inputs.installDependency === true ? 'TRUE' : 'FALSE',
   };
 
+  if (inputs.nodeType) {
+    functionInputs.NodeType = inputs.nodeType;
+  }
+
+  if (inputs.nodeSpec) {
+    functionInputs.NodeSpec = inputs.nodeSpec;
+  }
+
   if (inputs.initTimeout) {
     functionInputs.InitTimeout = inputs.initTimeout;
   }
