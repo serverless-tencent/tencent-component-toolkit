@@ -166,7 +166,9 @@ export interface ScfCreateFunctionInputs {
   publicAccess?: boolean;
   eip?: boolean;
   l5Enable?: boolean;
+  // 资源类型
   nodeType?: string;
+  // 资源配置
   nodeSpec?: string;
 
   role?: string;
