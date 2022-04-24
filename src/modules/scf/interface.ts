@@ -65,6 +65,8 @@ export interface BaseFunctionConfig {
   InstallDependency?: 'TRUE' | 'FALSE';
   ProtocolType?: string;
   ProtocolParams?: ProtocolParams;
+  NodeType?: string;
+  NodeSpec?: string;
 }
 
 export interface TriggerType {
@@ -164,6 +166,8 @@ export interface ScfCreateFunctionInputs {
   publicAccess?: boolean;
   eip?: boolean;
   l5Enable?: boolean;
+  nodeType?: string;
+  nodeSpec?: string;
 
   role?: string;
   description?: string;
