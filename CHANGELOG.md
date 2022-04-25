@@ -1,3 +1,10 @@
+# [2.24.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.23.3...v2.24.0) (2022-04-25)
+
+
+### Features
+
+* 支持GPU函数部署 ([#281](https://github.com/serverless-tencent/tencent-component-toolkit/issues/281)) ([e19cac7](https://github.com/serverless-tencent/tencent-component-toolkit/commit/e19cac731363c0fdff88fe6fe336db6eb0b2e485))
+
 ## [2.23.3](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.23.2...v2.23.3) (2022-03-10)
 
 
