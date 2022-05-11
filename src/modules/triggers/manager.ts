@@ -504,7 +504,7 @@ export class TriggerManager {
    * @param triggers 触发器列表
    * @returns 触发器部署 outputs
    */
-  async bulkCreateTriggers(triggers: NewTriggerInputs[] = []) {
+  async bulkCreateTriggers(triggers: NewTriggerInputs[] = [], namespace = 'default') {
     const scfList = await this.getScfsByTriggers(triggers);
 
     let apigwList: SimpleApigwDetail[] = [];
@@ -518,7 +518,7 @@ export class TriggerManager {
       const task = async () => {
         const { outputs, apigwServiceList } = await this.createTrigger({
           name: curScf.name,
-          namespace: curScf.namespace,
+          namespace: namespace,
           events: triggersConfig,
         });
         apigwList = apigwList.concat(apigwServiceList);
