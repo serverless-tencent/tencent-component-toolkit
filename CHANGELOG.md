@@ -1,3 +1,10 @@
+## [2.24.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.24.0...v2.24.1) (2022-05-11)
+
+
+### Bug Fixes
+
+* 修复创建函数触发器namespace传参错误 ([#282](https://github.com/serverless-tencent/tencent-component-toolkit/issues/282)) ([bfebef5](https://github.com/serverless-tencent/tencent-component-toolkit/commit/bfebef50435be3e313e39182dfc7b091aebbf6eb))
+
 # [2.24.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.23.3...v2.24.0) (2022-04-25)
 
 
