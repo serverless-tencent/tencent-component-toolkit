@@ -102,16 +102,18 @@ export default class CFS {
     }
 
     try {
-      const { tags = [] } = inputs;
-      await this.tagClient.deployResourceTags({
-        tags: tags.map((item) => ({ TagKey: item.key, TagValue: item.value })),
-        serviceType: ApiServiceType.cfs,
-        resourcePrefix: 'filesystem',
-        resourceId: outputs.fileSystemId!,
-      });
+      const { tags } = inputs;
+      if (tags) {
+        await this.tagClient.deployResourceTags({
+          tags: tags.map((item) => ({ TagKey: item.key, TagValue: item.value })),
+          serviceType: ApiServiceType.cfs,
+          resourcePrefix: 'filesystem',
+          resourceId: outputs.fileSystemId!,
+        });
 
-      if (tags.length > 0) {
-        outputs.tags = tags;
+        if (tags.length > 0) {
+          outputs.tags = tags;
+        }
       }
     } catch (e) {
       console.log(`[TAG] ${e.message}`);

@@ -131,16 +131,18 @@ export default class Postgresql {
     }
 
     try {
-      const { tags = [] } = inputs;
-      await this.tagClient.deployResourceTags({
-        tags: tags.map(({ key, value }) => ({ TagKey: key, TagValue: value })),
-        resourceId: dbDetail.DBInstanceId,
-        serviceType: ApiServiceType.postgres,
-        resourcePrefix: 'DBInstanceId',
-      });
+      const { tags } = inputs;
+      if (tags) {
+        await this.tagClient.deployResourceTags({
+          tags: tags.map(({ key, value }) => ({ TagKey: key, TagValue: value })),
+          resourceId: dbDetail.DBInstanceId,
+          serviceType: ApiServiceType.postgres,
+          resourcePrefix: 'DBInstanceId',
+        });
 
-      if (tags.length > 0) {
-        outputs.tags = tags;
+        if (tags.length > 0) {
+          outputs.tags = tags;
+        }
       }
     } catch (e) {
       console.log(`[TAG] ${e.message}`);

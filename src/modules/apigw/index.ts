@@ -152,15 +152,17 @@ export default class Apigw {
     }
 
     try {
-      const { tags = [] } = inputs;
-      await this.tagClient.deployResourceTags({
-        tags: tags.map(({ key, value }) => ({ TagKey: key, TagValue: value })),
-        resourceId: serviceId,
-        serviceType: ApiServiceType.apigw,
-        resourcePrefix: 'service',
-      });
-      if (tags.length > 0) {
-        outputs.tags = tags;
+      const { tags } = inputs;
+      if (tags) {
+        await this.tagClient.deployResourceTags({
+          tags: tags.map(({ key, value }) => ({ TagKey: key, TagValue: value })),
+          resourceId: serviceId,
+          serviceType: ApiServiceType.apigw,
+          resourcePrefix: 'service',
+        });
+        if (tags.length > 0) {
+          outputs.tags = tags;
+        }
       }
     } catch (e) {
       console.log(`[TAG] ${e.message}`);
@@ -299,19 +301,18 @@ export default class Apigw {
         apiList,
       };
 
-      const { tags = [] } = inputs;
-      if (tags.length > 0) {
-        const deployedTags = await this.tagClient.deployResourceTags({
+      const { tags } = inputs;
+      if (tags) {
+        await this.tagClient.deployResourceTags({
           tags: tags.map(({ key, value }) => ({ TagKey: key, TagValue: value })),
           resourceId: serviceId,
           serviceType: ApiServiceType.apigw,
           resourcePrefix: 'service',
         });
 
-        outputs.tags = deployedTags.map((item) => ({
-          key: item.TagKey,
-          value: item.TagValue!,
-        }));
+        if (tags.length > 0) {
+          outputs.tags = tags;
+        }
       }
 
       // return this.formatApigwOutputs(outputs);
