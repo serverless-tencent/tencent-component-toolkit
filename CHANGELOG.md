@@ -1,3 +1,10 @@
+## [2.24.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.24.1...v2.24.2) (2022-11-02)
+
+
+### Bug Fixes
+
+* tags判断传空时不操作资源标签 ([#284](https://github.com/serverless-tencent/tencent-component-toolkit/issues/284)) ([d3dee73](https://github.com/serverless-tencent/tencent-component-toolkit/commit/d3dee73237b5412987dbf77898cc67122aed5498))
+
 ## [2.24.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.24.0...v2.24.1) (2022-05-11)
 
 
