@@ -240,15 +240,17 @@ export default class Cdn {
       }
 
       try {
-        const { tags = [] } = inputs;
-        await this.tagClient.deployResourceTags({
-          tags: tags.map(({ key, value }) => ({ TagKey: key, TagValue: value })),
-          resourceId: Domain,
-          serviceType: ApiServiceType.cdn,
-          resourcePrefix: 'domain',
-        });
-        if (tags.length > 0) {
-          outputs.tags = tags;
+        const { tags } = inputs;
+        if (tags) {
+          await this.tagClient.deployResourceTags({
+            tags: tags.map(({ key, value }) => ({ TagKey: key, TagValue: value })),
+            resourceId: Domain,
+            serviceType: ApiServiceType.cdn,
+            resourcePrefix: 'domain',
+          });
+          if (tags.length > 0) {
+            outputs.tags = tags;
+          }
         }
       } catch (e) {
         console.log(`[TAG] ${e.message}`);

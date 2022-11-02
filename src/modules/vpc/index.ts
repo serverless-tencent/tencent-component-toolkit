@@ -34,8 +34,8 @@ export default class Vpc {
       enableMulticast,
       dnsServers,
       domainName,
-      tags = [],
-      subnetTags = [],
+      tags,
+      subnetTags,
       enableSubnetBroadcast,
     } = inputs;
 
@@ -78,15 +78,17 @@ export default class Vpc {
         vId = res.VpcId;
       }
 
-      try {
-        await this.tagClient.deployResourceTags({
-          tags: tags.map(({ key, value }) => ({ TagKey: key, TagValue: value })),
-          resourceId: vId,
-          serviceType: ApiServiceType.vpc,
-          resourcePrefix: 'vpc',
-        });
-      } catch (e) {
-        console.log(`[TAG] ${e.message}`);
+      if (tags) {
+        try {
+          await this.tagClient.deployResourceTags({
+            tags: tags.map(({ key, value }) => ({ TagKey: key, TagValue: value })),
+            resourceId: vId,
+            serviceType: ApiServiceType.vpc,
+            resourcePrefix: 'vpc',
+          });
+        } catch (e) {
+          console.log(`[TAG] ${e.message}`);
+        }
       }
 
       return vId;
@@ -139,16 +141,18 @@ export default class Vpc {
         }
       }
 
-      const subnetTagList = subnetTags.length > 0 ? subnetTags : tags;
-      try {
-        await this.tagClient.deployResourceTags({
-          tags: subnetTagList.map(({ key, value }) => ({ TagKey: key, TagValue: value })),
-          resourceId: sId,
-          serviceType: ApiServiceType.vpc,
-          resourcePrefix: 'subnet',
-        });
-      } catch (e) {
-        console.log(`[TAG] ${e.message}`);
+      const subnetTagList = subnetTags ? subnetTags : tags;
+      if (subnetTagList) {
+        try {
+          await this.tagClient.deployResourceTags({
+            tags: subnetTagList.map(({ key, value }) => ({ TagKey: key, TagValue: value })),
+            resourceId: sId,
+            serviceType: ApiServiceType.vpc,
+            resourcePrefix: 'subnet',
+          });
+        } catch (e) {
+          console.log(`[TAG] ${e.message}`);
+        }
       }
       return sId;
     };
@@ -170,7 +174,7 @@ export default class Vpc {
       subnetName,
     };
 
-    if (tags.length > 0) {
+    if (tags && tags.length > 0) {
       outputs.tags = tags;
     }
 

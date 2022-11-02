@@ -160,16 +160,18 @@ export default class Cynosdb {
     }));
 
     try {
-      const { tags = [] } = inputs;
-      await this.tagClient.deployResourceTags({
-        tags: tags.map(({ key, value }) => ({ TagKey: key, TagValue: value })),
-        resourceId: outputs.clusterId!,
-        serviceType: ApiServiceType.cynosdb,
-        resourcePrefix: 'instance',
-      });
+      const { tags } = inputs;
+      if (tags) {
+        await this.tagClient.deployResourceTags({
+          tags: tags.map(({ key, value }) => ({ TagKey: key, TagValue: value })),
+          resourceId: outputs.clusterId!,
+          serviceType: ApiServiceType.cynosdb,
+          resourcePrefix: 'instance',
+        });
 
-      if (tags.length > 0) {
-        outputs.tags = tags;
+        if (tags.length > 0) {
+          outputs.tags = tags;
+        }
       }
     } catch (e) {
       console.log(`[TAG] ${e.message}`);
