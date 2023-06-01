@@ -20,6 +20,7 @@ import {
   ScfDeployOutputs,
   OriginTriggerType,
   GetLogOptions,
+  SF_TYPE_ENUM,
 } from './interface';
 import ScfEntity from './entities/scf';
 import AliasEntity from './entities/alias';
@@ -283,7 +284,14 @@ export default class Scf {
 
     // 检查函数是否存在，不存在就创建，存在就更新
     if (!funcInfo) {
-      await this.scf.create(inputs);
+      let result = await this.scf.create(inputs);
+      //创建函数成功后，设置Gpu函数独占配额,如果当前是sd函数、gpuReservedQuota大于0,则执行该操作。
+      if(result && [SF_TYPE_ENUM.SD_API,SF_TYPE_ENUM.SD_WEB_UI].includes(inputs?.sFType as any) && !!inputs?.gpuReservedQuota){
+        await this.scf.updateGpuReservedQuota({
+          functionName: inputs?.name,
+          gpuReservedQuota: inputs?.gpuReservedQuota
+        });
+      }
     } else {
       await this.scf.updateCode(inputs, funcInfo);
 

@@ -433,3 +433,15 @@ export interface GetRequestStatusOptions {
    */
   endTime?: string;
 }
+
+export const SF_TYPE_ENUM = {
+  SD_WEB_UI: 'SD WebUI',
+  SD_API: 'SD API',
+};
+
+export interface GpuReservedQuota {
+  functionName: string
+  gpuReservedQuota: number
+  region?: string
+  namespace?: string
+}

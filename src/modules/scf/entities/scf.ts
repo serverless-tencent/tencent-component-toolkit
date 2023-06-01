@@ -14,6 +14,7 @@ import {
   FunctionInfo,
   GetLogOptions,
   GetRequestStatusOptions,
+  GpuReservedQuota,
   ScfCreateFunctionInputs,
   UpdateFunctionCodeOptions,
 } from '../interface';
@@ -150,8 +151,12 @@ export default class ScfEntity extends BaseEntity {
     console.log(`Creating function ${inputs.name}, region ${this.region}`);
     const inp = formatInputs(inputs);
     const functionInputs = { Action: 'CreateFunction' as const, ...inp };
-    await this.request(functionInputs);
-    return true;
+    try {
+      await this.request(functionInputs);
+      return true;
+    } catch (error) {
+      return false;
+    }
   }
 
   // 更新函数代码
@@ -474,6 +479,23 @@ export default class ScfEntity extends BaseEntity {
       return await this.request({Action: 'GetRequestStatus', ...reqInputs});
     } catch (e) {
       console.log(e);
+    }
+  }
+
+  // 设置Gpu函数独占配额
+  async updateGpuReservedQuota(inputs: GpuReservedQuota) {
+    console.log(`PutGpuReservedQuota functionName ${inputs.functionName}, region ${this.region},gpuReservedQuota ${inputs.gpuReservedQuota}`);
+    const quotaInputs = { 
+      Action: 'PutGpuReservedQuota' as const,
+      Version: '2018-04-16',
+      FunctionName:inputs?.functionName,
+      GpuReservedQuota: inputs?.gpuReservedQuota
+    };
+    try {
+      await this.request(quotaInputs);
+      return true;
+    } catch (error) {
+      return false;
     }
   }
 }
