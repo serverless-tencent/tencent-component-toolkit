@@ -52,6 +52,11 @@ export const formatInputs = (inputs: ScfCreateFunctionInputs) => {
     if (imageConfig.args) {
       functionInputs.Code!.ImageConfig!.Args = imageConfig.args;
     }
+
+    if (imageConfig?.containerImageAccelerate !== undefined) {
+      functionInputs.Code!.ImageConfig!.ContainerImageAccelerate =
+        imageConfig?.containerImageAccelerate;
+    }
   } else {
     // 基于 COS 代码部署
     functionInputs.Code = {
@@ -83,6 +88,22 @@ export const formatInputs = (inputs: ScfCreateFunctionInputs) => {
         functionInputs.ProtocolParams = protocolParams;
       }
     }
+  }
+
+  // sd应用类型
+  if (inputs?.sFType) {
+    functionInputs.SFType = inputs?.sFType;
+  }
+  // sd gpu并发数
+  if (inputs?.gpuReservedQuota) {
+    functionInputs.GpuReservedQuota = inputs?.gpuReservedQuota;
+  }
+  // 请求并发
+  if (inputs?.instanceConcurrencyConfig) {
+    functionInputs.InstanceConcurrencyConfig = {
+      DynamicEnabled: inputs?.instanceConcurrencyConfig?.dynamicEnabled,
+      MaxConcurrency: inputs?.instanceConcurrencyConfig?.maxConcurrency,
+    };
   }
 
   if (inputs.role) {

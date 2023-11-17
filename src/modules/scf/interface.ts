@@ -12,6 +12,7 @@ export interface FunctionCode {
     RegistryId?: string;
     Command?: string;
     Args?: string;
+    ContainerImageAccelerate?: boolean;
   };
 }
 
@@ -67,6 +68,13 @@ export interface BaseFunctionConfig {
   ProtocolParams?: ProtocolParams;
   NodeType?: string;
   NodeSpec?: string;
+  SFType?: string;
+  GpuReservedQuota?: number;
+  // 请求并发
+  InstanceConcurrencyConfig?: {
+    DynamicEnabled?: boolean;
+    MaxConcurrency?: number;
+  };
 }
 
 export interface TriggerType {
@@ -228,6 +236,8 @@ export interface ScfCreateFunctionInputs {
     command?: string;
     // 启动命令参数
     args?: string;
+    // 镜像加速
+    containerImageAccelerate?: boolean;
   };
 
   // 异步调用重试配置
@@ -236,6 +246,16 @@ export interface ScfCreateFunctionInputs {
 
   protocolType?: string;
   protocolParams?: ProtocolParams;
+
+  // sd应用类型
+  sFType?: string;
+  // gpu并发数，默认是0
+  gpuReservedQuota?: number;
+  // 请求并发配置
+  instanceConcurrencyConfig?: {
+    dynamicEnabled?: boolean;
+    maxConcurrency?: number;
+  };
 }
 
 export interface ScfUpdateAliasTrafficInputs {
@@ -391,25 +411,37 @@ export interface GetRequestStatusOptions {
   /**
    * 函数名称
    */
-  functionName: string
+  functionName: string;
 
   /**
    * 需要查询状态的请求id
    */
-  functionRequestId: string
+  functionRequestId: string;
 
   /**
    * 函数的所在的命名空间
    */
-  namespace?: string
+  namespace?: string;
 
   /**
    * 查询的开始时间，例如：2017-05-16 20:00:00，不填默认为当前时间 - 15min
    */
-  startTime?: string
+  startTime?: string;
 
   /**
    * 查询的结束时间，例如：2017-05-16 20:59:59，不填默认为当前时间。EndTime 需要晚于 StartTime。
    */
-  endTime?: string
+  endTime?: string;
+}
+
+export const SF_TYPE_ENUM = {
+  SD_WEB_UI: 'SD WebUI',
+  SD_API: 'SD API',
+};
+
+export interface GpuReservedQuota {
+  functionName: string
+  gpuReservedQuota: number
+  region?: string
+  namespace?: string
 }
