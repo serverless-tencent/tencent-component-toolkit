@@ -8,6 +8,7 @@ const ACTIONS = [
   'CreateRole',
   'GetRole',
   'DeleteRole',
+  'GetUserAppId',
 ] as const;
 
 export type ActionType = typeof ACTIONS[number];

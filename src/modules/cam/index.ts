@@ -2,6 +2,8 @@ import { ActionType } from './apis';
 import { CapiCredentials, RegionType, ApiServiceType } from './../interface';
 import { Capi } from '@tencent-sdk/capi';
 import APIS from './apis';
+import { getYunTiApiUrl } from '../../utils';
+import axios from 'axios';
 
 /** CAM （访问管理）for serverless */
 export default class Cam {
@@ -111,5 +113,55 @@ export default class Cam {
   /** 检查角色是否有云函数权限 */
   async CheckSCFExcuteRole() {
     return this.isRoleExist('QCS_SCFExcuteRole');
+  }
+
+  /** 查询用户AppId */
+  async GetUserAppId(): Promise<{ OwnerUin: string; AppId: string; Uin: string }> {
+    try {
+      return this.request({
+        Action: 'GetUserAppId',
+      });
+    } catch (error) {
+      return {
+        OwnerUin: '',
+        AppId: '',
+        Uin: '',
+      };
+    }
+  }
+
+  /**
+   * checkYunTi 检查是否是云梯账号
+   * @returns {boolean} true: 是云梯账号; false: 非云梯账号
+   */
+  async checkYunTi(): Promise<boolean> {
+    let isYunTi = false;
+    const { OwnerUin: uin } = await this.GetUserAppId();
+    try {
+      const params = JSON.stringify({
+        id: '1',
+        jsonrpc: '2.0',
+        method: 'checkOwnUin',
+        params: { ownUin: [uin] },
+      });
+      const apiUrl = getYunTiApiUrl();
+      const res = await axios.post(apiUrl, params, {
+        headers: { 'content-type': 'application/json' },
+      });
+      if (res?.data?.error?.message) {
+        throw new Error(res.data.error.message);
+      } else {
+        isYunTi =
+          res?.data?.result?.data &&
+          res.data.result.data?.some(
+            (item: { ownUin: string; appId: string }) => item?.ownUin === uin,
+          );
+        console.log('check yunTi ownUin:', isYunTi);
+      }
+    } catch (error) {
+      isYunTi = false;
+      console.log('checkYunTiOwnUin error:', error);
+    }
+    return isYunTi;
   }
 }

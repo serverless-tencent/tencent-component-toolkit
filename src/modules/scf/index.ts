@@ -3,7 +3,7 @@ import { ActionType } from './apis';
 import { RegionType, ApiServiceType, CapiCredentials } from './../interface';
 import { Capi } from '@tencent-sdk/capi';
 import { ApiTypeError } from '../../utils/error';
-import { deepClone, strip } from '../../utils';
+import { deepClone, formatInputTags, strip } from '../../utils';
 import TagsUtils from '../tag/index';
 import ApigwUtils from '../apigw';
 import CONFIGS from './config';
@@ -252,6 +252,7 @@ export default class Scf {
           credentials: this.credentials,
           region: this.region,
         });
+        const tags: any = trigger?.parameters?.tags ?? trigger?.tags ?? funcInfo.Tags;
         const triggerOutput = await triggerInstance.create({
           scf: this,
           region: this.region,
@@ -259,6 +260,7 @@ export default class Scf {
             namespace: funcInfo.Namespace,
             functionName: funcInfo.FunctionName,
             ...trigger,
+            tags: formatInputTags(tags),
           },
         });
 
@@ -456,5 +458,15 @@ export default class Scf {
   async logs(inputs: GetLogOptions = {} as GetLogOptions) {
     const logs = await this.scf.getLogs(inputs);
     return logs;
+  }
+
+  checkAddedYunTiTags(tags: Array<{ [key: string]: string }>): boolean {
+    const formatTags = formatInputTags(tags);
+    const result =
+      formatTags?.length > 0 &&
+      ['运营部门', '运营产品', '负责人'].every((tagKey) =>
+        formatTags.some((item) => item.key === tagKey && !!item.value),
+      );
+    return result;
   }
 }

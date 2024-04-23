@@ -61,10 +61,8 @@ export const formatInputs = (inputs: ScfCreateFunctionInputs) => {
     // 监听端口: -1 表示 job镜像，0 ~ 65526 表示webServer镜像
     if (imageConfig.imagePort) {
       functionInputs.Code!.ImageConfig!.ImagePort =
-        Number.isInteger(imageConfig?.imagePort) &&
-        imageConfig?.imagePort >= -1 &&
-        imageConfig?.imagePort <= 65535
-          ? imageConfig.imagePort
+        Number.isInteger(imageConfig?.imagePort) && imageConfig?.imagePort === -1
+          ? -1
           : WebServerImageDefaultPort;
     }
   } else {

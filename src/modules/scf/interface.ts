@@ -78,6 +78,8 @@ export interface TriggerType {
   TriggerName?: string;
   Qualifier?: string;
   compared?: boolean;
+  tags?: object;
+  parameters?: any;
 }
 
 export type OriginTriggerType = {
