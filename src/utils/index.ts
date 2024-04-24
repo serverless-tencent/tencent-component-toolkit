@@ -3,6 +3,7 @@ import path from 'path';
 import camelCase from 'camelcase';
 import { PascalCase } from 'type-fest';
 import { CamelCasedProps, PascalCasedProps } from '../modules/interface';
+import crypto from 'crypto';
 
 // TODO: 将一些库换成 lodash
 
@@ -272,4 +273,55 @@ export const randomId = (len = 6) => {
 export const getQcsResourceId = (service: string, region: string, uin: string, suffix: string) => {
   // 云资源六段式
   return `qcs::${service}:${region}:uin/${uin}:${suffix}`;
+};
+
+/**
+ * hmacSha1 加密HmacSHA1
+ * @param text 加密文本
+ * @param key  加密密钥
+ * @returns
+ */
+export const hmacSha1 = (text: string, key: string) => {
+  return crypto.createHmac('sha1', key).update(text).digest('hex');
+};
+
+/**
+ * getYunTiApiUrl 查询云梯API地址
+ * @returns 云梯API地址
+ */
+export const getYunTiApiUrl = (): string => {
+  const apiKey = process.env.SLS_YUNTI_API_KEY || '';
+  const apiSecret = process.env.SLS_YUNTI_API_SECRET || '';
+  const apiUrl = process.env.SLS_YUNTI_API_URL;
+  const timeStamp = Math.floor(Date.now() / 1000);
+  const apiSign = hmacSha1(`${timeStamp}${apiKey}`, apiSecret);
+  const url = `${apiUrl}?api_key=${apiKey}&api_ts=${timeStamp}&api_sign=${apiSign}`;
+  return url;
+};
+
+/**
+ * formatInputTags 格式化输入标签
+ */
+export const formatInputTags = (
+  input: Array<any> | { [key: string]: string },
+): { key: string; value: string }[] => {
+  let tags: { key: string; value: string }[];
+  if (Array.isArray(input)) {
+    tags = input.map((item) => {
+      return {
+        key: item?.key ?? item?.Key ?? '',
+        value: item?.value ?? item?.Value ?? '',
+      };
+    });
+  } else if (typeof input === 'object' && input) {
+    tags = Object.entries(input).map(([key, value]) => {
+      return {
+        key: (key ?? '').toString(),
+        value: (value ?? '').toString(),
+      };
+    });
+  } else {
+    tags = undefined as any;
+  }
+  return tags;
 };

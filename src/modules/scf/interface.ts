@@ -12,6 +12,8 @@ export interface FunctionCode {
     RegistryId?: string;
     Command?: string;
     Args?: string;
+    ContainerImageAccelerate?: boolean;
+    ImagePort?: number;
   };
 }
 
@@ -76,6 +78,8 @@ export interface TriggerType {
   TriggerName?: string;
   Qualifier?: string;
   compared?: boolean;
+  tags?: object;
+  parameters?: any;
 }
 
 export type OriginTriggerType = {
@@ -203,6 +207,7 @@ export interface ScfCreateFunctionInputs {
 
   cfs?: {
     cfsId: string;
+    mountInsId?: string;
     MountInsId?: string;
     localMountDir: string;
     remoteMountDir: string;
@@ -228,6 +233,10 @@ export interface ScfCreateFunctionInputs {
     command?: string;
     // 启动命令参数
     args?: string;
+    // 是否开启镜像加速
+    containerImageAccelerate?: boolean;
+    // 监听端口: -1 表示job镜像,0~65535 表示Web Server镜像
+    imagePort?: number;
   };
 
   // 异步调用重试配置
@@ -391,25 +400,25 @@ export interface GetRequestStatusOptions {
   /**
    * 函数名称
    */
-  functionName: string
+  functionName: string;
 
   /**
    * 需要查询状态的请求id
    */
-  functionRequestId: string
+  functionRequestId: string;
 
   /**
    * 函数的所在的命名空间
    */
-  namespace?: string
+  namespace?: string;
 
   /**
    * 查询的开始时间，例如：2017-05-16 20:00:00，不填默认为当前时间 - 15min
    */
-  startTime?: string
+  startTime?: string;
 
   /**
    * 查询的结束时间，例如：2017-05-16 20:59:59，不填默认为当前时间。EndTime 需要晚于 StartTime。
    */
-  endTime?: string
+  endTime?: string;
 }

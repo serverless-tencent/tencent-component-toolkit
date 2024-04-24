@@ -1,3 +1,4 @@
+import { WebServerImageDefaultPort } from './constants';
 import { ScfCreateFunctionInputs, BaseFunctionConfig, ProtocolParams } from './interface';
 const CONFIGS = require('./config').default;
 
@@ -51,6 +52,18 @@ export const formatInputs = (inputs: ScfCreateFunctionInputs) => {
     }
     if (imageConfig.args) {
       functionInputs.Code!.ImageConfig!.Args = imageConfig.args;
+    }
+    // 镜像加速
+    if (imageConfig.containerImageAccelerate !== undefined) {
+      functionInputs.Code!.ImageConfig!.ContainerImageAccelerate =
+        imageConfig.containerImageAccelerate;
+    }
+    // 监听端口: -1 表示 job镜像，0 ~ 65526 表示webServer镜像
+    if (imageConfig.imagePort) {
+      functionInputs.Code!.ImageConfig!.ImagePort =
+        Number.isInteger(imageConfig?.imagePort) && imageConfig?.imagePort === -1
+          ? -1
+          : WebServerImageDefaultPort;
     }
   } else {
     // 基于 COS 代码部署
@@ -149,7 +162,7 @@ export const formatInputs = (inputs: ScfCreateFunctionInputs) => {
     inputs.cfs.forEach((item) => {
       functionInputs.CfsConfig?.CfsInsList.push({
         CfsId: item.cfsId,
-        MountInsId: item.MountInsId || item.cfsId,
+        MountInsId: item.mountInsId || item.MountInsId || item.cfsId,
         LocalMountDir: item.localMountDir,
         RemoteMountDir: item.remoteMountDir,
         UserGroupId: String(item.userGroupId || 10000),

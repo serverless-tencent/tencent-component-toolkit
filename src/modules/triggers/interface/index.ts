@@ -1,4 +1,5 @@
 import { ApigwDeployInputs, ApiEndpoint } from '../../apigw/interface';
+import { TagInput } from '../../interface';
 
 export interface ApigwTriggerRemoveScfTriggerInputs {
   serviceId: string;
@@ -129,6 +130,9 @@ export interface TriggerInputs<P extends TriggerInputsParams = TriggerInputsPara
 
   // 是否自动发布服务（API 网关特有）
   isAutoRelease?: boolean;
+
+  // 标签列表
+  tags?: TagInput[];
 }
 
 export interface TriggerDetail {
