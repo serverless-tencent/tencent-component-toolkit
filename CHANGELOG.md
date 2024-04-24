@@ -1,3 +1,16 @@
+# [2.25.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.24.2...v2.25.0) (2024-04-24)
+
+
+### Features
+
+* yml支持job镜像配置&修复cfs找不到挂载点问题 ([#296](https://github.com/serverless-tencent/tencent-component-toolkit/issues/296)) ([0bff41b](https://github.com/serverless-tencent/tencent-component-toolkit/commit/0bff41bf8776a0115f2cf8c473d024bb4dce31e9))
+* 部署函数支持添加云梯默认标签(运营部门,运营产品,负责人) ([#298](https://github.com/serverless-tencent/tencent-component-toolkit/issues/298)) ([fa1d037](https://github.com/serverless-tencent/tencent-component-toolkit/commit/fa1d037153e12b9ad2a3e2ddfb7e04c692375d25))
+
+
+### Reverts
+
+* Revert "feat: yml支持job镜像配置&修复cfs找不到挂载点问题 (#296)" (#297) ([6034e25](https://github.com/serverless-tencent/tencent-component-toolkit/commit/6034e255533b1f3c4aa7771bd3b9b3b0786e34a4)), closes [#296](https://github.com/serverless-tencent/tencent-component-toolkit/issues/296) [#297](https://github.com/serverless-tencent/tencent-component-toolkit/issues/297)
+
 ## [2.24.2](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.24.1...v2.24.2) (2022-11-02)
 
 
