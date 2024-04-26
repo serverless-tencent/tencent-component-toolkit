@@ -102,7 +102,7 @@ export default class CFS {
     }
 
     try {
-      const { tags } = inputs;
+      const tags = this.tagClient.formatInputTags(inputs?.tags as any);
       if (tags) {
         await this.tagClient.deployResourceTags({
           tags: tags.map((item) => ({ TagKey: item.key, TagValue: item.value })),

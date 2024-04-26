@@ -152,7 +152,7 @@ export default class Apigw {
     }
 
     try {
-      const { tags } = inputs;
+      const tags = this.tagClient.formatInputTags(inputs?.tags as any);
       if (tags) {
         await this.tagClient.deployResourceTags({
           tags: tags.map(({ key, value }) => ({ TagKey: key, TagValue: value })),
@@ -301,7 +301,7 @@ export default class Apigw {
         apiList,
       };
 
-      const { tags } = inputs;
+      const tags = this.tagClient.formatInputTags(inputs?.tags as any);
       if (tags) {
         await this.tagClient.deployResourceTags({
           tags: tags.map(({ key, value }) => ({ TagKey: key, TagValue: value })),

@@ -1,5 +1,5 @@
 import { ActionType } from './apis';
-import { RegionType, CapiCredentials, ApiServiceType } from './../interface';
+import { RegionType, CapiCredentials, ApiServiceType, TagInput } from './../interface';
 import { Capi } from '@tencent-sdk/capi';
 import APIS from './apis';
 import {
@@ -273,5 +273,35 @@ export default class Tag {
     });
 
     return leftTags.concat(attachTags);
+  }
+
+  /**
+   * 格式化输入标签
+   * @param inputs 输入标签
+   * @returns 格式化后的标签列表
+   */
+  formatInputTags(inputs: Array<any> | { [key: string]: string }): TagInput[] {
+    let tags: TagInput[];
+    if (Array.isArray(inputs)) {
+      tags = inputs.map((item) => {
+        return {
+          key: item?.key ?? item?.Key ?? '',
+          value: item?.value ?? item?.Value ?? '',
+        };
+      });
+    } else if (typeof inputs === 'object' && inputs) {
+      tags = Object.entries(inputs).map(([key, value]) => {
+        return {
+          key: (key ?? '').toString(),
+          value: (value ?? '').toString(),
+        };
+      });
+    } else if (typeof inputs !== 'object' && inputs) {
+      // 非数组或者对象key-value类型的数据，需要返回原始输入数据
+      tags = inputs;
+    } else {
+      tags = undefined as any;
+    }
+    return tags;
   }
 }
