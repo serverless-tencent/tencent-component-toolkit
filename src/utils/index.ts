@@ -298,30 +298,3 @@ export const getYunTiApiUrl = (): string => {
   const url = `${apiUrl}?api_key=${apiKey}&api_ts=${timeStamp}&api_sign=${apiSign}`;
   return url;
 };
-
-/**
- * formatInputTags 格式化输入标签
- */
-export const formatInputTags = (
-  input: Array<any> | { [key: string]: string },
-): { key: string; value: string }[] => {
-  let tags: { key: string; value: string }[];
-  if (Array.isArray(input)) {
-    tags = input.map((item) => {
-      return {
-        key: item?.key ?? item?.Key ?? '',
-        value: item?.value ?? item?.Value ?? '',
-      };
-    });
-  } else if (typeof input === 'object' && input) {
-    tags = Object.entries(input).map(([key, value]) => {
-      return {
-        key: (key ?? '').toString(),
-        value: (value ?? '').toString(),
-      };
-    });
-  } else {
-    tags = undefined as any;
-  }
-  return tags;
-};

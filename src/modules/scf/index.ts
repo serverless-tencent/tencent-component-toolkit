@@ -3,7 +3,7 @@ import { ActionType } from './apis';
 import { RegionType, ApiServiceType, CapiCredentials } from './../interface';
 import { Capi } from '@tencent-sdk/capi';
 import { ApiTypeError } from '../../utils/error';
-import { deepClone, formatInputTags, strip } from '../../utils';
+import { deepClone, strip } from '../../utils';
 import TagsUtils from '../tag/index';
 import ApigwUtils from '../apigw';
 import CONFIGS from './config';
@@ -260,7 +260,7 @@ export default class Scf {
             namespace: funcInfo.Namespace,
             functionName: funcInfo.FunctionName,
             ...trigger,
-            tags: formatInputTags(tags),
+            tags: this.tagClient.formatInputTags(tags),
           },
         });
 
@@ -371,9 +371,10 @@ export default class Scf {
     }
 
     // create/update tags
-    if (inputs.tags) {
+    const tags = this.tagClient.formatInputTags(inputs?.tags as any);
+    if (tags) {
       const deployedTags = await this.tagClient.deployResourceTags({
-        tags: Object.entries(inputs.tags).map(([TagKey, TagValue]) => ({ TagKey, TagValue })),
+        tags: tags.map(({ key, value }) => ({ TagKey: key, TagValue: value })),
         resourceId: `${funcInfo!.Namespace}/function/${funcInfo!.FunctionName}`,
         serviceType: ApiServiceType.scf,
         resourcePrefix: 'namespace',
@@ -461,7 +462,7 @@ export default class Scf {
   }
 
   checkAddedYunTiTags(tags: Array<{ [key: string]: string }>): boolean {
-    const formatTags = formatInputTags(tags);
+    const formatTags = this.tagClient.formatInputTags(tags);
     const result =
       formatTags?.length > 0 &&
       ['运营部门', '运营产品', '负责人'].every((tagKey) =>

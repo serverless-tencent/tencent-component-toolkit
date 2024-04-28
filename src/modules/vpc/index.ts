@@ -78,10 +78,11 @@ export default class Vpc {
         vId = res.VpcId;
       }
 
-      if (tags) {
+      const formateTags = this.tagClient.formatInputTags(tags as any);
+      if (formateTags) {
         try {
           await this.tagClient.deployResourceTags({
-            tags: tags.map(({ key, value }) => ({ TagKey: key, TagValue: value })),
+            tags: formateTags.map(({ key, value }) => ({ TagKey: key, TagValue: value })),
             resourceId: vId,
             serviceType: ApiServiceType.vpc,
             resourcePrefix: 'vpc',
@@ -141,7 +142,7 @@ export default class Vpc {
         }
       }
 
-      const subnetTagList = subnetTags ? subnetTags : tags;
+      const subnetTagList = this.tagClient.formatInputTags((subnetTags ? subnetTags : tags) as any);
       if (subnetTagList) {
         try {
           await this.tagClient.deployResourceTags({
