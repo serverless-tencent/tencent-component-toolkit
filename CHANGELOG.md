@@ -1,3 +1,10 @@
+## [2.25.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.25.0...v2.25.1) (2024-04-28)
+
+
+### Bug Fixes
+
+* multi-scf support yunti tag issue fix ([#299](https://github.com/serverless-tencent/tencent-component-toolkit/issues/299)) ([837b943](https://github.com/serverless-tencent/tencent-component-toolkit/commit/837b943f9ff582c219a21edfa7c29f259cc5c860))
+
 # [2.25.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.24.2...v2.25.0) (2024-04-24)
 
 
