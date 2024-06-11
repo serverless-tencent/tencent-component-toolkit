@@ -91,6 +91,17 @@ export interface CosTriggerInputsParams {
   enable?: boolean;
 }
 
+/** 函数URL参数 */
+export interface HttpTriggerInputsParams {
+  qualifier?: string;
+  name?: string;
+  authType?: 'CAM' | 'NONE';
+  netConfig?: {
+    enableIntranet?: boolean;
+    enableExtranet?: boolean;
+  };
+}
+
 export interface MpsTriggerInputsParams {
   type?: string;
   qualifier?: string;
