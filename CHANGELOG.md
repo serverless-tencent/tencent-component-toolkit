@@ -1,3 +1,10 @@
+# [2.26.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.25.1...v2.26.0) (2024-06-11)
+
+
+### Features
+
+* 支持函数URL ([#300](https://github.com/serverless-tencent/tencent-component-toolkit/issues/300)) ([e72f616](https://github.com/serverless-tencent/tencent-component-toolkit/commit/e72f61636194ac07fcd4b03584ce34d1bb1276f1))
+
 ## [2.25.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.25.0...v2.25.1) (2024-04-28)
 
 
