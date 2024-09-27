@@ -142,7 +142,7 @@ export interface ScfListAliasInputs extends ScfGetAliasInputs {}
 
 export interface ScfCreateAlias {
   functionName: string;
-  functionVersion: string;
+  functionVersion?: string;
   aliasName: string;
   namespace?: string;
   lastVersion: string;
@@ -279,6 +279,8 @@ export interface ScfDeployInputs extends ScfCreateFunctionInputs {
 
   aliasName?: string;
   aliasDescription?: string;
+  aliasFunctionVersion?: string;
+  aliasAddionalVersion?: string;
 
   tags?: Record<string, string>;
 
