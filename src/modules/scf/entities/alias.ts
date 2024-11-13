@@ -13,17 +13,21 @@ import BaseEntity from './base';
 
 export default class AliasEntity extends BaseEntity {
   async create(inputs: ScfCreateAlias) {
-    const publishInputs = {
+    const publishInputs: any = {
       Action: 'CreateAlias' as const,
       FunctionName: inputs.functionName,
-      FunctionVersion: inputs.functionVersion,
+      FunctionVersion: inputs.functionVersion || '$LATEST',
       Name: inputs.aliasName,
       Namespace: inputs.namespace || 'default',
-      RoutingConfig: {
-        AdditionalVersionWeights: [{ Version: inputs.lastVersion, Weight: inputs.traffic }],
-      },
       Description: inputs.description || 'Published by Serverless Component',
     };
+    if (inputs.lastVersion && inputs.traffic) {
+      publishInputs.RoutingConfig = {
+        AdditionalVersionWeights: [
+          { Version: inputs.lastVersion, Weight: strip(1 - inputs.traffic) },
+        ],
+      };
+    }
     const Response = await this.request(publishInputs);
     return Response;
   }

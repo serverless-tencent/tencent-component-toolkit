@@ -321,19 +321,56 @@ export default class Scf {
       });
     }
 
+    const aliasAddionalVersion = inputs.aliasAddionalVersion || inputs.lastVersion;
     const needSetTraffic =
-      inputs.traffic != null && inputs.lastVersion && inputs.lastVersion !== '$LATEST';
-    if (needSetTraffic) {
-      await this.alias.update({
-        namespace,
-        functionName,
-        region: this.region,
-        additionalVersions: needSetTraffic
-          ? [{ weight: strip(1 - inputs.traffic!), version: inputs.lastVersion! }]
-          : [],
-        aliasName: inputs.aliasName,
-        description: inputs.aliasDescription,
-      });
+      inputs.traffic != null && aliasAddionalVersion && aliasAddionalVersion !== '$LATEST';
+    const needSetAlias = (inputs.aliasName && inputs.aliasName !== '$DEFAULT') || needSetTraffic;
+    if (needSetAlias) {
+      let needCreateAlias = false;
+      if (inputs.aliasName && inputs.aliasName !== '$DEFAULT') {
+        try {
+          const aliasInfo = await this.alias.get({
+            namespace,
+            functionName,
+            region: this.region,
+            aliasName: inputs.aliasName,
+          });
+          if (!aliasInfo?.Name) {
+            needCreateAlias = true;
+          }
+        } catch (error: any) {
+          if (
+            error.message &&
+            (error.message.includes('未找到指定的') || error.message.include('is not found'))
+          ) {
+            needCreateAlias = true;
+          }
+        }
+      }
+      if (needCreateAlias) {
+        await this.alias.create({
+          namespace,
+          functionName,
+          functionVersion: inputs.aliasFunctionVersion || funcInfo?.Qualifier,
+          aliasName: inputs.aliasName!,
+          lastVersion: aliasAddionalVersion!,
+          traffic: inputs.traffic!,
+          description: inputs.aliasDescription,
+        });
+      } else {
+        await this.alias.update({
+          namespace,
+          functionName,
+          functionVersion: inputs.aliasFunctionVersion || funcInfo?.Qualifier,
+          additionalVersions: needSetTraffic
+            ? [{ weight: strip(1 - inputs.traffic!), version: aliasAddionalVersion! }]
+            : [],
+          region: this.region,
+          aliasName: inputs.aliasName,
+          description: inputs.aliasDescription,
+        });
+      }
+
       outputs.Traffic = inputs.traffic;
       outputs.ConfigTrafficVersion = inputs.lastVersion;
     }
