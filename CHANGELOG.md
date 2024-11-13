@@ -1,3 +1,10 @@
+# [2.27.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.26.0...v2.27.0) (2024-11-13)
+
+
+### Features
+
+* create alias ([#301](https://github.com/serverless-tencent/tencent-component-toolkit/issues/301)) ([4d75d43](https://github.com/serverless-tencent/tencent-component-toolkit/commit/4d75d43f566aeee1e47f196057560cfd93822a33))
+
 # [2.26.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.25.1...v2.26.0) (2024-06-11)
 
 
