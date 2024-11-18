@@ -20,14 +20,17 @@ export default class AliasEntity extends BaseEntity {
       Name: inputs.aliasName,
       Namespace: inputs.namespace || 'default',
       Description: inputs.description || 'Published by Serverless Component',
+      RoutingConfig: {
+        AdditionalVersionWeights: inputs.additionalVersions
+          ? inputs.additionalVersions?.map((v) => {
+              return {
+                Version: v.version,
+                Weight: v.weight,
+              };
+            })
+          : [],
+      },
     };
-    if (inputs.lastVersion && inputs.traffic) {
-      publishInputs.RoutingConfig = {
-        AdditionalVersionWeights: [
-          { Version: inputs.lastVersion, Weight: strip(1 - inputs.traffic) },
-        ],
-      };
-    }
     const Response = await this.request(publishInputs);
     return Response;
   }
@@ -43,12 +46,14 @@ export default class AliasEntity extends BaseEntity {
       Name: inputs.aliasName || '$DEFAULT',
       Namespace: inputs.namespace || 'default',
       RoutingConfig: {
-        AdditionalVersionWeights: inputs.additionalVersions?.map((v) => {
-          return {
-            Version: v.version,
-            Weight: v.weight,
-          };
-        }),
+        AdditionalVersionWeights: inputs.additionalVersions
+          ? inputs.additionalVersions?.map((v) => {
+              return {
+                Version: v.version,
+                Weight: v.weight,
+              };
+            })
+          : [],
       },
       Description: inputs.description || 'Configured by Serverless Component',
     };

@@ -32,6 +32,22 @@ export function isArray<T>(obj: T[] | T): obj is T[] {
 }
 
 /**
+ * is positive integer(正整数)
+ * @param obj object
+ */
+export function isPositiveInteger(value: string | number) {
+  return +value > 0 && Number.isInteger(+value);
+}
+
+/**
+ * is number（数字)
+ * @param obj object
+ */
+export function isNumber(value: string | number) {
+  return !Number.isNaN(+value);
+}
+
+/**
  * is object
  * @param obj object
  */

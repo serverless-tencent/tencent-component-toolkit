@@ -280,6 +280,21 @@ export default class Scf {
     const functionName = inputs.name;
     const { ignoreTriggers = false } = inputs;
 
+    if (inputs?.aliasName) {
+      if (!inputs?.additionalVersionWeights) {
+        throw new ApiTypeError(
+          'PARAMETER_SCF',
+          'additionalVersionWeights is required when aliasName is setted',
+        );
+      }
+      if (!inputs.publish && !inputs?.aliasFunctionVersion) {
+        throw new ApiTypeError(
+          'PARAMETER_SCF',
+          'aliasFunctionVersion is required when aliasName is setted',
+        );
+      }
+    }
+
     // 在部署前，检查函数初始状态，如果初始为 CreateFailed，尝试先删除，再重新创建
     let funcInfo = await this.scf.getInitialStatus({ namespace, functionName });
 
@@ -311,6 +326,11 @@ export default class Scf {
         namespace,
         description: inputs.publishDescription,
       });
+
+      if (inputs.aliasName) {
+        inputs.aliasFunctionVersion = FunctionVersion;
+      }
+
       inputs.lastVersion = FunctionVersion;
       outputs.LastVersion = FunctionVersion;
 
@@ -321,13 +341,10 @@ export default class Scf {
       });
     }
 
-    const aliasAddionalVersion = inputs.aliasAddionalVersion || inputs.lastVersion;
-    const needSetTraffic =
-      inputs.traffic != null && aliasAddionalVersion && aliasAddionalVersion !== '$LATEST';
-    const needSetAlias = (inputs.aliasName && inputs.aliasName !== '$DEFAULT') || needSetTraffic;
-    if (needSetAlias) {
+    // 检测配置的别名是否存在，不存在就创建，存在的话就设置流量
+    if (inputs.aliasName) {
       let needCreateAlias = false;
-      if (inputs.aliasName && inputs.aliasName !== '$DEFAULT') {
+      if (inputs.aliasName !== '$DEFAULT') {
         try {
           const aliasInfo = await this.alias.get({
             namespace,
@@ -347,32 +364,51 @@ export default class Scf {
           }
         }
       }
-      if (needCreateAlias) {
-        await this.alias.create({
-          namespace,
-          functionName,
-          functionVersion: inputs.aliasFunctionVersion || funcInfo?.Qualifier,
-          aliasName: inputs.aliasName!,
-          lastVersion: aliasAddionalVersion!,
-          traffic: inputs.traffic!,
-          description: inputs.aliasDescription,
-        });
-      } else {
+      try {
+        // 创建别名
+        if (needCreateAlias) {
+          await this.alias.create({
+            namespace,
+            functionName,
+            functionVersion: inputs.aliasFunctionVersion || funcInfo?.Qualifier,
+            aliasName: inputs.aliasName!,
+            description: inputs.aliasDescription,
+            additionalVersions: inputs.additionalVersionWeights,
+          });
+        } else {
+          // 更新别名
+          await this.alias.update({
+            namespace,
+            functionName,
+            functionVersion: inputs.aliasFunctionVersion || funcInfo?.Qualifier,
+            additionalVersions: inputs.additionalVersionWeights,
+            region: this.region,
+            aliasName: inputs.aliasName,
+            description: inputs.aliasDescription,
+          });
+        }
+      } catch (error) {
+        const errorType = needCreateAlias ? 'CREATE_ALIAS_SCF' : 'UPDATE_ALIAS_SCF';
+        throw new ApiTypeError(errorType, error.message);
+      }
+    } else {
+      // 兼容旧逻辑,即给默认版本$LATEST设置traffic比例的流量，给lastVersion版本设置(1-traffic)比例的流量。
+      const needSetTraffic =
+        inputs.traffic != null && inputs.lastVersion && inputs.lastVersion !== '$LATEST';
+      if (needSetTraffic) {
         await this.alias.update({
           namespace,
           functionName,
-          functionVersion: inputs.aliasFunctionVersion || funcInfo?.Qualifier,
-          additionalVersions: needSetTraffic
-            ? [{ weight: strip(1 - inputs.traffic!), version: aliasAddionalVersion! }]
-            : [],
           region: this.region,
+          additionalVersions: needSetTraffic
+            ? [{ weight: strip(1 - inputs.traffic!), version: inputs.lastVersion! }]
+            : [],
           aliasName: inputs.aliasName,
           description: inputs.aliasDescription,
         });
+        outputs.Traffic = inputs.traffic;
+        outputs.ConfigTrafficVersion = inputs.lastVersion;
       }
-
-      outputs.Traffic = inputs.traffic;
-      outputs.ConfigTrafficVersion = inputs.lastVersion;
     }
 
     // get default alias

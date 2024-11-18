@@ -35,6 +35,7 @@ export interface BaseFunctionConfig {
   Timeout?: number;
   InitTimeout?: number;
   MemorySize?: number;
+  DiskSize?: number;
   Type?: 'HTTP' | 'Event';
   DeployMode?: 'code' | 'image';
   PublicNetConfig?: {
@@ -69,6 +70,7 @@ export interface BaseFunctionConfig {
   ProtocolParams?: ProtocolParams;
   NodeType?: string;
   NodeSpec?: string;
+  InstanceConcurrencyConfig?: { DynamicEnabled: 'TRUE' | 'FALSE'; MaxConcurrency?: number };
 }
 
 export interface TriggerType {
@@ -145,9 +147,10 @@ export interface ScfCreateAlias {
   functionVersion?: string;
   aliasName: string;
   namespace?: string;
-  lastVersion: string;
-  traffic: number;
+  lastVersion?: string;
+  traffic?: number;
   description?: string;
+  additionalVersions?: { version: string; weight: number }[];
 }
 
 export interface ScfCreateFunctionInputs {
@@ -167,6 +170,7 @@ export interface ScfCreateFunctionInputs {
   timeout?: number;
   initTimeout?: number;
   memorySize?: number;
+  diskSize?: number;
   publicAccess?: boolean;
   eip?: boolean;
   l5Enable?: boolean;
@@ -245,6 +249,13 @@ export interface ScfCreateFunctionInputs {
 
   protocolType?: string;
   protocolParams?: ProtocolParams;
+
+  // 请求多并发配置
+  instanceConcurrencyConfig?: {
+    enable: boolean; // 是否开启多并发
+    dynamicEnabled: boolean; // 是否开启动态配置
+    maxConcurrency: number; // 最大并发数
+  };
 }
 
 export interface ScfUpdateAliasTrafficInputs {
@@ -270,17 +281,18 @@ export interface ScfDeployInputs extends ScfCreateFunctionInputs {
   enableRoleAuth?: boolean;
   region?: string;
 
+  // 版本相关配置
   lastVersion?: string;
   publish?: boolean;
   publishDescription?: string;
-
   needSetTraffic?: boolean;
   traffic?: number;
 
+  // 别名相关配置
   aliasName?: string;
   aliasDescription?: string;
   aliasFunctionVersion?: string;
-  aliasAddionalVersion?: string;
+  additionalVersionWeights?: { version: string; weight: number }[];
 
   tags?: Record<string, string>;
 
