@@ -1,3 +1,10 @@
+## [2.27.1](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.27.0...v2.27.1) (2024-11-19)
+
+
+### Bug Fixes
+
+* support add alisa and publish function version ([#302](https://github.com/serverless-tencent/tencent-component-toolkit/issues/302)) ([1f3780b](https://github.com/serverless-tencent/tencent-component-toolkit/commit/1f3780bb434c841b7e274d8ff4661768ea4821cb))
+
 # [2.27.0](https://github.com/serverless-tencent/tencent-component-toolkit/compare/v2.26.0...v2.27.0) (2024-11-13)
 
 
