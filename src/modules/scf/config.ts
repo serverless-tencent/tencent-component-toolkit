@@ -6,6 +6,7 @@ const CONFIGS = {
   defaultInitTimeout: 3,
   waitStatus: ['Creating', 'Updating', 'Publishing', 'Deleting'],
   failStatus: ['CreateFailed	', 'UpdateFailed', 'PublishFailed', 'DeleteFailed'],
+  defaultDiskSize: 512,
 };
 
 export default CONFIGS;
