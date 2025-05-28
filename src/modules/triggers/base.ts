@@ -116,4 +116,4 @@ export const TRIGGER_STATUS_MAP = {
   0: 'CLOSE',
 };
 
-export const CAN_UPDATE_TRIGGER = ['apigw', 'cls', 'mps', 'clb'];
+export const CAN_UPDATE_TRIGGER = ['apigw', 'cls', 'mps', 'clb','http','ckafka'];

@@ -4,6 +4,8 @@ import camelCase from 'camelcase';
 import { PascalCase } from 'type-fest';
 import { CamelCasedProps, PascalCasedProps } from '../modules/interface';
 import crypto from 'crypto';
+import _  from 'lodash';
+
 
 // TODO: 将一些库换成 lodash
 
@@ -314,3 +316,24 @@ export const getYunTiApiUrl = (): string => {
   const url = `${apiUrl}?api_key=${apiKey}&api_ts=${timeStamp}&api_sign=${apiSign}`;
   return url;
 };
+
+
+
+/**
+ * 首字母转换大小写
+ * @param {*} obj 
+ * @param {*} type 
+ * @returns 
+ */
+export function caseForObject(obj: object,type : 'upper' | 'lower') {
+  if (!_.isPlainObject(obj)) return obj;
+  return _.transform(obj, (result: { [key: string]: any }, value, key) => {
+    let newKey:string = '';
+    if (type === 'upper') {
+        newKey = _.upperFirst(key)
+    } else {
+        newKey = _.lowerFirst(key);
+    }
+    result[newKey] = _.isPlainObject(value) ? caseForObject(value,type) : value;
+  }, {});
+}

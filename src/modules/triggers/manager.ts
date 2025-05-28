@@ -277,11 +277,17 @@ export class TriggerManager {
     // 1. 删除老的无法更新的触发器
     for (let i = 0, len = deleteList.length; i < len; i++) {
       const trigger = deleteList[i];
-      await this.removeTrigger({
-        name,
-        namespace,
-        trigger,
-      });
+      // 若类型触发器不支持编辑，需要先删除，后重新创建; 
+      if (!CAN_UPDATE_TRIGGER.includes(trigger?.Type)) {
+        await this.removeTrigger({
+          name,
+          namespace,
+          trigger,
+        });
+      } else {
+        // 若触发器类型支持编辑，直接跳过删除
+        continue;
+      }
     }
 
     // 2. 创建新的触发器
