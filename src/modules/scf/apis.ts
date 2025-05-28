@@ -10,6 +10,7 @@ const ACTIONS = [
   'GetFunctionEventInvokeConfig',
   'UpdateFunctionEventInvokeConfig',
   'CreateTrigger',
+  'UpdateTrigger',
   'DeleteTrigger',
   'PublishVersion',
   'ListVersionByFunction',

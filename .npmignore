@@ -13,3 +13,7 @@ prettier.config.js
 release.config.js
 commitlint.config.js
 .editorconfig
+src
+*.ts
+tsconfig.json
+babel.config.js

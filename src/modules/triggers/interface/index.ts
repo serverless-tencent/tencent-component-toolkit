@@ -1,6 +1,7 @@
 import { ApigwDeployInputs, ApiEndpoint } from '../../apigw/interface';
 import { TagInput } from '../../interface';
 
+export type TriggerAction = 'CreateTrigger' | 'UpdateTrigger'
 export interface ApigwTriggerRemoveScfTriggerInputs {
   serviceId: string;
   apiId: string;
@@ -42,7 +43,7 @@ export interface ApigwTriggerInputsParams extends ApigwDeployInputs {
 
 export type TriggerType = 'scf' | 'timer' | string;
 export interface CreateTriggerReq {
-  Action?: 'CreateTrigger';
+  Action?: TriggerAction;
   ResourceId?: string;
   FunctionName?: string;
   Namespace?: string;
@@ -57,11 +58,13 @@ export interface CreateTriggerReq {
 export interface CkafkaTriggerInputsParams extends TriggerInputsParams {
   qualifier?: string;
   name?: string;
-  topic?: string;
+  instanceId?: string; //ckafka实例ID
+  topic?: string; //ckafka主题名称
   maxMsgNum?: number;
   offset?: number;
   retry?: number;
   timeout?: number;
+  consumerGroupName?: string;
   enable?: boolean;
 }
 
@@ -100,6 +103,15 @@ export interface HttpTriggerInputsParams {
     enableIntranet?: boolean;
     enableExtranet?: boolean;
   };
+  corsConfig: {
+    enable: boolean
+    origins: Array<string> | string
+    methods: Array<string> | string
+    headers: Array<string> | string
+    exposeHeaders: Array<string> | string
+    credentials: boolean
+    maxAge: number
+  }
 }
 
 export interface MpsTriggerInputsParams {
@@ -120,6 +132,7 @@ export interface TimerTriggerInputsParams {
 
 export interface TriggerInputs<P extends TriggerInputsParams = TriggerInputsParams> {
   functionName: string;
+  Type?: string; // 兼容scf组件触发器类型字段
   type?: string;
   triggerDesc?: string;
   triggerName?: string;
